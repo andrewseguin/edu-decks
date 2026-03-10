@@ -30,7 +30,6 @@ interface RecordingsModalProps {
 export function RecordingsModal({ open, onOpenChange }: RecordingsModalProps) {
     const [recordings, setRecordings] = useState<string[]>([]);
     const [loading, setLoading] = useState(true);
-    const [deleteConfirmKey, setDeleteConfirmKey] = useState<string | null>(null);
     const [showClearAllConfirm, setShowClearAllConfirm] = useState(false);
 
     const fetchRecordings = async () => {
@@ -55,7 +54,6 @@ export function RecordingsModal({ open, onOpenChange }: RecordingsModalProps) {
         try {
             await audioStorage.deleteRecording(key);
             setRecordings((prev) => prev.filter((k) => k !== key));
-            setDeleteConfirmKey(null);
         } catch (error) {
             console.error("Failed to delete recording:", error);
         }
@@ -130,7 +128,7 @@ export function RecordingsModal({ open, onOpenChange }: RecordingsModalProps) {
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                onClick={() => setDeleteConfirmKey(key)}
+                                                onClick={() => handleDelete(key)}
                                                 className="h-10 w-10 text-red-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
                                                 title="Delete"
                                             >
@@ -165,27 +163,6 @@ export function RecordingsModal({ open, onOpenChange }: RecordingsModalProps) {
                         {recordings.length === 0 ? "Close" : "Done"}
                     </Button>
                 </div>
-
-                {/* Individual Delete Confirmation */}
-                <AlertDialog open={!!deleteConfirmKey} onOpenChange={(open) => !open && setDeleteConfirmKey(null)}>
-                    <AlertDialogContent className="rounded-2xl border-none bg-background/95 backdrop-blur-md shadow-2xl">
-                        <AlertDialogHeader>
-                            <AlertDialogTitle className="text-xl font-headline">Delete Recording?</AlertDialogTitle>
-                            <AlertDialogDescription className="text-base text-muted-foreground">
-                                Are you sure you want to delete the recording for "<span className="font-semibold text-foreground">{deleteConfirmKey}</span>"? This cannot be undone.
-                            </AlertDialogDescription>
-                        </AlertDialogHeader>
-                        <AlertDialogFooter className="gap-2 sm:gap-0">
-                            <AlertDialogCancel className="rounded-xl border-border">Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                                onClick={() => deleteConfirmKey && handleDelete(deleteConfirmKey)}
-                                className="rounded-xl bg-red-600 hover:bg-red-700 text-white border-none"
-                            >
-                                Delete
-                            </AlertDialogAction>
-                        </AlertDialogFooter>
-                    </AlertDialogContent>
-                </AlertDialog>
 
                 {/* Clear All Confirmation */}
                 <AlertDialog open={showClearAllConfirm} onOpenChange={setShowClearAllConfirm}>
