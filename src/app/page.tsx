@@ -5,6 +5,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import useLocalStorage from "@/hooks/use-local-storage";
 import { DEFAULT_LETTERS, getLetterInfo, LETTER_LEVELS } from "@/lib/letters";
 import { EASY_WORDS, HARD_WORDS } from "@/lib/words";
+import { splitIntoPhonicsSegments } from "@/lib/phonics";
 import { LetterSelector } from "@/components/letter-selector";
 import { LetterDisplay } from "@/components/letter-display";
 import { FullscreenToggle } from "@/components/fullscreen-toggle";
@@ -35,6 +36,9 @@ const getHighestLevelInfoForWord = (word: string) => {
   let color = "#000000"; // Default color
   let textColor = "#FFFFFF"; // Default text color
 
+  const segments = splitIntoPhonicsSegments(word);
+  
+  // Check individual chars
   for (const char of word) {
     const letterInfo = getLetterInfo(char);
     if (letterInfo) {
@@ -43,6 +47,21 @@ const getHighestLevelInfoForWord = (word: string) => {
         highestLevel = level;
         color = letterInfo.color || color;
         textColor = letterInfo.textColor || textColor;
+      }
+    }
+  }
+
+  // Check segments
+  for (const segment of segments) {
+    if (segment.length > 1) { // Only check actual segments
+      const letterInfo = getLetterInfo(segment);
+      if (letterInfo) {
+        const level = LETTER_LEVELS.findIndex(lvl => lvl.letters.some(l => l.char === segment));
+        if (level > highestLevel) {
+          highestLevel = level;
+          color = letterInfo.color || color;
+          textColor = letterInfo.textColor || textColor;
+        }
       }
     }
   }
@@ -237,11 +256,58 @@ export default function Home() {
           ? EASY_WORDS
           : [...EASY_WORDS, ...HARD_WORDS];
       const possibleWords = wordPool.filter((word) => {
-        const wordLetters = word.split("");
         if (!selectedWordLengths.includes(word.length)) {
           return false;
         }
-        return wordLetters.every((letter) => availableLetters.includes(letter));
+        
+        const segments = splitIntoPhonicsSegments(word);
+        
+        // A word can be formed if every character is available,
+        // OR if every phonics segment is available
+        const allCharsAvailable = word.split("").every((char) => availableLetters.includes(char));
+        const allSegmentsAvailable = segments.every((segment) => {
+             // For a segment like 'ch', it MUST be explicitly in availableLetters 
+             // IF we assume words only show up if you select 'ch'
+             // BUT wait, it's actually easier:
+             // To form a word, EVERY letter/segment must be checkable.
+             // Usually, phonics mode means we match exactly what they selected.
+             // The old logic was simply char by char.
+             // If they selected c, h, a, t -> chat is allowed.
+             // If we add 'ch', do they HAVE to select 'ch'? 
+             // Let's allow the word if:
+             // 1) all single chars are in availableLetters OR
+             // 2) all phonics segments are in availableLetters (where 'ch' covers c and h).
+             
+             // A better rule: A word is allowed if it can be completely formed by the selected pool.
+             // If they selection pool has [c, h, a, t], they can form 'chat'.
+             // If they selection pool has [ch, a, t], they can form 'chat'.
+             // So we should check if we can build the word from availableLetters.
+             return true; 
+        });
+
+        // Actually let's implement the logic exactly:
+        // Attempt to cover the word left-to-right using longest available matches first.
+        let i = 0;
+        while (i < word.length) {
+           let matched = false;
+           // Try 2-letter segment
+           if (i + 1 < word.length) {
+              const pair = word.substring(i, i + 2);
+              if (availableLetters.includes(pair)) {
+                 matched = true;
+                 i += 2;
+                 continue;
+              }
+           }
+           // Try 1-letter segment
+           if (availableLetters.includes(word[i])) {
+               matched = true;
+               i += 1;
+               continue;
+           }
+           if (!matched) return false;
+        }
+        return true;
       });
 
       if (possibleWords.length === 0) {

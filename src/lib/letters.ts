@@ -51,6 +51,16 @@ export const LETTER_LEVELS = [
       { char: "z", verticalOffset: -0.075 },
     ], color: "#A258D1", textColor: "#FFFFFF"
   },
+  {
+    level: 6, name: "Level 6", letters: [
+      { char: "ch", verticalOffset: -0.075 },
+      { char: "th", verticalOffset: -0.075 },
+      { char: "ph", verticalOffset: -0.15 },
+      { char: "ck", verticalOffset: -0.035 },
+      { char: "wh", verticalOffset: -0.075 },
+      { char: "sh", verticalOffset: -0.075 },
+    ], color: "#F97316", textColor: "#FFFFFF"
+  },
 ];
 
 export const ALL_LETTERS = LETTER_LEVELS.flatMap(level => level.letters.map(l => l.char)).sort();

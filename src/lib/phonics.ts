@@ -24,6 +24,7 @@ export function splitIntoPhonicsSegments(word: string): string[] {
             currentPair === "ch" ||
             currentPair === "th" ||
             currentPair === "wh" ||
+            currentPair === "ph" ||
             currentPair === "oo" ||
             currentPair === "ee" ||
             currentPair === "ea" ||
@@ -60,6 +61,7 @@ export function getSoundKeyForSegment(segment: string): string {
     if (lowerSegment === "ss") return "s";
     if (lowerSegment === "ff") return "f";
     if (lowerSegment === "zz") return "z";
+    if (lowerSegment === "ph") return "f";
 
     // For others, we might have audio files or we'll use speech synthesis fallback
     return lowerSegment;

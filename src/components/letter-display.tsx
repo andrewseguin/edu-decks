@@ -484,7 +484,7 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
           ))}
         </div>
 
-        {content.type === "letter" && (
+        {content.type === "letter" && (content.value.length === 1 || (localAudioUrl && enableRecordings)) && (
           <Button
             variant="ghost"
             className={cn(
