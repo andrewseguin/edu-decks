@@ -416,10 +416,17 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
           </div>
         ) : (() => {
           let displayText = content.value;
+          const isDigraph = content.value.length > 1;
+          const upperText = isDigraph 
+            ? content.value.charAt(0).toUpperCase() + content.value.slice(1).toLowerCase() 
+            : content.value.toUpperCase();
+
           if (letterCase === 'upper') {
-            displayText = content.value.toUpperCase();
+            displayText = upperText;
           } else if (letterCase === 'mixed') {
-            displayText = content.value.toUpperCase() + content.value.toLowerCase();
+            displayText = isDigraph 
+              ? `${upperText} ${content.value.toLowerCase()}` 
+              : upperText + content.value.toLowerCase();
           } else {
             displayText = content.value.toLowerCase();
           }
