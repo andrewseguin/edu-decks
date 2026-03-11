@@ -57,13 +57,14 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
   const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
   const [localAudioUrl, setLocalAudioUrl] = useState<string | null>(null);
   const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const recordingValueRef = useRef<string | null>(null);
+  const { isRecording, stream, startRecording, stopRecording } = useAudioRecorder();
 
   useEffect(() => {
     setIsTracingMode(false);
   }, [content.key, enableTracing]);
-  const abortControllerRef = useRef<AbortController | null>(null);
-  const recordingValueRef = useRef<string | null>(null);
-  const { isRecording, stream, startRecording, stopRecording } = useAudioRecorder();
 
   const stopPlayback = () => {
     if (abortControllerRef.current) {
@@ -75,6 +76,12 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
       try { currentSourceRef.current.stop(); } catch (e) { }
       currentSourceRef.current.disconnect();
       currentSourceRef.current = null;
+    }
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    if (currentUtteranceRef.current) {
+      currentUtteranceRef.current = null;
     }
     setIsPlaying(false);
     setHighlightedIndex(null);
@@ -317,7 +324,31 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
         }
       } else {
         setHighlightedIndex(null);
-        setIsPlaying(false);
+        
+        // After word finishes spelling out, speak the whole word
+        const utterance = new SpeechSynthesisUtterance(content.value);
+        const voices = window.speechSynthesis.getVoices();
+        const googleVoice = voices.find(v => v.name === 'Google US English');
+        if (googleVoice) {
+          utterance.voice = googleVoice;
+        }
+        utterance.rate = 0.9;
+        
+        currentUtteranceRef.current = utterance;
+
+        utterance.onend = () => {
+          if (signal.aborted) return;
+          setIsPlaying(false);
+          currentUtteranceRef.current = null;
+        };
+        
+        utterance.onerror = () => {
+          if (signal.aborted) return;
+          setIsPlaying(false);
+          currentUtteranceRef.current = null;
+        };
+
+        window.speechSynthesis.speak(utterance);
         if (abortControllerRef.current === abortController) {
           abortControllerRef.current = null;
         }
