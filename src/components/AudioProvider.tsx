@@ -34,7 +34,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const ctx = globalAudioContext;
     if (!ctx) return;
 
-    const alphabet = 'abcdefghijklmnopqrstuvwxyz'.split('');
+    const alphabet = [...'abcdefghijklmnopqrstuvwxyz'.split(''), 'ch', 'sh', 'th'];
     const newBuffers: Record<string, AudioBuffer> = {};
 
     const loadAudio = async () => {
