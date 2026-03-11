@@ -233,7 +233,8 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
     }
 
     if (buffers && audioContext) {
-      const buffer = buffers[content.value.toLowerCase()];
+      const soundKey = getSoundKeyForSegment(content.value);
+      const buffer = buffers[soundKey];
       if (buffer) {
         setIsPlaying(true);
 
@@ -484,7 +485,7 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
           ))}
         </div>
 
-        {content.type === "letter" && (content.value.length === 1 || !!buffers?.[content.value.toLowerCase()] || (localAudioUrl && enableRecordings)) && (
+        {content.type === "letter" && (content.value.length === 1 || !!buffers?.[getSoundKeyForSegment(content.value)] || (localAudioUrl && enableRecordings)) && (
           <Button
             variant="ghost"
             className={cn(
