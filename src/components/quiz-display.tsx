@@ -327,6 +327,7 @@ export function QuizDisplay({
               )}
               style={{
                 fontSize: isSingleChar ? "clamp(6rem, 22vh, 16rem)" : undefined,
+                fontWeight: isSingleChar ? 300 : 700,
                 lineHeight: 1,
                 backgroundColor: !isSelected && item.color ? `${item.color}15` : undefined,
                 color: !isSelected && item.color ? item.color : undefined,
