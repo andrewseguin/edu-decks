@@ -64,7 +64,7 @@ export function QuizDisplay({
   // Generate available items pool based on current settings
   const getPool = useCallback((): QuizItem[] => {
     if (gameMode === "words") {
-      const available = selectedLetters.length > 0 ? selectedLetters : ALL_LETTERS.map((l) => l.char);
+      const available = selectedLetters.length > 0 ? selectedLetters : ALL_LETTERS;
       const wordPool = wordDifficulty === "easy" ? EASY_WORDS : [...EASY_WORDS, ...HARD_WORDS];
       const validWords = wordPool.filter((word) => {
         if (!selectedWordLengths.includes(word.length)) return false;
@@ -104,7 +104,7 @@ export function QuizDisplay({
     }
 
     // Default to letters mode
-    const letterPool = selectedLetters.length > 0 ? selectedLetters : ALL_LETTERS.map((l) => l.char);
+    const letterPool = selectedLetters.length > 0 ? selectedLetters : ALL_LETTERS;
     return letterPool.map((char) => {
       const data = getLetterInfo(char);
       return {
@@ -194,16 +194,19 @@ export function QuizDisplay({
     let distractors = shuffledRemaining.slice(0, 3);
     if (distractors.length < 3) {
       const extraLetters = ALL_LETTERS.filter(
-        (l) => l.char !== target.value && !distractors.some((d) => d.value === l.char)
+        (char) => char !== target.value && !distractors.some((d) => d.value === char)
       )
         .sort(() => Math.random() - 0.5)
         .slice(0, 3 - distractors.length)
-        .map((l) => ({
-          value: l.char,
-          displayValue: formatText(l.char),
-          color: l.color,
-          textColor: l.textColor,
-        }));
+        .map((char) => {
+          const info = getLetterInfo(char);
+          return {
+            value: char,
+            displayValue: formatText(char),
+            color: info?.color || "#F9991F",
+            textColor: info?.textColor || "#FFFFFF",
+          };
+        });
       distractors = [...distractors, ...extraLetters];
     }
 
