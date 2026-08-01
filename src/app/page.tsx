@@ -712,7 +712,7 @@ export default function Home() {
           className="fixed top-6 left-1/2 -translate-x-1/2 z-50 pointer-events-auto"
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <div className="animate-in fade-in slide-in-from-top-4 duration-300 bg-foreground/90 text-background px-4 py-2 rounded-full shadow-lg flex items-center gap-3 text-sm font-medium">
+          <div className="animate-in fade-in slide-in-from-top-4 duration-300 bg-foreground/90 text-background px-5 py-2.5 rounded-full shadow-lg flex items-center gap-3.5 text-sm font-medium whitespace-nowrap w-max">
             <div className="flex items-center gap-1.5">
               <Lock className="w-4 h-4 text-amber-400" />
               <span>Settings Locked</span>
