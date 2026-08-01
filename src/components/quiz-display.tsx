@@ -271,14 +271,26 @@ export function QuizDisplay({
   };
 
   return (
-    <div className="fixed inset-0 z-40 bg-background flex flex-col justify-between p-3 sm:p-6 animate-in fade-in duration-300">
+    <div
+      className="fixed inset-0 z-40 bg-background flex flex-col justify-between p-3 sm:p-6 animate-in fade-in duration-300 select-none"
+      onPointerDown={(e) => e.stopPropagation()}
+      onPointerUp={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
+    >
       {/* Top Controls Bar */}
       <div className="flex items-center justify-between w-full max-w-4xl mx-auto gap-2">
         <Button
           variant="outline"
           size="sm"
           className="rounded-full gap-1.5 text-muted-foreground hover:text-foreground shrink-0"
-          onClick={onExit}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            onExit();
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onExit();
+          }}
         >
           <X className="w-4 h-4" />
           <span className="hidden sm:inline">Exit Quiz</span>
@@ -292,7 +304,14 @@ export function QuizDisplay({
             "rounded-full gap-2 px-4 py-1.5 font-headline font-bold text-sm shadow-md transition-transform active:scale-95 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0",
             isPlayingSound ? "animate-pulse bg-primary scale-105" : "bg-primary hover:bg-primary/90"
           )}
-          onClick={() => targetItem && playAudio(targetItem)}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            if (targetItem) playAudio(targetItem);
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (targetItem) playAudio(targetItem);
+          }}
           aria-label="Replay sound"
         >
           <Volume2 className="w-4 h-4 text-primary-foreground" />
@@ -335,7 +354,14 @@ export function QuizDisplay({
                 backgroundColor: !isSelected && item.color ? `${item.color}15` : undefined,
                 color: !isSelected && item.color ? item.color : undefined,
               }}
-              onClick={() => handleSelectOption(item)}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                handleSelectOption(item);
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSelectOption(item);
+              }}
             >
               <span className="select-none inline-block leading-none transform translate-y-[2%]">{item.displayValue}</span>
               {isSelectedCorrect && (
