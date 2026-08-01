@@ -110,9 +110,12 @@
   [data-radix-popper-content-wrapper]:has(.mobile-fullscreen) {
     transform: none !important;
     position: fixed !important;
-    inset: 0 !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
     width: 100vw !important;
-    height: 100vh !important;
+    height: 100dvh !important;
     z-index: 50 !important;
     min-width: 100% !important;
     max-width: none !important;

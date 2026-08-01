@@ -91,7 +91,7 @@ export function LetterSelector({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="mobile-fullscreen [@media(max-width:640px)]:!z-50 [@media(max-width:640px)]:!w-screen [@media(max-width:640px)]:!h-screen [@media(max-width:640px)]:!max-w-none [@media(max-width:640px)]:!m-0 [@media(max-width:640px)]:!rounded-none [@media(max-width:640px)]:!border-none sm:w-[400px] sm:h-auto sm:max-h-[90vh] sm:rounded-md sm:border bg-background p-0 flex flex-col"
+        className="mobile-fullscreen [@media(max-width:640px)]:!z-50 [@media(max-width:640px)]:!w-screen [@media(max-width:640px)]:!h-[100dvh] [@media(max-width:640px)]:!max-w-none [@media(max-width:640px)]:!m-0 [@media(max-width:640px)]:!rounded-none [@media(max-width:640px)]:!border-none sm:w-[400px] sm:h-auto sm:max-h-[90vh] sm:rounded-md sm:border bg-background p-0 flex flex-col"
         align="end"
         sideOffset={0}
         onPointerDown={(e) => e.stopPropagation()}
@@ -242,7 +242,7 @@ export function LetterSelector({
                 </div>
               ))}
 
-              <div className="pt-4 pb-2 border-t mt-6">
+              <div className="pt-4 pb-20 sm:pb-4 border-t mt-6">
                 <Button
                   variant="default"
                   className="w-full h-14 rounded-2xl text-lg font-bold font-headline gap-2 bg-amber-500 hover:bg-amber-600 text-white shadow-md active:scale-95 transition-transform"
