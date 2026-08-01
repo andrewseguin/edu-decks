@@ -164,46 +164,11 @@ export function QuizDisplay({
           setIsPlayingSound(false);
         }
       } else {
-        // Words mode
-        if (item.isHardWord) {
-          const utterance = new SpeechSynthesisUtterance(item.value);
-          utterance.onend = () => setIsPlayingSound(false);
-          window.speechSynthesis.speak(utterance);
-          return;
-        }
-
-        const segments = splitIntoPhonicsSegments(item.value);
-        let index = 0;
-
-        const playNext = () => {
-          if (index < segments.length) {
-            const seg = segments[index];
-            const soundKey = getSoundKeyForSegment(seg);
-            const buffer = buffers[soundKey];
-
-            if (buffer) {
-              const source = audioContext.createBufferSource();
-              source.buffer = buffer;
-              source.connect(audioContext.destination);
-              currentSourceRef.current = source;
-              source.onended = () => {
-                index++;
-                playNext();
-              };
-              source.start(0);
-            } else {
-              index++;
-              playNext();
-            }
-          } else {
-            // After phonics, speak full word
-            const utterance = new SpeechSynthesisUtterance(item.value);
-            utterance.onend = () => setIsPlayingSound(false);
-            window.speechSynthesis.speak(utterance);
-          }
-        };
-
-        playNext();
+        // Words mode: Speak full word cleanly for Quiz prompt
+        const utterance = new SpeechSynthesisUtterance(item.value);
+        utterance.onend = () => setIsPlayingSound(false);
+        utterance.onerror = () => setIsPlayingSound(false);
+        window.speechSynthesis.speak(utterance);
       }
     },
     [audioContext, buffers, gameMode, stopAudio]
@@ -262,6 +227,7 @@ export function QuizDisplay({
   // Handle user selecting an option card
   const handleSelectOption = (item: QuizItem) => {
     if (!targetItem || selectedOption !== null) return;
+    stopAudio(); // Stop any prompt sound immediately!
 
     setSelectedOption(item.value);
 

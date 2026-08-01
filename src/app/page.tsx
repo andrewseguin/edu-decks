@@ -669,7 +669,7 @@ export default function Home() {
       onPointerUp={handlePointerUp}
       tabIndex={-1}
     >
-      <LetterDisplay content={displayContent} enableRecordings={enableRecordings} enableTracing={enableTracing} letterCase={letterCase} autoPlaySound={autoPlaySound} />
+      <LetterDisplay content={displayContent} enableRecordings={enableRecordings} enableTracing={enableTracing} letterCase={letterCase} autoPlaySound={isQuizActive ? false : autoPlaySound} />
       {!isFullscreen && !isLocked && (
         <div className="absolute top-4 right-4 flex items-center gap-2" onPointerDown={(e) => e.stopPropagation()}>
           <LetterSelector
