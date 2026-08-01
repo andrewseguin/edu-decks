@@ -144,12 +144,21 @@ export default function Home() {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [isLocked, setIsLocked] = useLocalStorage<boolean>("first-read-app-locked", false);
   const [enableTracing, setEnableTracing] = useLocalStorage<boolean>("first-read-enable-tracing", true);
-  const [isUnlocking, setIsUnlocking] = useState(false);
-  const unlockTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [showLockSnackbar, setShowLockSnackbar] = useState(false);
 
   useEffect(() => {
     setHydrated(true);
   }, []);
+
+  useEffect(() => {
+    if (hydrated && isLocked) {
+      setShowLockSnackbar(true);
+      const timer = setTimeout(() => {
+        setShowLockSnackbar(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [hydrated, isLocked]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -540,29 +549,12 @@ export default function Home() {
 
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
-  const startUnlock = (e: React.PointerEvent) => {
-    e.stopPropagation();
-    setIsUnlocking(true);
-    unlockTimeoutRef.current = setTimeout(() => {
-      unlockTimeoutRef.current = null; // Explicitly clear before unlocking
-      setIsLocked(false);
-      setIsUnlocking(false);
-      toast({
-        description: "App Unlocked. Settings restored.",
-      });
-    }, 2000);
-  };
-
-  const cancelUnlock = (e: React.PointerEvent) => {
-    e.stopPropagation();
-    if (unlockTimeoutRef.current) {
-      clearTimeout(unlockTimeoutRef.current);
-      unlockTimeoutRef.current = null;
-      setIsUnlocking(false);
-      toast({
-        description: "Hold down the lock button for 2 seconds to unlock.",
-      });
-    }
+  const handleUnlockApp = () => {
+    setIsLocked(false);
+    setShowLockSnackbar(false);
+    toast({
+      description: "App Unlocked. Settings restored.",
+    });
   };
 
   const handlePointerDown = (e: React.PointerEvent) => {
@@ -715,23 +707,25 @@ export default function Home() {
         </div>
       )}
 
-      {!isFullscreen && isLocked && (
-        <div className="absolute top-4 right-4 flex items-center gap-2 z-50">
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn(
-              "text-foreground/50 hover:bg-transparent transition-all ease-linear relative",
-              isUnlocking ? "text-destructive scale-150 duration-[2000ms]" : "hover:text-foreground duration-200"
-            )}
-            onPointerDown={startUnlock}
-            onPointerUp={cancelUnlock}
-            onPointerLeave={cancelUnlock}
-            onPointerCancel={cancelUnlock}
-            aria-label="Unlock app"
-          >
-            <Lock className="h-6 w-6" />
-          </Button>
+      {!isFullscreen && isLocked && showLockSnackbar && (
+        <div
+          className="fixed top-6 left-1/2 -translate-x-1/2 z-50 pointer-events-auto"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          <div className="animate-in fade-in slide-in-from-top-4 duration-300 bg-foreground/90 text-background px-4 py-2 rounded-full shadow-lg flex items-center gap-3 text-sm font-medium">
+            <div className="flex items-center gap-1.5">
+              <Lock className="w-4 h-4 text-amber-400" />
+              <span>Settings Locked</span>
+            </div>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="h-7 px-3 text-xs font-semibold rounded-full bg-background/20 hover:bg-background/30 text-background border-none"
+              onClick={handleUnlockApp}
+            >
+              Unlock
+            </Button>
+          </div>
         </div>
       )}
       {(showCardCount || showTimer) && (
