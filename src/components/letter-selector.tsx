@@ -1,5 +1,5 @@
 
-import { GraduationCap, Sparkles } from "lucide-react";
+import { GraduationCap, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
