@@ -268,22 +268,37 @@ export function QuizDisplay({
   };
 
   return (
-    <div className="fixed inset-0 z-40 bg-background flex flex-col justify-between p-4 sm:p-8 animate-in fade-in duration-300">
-      {/* Header bar */}
-      <div className="flex items-center justify-between w-full max-w-2xl mx-auto">
+    <div className="fixed inset-0 z-40 bg-background flex flex-col justify-between p-3 sm:p-6 animate-in fade-in duration-300">
+      {/* Top Controls Bar */}
+      <div className="flex items-center justify-between w-full max-w-4xl mx-auto gap-2">
         <Button
           variant="outline"
           size="sm"
-          className="rounded-full gap-1.5 text-muted-foreground hover:text-foreground"
+          className="rounded-full gap-1.5 text-muted-foreground hover:text-foreground shrink-0"
           onClick={onExit}
         >
           <X className="w-4 h-4" />
-          <span>Exit Quiz</span>
+          <span className="hidden sm:inline">Exit Quiz</span>
         </Button>
 
-        <div className="flex items-center gap-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-3 py-1.5 rounded-full font-bold text-sm">
+        {/* Compact Center Replay Button */}
+        <Button
+          size="sm"
+          variant="default"
+          className={cn(
+            "rounded-full gap-2 px-4 py-1.5 font-headline font-bold text-sm shadow-md transition-transform active:scale-95",
+            isPlayingSound ? "animate-pulse ring-4 ring-primary/40 bg-primary" : "bg-primary hover:bg-primary/90"
+          )}
+          onClick={() => targetItem && playAudio(targetItem)}
+          aria-label="Replay sound"
+        >
+          <Volume2 className="w-4 h-4 text-primary-foreground" />
+          <span>Replay Sound</span>
+        </Button>
+
+        <div className="flex items-center gap-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-3 py-1.5 rounded-full font-bold text-sm shrink-0">
           <Sparkles className="w-4 h-4" />
-          <span>Score: {score}</span>
+          <span>{score}</span>
           {streak > 1 && (
             <span className="text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full">
               🔥 {streak}
@@ -292,42 +307,25 @@ export function QuizDisplay({
         </div>
       </div>
 
-      {/* Center Audio Target Replay */}
-      <div className="flex flex-col items-center justify-center my-4 gap-3">
-        <p className="text-muted-foreground font-headline text-lg sm:text-xl font-medium">
-          Which one matches the sound?
-        </p>
-
-        <Button
-          size="lg"
-          variant="default"
-          className={cn(
-            "h-20 w-20 rounded-full shadow-lg transition-transform active:scale-95 flex items-center justify-center",
-            isPlayingSound ? "animate-pulse ring-4 ring-primary/40 bg-primary" : "bg-primary hover:bg-primary/90"
-          )}
-          onClick={() => targetItem && playAudio(targetItem)}
-          aria-label="Replay sound"
-        >
-          <Volume2 className="h-10 w-10 text-primary-foreground" />
-        </Button>
-        <span className="text-xs text-muted-foreground font-medium">Tap to hear sound again</span>
-      </div>
-
-      {/* 2x2 Options Grid */}
-      <div className="w-full max-w-xl mx-auto grid grid-cols-2 gap-4 mb-4">
+      {/* 2x2 Options Grid taking maximum vertical space */}
+      <div className="w-full max-w-4xl mx-auto flex-1 grid grid-cols-2 gap-3 sm:gap-6 my-3 min-h-0">
         {options.map((item) => {
           const isSelected = selectedOption === item.value;
           const isSelectedCorrect = isSelected && isCorrect === true;
           const isSelectedIncorrect = isSelected && isCorrect === false;
+          const isSingleChar = item.displayValue.length === 1;
 
           return (
             <button
               key={item.value}
               className={cn(
-                "h-28 sm:h-36 rounded-2xl flex items-center justify-center text-4xl sm:text-6xl font-headline font-bold shadow-md transition-all active:scale-95 relative overflow-hidden border-2 border-transparent",
-                isSelectedCorrect && "bg-emerald-500 text-white scale-105 ring-4 ring-emerald-400/50 border-emerald-400",
+                "h-full w-full rounded-3xl flex items-center justify-center font-headline font-bold shadow-lg transition-all active:scale-95 relative overflow-hidden border-4 border-transparent p-2",
+                isSingleChar
+                  ? "text-7xl sm:text-9xl md:text-[10rem] lg:text-[11rem]"
+                  : "text-4xl sm:text-6xl md:text-7xl",
+                isSelectedCorrect && "bg-emerald-500 text-white scale-105 ring-4 ring-emerald-400/50 border-emerald-400 z-10",
                 isSelectedIncorrect && "bg-destructive/20 text-destructive border-destructive",
-                !isSelected && "bg-card text-card-foreground hover:border-primary/40 hover:scale-[1.02]"
+                !isSelected && "bg-card text-card-foreground hover:border-primary/40 hover:scale-[1.01]"
               )}
               style={
                 !isSelected && item.color
@@ -336,9 +334,9 @@ export function QuizDisplay({
               }
               onClick={() => handleSelectOption(item)}
             >
-              {item.displayValue}
+              <span className="leading-none pb-2 select-none">{item.displayValue}</span>
               {isSelectedCorrect && (
-                <CheckCircle2 className="absolute top-2 right-2 w-6 h-6 text-white animate-in zoom-in" />
+                <CheckCircle2 className="absolute top-3 right-3 w-8 h-8 text-white animate-in zoom-in" />
               )}
             </button>
           );
