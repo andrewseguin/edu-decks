@@ -714,7 +714,7 @@ export default function Home() {
         >
           <div className="animate-in fade-in slide-in-from-top-4 duration-300 bg-foreground/90 text-background px-5 py-2.5 rounded-full shadow-lg flex items-center gap-3.5 text-sm font-medium whitespace-nowrap w-max">
             <div className="flex items-center gap-1.5">
-              <Lock className="w-4 h-4 text-amber-400" />
+              <Lock className="w-4 h-4 text-background" />
               <span>Settings Locked</span>
             </div>
             <Button
