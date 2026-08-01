@@ -12,6 +12,7 @@ import { FullscreenToggle } from "@/components/fullscreen-toggle";
 import { AppSettings } from "@/components/app-settings";
 import { SessionStats } from "@/components/session-stats";
 import { RecordingsModal } from "@/components/recordings-modal";
+import { QuizDisplay } from "@/components/quiz-display";
 import { Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
@@ -146,6 +147,7 @@ export default function Home() {
   const [enableTracing, setEnableTracing] = useLocalStorage<boolean>("first-read-enable-tracing", true);
   const [autoPlaySound, setAutoPlaySound] = useLocalStorage<boolean>("first-read-auto-play-sound", false);
   const [showLockSnackbar, setShowLockSnackbar] = useState(false);
+  const [isQuizActive, setIsQuizActive] = useState(false);
 
   useEffect(() => {
     setHydrated(true);
@@ -685,6 +687,7 @@ export default function Home() {
             onLetterCaseChange={setLetterCase}
             enableUppercase={enableUppercase}
             enableWords={enableWords}
+            onStartQuiz={() => setIsQuizActive(true)}
           />
           <AppSettings
             showCardCount={showCardCount}
@@ -708,6 +711,17 @@ export default function Home() {
           />
           <FullscreenToggle isFullscreen={isFullscreen} onToggle={toggleFullscreen} />
         </div>
+      )}
+
+      {isQuizActive && (
+        <QuizDisplay
+          gameMode={gameMode}
+          selectedLetters={selectedLetters}
+          selectedWordLengths={selectedWordLengths}
+          wordDifficulty={wordDifficulty}
+          letterCase={letterCase}
+          onExit={() => setIsQuizActive(false)}
+        />
       )}
 
       {!isFullscreen && isLocked && showLockSnackbar && (

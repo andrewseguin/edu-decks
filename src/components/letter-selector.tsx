@@ -1,5 +1,5 @@
 
-import { GraduationCap, X } from "lucide-react";
+import { GraduationCap, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import {
@@ -26,6 +26,7 @@ type LetterSelectorProps = {
   onLetterCaseChange: (casing: "lower" | "upper" | "mixed") => void;
   enableUppercase: boolean;
   enableWords: boolean;
+  onStartQuiz?: () => void;
 };
 
 import { WordDifficultyToggle } from "./word-difficulty-toggle";
@@ -46,6 +47,7 @@ export function LetterSelector({
   onLetterCaseChange,
   enableUppercase,
   enableWords,
+  onStartQuiz,
 }: LetterSelectorProps) {
   const handleLetterChange = (letter: string, checked: boolean) => {
     setSelectedLetters((prev) => {
@@ -239,6 +241,20 @@ export function LetterSelector({
                   </div>
                 </div>
               ))}
+
+              <div className="pt-4 pb-2 border-t mt-6">
+                <Button
+                  variant="default"
+                  className="w-full h-14 rounded-2xl text-lg font-bold font-headline gap-2 bg-amber-500 hover:bg-amber-600 text-white shadow-md active:scale-95 transition-transform"
+                  onClick={() => {
+                    onOpenChange?.(false);
+                    onStartQuiz?.();
+                  }}
+                >
+                  <Sparkles className="w-5 h-5" />
+                  <span>Start Quiz</span>
+                </Button>
+              </div>
             </div>
           </div>
         </div>
