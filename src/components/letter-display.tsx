@@ -43,11 +43,12 @@ type LetterDisplayProps = {
   enableRecordings: boolean;
   enableTracing?: boolean;
   letterCase?: "lower" | "upper" | "mixed";
+  autoPlaySound?: boolean;
 };
 
 import { useAudio } from "@/components/AudioProvider";
 
-export function LetterDisplay({ content, enableRecordings, enableTracing = true, letterCase = 'lower' }: LetterDisplayProps) {
+export function LetterDisplay({ content, enableRecordings, enableTracing = true, letterCase = 'lower', autoPlaySound = false }: LetterDisplayProps) {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isTracingMode, setIsTracingMode] = useState(false);
   const audioData = useAudio();
@@ -110,9 +111,22 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
         }
       }
 
-      // 3. Load the recording for the NEW card
+      // 3. Load the recording for the NEW card & auto-play if enabled
       if (isMounted) {
-        await loadLocalRecording();
+        const blob = await audioStorage.getRecording(content.value);
+        let recordingUrl: string | null = null;
+        if (blob) {
+          recordingUrl = URL.createObjectURL(blob);
+          setLocalAudioUrl(recordingUrl);
+        }
+
+        if (autoPlaySound) {
+          if (content.type === "letter") {
+            speakLetter(undefined, recordingUrl);
+          } else {
+            speakWord(undefined, recordingUrl);
+          }
+        }
       }
     };
 
@@ -123,7 +137,7 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
       stopPlayback();
       if (localAudioUrl) URL.revokeObjectURL(localAudioUrl);
     };
-  }, [content.key]);
+  }, [content.key, autoPlaySound]);
 
   const loadLocalRecording = async () => {
     const blob = await audioStorage.getRecording(content.value);
@@ -193,12 +207,13 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
     setLocalAudioUrl(null);
   };
 
-  const playLocalRecording = async () => {
-    if (localAudioUrl && audioContext) {
+  const playLocalRecording = async (overrideUrl?: string | null) => {
+    const targetUrl = overrideUrl !== undefined ? overrideUrl : localAudioUrl;
+    if (targetUrl && audioContext) {
       stopPlayback();
       setIsPlaying(true);
       try {
-        const response = await fetch(localAudioUrl);
+        const response = await fetch(targetUrl);
         const arrayBuffer = await response.arrayBuffer();
         const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
 
@@ -223,8 +238,8 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
     }
   };
 
-  async function speakLetter(event: React.MouseEvent) {
-    event.stopPropagation();
+  async function speakLetter(event?: React.MouseEvent, overrideUrl?: string | null) {
+    event?.stopPropagation();
     if (isRecording) {
       await handleToggleRecording();
     }
@@ -233,9 +248,11 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
       return;
     }
 
+    const audioUrl = overrideUrl !== undefined ? overrideUrl : localAudioUrl;
+
     // Try playing local recording first
-    if (localAudioUrl && enableRecordings) {
-      playLocalRecording();
+    if (audioUrl && enableRecordings) {
+      playLocalRecording(audioUrl);
       return;
     }
 
@@ -263,8 +280,8 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
     }
   }
 
-  async function speakWord(event: React.MouseEvent) {
-    event.stopPropagation();
+  async function speakWord(event?: React.MouseEvent, overrideUrl?: string | null) {
+    event?.stopPropagation();
     if (isRecording) {
       await handleToggleRecording();
     }
@@ -277,8 +294,10 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
     abortControllerRef.current = abortController;
     const signal = abortController.signal;
 
-    if (localAudioUrl && enableRecordings) {
-      playLocalRecording();
+    const audioUrl = overrideUrl !== undefined ? overrideUrl : localAudioUrl;
+
+    if (audioUrl && enableRecordings) {
+      playLocalRecording(audioUrl);
       return;
     }
 

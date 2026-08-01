@@ -144,6 +144,7 @@ export default function Home() {
   const [timeElapsed, setTimeElapsed] = useState(0);
   const [isLocked, setIsLocked] = useLocalStorage<boolean>("first-read-app-locked", false);
   const [enableTracing, setEnableTracing] = useLocalStorage<boolean>("first-read-enable-tracing", true);
+  const [autoPlaySound, setAutoPlaySound] = useLocalStorage<boolean>("first-read-auto-play-sound", false);
   const [showLockSnackbar, setShowLockSnackbar] = useState(false);
 
   useEffect(() => {
@@ -666,7 +667,7 @@ export default function Home() {
       onPointerUp={handlePointerUp}
       tabIndex={-1}
     >
-      <LetterDisplay content={displayContent} enableRecordings={enableRecordings} enableTracing={enableTracing} letterCase={letterCase} />
+      <LetterDisplay content={displayContent} enableRecordings={enableRecordings} enableTracing={enableTracing} letterCase={letterCase} autoPlaySound={autoPlaySound} />
       {!isFullscreen && !isLocked && (
         <div className="absolute top-4 right-4 flex items-center gap-2" onPointerDown={(e) => e.stopPropagation()}>
           <LetterSelector
@@ -694,6 +695,8 @@ export default function Home() {
             onEnableRecordingsChange={setEnableRecordings}
             enableTracing={enableTracing}
             onEnableTracingChange={setEnableTracing}
+            autoPlaySound={autoPlaySound}
+            onAutoPlaySoundChange={setAutoPlaySound}
             enableUppercase={enableUppercase}
             onEnableUppercaseChange={setEnableUppercase}
             enableWords={enableWords}

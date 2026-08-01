@@ -20,6 +20,8 @@ type AppSettingsProps = {
   onEnableRecordingsChange: (show: boolean) => void;
   enableTracing: boolean;
   onEnableTracingChange: (enable: boolean) => void;
+  autoPlaySound: boolean;
+  onAutoPlaySoundChange: (autoPlay: boolean) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onOpenRecordings: () => void;
@@ -39,6 +41,8 @@ export function AppSettings({
   onEnableRecordingsChange,
   enableTracing,
   onEnableTracingChange,
+  autoPlaySound,
+  onAutoPlaySoundChange,
   open,
   onOpenChange,
   onOpenRecordings,
@@ -148,6 +152,16 @@ export function AppSettings({
                 id="tracing-toggle"
                 checked={enableTracing}
                 onCheckedChange={onEnableTracingChange}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="autoplay-toggle" className="text-base">
+                Auto Play Sound
+              </Label>
+              <Switch
+                id="autoplay-toggle"
+                checked={autoPlaySound}
+                onCheckedChange={onAutoPlaySoundChange}
               />
             </div>
             <div>
