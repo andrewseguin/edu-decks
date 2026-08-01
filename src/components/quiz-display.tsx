@@ -307,8 +307,8 @@ export function QuizDisplay({
         </div>
       </div>
 
-      {/* 2x2 Options Grid taking maximum vertical space */}
-      <div className="w-full max-w-4xl mx-auto flex-1 grid grid-cols-2 gap-3 sm:gap-6 my-3 min-h-0">
+      {/* 2x2 Options Grid - balanced aspect ratio with giant letter scaling */}
+      <div className="w-full max-w-2xl mx-auto flex-1 grid grid-cols-2 gap-3 sm:gap-6 my-auto max-h-[72vh] p-2 min-h-0 items-center">
         {options.map((item) => {
           const isSelected = selectedOption === item.value;
           const isSelectedCorrect = isSelected && isCorrect === true;
@@ -319,22 +319,21 @@ export function QuizDisplay({
             <button
               key={item.value}
               className={cn(
-                "h-full w-full rounded-3xl flex items-center justify-center font-headline font-bold shadow-lg transition-all active:scale-95 relative overflow-hidden border-4 border-transparent p-2",
-                isSingleChar
-                  ? "text-7xl sm:text-9xl md:text-[10rem] lg:text-[11rem]"
-                  : "text-4xl sm:text-6xl md:text-7xl",
+                "h-full w-full rounded-3xl flex items-center justify-center font-headline font-bold shadow-lg transition-all active:scale-95 relative overflow-hidden border-4 border-transparent p-2 min-h-[22vh]",
+                !isSingleChar && "text-3xl sm:text-5xl md:text-6xl",
                 isSelectedCorrect && "bg-emerald-500 text-white scale-105 ring-4 ring-emerald-400/50 border-emerald-400 z-10",
                 isSelectedIncorrect && "bg-destructive/20 text-destructive border-destructive",
                 !isSelected && "bg-card text-card-foreground hover:border-primary/40 hover:scale-[1.01]"
               )}
-              style={
-                !isSelected && item.color
-                  ? { backgroundColor: `${item.color}15`, color: item.color }
-                  : undefined
-              }
+              style={{
+                fontSize: isSingleChar ? "clamp(6rem, 22vh, 16rem)" : undefined,
+                lineHeight: 1,
+                backgroundColor: !isSelected && item.color ? `${item.color}15` : undefined,
+                color: !isSelected && item.color ? item.color : undefined,
+              }}
               onClick={() => handleSelectOption(item)}
             >
-              <span className="leading-none pb-2 select-none">{item.displayValue}</span>
+              <span className="select-none inline-block leading-none transform translate-y-[2%]">{item.displayValue}</span>
               {isSelectedCorrect && (
                 <CheckCircle2 className="absolute top-3 right-3 w-8 h-8 text-white animate-in zoom-in" />
               )}
