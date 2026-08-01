@@ -60,6 +60,7 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
   const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
+  const autoPlayTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const recordingValueRef = useRef<string | null>(null);
   const { isRecording, stream, startRecording, stopRecording } = useAudioRecorder();
 
@@ -68,6 +69,10 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
   }, [content.key, enableTracing]);
 
   const stopPlayback = () => {
+    if (autoPlayTimeoutRef.current) {
+      clearTimeout(autoPlayTimeoutRef.current);
+      autoPlayTimeoutRef.current = null;
+    }
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
@@ -121,11 +126,15 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
         }
 
         if (autoPlaySound) {
-          if (content.type === "letter") {
-            speakLetter(undefined, recordingUrl);
-          } else {
-            speakWord(undefined, recordingUrl);
-          }
+          autoPlayTimeoutRef.current = setTimeout(() => {
+            if (isMounted) {
+              if (content.type === "letter") {
+                speakLetter(undefined, recordingUrl);
+              } else {
+                speakWord(undefined, recordingUrl);
+              }
+            }
+          }, 500);
         }
       }
     };
