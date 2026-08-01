@@ -289,8 +289,8 @@ export function QuizDisplay({
           size="sm"
           variant="default"
           className={cn(
-            "rounded-full gap-2 px-4 py-1.5 font-headline font-bold text-sm shadow-md transition-transform active:scale-95",
-            isPlayingSound ? "animate-pulse ring-4 ring-primary/40 bg-primary" : "bg-primary hover:bg-primary/90"
+            "rounded-full gap-2 px-4 py-1.5 font-headline font-bold text-sm shadow-md transition-transform active:scale-95 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0",
+            isPlayingSound ? "animate-pulse bg-primary scale-105" : "bg-primary hover:bg-primary/90"
           )}
           onClick={() => targetItem && playAudio(targetItem)}
           aria-label="Replay sound"
@@ -322,9 +322,9 @@ export function QuizDisplay({
             <button
               key={item.value}
               className={cn(
-                "h-full w-full rounded-3xl flex items-center justify-center font-headline font-bold shadow-lg transition-all active:scale-95 relative overflow-hidden border-4 border-transparent p-2 min-h-[22vh]",
+                "h-full w-full rounded-3xl flex items-center justify-center font-headline font-bold shadow-lg transition-all active:scale-95 relative overflow-hidden border-4 border-transparent p-2 min-h-[22vh] outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 select-none",
                 !isSingleChar && "text-3xl sm:text-5xl md:text-6xl",
-                isSelectedCorrect && "bg-emerald-500 text-white scale-105 ring-4 ring-emerald-400/50 border-emerald-400 z-10",
+                isSelectedCorrect && "bg-emerald-500 text-white scale-105 border-emerald-400 z-10 shadow-2xl shadow-emerald-500/30",
                 isSelectedIncorrect && "bg-destructive/20 text-destructive border-destructive",
                 !isSelected && "bg-card text-card-foreground hover:border-primary/40 hover:scale-[1.01]"
               )}

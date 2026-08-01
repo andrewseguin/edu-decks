@@ -99,10 +99,15 @@
 @layer base {
   * {
     @apply border-border;
+    -webkit-tap-highlight-color: transparent;
   }
 
   body {
     @apply bg-background text-foreground;
+  }
+
+  button:focus, button:focus-visible {
+    outline: none !important;
   }
 }
 
