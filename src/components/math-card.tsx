@@ -61,24 +61,36 @@ export function MathCard({
       onClick={handleCardClick}
     >
       <CardContent className="p-0 h-full w-full relative flex items-center justify-center">
-        {/* Inline Centered Equation */}
+        {/* Full Equation Always Centered */}
         <div className="absolute inset-0 flex items-center justify-center p-6">
-          <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap text-center">
-            {/* Equation Prefix (e.g. "9 + 6 =") */}
+          <div className="flex items-center justify-center gap-2 sm:gap-3 whitespace-nowrap text-center">
+            {/* Equation Prefix (e.g. "9 + 6 = ") */}
             <span className="font-headline font-normal leading-none select-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl">
               {problem.displayText} =
             </span>
 
-            {/* Target Value: "?" when unrevealed, Answer "15" when revealed */}
-            {!isFlipped ? (
-              <span className="font-headline font-bold leading-none select-none text-white/80 bg-white/15 px-3 sm:px-4 py-1 rounded-2xl border-2 border-dashed border-white/30 text-4xl sm:text-6xl md:text-7xl animate-pulse">
-                ?
-              </span>
-            ) : (
-              <span className="font-headline font-bold leading-none select-none text-white [text-shadow:0_0_14px_rgba(255,255,255,0.8),3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl animate-fade-in-zoom">
+            {/* Answer Digit (Always rendered in exact position) */}
+            <div className="relative inline-flex items-center justify-center px-1">
+              <span
+                className={cn(
+                  "font-headline font-bold leading-none select-none text-white transition-all duration-300 text-5xl sm:text-7xl md:text-8xl",
+                  isFlipped
+                    ? "[text-shadow:0_0_16px_rgba(255,255,255,0.8),3px_3px_6px_rgba(0,0,0,0.2)] opacity-100 scale-100"
+                    : "opacity-0 scale-90"
+                )}
+              >
                 {problem.answerText}
               </span>
-            )}
+
+              {/* Obscuring Frosted Glass Pill Badge when Un-revealed */}
+              {!isFlipped && (
+                <div className="absolute inset-y-[-4px] inset-x-[-6px] flex items-center justify-center bg-white/20 backdrop-blur-md rounded-2xl border-2 border-dashed border-white/40 shadow-sm animate-pulse">
+                  <span className="font-headline font-bold text-white text-3xl sm:text-5xl md:text-6xl">
+                    ?
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
