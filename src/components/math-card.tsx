@@ -61,20 +61,51 @@ export function MathCard({
       onClick={handleCardClick}
     >
       <CardContent className="p-0 h-full w-full relative flex items-center justify-center">
-        {/* Full White Equation Always Centered Directly on Solid Color Background */}
+        {/* Full Color-Coded Equation Always Centered Directly on Card Background */}
         <div className="absolute inset-0 flex items-center justify-center p-6">
           <div className="flex items-center justify-center whitespace-nowrap text-center">
-            {/* Equation Prefix (e.g. "7 - 1 = ") */}
-            <span className="font-headline font-normal leading-none select-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl mr-2 sm:mr-3">
-              {problem.displayText} =
+            {/* First Number (Cyan when revealed, White when unrevealed) */}
+            <span
+              className={cn(
+                "font-headline font-bold leading-none select-none transition-colors duration-300 text-5xl sm:text-7xl md:text-8xl",
+                isFlipped
+                  ? "text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)]"
+                  : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]"
+              )}
+            >
+              {problem.num1}
+            </span>
+
+            {/* Operator (+, -, ×, ÷) */}
+            <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl mx-2 sm:mx-3">
+              {problem.operation}
+            </span>
+
+            {/* Second Number (Orange/Amber when revealed, White when unrevealed) */}
+            <span
+              className={cn(
+                "font-headline font-bold leading-none select-none transition-colors duration-300 text-5xl sm:text-7xl md:text-8xl",
+                isFlipped
+                  ? "text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)]"
+                  : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]"
+              )}
+            >
+              {problem.num2}
+            </span>
+
+            {/* Equals Symbol */}
+            <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl ml-2 sm:ml-3 mr-2 sm:mr-3">
+              =
             </span>
 
             {/* Answer Digit */}
             <div className="relative inline-flex items-center justify-center px-1">
               <span
                 className={cn(
-                  "font-headline font-bold leading-none select-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] transition-all duration-300 text-5xl sm:text-7xl md:text-8xl",
-                  isFlipped ? "opacity-100 scale-100" : "opacity-0 scale-90"
+                  "font-headline font-bold leading-none select-none text-white transition-all duration-300 text-5xl sm:text-7xl md:text-8xl",
+                  isFlipped
+                    ? "[text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] opacity-100 scale-100"
+                    : "opacity-0 scale-90"
                 )}
               >
                 {problem.answerText}
