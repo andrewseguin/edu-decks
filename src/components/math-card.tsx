@@ -61,15 +61,20 @@ export function MathCard({
       onClick={handleCardClick}
     >
       <CardContent className="p-0 h-full w-full relative flex items-center justify-center">
-        {/* Full Equation Always Centered */}
+        {/* Full Equation Container with High-Contrast Dark Glass Stage on Reveal */}
         <div className="absolute inset-0 flex items-center justify-center p-6">
-          <div className="flex items-center justify-center whitespace-nowrap text-center">
-            {/* First Number (Cyan when revealed, White when unrevealed) */}
+          <div
+            className={cn(
+              "flex items-center justify-center whitespace-nowrap text-center transition-all duration-300 rounded-3xl px-4 sm:px-6 py-2",
+              isFlipped ? "bg-black/35 backdrop-blur-md border border-white/20 shadow-lg" : ""
+            )}
+          >
+            {/* First Number (Cyan when revealed) */}
             <span
               className={cn(
-                "font-headline font-bold leading-none select-none transition-colors duration-300 text-5xl sm:text-7xl md:text-8xl",
+                "font-headline font-bold leading-none select-none transition-all duration-300 text-5xl sm:text-7xl md:text-8xl",
                 isFlipped
-                  ? "text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)]"
+                  ? "text-cyan-300 [text-shadow:0_0_12px_rgba(103,232,249,0.6)]"
                   : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]"
               )}
             >
@@ -81,12 +86,12 @@ export function MathCard({
               {problem.operation}
             </span>
 
-            {/* Second Number (Orange/Amber when revealed, White when unrevealed) */}
+            {/* Second Number (Orange/Amber when revealed) */}
             <span
               className={cn(
-                "font-headline font-bold leading-none select-none transition-colors duration-300 text-5xl sm:text-7xl md:text-8xl",
+                "font-headline font-bold leading-none select-none transition-all duration-300 text-5xl sm:text-7xl md:text-8xl",
                 isFlipped
-                  ? "text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)]"
+                  ? "text-amber-300 [text-shadow:0_0_12px_rgba(252,211,77,0.6)]"
                   : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]"
               )}
             >
