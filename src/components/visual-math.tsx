@@ -249,32 +249,32 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // MULTIPLICATION (×): Smart Proportional Scaling Algorithm (Strict Height Constraint maxH=88px)
+  // MULTIPLICATION (×): Generous Scaling Algorithm (maxH=175px, maxW=580px, blockSize up to 36px)
   if (operation === '×') {
     const xCount = num1; // Cyan X-Axis across
     const yCount = num2; // Orange Y-Axis down
     const cols = xCount + 1; // Including Y-axis header column
     const rows = yCount + 1; // Including X-axis header row
 
-    // Max available container dimensions inside card bottom region
-    const maxW = 420;
-    const maxH = 88; // 88px max height ensures grid never touches card bottom border!
+    // Max available container dimensions inside card lower region
+    const maxW = 580;
+    const maxH = 175;
 
     // Calculate max square block size (in px) taking into account container padding & gaps
-    const gapSize = Math.max(cols, rows) > 7 ? 2 : 4;
+    const gapSize = Math.max(cols, rows) > 8 ? 3 : 5;
     const padding = 16;
 
     const availW = maxW - padding - (cols - 1) * gapSize;
     const availH = maxH - padding - (rows - 1) * gapSize;
 
     const rawSize = Math.min(availW / cols, availH / rows);
-    const blockSize = Math.max(9, Math.min(26, Math.floor(rawSize)));
-    const fontSize = Math.max(7, Math.floor(blockSize * 0.52));
+    const blockSize = Math.max(12, Math.min(36, Math.floor(rawSize)));
+    const fontSize = Math.max(8, Math.floor(blockSize * 0.52));
 
     return (
-      <div className="flex flex-col justify-center items-center p-1 sm:p-1.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+      <div className="flex flex-col justify-center items-center p-1 sm:p-1.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs max-h-full">
         <div
-          className="grid p-1.5 rounded-xl bg-white/15 border border-white/30 shadow-xs"
+          className="grid p-1.5 sm:p-2 rounded-xl bg-white/15 border border-white/30 shadow-xs"
           style={{ gap: `${gapSize}px` }}
         >
           {/* Top Row: Spacer Corner + Cyan X-Axis Headers across */}
