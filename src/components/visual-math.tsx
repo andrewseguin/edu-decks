@@ -89,9 +89,10 @@ export function VisualMath({ problem }: VisualMathProps) {
     }
 
     if (operation === '÷') {
-      // Step 1: Reveal total num1 Cyan blocks (1 every 40ms)
+      // Step 1: Fill total num1 White Area blocks into grid (1 every 25ms)
       const total = num1;
-      const groupCount = Math.max(1, answer);
+      const quotientX = answer;
+      const intervalMs = total > 30 ? 20 : 45;
       let currentCyan = 0;
       const cyanInterval = setInterval(() => {
         currentCyan++;
@@ -99,19 +100,19 @@ export function VisualMath({ problem }: VisualMathProps) {
         if (currentCyan >= total) {
           clearInterval(cyanInterval);
 
-          // Step 2: 500ms pause, then sequentially partition into Orange Group Containers (1 every 200ms)
+          // Step 2: 400ms pause, then sequentially reveal Cyan X-Axis headers across (1 every 150ms)
           setTimeout(() => {
             let currentOrange = 0;
             const orangeInterval = setInterval(() => {
               currentOrange++;
               setOrangeVisible(currentOrange);
-              if (currentOrange >= groupCount) {
+              if (currentOrange >= quotientX) {
                 clearInterval(orangeInterval);
               }
-            }, 200);
-          }, 500);
+            }, 150);
+          }, 400);
         }
-      }, 40);
+      }, intervalMs);
 
       return () => clearInterval(cyanInterval);
     }
@@ -366,70 +367,100 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // DIVISION (÷): Total Cyan blocks (num1) partitioned into Orange group containers of size num2
+  // DIVISION (÷): Inverse Multiplication Area Grid Model
+  // num1 = total area (white blocks), num2 = Orange Y-Axis down, answer = Cyan X-Axis across
   if (operation === '÷') {
-    const total = num1;        // Total Cyan items to partition
-    const groupSize = Math.max(1, num2); // Items per group
-    const groupCount = Math.max(1, answer); // Total groups (answer)
+    const xCount = answer; // Cyan X-Axis across (the answer quotient!)
+    const yCount = num2;   // Orange Y-Axis down (the divisor!)
+    const cols = xCount + 1;
+    const rows = yCount + 1;
 
-    const blockSizeClass =
-      total <= 12
-        ? "w-3.5 h-3.5 sm:w-4 sm:h-4"
-        : total <= 30
-        ? "w-2.5 h-2.5 sm:w-3 sm:h-3"
-        : "w-2 h-2 sm:w-2.5 sm:h-2.5";
+    // Max available container dimensions inside card lower region
+    const maxW = 480;
+    const maxH = 120;
+
+    const gapSize = Math.max(cols, rows) > 8 ? 2 : 4;
+    const padding = 10;
+
+    const availW = maxW - padding - (cols - 1) * gapSize;
+    const availH = maxH - padding - (rows - 1) * gapSize;
+
+    const rawSize = Math.min(availW / cols, availH / rows);
+    const blockSize = Math.max(10, Math.min(26, Math.floor(rawSize)));
+    const fontSize = Math.max(7, Math.floor(blockSize * 0.52));
 
     return (
-      <div className="flex flex-wrap justify-center items-center gap-2 p-1.5 sm:p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        {Array.from({ length: groupCount }).map((_, gIdx) => {
-          const groupStartIndex = gIdx * groupSize;
-          const groupItems = Array.from({ length: groupSize }).map((_, i) => groupStartIndex + i);
+      <div className="flex flex-col justify-center items-center p-1 sm:p-1.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+        <div
+          className="grid p-1.5 rounded-xl bg-white/15 border border-white/30 shadow-xs"
+          style={{ gap: `${gapSize}px` }}
+        >
+          {/* Top Row: Corner + Cyan X-Axis Headers (revealed sequentially up to answer!) */}
+          <div className="flex items-center" style={{ gap: `${gapSize}px` }}>
+            {/* Top-Left Corner Spacer */}
+            <div className="rounded-md bg-transparent shrink-0" style={{ width: `${blockSize}px`, height: `${blockSize}px` }} />
 
-          const isGroupPartitioned = gIdx < orangeVisible;
+            {/* Cyan X-Axis Blocks across (revealed sequentially) */}
+            {Array.from({ length: xCount }).map((_, xIdx) => {
+              const isRevealed = xIdx < orangeVisible;
 
-          return (
-            <div
-              key={`div-group-${gIdx}`}
-              className={cn(
-                "relative flex items-center gap-1 p-1.5 sm:p-2 rounded-xl transition-all duration-300",
-                isGroupPartitioned
-                  ? "bg-amber-500/20 border-2 border-amber-400 shadow-xs animate-silly-pop"
-                  : "bg-white/10 border border-dashed border-white/25"
-              )}
-            >
-              {/* Orange Group Number Badge when Partitioned */}
-              {isGroupPartitioned && (
-                <div className="absolute -top-2.5 -left-2.5 w-5 h-5 rounded-full bg-amber-400 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-[10px] text-amber-950 animate-fade-in-zoom">
-                  {gIdx + 1}
+              return (
+                <div
+                  key={`x-axis-${xIdx}`}
+                  className={cn(
+                    "rounded-md shadow-xs flex items-center justify-center font-bold leading-none shrink-0 transition-all duration-300",
+                    isRevealed
+                      ? "bg-cyan-300 border border-cyan-400 text-cyan-950 animate-silly-pop"
+                      : "bg-white/10 border border-dashed border-white/20 text-transparent"
+                  )}
+                  style={{ width: `${blockSize}px`, height: `${blockSize}px`, fontSize: `${fontSize}px` }}
+                >
+                  {xIdx + 1}
                 </div>
-              )}
+              );
+            })}
+          </div>
 
-              {/* Cyan items inside this group */}
-              {groupItems.map((slotIndex) => {
-                if (slotIndex >= total) return null;
+          {/* Rows: Orange Y-Axis Header + White Area Blocks */}
+          {Array.from({ length: yCount }).map((_, yIdx) => {
+            const rowStartIndex = yIdx * xCount;
 
-                if (slotIndex >= cyanVisible) {
+            return (
+              <div key={`y-row-${yIdx}`} className="flex items-center" style={{ gap: `${gapSize}px` }}>
+                {/* Orange Y-Axis Block down */}
+                <div
+                  className="rounded-md bg-amber-400 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-amber-950 animate-fade-in-zoom leading-none shrink-0"
+                  style={{ width: `${blockSize}px`, height: `${blockSize}px`, fontSize: `${fontSize}px` }}
+                >
+                  {yIdx + 1}
+                </div>
+
+                {/* White Area Blocks inside matrix */}
+                {Array.from({ length: xCount }).map((_, xIdx) => {
+                  const areaIndex = rowStartIndex + xIdx;
+
+                  if (areaIndex >= cyanVisible) {
+                    return (
+                      <div
+                        key={`area-slot-${areaIndex}`}
+                        className="rounded-md bg-white/5 border border-dashed border-white/20 shrink-0"
+                        style={{ width: `${blockSize}px`, height: `${blockSize}px` }}
+                      />
+                    );
+                  }
+
                   return (
                     <div
-                      key={`div-slot-${slotIndex}`}
-                      className={cn("rounded-md bg-white/5 border border-dashed border-white/20", blockSizeClass)}
+                      key={`area-slot-${areaIndex}`}
+                      className="rounded-md bg-white border border-white/80 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform shrink-0"
+                      style={{ width: `${blockSize}px`, height: `${blockSize}px` }}
                     />
                   );
-                }
-
-                return (
-                  <div
-                    key={`div-slot-${slotIndex}`}
-                    className={cn(
-                      "rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform",
-                      blockSizeClass
-                    )}
-                  />
-                );
-              })}
-            </div>
-          );
-        })}
+                })}
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   }
