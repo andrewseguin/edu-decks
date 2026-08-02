@@ -106,7 +106,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     const frameCount = Math.max(1, Math.ceil(total / 10));
 
     return (
-      <div className="flex flex-wrap justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+      <div className="flex flex-wrap justify-center items-center gap-2 p-1.5 sm:p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
         {Array.from({ length: frameCount }).map((_, fIdx) => {
           const frameStartIndex = fIdx * 10;
           const frameSlots = Array.from({ length: 10 }).map((_, i) => frameStartIndex + i);
@@ -184,7 +184,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     const frameCount = Math.max(1, Math.ceil(total / 10));
 
     return (
-      <div className="flex flex-wrap justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+      <div className="flex flex-wrap justify-center items-center gap-2 p-1.5 sm:p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
         {Array.from({ length: frameCount }).map((_, fIdx) => {
           const frameStartIndex = fIdx * 10;
           const frameSlots = Array.from({ length: 10 }).map((_, i) => frameStartIndex + i);
@@ -249,32 +249,31 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // MULTIPLICATION (×): Perfectly Proportioned Axis Grid (maxH=130px, maxW=540px, top-[135px])
+  // MULTIPLICATION (×): Pure Flexbox Proportional Block Scaling Algorithm
   if (operation === '×') {
     const xCount = num1; // Cyan X-Axis across
     const yCount = num2; // Orange Y-Axis down
     const cols = xCount + 1; // Including Y-axis header column
     const rows = yCount + 1; // Including X-axis header row
 
-    // Max available container dimensions inside card lower region
+    // Responsive container bounds
     const maxW = 540;
-    const maxH = 130; // 130px fits 100% cleanly between top-[135px] and bottom-3 without touching equation
+    const maxH = 150;
 
-    // Calculate max square block size (in px) taking into account container padding & gaps
-    const gapSize = Math.max(cols, rows) > 8 ? 3 : 4;
+    const gapSize = Math.max(cols, rows) > 8 ? 2 : Math.max(cols, rows) > 5 ? 3 : 4;
     const padding = 12;
 
     const availW = maxW - padding - (cols - 1) * gapSize;
     const availH = maxH - padding - (rows - 1) * gapSize;
 
     const rawSize = Math.min(availW / cols, availH / rows);
-    const blockSize = Math.max(10, Math.min(28, Math.floor(rawSize)));
+    const blockSize = Math.max(9, Math.min(26, Math.floor(rawSize)));
     const fontSize = Math.max(7, Math.floor(blockSize * 0.52));
 
     return (
-      <div className="flex flex-col justify-center items-center p-1 sm:p-1.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs max-h-full">
+      <div className="flex flex-col justify-center items-center max-w-full max-h-full">
         <div
-          className="grid p-1.5 rounded-xl bg-white/15 border border-white/30 shadow-xs"
+          className="grid p-1.5 sm:p-2 rounded-xl bg-white/15 border border-white/30 shadow-xs"
           style={{ gap: `${gapSize}px` }}
         >
           {/* Top Row: Spacer Corner + Cyan X-Axis Headers across */}
