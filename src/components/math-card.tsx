@@ -48,7 +48,7 @@ export function MathCard({
     <Card
       key={problem.id}
       className={cn(
-        "relative select-none [-webkit-touch-callout:none] w-[90vw] h-[45vw] max-w-[720px] max-h-[min(360px,56svh)] border-none rounded-3xl overflow-hidden cursor-pointer transition-all duration-300",
+        "relative select-none [-webkit-touch-callout:none] w-[90vw] h-[45vw] max-w-[700px] max-h-[min(350px,55svh)] border-none rounded-3xl overflow-hidden cursor-pointer transition-all duration-300",
         animClass
       )}
       style={{
@@ -61,26 +61,24 @@ export function MathCard({
       onClick={handleCardClick}
     >
       <CardContent className="p-0 h-full w-full relative flex items-center justify-center">
-        {/* Inline Equation Completion - Fixed Width Reserved Slot so Equation Never Shifts */}
-        <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex items-center justify-center whitespace-nowrap">
-            {/* Stationary Equation Prefix (7 + 5 =) */}
-            <span className="font-headline font-normal leading-none select-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-6xl sm:text-8xl md:text-[8.5rem] mr-2 sm:mr-3">
+        {/* Inline Centered Equation */}
+        <div className="absolute inset-0 flex items-center justify-center p-6">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap text-center">
+            {/* Equation Prefix (e.g. "9 + 6 =") */}
+            <span className="font-headline font-normal leading-none select-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl">
               {problem.displayText} =
             </span>
 
-            {/* Fixed Width Target Slot - Ensures zero horizontal shift */}
-            <div className="w-[1.8em] sm:w-[2em] flex items-center justify-start">
-              {!isFlipped ? (
-                <span className="font-headline font-bold leading-none select-none text-white/70 bg-white/10 px-3 sm:px-4 py-0.5 sm:py-1 rounded-2xl border-2 border-dashed border-white/30 text-5xl sm:text-7xl md:text-[7.5rem] animate-pulse">
-                  ?
-                </span>
-              ) : (
-                <span className="font-headline font-bold leading-none select-none text-white [text-shadow:0_0_12px_rgba(255,255,255,0.6),3px_3px_6px_rgba(0,0,0,0.2)] text-6xl sm:text-8xl md:text-[8.5rem] animate-fade-in-zoom">
-                  {problem.answerText}
-                </span>
-              )}
-            </div>
+            {/* Target Value: "?" when unrevealed, Answer "15" when revealed */}
+            {!isFlipped ? (
+              <span className="font-headline font-bold leading-none select-none text-white/80 bg-white/15 px-3 sm:px-4 py-1 rounded-2xl border-2 border-dashed border-white/30 text-4xl sm:text-6xl md:text-7xl animate-pulse">
+                ?
+              </span>
+            ) : (
+              <span className="font-headline font-bold leading-none select-none text-white [text-shadow:0_0_14px_rgba(255,255,255,0.8),3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl animate-fade-in-zoom">
+                {problem.answerText}
+              </span>
+            )}
           </div>
         </div>
 
