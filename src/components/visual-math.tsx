@@ -89,21 +89,13 @@ export function VisualMath({ problem }: VisualMathProps) {
     }
 
     if (operation === '÷') {
-      // Step 1: All num1 Cyan blocks are ALREADY present from the beginning!
+      // Step 1: Cyan blocks are ALREADY present in one unified grid at t=0
       setCyanVisible(num1);
 
-      // Step 2: After 500ms pause, sequentially split into num2 Orange groups (1 group every 200ms)
-      const groupCount = num2;
+      // Step 2: After 550ms pause, trigger separation animation (orangeVisible = 1)
       const timeoutId = setTimeout(() => {
-        let currentOrange = 0;
-        const orangeInterval = setInterval(() => {
-          currentOrange++;
-          setOrangeVisible(currentOrange);
-          if (currentOrange >= groupCount) {
-            clearInterval(orangeInterval);
-          }
-        }, 200);
-      }, 500);
+        setOrangeVisible(1);
+      }, 550);
 
       return () => clearTimeout(timeoutId);
     }
@@ -356,11 +348,13 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // DIVISION (÷): Cyan blocks ALREADY present from start -> Split into num2 Orange groups after 500ms
+  // DIVISION (÷): Unified Grid -> Blocks physically move / slide apart into num2 Orange group boxes!
   if (operation === '÷') {
-    const total = num1;            // Cyan total items (already present!)
-    const groupCount = num2;       // Orange groups to split into
+    const total = num1;            // Cyan total items
+    const groupCount = num2;       // Orange groups to divide into
     const itemsPerGroup = answer;  // Items inside each group
+
+    const isSeparated = orangeVisible > 0; // Triggers after 550ms
 
     const blockSizeClass =
       total <= 12
@@ -370,24 +364,26 @@ export function VisualMath({ problem }: VisualMathProps) {
         : "w-2.5 h-2.5 sm:w-3 sm:h-3";
 
     return (
-      <div className="flex flex-wrap justify-center items-center gap-2.5 p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+      <div
+        className={cn(
+          "flex flex-wrap justify-center items-center rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs transition-all duration-500 ease-out p-2",
+          isSeparated ? "gap-2.5 sm:gap-3.5" : "gap-1"
+        )}
+      >
         {Array.from({ length: groupCount }).map((_, gIdx) => {
           const groupStartIndex = gIdx * itemsPerGroup;
           const groupSlots = Array.from({ length: itemsPerGroup }).map((_, i) => groupStartIndex + i);
-
-          const isGrouped = gIdx < orangeVisible;
 
           return (
             <div
               key={`div-group-${gIdx}`}
               className={cn(
-                "flex items-center justify-center gap-1.5 p-1.5 sm:p-2 rounded-xl transition-all duration-300",
-                isGrouped
-                  ? "bg-amber-500/20 border-2 border-amber-400/80 shadow-xs"
-                  : "bg-white/10 border border-dashed border-white/25"
+                "flex items-center justify-center gap-1 sm:gap-1.5 rounded-xl transition-all duration-500 ease-out",
+                isSeparated
+                  ? "bg-amber-500/20 border-2 border-amber-400/80 p-1.5 sm:p-2 shadow-xs"
+                  : "bg-transparent border border-transparent p-0.5"
               )}
             >
-              {/* Cyan blocks (ALREADY PRESENT!) */}
               {groupSlots.map((slotIndex) => {
                 if (slotIndex >= total) return null;
 
@@ -395,7 +391,7 @@ export function VisualMath({ problem }: VisualMathProps) {
                   <div
                     key={`div-slot-${slotIndex}`}
                     className={cn(
-                      "rounded-md bg-cyan-300 border border-cyan-400 shadow-xs cursor-pointer hover:scale-125 transition-transform shrink-0",
+                      "rounded-md bg-cyan-300 border border-cyan-400 shadow-xs cursor-pointer hover:scale-125 transition-all duration-500 shrink-0",
                       blockSizeClass
                     )}
                   />
