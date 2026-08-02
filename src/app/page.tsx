@@ -14,7 +14,7 @@ import { FullscreenToggle } from "@/components/fullscreen-toggle";
 import { SessionStats } from "@/components/session-stats";
 import { QuizDisplay } from "@/components/quiz-display";
 
-import { Lock, Unlock } from "lucide-react";
+import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function MathDeckPage() {
@@ -48,6 +48,7 @@ export default function MathDeckPage() {
   const [cardCount, setCardCount] = useState(0);
   const [timeElapsed, setTimeElapsed] = useState(0);
 
+  const lastMenuCloseTimeRef = useRef<number>(0);
   const { speak, playChime } = useAudio();
   useWakeLock(keepScreenAwake);
 
@@ -79,7 +80,7 @@ export default function MathDeckPage() {
   }, [isLocked]);
 
   // Generate next card problem
-  const nextCard = useCallback(() => {
+  const nextCard = useCallback((autoPlay: boolean = true) => {
     const newProblem = generateMathProblem(
       activeOperations,
       minRange,
@@ -93,7 +94,7 @@ export default function MathDeckPage() {
     });
     setCardCount((c) => c + 1);
 
-    if (autoPlayAudio && !isQuizActive) {
+    if (autoPlayAudio && !isQuizActive && autoPlay) {
       speak(newProblem.speechText);
     }
   }, [activeOperations, minRange, maxRange, allowNegatives, autoPlayAudio, isQuizActive, speak]);
@@ -101,15 +102,15 @@ export default function MathDeckPage() {
   // Initial card deck generation
   useEffect(() => {
     if (hydrated && history.length === 0) {
-      nextCard();
+      nextCard(true);
     }
   }, [hydrated, history.length, nextCard]);
 
-  // Handle operation toggles safely (at least one operation active)
+  // Handle operation toggles safely
   const handleOperationToggle = (op: MathOperation) => {
     let nextOps: MathOperation[];
     if (activeOperations.includes(op)) {
-      if (activeOperations.length === 1) return; // Keep at least one active
+      if (activeOperations.length === 1) return;
       nextOps = activeOperations.filter((o) => o !== op);
     } else {
       nextOps = [...activeOperations, op];
@@ -140,7 +141,7 @@ export default function MathDeckPage() {
         speak(history[nextIdx].speechText);
       }
     } else {
-      nextCard();
+      nextCard(true);
     }
   };
 
@@ -157,15 +158,18 @@ export default function MathDeckPage() {
     }
   };
 
-  // Keyboard navigation
+  // Keyboard navigation matching First Read
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isQuizActive) return;
 
-      if (e.code === "ArrowLeft") {
+      if (e.code === "Space" || e.code === "ArrowDown") {
+        e.preventDefault();
+        handleNextCard();
+      } else if (e.code === "ArrowLeft") {
         e.preventDefault();
         handlePrevCard();
-      } else if (e.code === "ArrowRight" || e.code === "ArrowDown" || e.code === "Space") {
+      } else if (e.code === "ArrowRight") {
         e.preventDefault();
         handleNextCard();
       }
@@ -173,24 +177,37 @@ export default function MathDeckPage() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isQuizActive, historyIndex, history, handleNextCard, handlePrevCard]);
+  }, [isQuizActive, historyIndex, history.length, handleNextCard, handlePrevCard]);
 
-  // Touch Swipe Gesture Handling
+  // Touch Pointer / Swipe Gesture Handling matching First Read
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const handlePointerDown = (e: React.PointerEvent) => {
+    if (Date.now() - lastMenuCloseTimeRef.current < 300) return;
     touchStartRef.current = { x: e.clientX, y: e.clientY };
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
     if (!touchStartRef.current) return;
+    if (Date.now() - lastMenuCloseTimeRef.current < 300) {
+      touchStartRef.current = null;
+      return;
+    }
+
     const deltaX = e.clientX - touchStartRef.current.x;
     const deltaY = e.clientY - touchStartRef.current.y;
     const absDeltaX = Math.abs(deltaX);
     const absDeltaY = Math.abs(deltaY);
+
     touchStartRef.current = null;
 
-    // Swipe horizontal threshold
+    // Check tap vs swipe
+    if (absDeltaX < 10 && absDeltaY < 10) {
+      if (Date.now() - lastMenuCloseTimeRef.current < 300) return;
+      handleNextCard();
+      return;
+    }
+
     if (absDeltaX > 50 && absDeltaX > absDeltaY) {
       if (deltaX > 0) {
         handlePrevCard();
@@ -198,6 +215,20 @@ export default function MathDeckPage() {
         handleNextCard();
       }
     }
+  };
+
+  const handleOperationSelectorOpenChange = (open: boolean) => {
+    if (!open) {
+      lastMenuCloseTimeRef.current = Date.now();
+    }
+    setIsOperationSelectorOpen(open);
+  };
+
+  const handleSettingsOpenChange = (open: boolean) => {
+    if (!open) {
+      lastMenuCloseTimeRef.current = Date.now();
+    }
+    setIsSettingsOpen(open);
   };
 
   if (!hydrated) {
@@ -208,15 +239,11 @@ export default function MathDeckPage() {
 
   return (
     <main
-      className="flex h-svh w-screen cursor-pointer items-center justify-center bg-background overflow-hidden relative focus:outline-none touch-none select-none"
+      className="flex h-svh w-screen cursor-pointer items-center justify-center bg-background overflow-hidden relative focus:outline-none touch-none"
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       tabIndex={-1}
     >
-      {/* Background Accent Glow */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-transparent to-transparent pointer-events-none" />
-
-      {/* Main Flashcard Component */}
       {currentProblem && (
         <MathCard
           problem={currentProblem}
@@ -227,10 +254,10 @@ export default function MathDeckPage() {
         />
       )}
 
-      {/* Top Header Controls (Hidden when in Fullscreen or when App is Locked) */}
+      {/* Top Bar Controls matching First Read */}
       {!isFullscreen && !isLocked && (
         <div
-          className="absolute top-4 right-4 sm:top-6 sm:right-6 flex items-center gap-2 z-30 pointer-events-auto"
+          className="absolute top-4 right-4 flex items-center gap-2 pointer-events-auto"
           onPointerDown={(e) => e.stopPropagation()}
         >
           <OperationSelector
@@ -240,7 +267,7 @@ export default function MathDeckPage() {
             maxRange={maxRange}
             onRangeChange={handleRangeChange}
             open={isOperationSelectorOpen}
-            onOpenChange={setIsOperationSelectorOpen}
+            onOpenChange={handleOperationSelectorOpenChange}
             onStartQuiz={() => setIsQuizActive(true)}
           />
           <AppSettings
@@ -262,51 +289,14 @@ export default function MathDeckPage() {
             keepScreenAwake={keepScreenAwake}
             onKeepScreenAwakeChange={setKeepScreenAwake}
             open={isSettingsOpen}
-            onOpenChange={setIsSettingsOpen}
+            onOpenChange={handleSettingsOpenChange}
             onLockApp={() => setIsLocked(true)}
           />
           <FullscreenToggle isFullscreen={isFullscreen} onToggle={toggleFullscreen} />
         </div>
       )}
 
-      {/* Settings Locked Snackbar (3-second auto-dismiss or manual unlock) */}
-      {!isFullscreen && isLocked && showLockSnackbar && (
-        <div
-          className="fixed top-6 left-1/2 -translate-x-1/2 z-50 pointer-events-auto"
-          onPointerDown={(e) => e.stopPropagation()}
-        >
-          <div className="animate-in fade-in slide-in-from-top-4 duration-300 bg-foreground/90 text-background px-5 py-2.5 rounded-full shadow-2xl flex items-center gap-3.5 text-sm font-medium whitespace-nowrap">
-            <div className="flex items-center gap-2">
-              <Lock className="w-4 h-4 text-background" />
-              <span>Settings Locked</span>
-            </div>
-            <Button
-              size="sm"
-              variant="secondary"
-              className="h-7 px-3 text-xs font-bold rounded-full bg-background/20 hover:bg-background/30 text-background border-none flex items-center gap-1"
-              onClick={() => {
-                setIsLocked(false);
-                setShowLockSnackbar(false);
-              }}
-            >
-              <Unlock className="w-3 h-3" />
-              <span>Unlock</span>
-            </Button>
-          </div>
-        </div>
-      )}
-
-      {/* Floating Session Stats Bar (Card Count & Timer) */}
-      {!isQuizActive && (
-        <SessionStats
-          cardCount={cardCount}
-          timeElapsed={timeElapsed}
-          showCardCount={showCardCount}
-          showTimer={showTimer}
-        />
-      )}
-
-      {/* Interactive Quiz Mode Modal Overlay */}
+      {/* Quiz Display Overlay */}
       {isQuizActive && (
         <QuizDisplay
           activeOperations={activeOperations}
@@ -318,6 +308,42 @@ export default function MathDeckPage() {
           onSpeak={(text) => speak(text, true)}
           onPlayChime={playChime}
           onExit={() => setIsQuizActive(false)}
+        />
+      )}
+
+      {/* Locked Snackbar matching First Read */}
+      {!isFullscreen && isLocked && showLockSnackbar && (
+        <div
+          className="fixed top-6 left-1/2 -translate-x-1/2 z-50 pointer-events-auto"
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          <div className="animate-in fade-in slide-in-from-top-4 duration-300 bg-foreground/90 text-background px-5 py-2.5 rounded-full shadow-lg flex items-center gap-3.5 text-sm font-medium whitespace-nowrap w-max font-headline">
+            <div className="flex items-center gap-1.5">
+              <Lock className="w-4 h-4 text-background" />
+              <span>Settings Locked</span>
+            </div>
+            <Button
+              size="sm"
+              variant="secondary"
+              className="h-7 px-3 text-xs font-semibold rounded-full bg-background/20 hover:bg-background/30 text-background border-none"
+              onClick={() => {
+                setIsLocked(false);
+                setShowLockSnackbar(false);
+              }}
+            >
+              Unlock
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Session Stats Counter matching First Read */}
+      {(showCardCount || showTimer) && !isQuizActive && (
+        <SessionStats
+          cardCount={cardCount}
+          timeElapsed={timeElapsed}
+          showCardCount={showCardCount}
+          showTimer={showTimer}
         />
       )}
     </main>

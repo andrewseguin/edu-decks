@@ -1,10 +1,10 @@
 "use client";
 
-import { Clock, Layers } from "lucide-react";
+import { Clock, Eye } from "lucide-react";
 
 type SessionStatsProps = {
   cardCount: number;
-  timeElapsed: number;
+  timeElapsed: number; // in seconds
   showCardCount: boolean;
   showTimer: boolean;
 };
@@ -23,24 +23,17 @@ export function SessionStats({
   showCardCount,
   showTimer,
 }: SessionStatsProps) {
-  if (!showCardCount && !showTimer) return null;
-
   return (
-    <div
-      className="absolute bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-5 text-foreground/60 bg-card/70 backdrop-blur-md px-5 py-2 rounded-full border border-border/50 shadow-xs pointer-events-none z-20"
-    >
+    <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-4 text-foreground/50 font-headline font-semibold">
       {showCardCount && (
-        <div className="flex items-center gap-2 font-mono text-sm font-semibold">
-          <Layers className="h-4 w-4 text-primary" />
-          <span>Card {cardCount}</span>
+        <div className="flex items-center gap-2">
+          <Eye className="h-5 w-5" />
+          <span>{cardCount}</span>
         </div>
       )}
-      {showCardCount && showTimer && (
-        <div className="h-3 w-[1px] bg-border" />
-      )}
       {showTimer && (
-        <div className="flex items-center gap-2 font-mono text-sm font-semibold">
-          <Clock className="h-4 w-4 text-primary" />
+        <div className="flex items-center gap-2">
+          <Clock className="h-5 w-5" />
           <span>{formatTime(timeElapsed)}</span>
         </div>
       )}

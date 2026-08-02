@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { MathOperation, MathProblem, OPERATION_COLORS } from "@/lib/types";
 import { generateMathProblem, generateQuizOptions } from "@/lib/math-generator";
 import { Button } from "@/components/ui/button";
-import { Volume2, X, Flame, Trophy, Sparkles, CheckCircle2, XCircle } from "lucide-react";
-import confetti from "canvas-confetti";
+import { Volume2, X, Sparkles, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type QuizDisplayProps = {
@@ -35,12 +34,21 @@ export function QuizDisplay({
   const [options, setOptions] = useState<number[]>([]);
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
-  const [bestStreak, setBestStreak] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
-  const [answerState, setAnswerState] = useState<"idle" | "correct" | "wrong">("idle");
-  const [shakingOption, setShakingOption] = useState<number | null>(null);
+  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
+  const [isPlayingSound, setIsPlayingSound] = useState(false);
 
-  const loadNextQuestion = useCallback(() => {
+  const playTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const playAudioPrompt = useCallback((problem: MathProblem) => {
+    setIsPlayingSound(true);
+    onSpeak(`${problem.num1} ${getOpWord(problem.operation)} ${problem.num2}`);
+    setTimeout(() => setIsPlayingSound(false), 1200);
+  }, [onSpeak]);
+
+  const nextQuestion = useCallback(() => {
+    if (playTimeoutRef.current) clearTimeout(playTimeoutRef.current);
+
     const problem = generateMathProblem(
       activeOperations,
       minRange,
@@ -51,67 +59,45 @@ export function QuizDisplay({
     setCurrentProblem(problem);
     setOptions(opts);
     setSelectedOption(null);
-    setAnswerState("idle");
-    setShakingOption(null);
+    setIsCorrect(null);
 
     if (autoPlayAudio) {
-      onSpeak(`What is ${problem.num1} ${getOpWord(problem.operation)} ${problem.num2}?`);
+      playTimeoutRef.current = setTimeout(() => {
+        playAudioPrompt(problem);
+      }, 400);
     }
-  }, [activeOperations, minRange, maxRange, allowNegatives, optionCount, autoPlayAudio, onSpeak]);
+  }, [activeOperations, minRange, maxRange, allowNegatives, optionCount, autoPlayAudio, playAudioPrompt]);
 
   useEffect(() => {
-    loadNextQuestion();
-  }, [loadNextQuestion]);
+    nextQuestion();
+    return () => {
+      if (playTimeoutRef.current) clearTimeout(playTimeoutRef.current);
+    };
+  }, []);
 
-  const triggerConfetti = () => {
-    try {
-      confetti({
-        particleCount: 80,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#059669', '#D97706', '#7C3AED', '#0284C7', '#F59E0B'],
-      });
-    } catch {
-      // Confetti fallback
-    }
-  };
-
-  const handleOptionClick = (option: number) => {
-    if (!currentProblem || answerState === "correct") return;
+  const handleSelectOption = (option: number) => {
+    if (!currentProblem || selectedOption !== null) return;
 
     setSelectedOption(option);
 
     if (option === currentProblem.answer) {
-      setAnswerState("correct");
+      setIsCorrect(true);
+      setScore((s) => s + 1);
+      setStreak((s) => s + 1);
       onPlayChime(true);
-      const newScore = score + 1;
-      const newStreak = streak + 1;
-      setScore(newScore);
-      setStreak(newStreak);
-      if (newStreak > bestStreak) {
-        setBestStreak(newStreak);
-      }
 
-      // Celebrate streak milestones (3, 5, 10, 15...)
-      if (newStreak % 5 === 0 || newStreak === 3) {
-        triggerConfetti();
-        onSpeak(`Awesome! ${newStreak} in a row!`);
-      }
-
-      // Auto advance after 1 second
       setTimeout(() => {
-        loadNextQuestion();
-      }, 1100);
+        nextQuestion();
+      }, 1000);
     } else {
-      setAnswerState("wrong");
-      setShakingOption(option);
+      setIsCorrect(false);
+      setStreak(0);
       onPlayChime(false);
-      setStreak(0); // Reset streak on error
 
       setTimeout(() => {
-        setShakingOption(null);
-        setAnswerState("idle");
-      }, 600);
+        setSelectedOption(null);
+        setIsCorrect(null);
+      }, 800);
     }
   };
 
@@ -119,122 +105,119 @@ export function QuizDisplay({
 
   const opInfo = OPERATION_COLORS[currentProblem.operation];
 
-  // Dynamic Grid Class based on optionCount
-  // 4 cards: 2x2
-  // 6 cards: 2x3 or 3x2
-  // 8 cards: 2x4 or 4x2
-  const gridClass =
-    optionCount === 4
-      ? "grid-cols-2 max-w-sm"
-      : optionCount === 6
-      ? "grid-cols-2 sm:grid-cols-3 max-w-md sm:max-w-xl"
-      : "grid-cols-2 sm:grid-cols-4 max-w-md sm:max-w-2xl";
+  const minCardHeight =
+    optionCount <= 4 ? "min-h-[22vh]" : optionCount <= 6 ? "min-h-[16vh]" : "min-h-[12vh]";
 
   return (
-    <div className="fixed inset-0 z-50 bg-background/95 backdrop-blur-xl flex flex-col justify-between items-center p-4 sm:p-6 overflow-y-auto animate-fade-in-zoom">
-      {/* Top Header Bar */}
-      <div className="w-full max-w-2xl flex items-center justify-between pointer-events-auto">
-        <div className="flex items-center gap-3">
-          {/* Score Badge */}
-          <div className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-card border border-border shadow-xs font-bold">
-            <Trophy className="h-5 w-5 text-amber-500" />
-            <span className="text-foreground text-sm sm:text-base font-headline">
-              Score: <span className="text-primary">{score}</span>
-            </span>
-          </div>
-
-          {/* Streak Counter */}
-          <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-orange-500/10 border border-orange-500/20 text-orange-600 dark:text-orange-400 font-bold text-sm">
-            <Flame className="h-5 w-5 fill-orange-500 text-orange-500 animate-bounce" />
-            <span>{streak}</span>
-          </div>
-        </div>
-
-        {/* Exit Quiz Button */}
+    <div
+      className="fixed inset-0 z-40 bg-background flex flex-col justify-between p-3 sm:p-6 animate-in fade-in duration-300 select-none"
+      onPointerDown={(e) => e.stopPropagation()}
+      onPointerUp={(e) => e.stopPropagation()}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Top Controls Bar */}
+      <div className="flex items-center justify-between w-full max-w-4xl mx-auto gap-2">
         <Button
-          variant="ghost"
-          size="icon"
-          className="rounded-full h-11 w-11 hover:bg-muted text-foreground/70 hover:text-foreground"
-          onClick={onExit}
-          aria-label="Exit quiz mode"
+          variant="outline"
+          size="sm"
+          className="rounded-full gap-1.5 text-muted-foreground hover:text-foreground shrink-0 font-headline font-bold"
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            onExit();
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            onExit();
+          }}
         >
-          <X className="h-6 w-6" />
+          <X className="w-4 h-4" />
+          <span className="hidden sm:inline">Exit Quiz</span>
         </Button>
-      </div>
 
-      {/* Main Question Card Area */}
-      <div className="my-auto w-full max-w-2xl flex flex-col items-center gap-6 py-4">
-        <div
+        {/* Center Prompt Replay Button */}
+        <Button
+          size="sm"
+          variant="default"
           className={cn(
-            "w-full rounded-[2.5rem] bg-card border-4 p-8 sm:p-10 flex flex-col items-center justify-center gap-4 shadow-xl relative overflow-hidden transition-all duration-300",
-            opInfo.border
+            "rounded-full gap-2 px-5 py-2 font-headline font-bold text-base shadow-md transition-transform active:scale-95 outline-none text-white",
+            isPlayingSound ? "animate-pulse scale-105" : "hover:opacity-90"
           )}
+          style={{ backgroundColor: opInfo.hex }}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            if (currentProblem) playAudioPrompt(currentProblem);
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (currentProblem) playAudioPrompt(currentProblem);
+          }}
+          aria-label="Replay equation"
         >
-          {/* Audio Replay Button */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="absolute top-4 right-4 rounded-full h-10 w-10 hover:bg-muted/80"
-            onClick={() =>
-              onSpeak(
-                `What is ${currentProblem.num1} ${getOpWord(currentProblem.operation)} ${currentProblem.num2}?`
-              )
-            }
-            aria-label="Replay equation prompt"
-          >
-            <Volume2 className="h-5 w-5 text-foreground/70" />
-          </Button>
+          <Volume2 className="w-5 h-5 text-white" />
+          <span>{currentProblem.displayText} = ?</span>
+        </Button>
 
-          <span
-            className={cn(
-              "px-4 py-1.5 rounded-full text-xs font-black tracking-widest uppercase border",
-              opInfo.badgeBg
-            )}
-          >
-            {opInfo.name} Quiz
-          </span>
-
-          <div className="text-6xl sm:text-8xl font-black font-headline text-foreground tracking-tight">
-            {currentProblem.displayText} = ?
-          </div>
-        </div>
-
-        {/* Answer Options Grid */}
-        <div className={cn("grid gap-3.5 w-full", gridClass)}>
-          {options.map((option) => {
-            const isSelected = selectedOption === option;
-            const isCorrect = isSelected && answerState === "correct";
-            const isWrong = shakingOption === option;
-
-            return (
-              <Button
-                key={option}
-                type="button"
-                variant="outline"
-                className={cn(
-                  "h-20 sm:h-24 rounded-3xl text-3xl sm:text-4xl font-black font-headline border-3 shadow-md transition-all active:scale-95",
-                  isCorrect
-                    ? "bg-emerald-500 text-white border-emerald-600 scale-105 shadow-emerald-500/30"
-                    : isWrong
-                    ? "bg-rose-500 text-white border-rose-600 animate-shake shadow-rose-500/30"
-                    : "bg-card hover:bg-muted/50 border-border text-foreground hover:scale-[1.02]"
-                )}
-                onClick={() => handleOptionClick(option)}
-                disabled={answerState === "correct"}
-              >
-                {option}
-                {isCorrect && <CheckCircle2 className="h-6 w-6 ml-2 animate-bounce" />}
-                {isWrong && <XCircle className="h-6 w-6 ml-2" />}
-              </Button>
-            );
-          })}
+        {/* Score & Streak Badge */}
+        <div className="flex items-center gap-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-3.5 py-1.5 rounded-full font-bold text-sm shrink-0 font-headline">
+          <Sparkles className="w-4 h-4" />
+          <span>{score}</span>
+          {streak > 1 && (
+            <span className="text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full font-black">
+              🔥 {streak}
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Footer Info */}
-      <div className="w-full text-center text-xs text-muted-foreground/60 font-semibold tracking-wider uppercase pb-2 flex items-center justify-center gap-2">
-        <Sparkles className="h-4 w-4 text-amber-500" />
-        <span>Best Streak: {bestStreak} 🔥</span>
+      {/* Dynamic Options Grid */}
+      <div
+        className={cn(
+          "w-full mx-auto flex-1 grid my-auto p-2 min-h-0 items-center",
+          options.length <= 4
+            ? "max-w-2xl grid-cols-2 gap-3 sm:gap-6 max-h-[72vh]"
+            : options.length <= 6
+            ? "max-w-4xl grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4 max-h-[78vh]"
+            : "max-w-5xl grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 max-h-[82vh]"
+        )}
+      >
+        {options.map((option) => {
+          const isSelected = selectedOption === option;
+          const isSelectedCorrect = isSelected && isCorrect === true;
+          const isSelectedIncorrect = isSelected && isCorrect === false;
+
+          return (
+            <button
+              key={option}
+              className={cn(
+                "h-full w-full rounded-3xl flex items-center justify-center font-headline font-bold shadow-lg transition-all active:scale-95 relative overflow-hidden border-4 border-transparent p-2 outline-none select-none text-4xl sm:text-6xl md:text-7xl",
+                minCardHeight,
+                isSelectedCorrect &&
+                  "bg-emerald-500 text-white scale-105 border-emerald-400 z-10 shadow-2xl shadow-emerald-500/30",
+                isSelectedIncorrect &&
+                  "bg-destructive/20 text-destructive border-destructive animate-shake",
+                !isSelected &&
+                  "bg-card text-card-foreground hover:border-primary/40 hover:scale-[1.01]"
+              )}
+              style={{
+                backgroundColor: !isSelected ? `${opInfo.hex}18` : undefined,
+                color: !isSelected ? opInfo.hex : undefined,
+              }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+                handleSelectOption(option);
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleSelectOption(option);
+              }}
+            >
+              <span className="select-none inline-block leading-none">{option}</span>
+              {isSelectedCorrect && (
+                <CheckCircle2 className="absolute top-3 right-3 w-8 h-8 text-white animate-in zoom-in" />
+              )}
+            </button>
+          );
+        })}
       </div>
     </div>
   );

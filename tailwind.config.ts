@@ -10,8 +10,8 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-lexend)", "sans-serif"],
-        headline: ["var(--font-lexend)", "sans-serif"],
+        body: ["Lexend", "var(--font-lexend)", "sans-serif"],
+        headline: ["Lexend", "var(--font-lexend)", "sans-serif"],
       },
       colors: {
         background: "hsl(var(--background))",
