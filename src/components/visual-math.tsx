@@ -29,7 +29,7 @@ export function VisualMath({ problem }: VisualMathProps) {
         if (currentCyan >= num1) {
           clearInterval(cyanInterval);
 
-          // Step 2: Incrementally reveal Orange blocks (1 every 110ms) after Cyan finishes
+          // Step 2: Incrementally reveal Orange blocks (1 every 110ms) after Cyan finishes + 400ms pause
           setTimeout(() => {
             let currentOrange = 0;
             const orangeInterval = setInterval(() => {
@@ -39,7 +39,7 @@ export function VisualMath({ problem }: VisualMathProps) {
                 clearInterval(orangeInterval);
               }
             }, 110);
-          }, 200);
+          }, 400);
         }
       }, 90);
 
@@ -47,7 +47,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     }
 
     if (operation === '-') {
-      // Step 1: Incrementally reveal Cyan blocks (num1) from empty slots
+      // Step 1: Incrementally reveal Cyan blocks (num1) from empty slots (1 every 90ms)
       let currentCyan = 0;
       const cyanInterval = setInterval(() => {
         currentCyan++;
@@ -55,7 +55,7 @@ export function VisualMath({ problem }: VisualMathProps) {
         if (currentCyan >= num1) {
           clearInterval(cyanInterval);
 
-          // Step 2: Incrementally animate Orange ✕ badges from the END backward
+          // Step 2: Clear 650ms pause before starting to animate Orange ✕ badges from the END
           setTimeout(() => {
             let currentSub = 0;
             const subInterval = setInterval(() => {
@@ -64,8 +64,8 @@ export function VisualMath({ problem }: VisualMathProps) {
               if (currentSub >= num2) {
                 clearInterval(subInterval);
               }
-            }, 130);
-          }, 200);
+            }, 150);
+          }, 650);
         }
       }, 90);
 
@@ -154,7 +154,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // SUBTRACTION (-): Empty slots -> Cyan blocks (num1) fill in -> Orange ✕ badges animate from the END backward
+  // SUBTRACTION (-): Empty slots -> Cyan blocks (num1) fill in -> Clear 650ms Pause -> Orange ✕ badges animate from the END backward
   if (operation === '-') {
     const total = num1;
     const takenAway = num2;
