@@ -15,6 +15,7 @@ type QuizDisplayProps = {
   selectedWordLengths: number[];
   wordDifficulty: string;
   letterCase: "lower" | "upper" | "mixed";
+  optionCount?: number;
   onExit: () => void;
 };
 
@@ -32,6 +33,7 @@ export function QuizDisplay({
   selectedWordLengths,
   wordDifficulty,
   letterCase,
+  optionCount = 4,
   onExit,
 }: QuizDisplayProps) {
   const audioData = useAudio();
@@ -66,7 +68,7 @@ export function QuizDisplay({
     if (gameMode === "words") {
       const available = selectedLetters.length > 0 ? selectedLetters : ALL_LETTERS;
       const wordPool = wordDifficulty === "easy" ? EASY_WORDS : [...EASY_WORDS, ...HARD_WORDS];
-      const validWords = wordPool.filter((word) => {
+      let validWords = wordPool.filter((word) => {
         if (!selectedWordLengths.includes(word.length)) return false;
         let i = 0;
         while (i < word.length) {
@@ -89,18 +91,30 @@ export function QuizDisplay({
         return true;
       });
 
-      if (validWords.length > 0) {
-        return validWords.map((w) => {
-          const isHard = HARD_WORDS.includes(w);
-          return {
-            value: w,
-            displayValue: formatText(w),
-            isHardWord: isHard,
-            color: isHard ? "#8B5CF6" : "#059669",
-            textColor: "#FFFFFF",
-          };
-        });
+      // If validWords is smaller than optionCount, expand with other words matching selected lengths
+      if (validWords.length < optionCount) {
+        const matchingLengthWords = wordPool.filter(
+          (w) => selectedWordLengths.includes(w.length) && !validWords.includes(w)
+        );
+        validWords = [...validWords, ...matchingLengthWords];
       }
+
+      // If still smaller than optionCount, fill with any available words in wordPool
+      if (validWords.length < optionCount) {
+        const extraPoolWords = wordPool.filter((w) => !validWords.includes(w));
+        validWords = [...validWords, ...extraPoolWords];
+      }
+
+      return validWords.map((w) => {
+        const isHard = HARD_WORDS.includes(w);
+        return {
+          value: w,
+          displayValue: formatText(w),
+          isHardWord: isHard,
+          color: isHard ? "#8B5CF6" : "#059669",
+          textColor: "#FFFFFF",
+        };
+      });
     }
 
     // Default to letters mode
@@ -114,7 +128,7 @@ export function QuizDisplay({
         textColor: data?.textColor || "#FFFFFF",
       };
     });
-  }, [gameMode, selectedLetters, selectedWordLengths, wordDifficulty, formatText]);
+  }, [gameMode, selectedLetters, selectedWordLengths, wordDifficulty, optionCount, formatText]);
 
   const stopAudio = useCallback(() => {
     if (playTimeoutRef.current) {
@@ -165,10 +179,24 @@ export function QuizDisplay({
         }
       } else {
         // Words mode: Speak full word cleanly for Quiz prompt
-        const utterance = new SpeechSynthesisUtterance(item.value);
-        utterance.onend = () => setIsPlayingSound(false);
-        utterance.onerror = () => setIsPlayingSound(false);
-        window.speechSynthesis.speak(utterance);
+        const basePath = process.env.NODE_ENV === "production" ? "/first-read" : "";
+        const mp3Url = `${basePath}/sounds/words/${item.value.toLowerCase()}.mp3`;
+        const audio = new Audio(mp3Url);
+
+        audio.onended = () => setIsPlayingSound(false);
+        audio.onerror = () => {
+          const utterance = new SpeechSynthesisUtterance(item.value);
+          utterance.onend = () => setIsPlayingSound(false);
+          utterance.onerror = () => setIsPlayingSound(false);
+          window.speechSynthesis.speak(utterance);
+        };
+
+        audio.play().catch(() => {
+          const utterance = new SpeechSynthesisUtterance(item.value);
+          utterance.onend = () => setIsPlayingSound(false);
+          utterance.onerror = () => setIsPlayingSound(false);
+          window.speechSynthesis.speak(utterance);
+        });
       }
     },
     [audioContext, buffers, gameMode, stopAudio]
@@ -186,28 +214,50 @@ export function QuizDisplay({
     // Pick 1 target
     const target = pool[Math.floor(Math.random() * pool.length)];
 
-    // Pick 3 distractors
+    // Pick distractors based on optionCount
+    const requiredDistractorCount = Math.max(1, optionCount - 1);
     const remaining = pool.filter((i) => i.value !== target.value);
     const shuffledRemaining = [...remaining].sort(() => Math.random() - 0.5);
 
-    // If pool is small (< 4), fallback to general letters for distractors
-    let distractors = shuffledRemaining.slice(0, 3);
-    if (distractors.length < 3) {
-      const extraLetters = ALL_LETTERS.filter(
-        (char) => char !== target.value && !distractors.some((d) => d.value === char)
-      )
-        .sort(() => Math.random() - 0.5)
-        .slice(0, 3 - distractors.length)
-        .map((char) => {
-          const info = getLetterInfo(char);
-          return {
-            value: char,
-            displayValue: formatText(char),
-            color: info?.color || "#F9991F",
-            textColor: info?.textColor || "#FFFFFF",
-          };
-        });
-      distractors = [...distractors, ...extraLetters];
+    // If pool is small, fallback to general items for distractors
+    let distractors = shuffledRemaining.slice(0, requiredDistractorCount);
+    if (distractors.length < requiredDistractorCount) {
+      if (gameMode === "words") {
+        const wordPool = wordDifficulty === "easy" ? EASY_WORDS : [...EASY_WORDS, ...HARD_WORDS];
+        const extraWords = wordPool
+          .filter(
+            (w) => w !== target.value && !distractors.some((d) => d.value === w)
+          )
+          .sort(() => Math.random() - 0.5)
+          .slice(0, requiredDistractorCount - distractors.length)
+          .map((w) => {
+            const isHard = HARD_WORDS.includes(w);
+            return {
+              value: w,
+              displayValue: formatText(w),
+              isHardWord: isHard,
+              color: isHard ? "#8B5CF6" : "#059669",
+              textColor: "#FFFFFF",
+            };
+          });
+        distractors = [...distractors, ...extraWords];
+      } else {
+        const extraLetters = ALL_LETTERS.filter(
+          (char) => char !== target.value && !distractors.some((d) => d.value === char)
+        )
+          .sort(() => Math.random() - 0.5)
+          .slice(0, requiredDistractorCount - distractors.length)
+          .map((char) => {
+            const info = getLetterInfo(char);
+            return {
+              value: char,
+              displayValue: formatText(char),
+              color: info?.color || "#F9991F",
+              textColor: info?.textColor || "#FFFFFF",
+            };
+          });
+        distractors = [...distractors, ...extraLetters];
+      }
     }
 
     const roundOptions = [target, ...distractors].sort(() => Math.random() - 0.5);
@@ -329,26 +379,54 @@ export function QuizDisplay({
         </div>
       </div>
 
-      {/* 2x2 Options Grid - balanced aspect ratio with giant letter scaling */}
-      <div className="w-full max-w-2xl mx-auto flex-1 grid grid-cols-2 gap-3 sm:gap-6 my-auto max-h-[72vh] p-2 min-h-0 items-center">
+      {/* Dynamic Options Grid - 4, 6, or 8 options layout */}
+      <div
+        className={cn(
+          "w-full mx-auto flex-1 grid my-auto p-2 min-h-0 items-center",
+          options.length <= 4
+            ? "max-w-2xl grid-cols-2 gap-3 sm:gap-6 max-h-[72vh]"
+            : options.length <= 6
+            ? "max-w-4xl grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4 max-h-[78vh]"
+            : "max-w-5xl grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 max-h-[82vh]"
+        )}
+      >
         {options.map((item) => {
           const isSelected = selectedOption === item.value;
           const isSelectedCorrect = isSelected && isCorrect === true;
           const isSelectedIncorrect = isSelected && isCorrect === false;
           const isSingleChar = item.displayValue.length === 1;
+          const count = options.length;
+
+          const minCardHeight =
+            count <= 4 ? "min-h-[22vh]" : count <= 6 ? "min-h-[16vh]" : "min-h-[12vh]";
+
+          const fontSizeClamp =
+            count <= 4
+              ? "clamp(5.5rem, 20vh, 15rem)"
+              : count <= 6
+              ? "clamp(4rem, 14vh, 9rem)"
+              : "clamp(2.8rem, 11vh, 7.5rem)";
+
+          const wordFontSizeClass =
+            count <= 4
+              ? "text-3xl sm:text-5xl md:text-6xl"
+              : count <= 6
+              ? "text-2xl sm:text-4xl md:text-5xl"
+              : "text-xl sm:text-2xl md:text-3xl";
 
           return (
             <button
               key={item.value}
               className={cn(
-                "h-full w-full rounded-3xl flex items-center justify-center font-headline font-bold shadow-lg transition-all active:scale-95 relative overflow-hidden border-4 border-transparent p-2 min-h-[22vh] outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 select-none",
-                !isSingleChar && "text-3xl sm:text-5xl md:text-6xl",
+                "h-full w-full rounded-3xl flex items-center justify-center font-headline font-bold shadow-lg transition-all active:scale-95 relative overflow-hidden border-4 border-transparent p-2 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0 select-none",
+                minCardHeight,
+                !isSingleChar && wordFontSizeClass,
                 isSelectedCorrect && "bg-emerald-500 text-white scale-105 border-emerald-400 z-10 shadow-2xl shadow-emerald-500/30",
                 isSelectedIncorrect && "bg-destructive/20 text-destructive border-destructive",
                 !isSelected && "bg-card text-card-foreground hover:border-primary/40 hover:scale-[1.01]"
               )}
               style={{
-                fontSize: isSingleChar ? "clamp(6rem, 22vh, 16rem)" : undefined,
+                fontSize: isSingleChar ? fontSizeClamp : undefined,
                 fontWeight: isSingleChar ? 300 : 700,
                 lineHeight: 1,
                 backgroundColor: !isSelected && item.color ? `${item.color}15` : undefined,

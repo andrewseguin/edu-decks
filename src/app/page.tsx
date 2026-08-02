@@ -125,6 +125,10 @@ export default function Home() {
     "first-read-enable-words",
     true
   );
+  const [quizOptionCount, setQuizOptionCount] = useLocalStorage<number>(
+    "first-read-quiz-option-count",
+    4
+  );
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -664,7 +668,7 @@ export default function Home() {
 
   return (
     <main
-      className="flex h-svh w-screen cursor-pointer items-center justify-center bg-background overflow-hidden relative focus:outline-none touch-none"
+      className="flex h-svh w-screen cursor-pointer items-center justify-center overflow-hidden relative focus:outline-none touch-none"
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       tabIndex={-1}
@@ -704,6 +708,8 @@ export default function Home() {
             onEnableUppercaseChange={setEnableUppercase}
             enableWords={enableWords}
             onEnableWordsChange={setEnableWords}
+            quizOptionCount={quizOptionCount}
+            onQuizOptionCountChange={setQuizOptionCount}
             open={isSettingsOpen}
             onOpenChange={handleSettingsOpenChange}
             onOpenRecordings={() => setIsRecordingsModalOpen(true)}
@@ -720,6 +726,7 @@ export default function Home() {
           selectedWordLengths={selectedWordLengths}
           wordDifficulty={wordDifficulty}
           letterCase={letterCase}
+          optionCount={quizOptionCount}
           onExit={() => setIsQuizActive(false)}
         />
       )}

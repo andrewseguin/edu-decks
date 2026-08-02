@@ -354,29 +354,50 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
         setHighlightedIndex(null);
         
         // After word finishes spelling out, speak the whole word
-        const utterance = new SpeechSynthesisUtterance(content.value);
-        const voices = window.speechSynthesis.getVoices();
-        const googleVoice = voices.find(v => v.name === 'Google US English');
-        if (googleVoice) {
-          utterance.voice = googleVoice;
-        }
-        utterance.rate = 0.9;
-        
-        currentUtteranceRef.current = utterance;
+        const basePath = process.env.NODE_ENV === 'production' ? '/first-read' : '';
+        const mp3Url = `${basePath}/sounds/words/${content.value.toLowerCase()}.mp3`;
+        const audio = new Audio(mp3Url);
 
-        utterance.onend = () => {
+        const fallbackToSpeechSynthesis = () => {
+          if (signal.aborted) return;
+          const utterance = new SpeechSynthesisUtterance(content.value);
+          const voices = window.speechSynthesis.getVoices();
+          const googleVoice = voices.find(v => v.name === 'Google US English');
+          if (googleVoice) {
+            utterance.voice = googleVoice;
+          }
+          utterance.rate = 0.9;
+          
+          currentUtteranceRef.current = utterance;
+
+          utterance.onend = () => {
+            if (signal.aborted) return;
+            setIsPlaying(false);
+            currentUtteranceRef.current = null;
+          };
+          
+          utterance.onerror = () => {
+            if (signal.aborted) return;
+            setIsPlaying(false);
+            currentUtteranceRef.current = null;
+          };
+
+          window.speechSynthesis.speak(utterance);
+        };
+
+        audio.onended = () => {
           if (signal.aborted) return;
           setIsPlaying(false);
-          currentUtteranceRef.current = null;
-        };
-        
-        utterance.onerror = () => {
-          if (signal.aborted) return;
-          setIsPlaying(false);
-          currentUtteranceRef.current = null;
         };
 
-        window.speechSynthesis.speak(utterance);
+        audio.onerror = () => {
+          fallbackToSpeechSynthesis();
+        };
+
+        audio.play().catch(() => {
+          fallbackToSpeechSynthesis();
+        });
+
         if (abortControllerRef.current === abortController) {
           abortControllerRef.current = null;
         }

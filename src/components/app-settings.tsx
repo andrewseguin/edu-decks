@@ -22,6 +22,8 @@ type AppSettingsProps = {
   onEnableTracingChange: (enable: boolean) => void;
   autoPlaySound: boolean;
   onAutoPlaySoundChange: (autoPlay: boolean) => void;
+  quizOptionCount: number;
+  onQuizOptionCountChange: (count: number) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onOpenRecordings: () => void;
@@ -43,6 +45,8 @@ export function AppSettings({
   onEnableTracingChange,
   autoPlaySound,
   onAutoPlaySoundChange,
+  quizOptionCount,
+  onQuizOptionCountChange,
   open,
   onOpenChange,
   onOpenRecordings,
@@ -106,7 +110,7 @@ export function AppSettings({
 
           <div className="space-y-4">
             <h4 className="font-medium leading-none font-headline text-lg">
-              Modes
+              Modes & Quiz
             </h4>
             <div className="flex items-center justify-between">
               <Label htmlFor="uppercase-toggle" className="text-base">
@@ -127,6 +131,23 @@ export function AppSettings({
                 checked={enableWords}
                 onCheckedChange={onEnableWordsChange}
               />
+            </div>
+            <div className="space-y-2 pt-1">
+              <Label className="text-base">Quiz Cards Shown</Label>
+              <div className="grid grid-cols-3 gap-2">
+                {[4, 6, 8].map((count) => (
+                  <Button
+                    key={count}
+                    type="button"
+                    variant={quizOptionCount === count ? "default" : "outline"}
+                    size="sm"
+                    className="rounded-xl font-bold font-headline h-9"
+                    onClick={() => onQuizOptionCountChange(count)}
+                  >
+                    {count} Cards
+                  </Button>
+                ))}
+              </div>
             </div>
           </div>
 
