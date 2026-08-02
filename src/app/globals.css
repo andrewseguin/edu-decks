@@ -96,7 +96,7 @@
   animation: fadeInZoom 0.35s ease-out forwards;
 }
 
-/* Ten Frame Fill In & Take Away Animations - Calm, Paced Curves */
+/* Ten Frame Fill In & Take Away Animations */
 @keyframes fillInBlock {
   0% {
     transform: scale(0) translateY(-8px);
@@ -112,18 +112,22 @@
   }
 }
 
-@keyframes takeAwayBlock {
+/* Subtle Silly Pop Animation for Cyan Blocks */
+@keyframes sillyPopBlock {
   0% {
-    transform: scale(1);
+    transform: scale(0.6) rotate(-12deg);
+    opacity: 0.4;
+  }
+  50% {
+    transform: scale(1.38) rotate(10deg);
     opacity: 1;
   }
-  40% {
-    transform: scale(1.25) rotate(12deg);
-    opacity: 0.9;
+  75% {
+    transform: scale(0.9) rotate(-4deg);
   }
   100% {
-    transform: scale(0.85) rotate(0deg);
-    opacity: 0.35;
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
   }
 }
 
@@ -131,8 +135,8 @@
   animation: fillInBlock 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
 }
 
-.animate-take-away {
-  animation: takeAwayBlock 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+.animate-silly-pop {
+  animation: sillyPopBlock 0.45s cubic-bezier(0.34, 1.75, 0.64, 1) forwards;
 }
 
 /* Card Deck Slide Animations */

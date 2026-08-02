@@ -154,7 +154,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // SUBTRACTION (-): Empty slots -> Cyan blocks (num1) fill in -> Clear 650ms Pause -> Orange ✕ badges animate from the END backward
+  // SUBTRACTION (-): Empty slots -> Cyan blocks (num1) fill in -> Clear 650ms Pause -> Silly popping Orange ✕ badges
   if (operation === '-') {
     const total = num1;
     const takenAway = num2;
@@ -198,14 +198,16 @@ export function VisualMath({ problem }: VisualMathProps) {
                 // Reverse index from the end for subtraction take-away
                 const subReverseIndex = (total - 1) - slotIndex;
 
-                // Subtraction Orange ✕ Badge: transparent square with soft dashed border and Orange cross symbol
+                // Subtraction Orange ✕ Badge with silly popping animation & pop ripple ring
                 if (isRemovedSlot && subReverseIndex < subtractionCount) {
                   return (
                     <div
                       key={`slot-${slotIndex}`}
-                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-transparent text-amber-400 border border-dashed border-amber-400/60 shadow-xs flex items-center justify-center font-bold text-xs sm:text-sm animate-fill-in cursor-pointer hover:scale-110"
+                      className="relative w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-transparent text-amber-400 border border-dashed border-amber-400/80 shadow-xs flex items-center justify-center font-bold text-xs sm:text-sm animate-silly-pop cursor-pointer hover:scale-125 transition-transform"
                     >
-                      ✕
+                      <span>✕</span>
+                      {/* Subtle Silly Pop Ring burst */}
+                      <span className="absolute -inset-1 rounded-lg border border-amber-400/70 animate-ping opacity-60 pointer-events-none" />
                     </div>
                   );
                 }
