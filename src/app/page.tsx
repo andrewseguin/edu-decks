@@ -78,24 +78,32 @@ export default function MathDeckPage() {
   }, [isLocked]);
 
   const nextCard = useCallback((autoPlay: boolean = true) => {
-    setIsFlipped(false);
-    const newProblem = generateMathProblem(
-      activeOperations,
-      minRange,
-      maxRange,
-      allowNegatives
-    );
-    setHistory((prev) => {
-      const nextHist = [...prev, newProblem];
-      setHistoryIndex(nextHist.length - 1);
-      return nextHist;
-    });
-    setCardCount((c) => c + 1);
+    const doAdvance = () => {
+      const newProblem = generateMathProblem(
+        activeOperations,
+        minRange,
+        maxRange,
+        allowNegatives
+      );
+      setHistory((prev) => {
+        const nextHist = [...prev, newProblem];
+        setHistoryIndex(nextHist.length - 1);
+        return nextHist;
+      });
+      setCardCount((c) => c + 1);
 
-    if (autoPlayAudio && !isQuizActive && autoPlay) {
-      speak(newProblem.problemSpeechText);
+      if (autoPlayAudio && !isQuizActive && autoPlay) {
+        speak(newProblem.problemSpeechText);
+      }
+    };
+
+    if (isFlipped) {
+      setIsFlipped(false);
+      setTimeout(doAdvance, 250);
+    } else {
+      doAdvance();
     }
-  }, [activeOperations, minRange, maxRange, allowNegatives, autoPlayAudio, isQuizActive, speak]);
+  }, [activeOperations, minRange, maxRange, allowNegatives, autoPlayAudio, isQuizActive, isFlipped, speak]);
 
   useEffect(() => {
     if (hydrated && history.length === 0) {
@@ -120,26 +128,42 @@ export default function MathDeckPage() {
   };
 
   const handlePrevCard = () => {
-    setIsFlipped(false);
-    if (historyIndex > 0) {
-      const prevIdx = historyIndex - 1;
-      setHistoryIndex(prevIdx);
-      if (autoPlayAudio && !isQuizActive) {
-        speak(history[prevIdx].problemSpeechText);
+    const doPrev = () => {
+      if (historyIndex > 0) {
+        const prevIdx = historyIndex - 1;
+        setHistoryIndex(prevIdx);
+        if (autoPlayAudio && !isQuizActive) {
+          speak(history[prevIdx].problemSpeechText);
+        }
       }
+    };
+
+    if (isFlipped) {
+      setIsFlipped(false);
+      setTimeout(doPrev, 250);
+    } else {
+      doPrev();
     }
   };
 
   const handleNextCard = () => {
-    setIsFlipped(false);
-    if (historyIndex < history.length - 1) {
-      const nextIdx = historyIndex + 1;
-      setHistoryIndex(nextIdx);
-      if (autoPlayAudio && !isQuizActive) {
-        speak(history[nextIdx].problemSpeechText);
+    const doNext = () => {
+      if (historyIndex < history.length - 1) {
+        const nextIdx = historyIndex + 1;
+        setHistoryIndex(nextIdx);
+        if (autoPlayAudio && !isQuizActive) {
+          speak(history[nextIdx].problemSpeechText);
+        }
+      } else {
+        nextCard(true);
       }
+    };
+
+    if (isFlipped) {
+      setIsFlipped(false);
+      setTimeout(doNext, 250);
     } else {
-      nextCard(true);
+      doNext();
     }
   };
 
