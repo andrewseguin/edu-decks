@@ -41,6 +41,7 @@ export default function MathDeckPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isQuizActive, setIsQuizActive] = useState(false);
   const [showLockSnackbar, setShowLockSnackbar] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
 
   // Deck state
   const [history, setHistory] = useState<MathProblem[]>([]);
@@ -52,12 +53,10 @@ export default function MathDeckPage() {
   const { speak, playChime } = useAudio();
   useWakeLock(keepScreenAwake);
 
-  // Client hydration check
   useEffect(() => {
     setHydrated(true);
   }, []);
 
-  // Timer counter
   useEffect(() => {
     if (!showTimer || isQuizActive) return;
     const interval = setInterval(() => {
@@ -66,7 +65,6 @@ export default function MathDeckPage() {
     return () => clearInterval(interval);
   }, [showTimer, isQuizActive]);
 
-  // Lock Snackbar auto-dismiss
   useEffect(() => {
     if (isLocked) {
       setShowLockSnackbar(true);
@@ -79,8 +77,8 @@ export default function MathDeckPage() {
     }
   }, [isLocked]);
 
-  // Generate next card problem
   const nextCard = useCallback((autoPlay: boolean = true) => {
+    setIsFlipped(false);
     const newProblem = generateMathProblem(
       activeOperations,
       minRange,
@@ -99,14 +97,12 @@ export default function MathDeckPage() {
     }
   }, [activeOperations, minRange, maxRange, allowNegatives, autoPlayAudio, isQuizActive, speak]);
 
-  // Initial card deck generation
   useEffect(() => {
     if (hydrated && history.length === 0) {
       nextCard(true);
     }
   }, [hydrated, history.length, nextCard]);
 
-  // Handle operation toggles safely
   const handleOperationToggle = (op: MathOperation) => {
     let nextOps: MathOperation[];
     if (activeOperations.includes(op)) {
@@ -124,6 +120,7 @@ export default function MathDeckPage() {
   };
 
   const handlePrevCard = () => {
+    setIsFlipped(false);
     if (historyIndex > 0) {
       const prevIdx = historyIndex - 1;
       setHistoryIndex(prevIdx);
@@ -134,6 +131,7 @@ export default function MathDeckPage() {
   };
 
   const handleNextCard = () => {
+    setIsFlipped(false);
     if (historyIndex < history.length - 1) {
       const nextIdx = historyIndex + 1;
       setHistoryIndex(nextIdx);
@@ -145,7 +143,6 @@ export default function MathDeckPage() {
     }
   };
 
-  // Fullscreen toggle
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch(() => {});
@@ -158,12 +155,15 @@ export default function MathDeckPage() {
     }
   };
 
-  // Keyboard navigation matching First Read
+  // Keyboard Navigation matching First Read
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isQuizActive) return;
 
-      if (e.code === "Space" || e.code === "ArrowDown") {
+      if (e.code === "Space") {
+        e.preventDefault();
+        setIsFlipped((f) => !f);
+      } else if (e.code === "ArrowDown") {
         e.preventDefault();
         handleNextCard();
       } else if (e.code === "ArrowLeft") {
@@ -179,7 +179,7 @@ export default function MathDeckPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isQuizActive, historyIndex, history.length, handleNextCard, handlePrevCard]);
 
-  // Touch Pointer / Swipe Gesture Handling matching First Read
+  // Touch Pointer / Gesture Handling matching First Read
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const handlePointerDown = (e: React.PointerEvent) => {
@@ -247,14 +247,13 @@ export default function MathDeckPage() {
       {currentProblem && (
         <MathCard
           problem={currentProblem}
+          isFlipped={isFlipped}
+          onFlip={() => setIsFlipped((f) => !f)}
           onSpeak={(text) => speak(text, true)}
-          onNext={handleNextCard}
-          onPrev={handlePrevCard}
-          hasPrev={historyIndex > 0}
         />
       )}
 
-      {/* Top Bar Controls matching First Read */}
+      {/* Top Bar Controls */}
       {!isFullscreen && !isLocked && (
         <div
           className="absolute top-4 right-4 flex items-center gap-2 pointer-events-auto"
@@ -311,7 +310,7 @@ export default function MathDeckPage() {
         />
       )}
 
-      {/* Locked Snackbar matching First Read */}
+      {/* Locked Snackbar */}
       {!isFullscreen && isLocked && showLockSnackbar && (
         <div
           className="fixed top-6 left-1/2 -translate-x-1/2 z-50 pointer-events-auto"
@@ -337,7 +336,7 @@ export default function MathDeckPage() {
         </div>
       )}
 
-      {/* Session Stats Counter matching First Read */}
+      {/* Session Stats Counter */}
       {(showCardCount || showTimer) && !isQuizActive && (
         <SessionStats
           cardCount={cardCount}
