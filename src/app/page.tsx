@@ -14,7 +14,7 @@ import { FullscreenToggle } from "@/components/fullscreen-toggle";
 import { SessionStats } from "@/components/session-stats";
 import { QuizDisplay } from "@/components/quiz-display";
 
-import { ChevronLeft, ChevronRight, Lock } from "lucide-react";
+import { Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function MathDeckPage() {
@@ -167,6 +167,19 @@ export default function MathDeckPage() {
     }
   };
 
+  // Main Card Tap Handler: Tap Front -> Show Answer; Tap Back -> Next Card
+  const handleCardTap = () => {
+    if (!isFlipped) {
+      setIsFlipped(true);
+      const currentProb = history[historyIndex];
+      if (autoPlayAudio && !isQuizActive && currentProb) {
+        speak(currentProb.fullSpeechText);
+      }
+    } else {
+      handleNextCard();
+    }
+  };
+
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen().catch(() => {});
@@ -186,22 +199,19 @@ export default function MathDeckPage() {
 
       if (e.code === "Space") {
         e.preventDefault();
-        setIsFlipped((f) => !f);
-      } else if (e.code === "ArrowDown") {
+        handleCardTap();
+      } else if (e.code === "ArrowDown" || e.code === "ArrowRight") {
         e.preventDefault();
         handleNextCard();
       } else if (e.code === "ArrowLeft") {
         e.preventDefault();
         handlePrevCard();
-      } else if (e.code === "ArrowRight") {
-        e.preventDefault();
-        handleNextCard();
       }
     };
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isQuizActive, historyIndex, history.length, handleNextCard, handlePrevCard]);
+  }, [isQuizActive, historyIndex, history.length, isFlipped, handleNextCard, handlePrevCard]);
 
   // Touch Pointer / Swipe Gesture Handling
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -225,7 +235,7 @@ export default function MathDeckPage() {
 
     touchStartRef.current = null;
 
-    // Handle horizontal swipes ONLY for card navigation (don't double-trigger card clicks)
+    // Handle horizontal swipes for card navigation
     if (absDeltaX > 50 && absDeltaX > absDeltaY) {
       if (deltaX > 0) {
         handlePrevCard();
@@ -262,55 +272,14 @@ export default function MathDeckPage() {
       onPointerUp={handlePointerUp}
       tabIndex={-1}
     >
-      <div className="flex flex-col items-center justify-center gap-6">
-        {currentProblem && (
-          <MathCard
-            problem={currentProblem}
-            isFlipped={isFlipped}
-            onFlip={() => setIsFlipped((f) => !f)}
-            onSpeak={(text) => speak(text, true)}
-          />
-        )}
-
-        {/* Navigation Control Bar below Card */}
-        {!isQuizActive && (
-          <div
-            className="flex items-center gap-3 pointer-events-auto z-20"
-            onPointerDown={(e) => e.stopPropagation()}
-            onClick={(e) => e.stopPropagation()}
-          >
-            {historyIndex > 0 && (
-              <Button
-                variant="outline"
-                size="lg"
-                className="rounded-2xl h-12 px-5 border-2 font-headline font-bold gap-1.5 text-sm shadow-xs hover:bg-card active:scale-95 text-foreground/80"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handlePrevCard();
-                }}
-                aria-label="Previous card"
-              >
-                <ChevronLeft className="h-4 w-4" />
-                <span>Prev</span>
-              </Button>
-            )}
-
-            <Button
-              variant="default"
-              size="lg"
-              className="rounded-2xl h-12 px-7 font-headline font-bold gap-1.5 text-base shadow-md active:scale-95 bg-primary hover:bg-primary/90 text-primary-foreground"
-              onClick={(e) => {
-                e.stopPropagation();
-                handleNextCard();
-              }}
-              aria-label="Next card"
-            >
-              <span>Next</span>
-              <ChevronRight className="h-5 w-5" />
-            </Button>
-          </div>
-        )}
-      </div>
+      {currentProblem && (
+        <MathCard
+          problem={currentProblem}
+          isFlipped={isFlipped}
+          onCardTap={handleCardTap}
+          onSpeak={(text) => speak(text, true)}
+        />
+      )}
 
       {/* Top Bar Controls */}
       {!isFullscreen && !isLocked && (

@@ -10,14 +10,14 @@ import { cn } from "@/lib/utils";
 type MathCardProps = {
   problem: MathProblem;
   isFlipped: boolean;
-  onFlip: () => void;
+  onCardTap: () => void;
   onSpeak: (text: string) => void;
 };
 
 export function MathCard({
   problem,
   isFlipped,
-  onFlip,
+  onCardTap,
   onSpeak,
 }: MathCardProps) {
   const opInfo = OPERATION_COLORS[problem.operation];
@@ -27,7 +27,7 @@ export function MathCard({
     if (target.closest("button")) {
       return;
     }
-    onFlip();
+    onCardTap();
   };
 
   const handleSpeakFront = (e: React.MouseEvent) => {
@@ -67,7 +67,7 @@ export function MathCard({
               {problem.displayText}
             </span>
 
-            {/* Speaker Button on Front (Speaks "7 plus 5" only, without answer) */}
+            {/* Speaker Button on Front */}
             <Button
               variant="ghost"
               className="absolute bottom-4 right-4 h-12 w-12 p-0 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 rounded-full flex items-center justify-center"
@@ -98,7 +98,7 @@ export function MathCard({
             </span>
             <VisualMath problem={problem} />
 
-            {/* Speaker Button on Back (Speaks full "7 plus 5 equals 12") */}
+            {/* Speaker Button on Back */}
             <Button
               variant="ghost"
               className="absolute bottom-4 right-4 h-12 w-12 p-0 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 rounded-full flex items-center justify-center"
