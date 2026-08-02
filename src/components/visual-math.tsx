@@ -144,7 +144,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // SUBTRACTION (-): Start with Cyan blocks (num1), then animate Orange ✕ badges from the END backward
+  // SUBTRACTION (-): Cyan blocks present -> Orange ✕ badges with transparent background & soft dashed border from the END backward
   if (operation === '-') {
     const total = num1;
     const takenAway = num2;
@@ -175,15 +175,15 @@ export function VisualMath({ problem }: VisualMathProps) {
                   );
                 }
 
-                // Calculate reverse index from the end (last block at total-1 has subReverseIndex = 0)
+                // Calculate reverse index from the end
                 const subReverseIndex = (total - 1) - slotIndex;
 
-                // Subtraction Orange ✕ Badge: appears from the end backward as subtractionCount increments
+                // Subtraction Orange ✕ Badge: transparent square with soft dashed border and Orange cross symbol
                 if (isRemovedSlot && subReverseIndex < subtractionCount) {
                   return (
                     <div
                       key={`slot-${slotIndex}`}
-                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-amber-400/90 text-amber-950 border border-amber-300/80 shadow-xs flex items-center justify-center font-bold text-xs animate-fill-in cursor-pointer hover:scale-110"
+                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-transparent text-amber-400 border border-dashed border-amber-400/60 shadow-xs flex items-center justify-center font-bold text-xs sm:text-sm animate-fill-in cursor-pointer hover:scale-110"
                     >
                       ✕
                     </div>
