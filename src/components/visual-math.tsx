@@ -92,7 +92,7 @@ export function VisualMath({ problem }: VisualMathProps) {
       // Step 1: Cyan blocks are ALREADY present in one unified grid at t=0
       setCyanVisible(num1);
 
-      // Step 2: After 550ms pause, trigger separation animation (orangeVisible = 1)
+      // Step 2: After 550ms pause, trigger separation animation into 'answer' Orange groups
       const timeoutId = setTimeout(() => {
         setOrangeVisible(1);
       }, 550);
@@ -348,11 +348,11 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // DIVISION (÷): Unified Grid -> Blocks physically move / slide apart into num2 Orange group boxes!
+  // DIVISION (÷): Unified Grid -> Blocks physically move into 'answer' Orange Group Boxes (items per group = num2)
   if (operation === '÷') {
-    const total = num1;            // Cyan total items
-    const groupCount = num2;       // Orange groups to divide into
-    const itemsPerGroup = answer;  // Items inside each group
+    const total = num1;          // Cyan total items (num1)
+    const itemsPerGroup = num2;  // Items inside each Orange group box (num2)
+    const groupCount = answer;   // Number of Orange group boxes created = ANSWER!
 
     const isSeparated = orangeVisible > 0; // Triggers after 550ms
 
@@ -370,6 +370,7 @@ export function VisualMath({ problem }: VisualMathProps) {
           isSeparated ? "gap-2.5 sm:gap-3.5" : "gap-1"
         )}
       >
+        {/* Render 'answer' Orange Group Boxes, each holding 'num2' Cyan blocks */}
         {Array.from({ length: groupCount }).map((_, gIdx) => {
           const groupStartIndex = gIdx * itemsPerGroup;
           const groupSlots = Array.from({ length: itemsPerGroup }).map((_, i) => groupStartIndex + i);
