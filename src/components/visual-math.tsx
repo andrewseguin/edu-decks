@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { MathProblem } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -7,160 +8,217 @@ type VisualMathProps = {
   problem: MathProblem;
 };
 
-// Helper: Render 2x5 Ten Frame Grid Box with Animated Sequential Fill In & Take Away
-function renderTenFrameGrid(
-  frameIndex: number,
-  num1Count: number,
-  num2Count: number,
-  totalItems: number,
-  isSubtraction: boolean = false,
-  subtractionTakenAway: number = 0
-) {
-  const frameStartIndex = frameIndex * 10;
-  const frameSlots = Array.from({ length: 10 }).map((_, i) => frameStartIndex + i);
-
-  // Skip extra empty frames beyond 1 frame
-  if (frameStartIndex >= Math.max(10, Math.ceil(totalItems / 10) * 10) && frameIndex > 0) {
-    return null;
-  }
-
-  return (
-    <div
-      key={`tf-${frameIndex}`}
-      className="grid grid-rows-2 grid-cols-5 gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs"
-    >
-      {frameSlots.map((slotIndex) => {
-        if (isSubtraction) {
-          const isFilled = slotIndex < totalItems;
-          const isRemoved = slotIndex >= totalItems - subtractionTakenAway && slotIndex < totalItems;
-          const removedIndex = slotIndex - (totalItems - subtractionTakenAway);
-
-          if (!isFilled) {
-            return (
-              <div
-                key={`slot-${slotIndex}`}
-                className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
-              />
-            );
-          }
-
-          return (
-            <div
-              key={`slot-${slotIndex}`}
-              className={cn(
-                "w-4 h-4 sm:w-5 sm:h-5 rounded-md flex items-center justify-center font-bold text-xs cursor-pointer hover:scale-110",
-                isRemoved
-                  ? "bg-white/10 text-white/40 border border-dashed border-white/30 animate-take-away"
-                  : "bg-cyan-300 text-cyan-950 shadow-xs border border-cyan-400 animate-fill-in"
-              )}
-              style={{
-                animationDelay: isRemoved
-                  ? `${280 + removedIndex * 80}ms`
-                  : `${slotIndex * 25}ms`,
-              }}
-            >
-              {isRemoved ? "✕" : ""}
-            </div>
-          );
-        }
-
-        // Addition & general: num1 = Bright Cyan, num2 = Vibrant Orange (fills in after num1)
-        const isNum1 = slotIndex < num1Count;
-        const isNum2 = slotIndex >= num1Count && slotIndex < num1Count + num2Count;
-        const isEmpty = slotIndex >= num1Count + num2Count;
-        const num2Index = slotIndex - num1Count;
-
-        if (isEmpty) {
-          return (
-            <div
-              key={`slot-${slotIndex}`}
-              className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
-            />
-          );
-        }
-
-        return (
-          <div
-            key={`slot-${slotIndex}`}
-            className={cn(
-              "w-4 h-4 sm:w-5 sm:h-5 rounded-md shadow-xs animate-fill-in hover:scale-125 transition-transform cursor-pointer",
-              isNum1
-                ? "bg-cyan-300 border border-cyan-400"
-                : "bg-amber-400 border border-amber-500"
-            )}
-            style={{
-              animationDelay: isNum1
-                ? `${slotIndex * 25}ms`
-                : `${300 + num2Index * 65}ms`,
-            }}
-          />
-        );
-      })}
-    </div>
-  );
-}
-
 export function VisualMath({ problem }: VisualMathProps) {
   const { num1, num2, operation, answer } = problem;
+  const [step, setStep] = useState(1);
+
+  // Trigger step 2 after 450ms so the user visually sees the second number fill-in or take-away
+  useEffect(() => {
+    setStep(1);
+    const timer = setTimeout(() => {
+      setStep(2);
+    }, 450);
+    return () => clearTimeout(timer);
+  }, [problem.id]);
 
   // Don't render visual frames if numbers are huge (> 40)
   if (Math.abs(num1) > 40 || Math.abs(num2) > 40 || Math.abs(answer) > 40) {
     return null;
   }
 
-  // ADDITION (+): Ten Frames showing num1 (Cyan) and num2 (Orange) sequentially filling 2x5 grids
+  // ADDITION (+): num1 Cyan blocks appear first, then num2 Orange blocks fill in on step 2
   if (operation === '+') {
     const total = num1 + num2;
     const frameCount = Math.max(1, Math.ceil(total / 10));
 
     return (
       <div className="flex flex-wrap justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        {Array.from({ length: frameCount }).map((_, fIdx) =>
-          renderTenFrameGrid(fIdx, num1, num2, total, false, 0)
-        )}
+        {Array.from({ length: frameCount }).map((_, fIdx) => {
+          const frameStartIndex = fIdx * 10;
+          const frameSlots = Array.from({ length: 10 }).map((_, i) => frameStartIndex + i);
+
+          return (
+            <div
+              key={`tf-${fIdx}`}
+              className="grid grid-rows-2 grid-cols-5 gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs"
+            >
+              {frameSlots.map((slotIndex) => {
+                const isNum1 = slotIndex < num1;
+                const isNum2 = slotIndex >= num1 && slotIndex < num1 + num2;
+                const isEmpty = slotIndex >= total;
+
+                if (isEmpty) {
+                  return (
+                    <div
+                      key={`slot-${slotIndex}`}
+                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
+                    />
+                  );
+                }
+
+                if (isNum1) {
+                  return (
+                    <div
+                      key={`slot-${slotIndex}`}
+                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fade-in-zoom cursor-pointer hover:scale-125 transition-transform"
+                      style={{ animationDelay: `${slotIndex * 30}ms` }}
+                    />
+                  );
+                }
+
+                // num2 Orange blocks: only visible on Step 2 with fill-in drop animation!
+                if (isNum2) {
+                  if (step < 2) {
+                    return (
+                      <div
+                        key={`slot-${slotIndex}`}
+                        className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
+                      />
+                    );
+                  }
+
+                  const num2Index = slotIndex - num1;
+                  return (
+                    <div
+                      key={`slot-${slotIndex}`}
+                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-amber-400 border border-amber-500 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform"
+                      style={{ animationDelay: `${num2Index * 60}ms` }}
+                    />
+                  );
+                }
+
+                return null;
+              })}
+            </div>
+          );
+        })}
       </div>
     );
   }
 
-  // SUBTRACTION (-): Ten Frames showing total items with taken away items animating out
+  // SUBTRACTION (-): Total blocks appear first, then takenAway blocks dissolve on step 2
   if (operation === '-') {
     const total = num1;
     const takenAway = num2;
+    const remaining = Math.max(0, total - takenAway);
     const frameCount = Math.max(1, Math.ceil(total / 10));
 
     return (
       <div className="flex flex-wrap justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        {Array.from({ length: frameCount }).map((_, fIdx) =>
-          renderTenFrameGrid(fIdx, 0, 0, total, true, takenAway)
-        )}
+        {Array.from({ length: frameCount }).map((_, fIdx) => {
+          const frameStartIndex = fIdx * 10;
+          const frameSlots = Array.from({ length: 10 }).map((_, i) => frameStartIndex + i);
+
+          return (
+            <div
+              key={`tf-${fIdx}`}
+              className="grid grid-rows-2 grid-cols-5 gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs"
+            >
+              {frameSlots.map((slotIndex) => {
+                const isFilled = slotIndex < total;
+                const isRemoved = slotIndex >= remaining && slotIndex < total;
+                const removedIndex = slotIndex - remaining;
+
+                if (!isFilled) {
+                  return (
+                    <div
+                      key={`slot-${slotIndex}`}
+                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
+                    />
+                  );
+                }
+
+                if (isRemoved && step >= 2) {
+                  return (
+                    <div
+                      key={`slot-${slotIndex}`}
+                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/10 text-white/40 border border-dashed border-white/30 flex items-center justify-center font-bold text-xs animate-take-away"
+                      style={{ animationDelay: `${removedIndex * 75}ms` }}
+                    >
+                      ✕
+                    </div>
+                  );
+                }
+
+                return (
+                  <div
+                    key={`slot-${slotIndex}`}
+                    className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fade-in-zoom cursor-pointer hover:scale-125 transition-transform"
+                    style={{ animationDelay: `${slotIndex * 25}ms` }}
+                  />
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
     );
   }
 
-  // MULTIPLICATION (×): Ten Frames for total product
+  // MULTIPLICATION (×)
   if (operation === '×') {
     const total = num1 * num2;
     const frameCount = Math.max(1, Math.ceil(total / 10));
 
     return (
       <div className="flex flex-wrap justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        {Array.from({ length: frameCount }).map((_, fIdx) =>
-          renderTenFrameGrid(fIdx, total, 0, total, false, 0)
-        )}
+        {Array.from({ length: frameCount }).map((_, fIdx) => {
+          const frameStartIndex = fIdx * 10;
+          const frameSlots = Array.from({ length: 10 }).map((_, i) => frameStartIndex + i);
+
+          return (
+            <div
+              key={`tf-${fIdx}`}
+              className="grid grid-rows-2 grid-cols-5 gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs"
+            >
+              {frameSlots.map((slotIndex) => {
+                const isFilled = slotIndex < total;
+                if (!isFilled) return null;
+                return (
+                  <div
+                    key={`slot-${slotIndex}`}
+                    className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fade-in-zoom cursor-pointer hover:scale-125 transition-transform"
+                    style={{ animationDelay: `${slotIndex * 20}ms` }}
+                  />
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
     );
   }
 
-  // DIVISION (÷): Ten Frames for quotient
+  // DIVISION (÷)
   if (operation === '÷') {
     const total = answer;
     const frameCount = Math.max(1, Math.ceil(total / 10));
 
     return (
       <div className="flex flex-wrap justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        {Array.from({ length: frameCount }).map((_, fIdx) =>
-          renderTenFrameGrid(fIdx, total, 0, total, false, 0)
-        )}
+        {Array.from({ length: frameCount }).map((_, fIdx) => {
+          const frameStartIndex = fIdx * 10;
+          const frameSlots = Array.from({ length: 10 }).map((_, i) => frameStartIndex + i);
+
+          return (
+            <div
+              key={`tf-${fIdx}`}
+              className="grid grid-rows-2 grid-cols-5 gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs"
+            >
+              {frameSlots.map((slotIndex) => {
+                const isFilled = slotIndex < total;
+                if (!isFilled) return null;
+                return (
+                  <div
+                    key={`slot-${slotIndex}`}
+                    className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fade-in-zoom cursor-pointer hover:scale-125 transition-transform"
+                    style={{ animationDelay: `${slotIndex * 20}ms` }}
+                  />
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
     );
   }

@@ -125,7 +125,7 @@ export function MathCard({
 
         {/* Visual Blocks Overlay - Absolute Bottom Layer */}
         {isFlipped && (
-          <div className="absolute bottom-3 inset-x-0 flex items-center justify-center animate-fade-in-zoom pointer-events-none z-10">
+          <div className="absolute bottom-3 inset-x-0 flex items-center justify-center pointer-events-none z-10">
             <VisualMath problem={problem} />
           </div>
         )}
