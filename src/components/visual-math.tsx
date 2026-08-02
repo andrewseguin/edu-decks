@@ -12,12 +12,12 @@ export function VisualMath({ problem }: VisualMathProps) {
   const { num1, num2, operation, answer } = problem;
   const [step, setStep] = useState(1);
 
-  // Trigger Step 2 after 400ms: added with Orange blocks or removed with Orange ✕ badges
+  // Trigger Step 2 after 800ms so kids have time to count the initial Cyan set first
   useEffect(() => {
     setStep(1);
     const timer = setTimeout(() => {
       setStep(2);
-    }, 400);
+    }, 800);
     return () => clearTimeout(timer);
   }, [problem.id]);
 
@@ -62,12 +62,12 @@ export function VisualMath({ problem }: VisualMathProps) {
                     <div
                       key={`slot-${slotIndex}`}
                       className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fade-in-zoom cursor-pointer hover:scale-125 transition-transform"
-                      style={{ animationDelay: `${slotIndex * 25}ms` }}
+                      style={{ animationDelay: `${slotIndex * 40}ms` }}
                     />
                   );
                 }
 
-                // Step 2: Fill in Orange blocks for num2
+                // Step 2: Fill in Orange blocks for num2 with 130ms rhythm
                 if (isNum2) {
                   if (step < 2) {
                     return (
@@ -83,7 +83,7 @@ export function VisualMath({ problem }: VisualMathProps) {
                     <div
                       key={`slot-${slotIndex}`}
                       className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-amber-400 border border-amber-500 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform"
-                      style={{ animationDelay: `${num2Index * 60}ms` }}
+                      style={{ animationDelay: `${num2Index * 130}ms` }}
                     />
                   );
                 }
@@ -129,13 +129,13 @@ export function VisualMath({ problem }: VisualMathProps) {
                   );
                 }
 
-                // Step 2: Overlay Orange ✕ badge over removed blocks
+                // Step 2: Overlay Orange ✕ badge over removed blocks with 140ms rhythm
                 if (isRemoved && step >= 2) {
                   return (
                     <div
                       key={`slot-${slotIndex}`}
                       className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-amber-400 text-amber-950 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-xs animate-fill-in cursor-pointer hover:scale-110"
-                      style={{ animationDelay: `${removedIndex * 70}ms` }}
+                      style={{ animationDelay: `${removedIndex * 140}ms` }}
                     >
                       ✕
                     </div>
@@ -147,7 +147,7 @@ export function VisualMath({ problem }: VisualMathProps) {
                   <div
                     key={`slot-${slotIndex}`}
                     className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fade-in-zoom cursor-pointer hover:scale-125 transition-transform"
-                    style={{ animationDelay: `${slotIndex * 25}ms` }}
+                    style={{ animationDelay: `${slotIndex * 40}ms` }}
                   />
                 );
               })}
@@ -181,7 +181,7 @@ export function VisualMath({ problem }: VisualMathProps) {
                   <div
                     key={`slot-${slotIndex}`}
                     className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fade-in-zoom cursor-pointer hover:scale-125 transition-transform"
-                    style={{ animationDelay: `${slotIndex * 20}ms` }}
+                    style={{ animationDelay: `${slotIndex * 35}ms` }}
                   />
                 );
               })}
@@ -215,7 +215,7 @@ export function VisualMath({ problem }: VisualMathProps) {
                   <div
                     key={`slot-${slotIndex}`}
                     className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fade-in-zoom cursor-pointer hover:scale-125 transition-transform"
-                    style={{ animationDelay: `${slotIndex * 20}ms` }}
+                    style={{ animationDelay: `${slotIndex * 35}ms` }}
                   />
                 );
               })}
