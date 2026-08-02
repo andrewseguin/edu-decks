@@ -73,7 +73,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     }
 
     if (operation === '×') {
-      // Incrementally reveal blocks across rows (num1 wide) down (num2 tall) (1 block every 40ms)
+      // Incrementally reveal blocks across rows (1 block every 40ms)
       const total = num1 * num2;
       const intervalMs = total > 30 ? 30 : 60;
       let currentCyan = 0;
@@ -249,55 +249,59 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // MULTIPLICATION (×): Rectangular Area Grid with Alternating Cyan (num1 across) & Orange (num2 down) rows
+  // MULTIPLICATION (×): num1 Cyan items in each row, num2 Orange row containers stacked down
   if (operation === '×') {
-    const total = num1 * num2;
-    const cols = Math.max(num1, num2);
-    const rows = Math.min(num1, num2);
+    const itemsPerRow = num1; // Cyan: number of items in each row
+    const rowCount = num2;    // Orange: number of rows down
 
-    // Dynamic block sizing based on row height & total columns
     const blockSizeClass =
-      rows <= 2 && cols <= 10
+      itemsPerRow <= 6 && rowCount <= 4
         ? "w-3.5 h-3.5 sm:w-4 sm:h-4"
-        : rows <= 4 && cols <= 10
+        : itemsPerRow <= 10 && rowCount <= 6
         ? "w-3 h-3 sm:w-3.5 sm:h-3.5"
-        : rows <= 7
-        ? "w-2.5 h-2.5 sm:w-3 sm:h-3"
-        : "w-2 h-2 sm:w-2.5 sm:h-2.5";
+        : "w-2.5 h-2.5 sm:w-3 sm:h-3";
 
     return (
-      <div className="flex justify-center items-center p-1.5 sm:p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        <div
-          className="grid gap-1 p-1.5 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs"
-          style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
-        >
-          {Array.from({ length: total }).map((_, slotIndex) => {
-            const rowIndex = Math.floor(slotIndex / cols);
-            const isOrangeRow = rowIndex % 2 === 1;
+      <div className="flex flex-col justify-center items-center gap-1.5 p-1.5 sm:p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+        {Array.from({ length: rowCount }).map((_, rIdx) => {
+          const rowStartIndex = rIdx * itemsPerRow;
 
-            if (slotIndex >= cyanVisible) {
-              return (
-                <div
-                  key={`mult-slot-${slotIndex}`}
-                  className={cn("rounded-md bg-white/5 border border-dashed border-white/20", blockSizeClass)}
-                />
-              );
-            }
+          return (
+            <div
+              key={`mult-row-${rIdx}`}
+              className="flex items-center gap-1 p-1 rounded-xl bg-amber-500/15 border border-amber-400/50 shadow-xs"
+            >
+              {/* Orange Row Badge Indicator */}
+              <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-md bg-amber-400 text-amber-950 font-bold text-[10px] sm:text-xs flex items-center justify-center mr-0.5 shadow-xs">
+                {rIdx + 1}
+              </div>
 
-            return (
-              <div
-                key={`mult-slot-${slotIndex}`}
-                className={cn(
-                  "rounded-md shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform",
-                  blockSizeClass,
-                  isOrangeRow
-                    ? "bg-amber-400 border border-amber-500"
-                    : "bg-cyan-300 border border-cyan-400"
-                )}
-              />
-            );
-          })}
-        </div>
+              {/* Cyan items in each row */}
+              {Array.from({ length: itemsPerRow }).map((_, cIdx) => {
+                const slotIndex = rowStartIndex + cIdx;
+
+                if (slotIndex >= cyanVisible) {
+                  return (
+                    <div
+                      key={`mult-slot-${slotIndex}`}
+                      className={cn("rounded-md bg-white/5 border border-dashed border-white/20", blockSizeClass)}
+                    />
+                  );
+                }
+
+                return (
+                  <div
+                    key={`mult-slot-${slotIndex}`}
+                    className={cn(
+                      "rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform",
+                      blockSizeClass
+                    )}
+                  />
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
     );
   }
