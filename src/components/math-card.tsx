@@ -61,12 +61,27 @@ export function MathCard({
       onClick={handleCardClick}
     >
       <CardContent className="p-0 h-full w-full relative flex items-center justify-center">
-        {/* Full Equation Always Centered */}
+        {/* Full Color-Coded Equation Always Centered */}
         <div className="absolute inset-0 flex items-center justify-center p-6">
-          <div className="flex items-center justify-center gap-2 sm:gap-3 whitespace-nowrap text-center">
-            {/* Equation Prefix (e.g. "9 + 6 = ") */}
-            <span className="font-headline font-normal leading-none select-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl">
-              {problem.displayText} =
+          <div className="flex items-center justify-center whitespace-nowrap text-center">
+            {/* First Number (Cyan) */}
+            <span className="font-headline font-bold leading-none select-none text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-5xl sm:text-7xl md:text-8xl">
+              {problem.num1}
+            </span>
+
+            {/* Operator (+, -, ×, ÷) */}
+            <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl mx-2 sm:mx-3">
+              {problem.operation}
+            </span>
+
+            {/* Second Number (Orange/Amber) */}
+            <span className="font-headline font-bold leading-none select-none text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-5xl sm:text-7xl md:text-8xl">
+              {problem.num2}
+            </span>
+
+            {/* Equals Symbol */}
+            <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl ml-2 sm:ml-3 mr-2 sm:mr-3">
+              =
             </span>
 
             {/* Answer Digit (Always rendered in exact position) */}
