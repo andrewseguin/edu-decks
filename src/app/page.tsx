@@ -201,13 +201,14 @@ export default function MathDeckPage() {
 
     touchStartRef.current = null;
 
-    // Check tap vs swipe
+    // Tap flips the card 3D rotation
     if (absDeltaX < 10 && absDeltaY < 10) {
       if (Date.now() - lastMenuCloseTimeRef.current < 300) return;
-      handleNextCard();
+      setIsFlipped((f) => !f);
       return;
     }
 
+    // Swipe left/right advances cards
     if (absDeltaX > 50 && absDeltaX > absDeltaY) {
       if (deltaX > 0) {
         handlePrevCard();
