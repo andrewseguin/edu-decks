@@ -47,19 +47,29 @@ export function VisualMath({ problem }: VisualMathProps) {
     }
 
     if (operation === '-') {
-      // Start with all Cyan blocks visible, then incrementally animate Orange ✕ badges from the END (1 every 140ms)
-      const subTimer = setTimeout(() => {
-        let currentSub = 0;
-        const subInterval = setInterval(() => {
-          currentSub++;
-          setSubtractionCount(currentSub);
-          if (currentSub >= num2) {
-            clearInterval(subInterval);
-          }
-        }, 140);
-      }, 450);
+      // Step 1: Incrementally reveal Cyan blocks (num1) from empty slots
+      let currentCyan = 0;
+      const cyanInterval = setInterval(() => {
+        currentCyan++;
+        setCyanVisible(currentCyan);
+        if (currentCyan >= num1) {
+          clearInterval(cyanInterval);
 
-      return () => clearTimeout(subTimer);
+          // Step 2: Incrementally animate Orange ✕ badges from the END backward
+          setTimeout(() => {
+            let currentSub = 0;
+            const subInterval = setInterval(() => {
+              currentSub++;
+              setSubtractionCount(currentSub);
+              if (currentSub >= num2) {
+                clearInterval(subInterval);
+              }
+            }, 130);
+          }, 200);
+        }
+      }, 90);
+
+      return () => clearInterval(cyanInterval);
     }
   }, [problem.id, num1, num2, operation]);
 
@@ -144,7 +154,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // SUBTRACTION (-): Cyan blocks present -> Orange ✕ badges with transparent background & soft dashed border from the END backward
+  // SUBTRACTION (-): Empty slots -> Cyan blocks (num1) fill in -> Orange ✕ badges animate from the END backward
   if (operation === '-') {
     const total = num1;
     const takenAway = num2;
@@ -175,7 +185,17 @@ export function VisualMath({ problem }: VisualMathProps) {
                   );
                 }
 
-                // Calculate reverse index from the end
+                // Cyan block not yet filled in during Step 1
+                if (slotIndex >= cyanVisible) {
+                  return (
+                    <div
+                      key={`slot-${slotIndex}`}
+                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
+                    />
+                  );
+                }
+
+                // Reverse index from the end for subtraction take-away
                 const subReverseIndex = (total - 1) - slotIndex;
 
                 // Subtraction Orange ✕ Badge: transparent square with soft dashed border and Orange cross symbol
@@ -194,7 +214,7 @@ export function VisualMath({ problem }: VisualMathProps) {
                 return (
                   <div
                     key={`slot-${slotIndex}`}
-                    className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fade-in-zoom cursor-pointer hover:scale-125 transition-transform"
+                    className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform"
                   />
                 );
               })}
