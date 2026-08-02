@@ -7,42 +7,83 @@ type VisualMathProps = {
   problem: MathProblem;
 };
 
-// Base Ten Block Helper: Renders Tens Rods (10 units) and Ones Units (1 unit)
-function renderBaseTenBlocks(count: number) {
-  if (count <= 0) return null;
-  const tens = Math.floor(count / 10);
-  const ones = count % 10;
+// Helper: Render 2x5 Ten Frame Grid Box
+function renderTenFrameGrid(
+  frameIndex: number,
+  num1Count: number,
+  num2Count: number,
+  totalItems: number,
+  isSubtraction: boolean = false,
+  subtractionTakenAway: number = 0
+) {
+  const frameStartIndex = frameIndex * 10;
+  const frameSlots = Array.from({ length: 10 }).map((_, i) => frameStartIndex + i);
+
+  // If this entire frame is beyond totalItems, skip extra empty frames beyond 1 frame
+  if (frameStartIndex >= Math.max(10, Math.ceil(totalItems / 10) * 10) && frameIndex > 0) {
+    return null;
+  }
 
   return (
-    <div className="flex items-center gap-2">
-      {/* Tens Rods (Each rod represents 10) */}
-      {Array.from({ length: tens }).map((_, tIdx) => (
-        <div
-          key={`ten-${tIdx}`}
-          className="flex flex-col gap-0.5 p-1 rounded-lg bg-white/25 border border-white/40 shadow-xs animate-fade-in-zoom hover:scale-105 transition-transform"
-          title="10"
-        >
-          {Array.from({ length: 10 }).map((_, uIdx) => (
-            <div
-              key={`ten-u-${uIdx}`}
-              className="w-3.5 h-1.5 rounded-xs bg-white"
-            />
-          ))}
-        </div>
-      ))}
+    <div
+      key={`tf-${frameIndex}`}
+      className="grid grid-rows-2 grid-cols-5 gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs"
+    >
+      {frameSlots.map((slotIndex) => {
+        if (isSubtraction) {
+          const isFilled = slotIndex < totalItems;
+          const isRemoved = slotIndex >= totalItems - subtractionTakenAway && slotIndex < totalItems;
 
-      {/* Ones Units (Single blocks) */}
-      {ones > 0 && (
-        <div className="flex flex-wrap gap-1 max-w-[85px] items-center">
-          {Array.from({ length: ones }).map((_, oIdx) => (
+          if (!isFilled) {
+            return (
+              <div
+                key={`slot-${slotIndex}`}
+                className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
+              />
+            );
+          }
+
+          return (
             <div
-              key={`one-${oIdx}`}
-              className="w-4 h-4 rounded-md bg-white shadow-xs animate-fade-in-zoom hover:scale-125 transition-transform cursor-pointer"
-              style={{ animationDelay: `${(tens * 10 + oIdx) * 20}ms` }}
+              key={`slot-${slotIndex}`}
+              className={cn(
+                "w-4 h-4 sm:w-5 sm:h-5 rounded-md flex items-center justify-center font-bold text-xs transition-all duration-300 animate-fade-in-zoom cursor-pointer hover:scale-110",
+                isRemoved
+                  ? "bg-white/10 text-white/40 border border-dashed border-white/30 scale-90"
+                  : "bg-white text-amber-700 shadow-xs"
+              )}
+              style={{ animationDelay: `${slotIndex * 20}ms` }}
+            >
+              {isRemoved ? "✕" : ""}
+            </div>
+          );
+        }
+
+        // Addition & general: num1 slots get Color 1 (white), num2 slots get Color 2 (amber)
+        const isNum1 = slotIndex < num1Count;
+        const isNum2 = slotIndex >= num1Count && slotIndex < num1Count + num2Count;
+        const isEmpty = slotIndex >= num1Count + num2Count;
+
+        if (isEmpty) {
+          return (
+            <div
+              key={`slot-${slotIndex}`}
+              className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
             />
-          ))}
-        </div>
-      )}
+          );
+        }
+
+        return (
+          <div
+            key={`slot-${slotIndex}`}
+            className={cn(
+              "w-4 h-4 sm:w-5 sm:h-5 rounded-md shadow-xs animate-fade-in-zoom hover:scale-125 transition-transform cursor-pointer",
+              isNum1 ? "bg-white" : "bg-amber-300 border border-amber-400"
+            )}
+            style={{ animationDelay: `${slotIndex * 20}ms` }}
+          />
+        );
+      })}
     </div>
   );
 }
@@ -50,66 +91,64 @@ function renderBaseTenBlocks(count: number) {
 export function VisualMath({ problem }: VisualMathProps) {
   const { num1, num2, operation, answer } = problem;
 
-  // Don't render visual blocks if numbers are huge (> 50)
-  if (Math.abs(num1) > 50 || Math.abs(num2) > 50 || Math.abs(answer) > 50) {
+  // Don't render visual frames if numbers are huge (> 40)
+  if (Math.abs(num1) > 40 || Math.abs(num2) > 40 || Math.abs(answer) > 40) {
     return null;
   }
 
-  // ADDITION (+): Base Ten representation for Group 1 + Group 2
+  // ADDITION (+): Ten Frames showing num1 (white) and num2 (amber) filling 2x5 grids
   if (operation === '+') {
+    const total = num1 + num2;
+    const frameCount = Math.max(1, Math.ceil(total / 10));
+
     return (
-      <div className="flex justify-center items-center gap-2.5 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        {/* Num 1 Blocks */}
-        {renderBaseTenBlocks(num1)}
-
-        {/* Plus Symbol */}
-        <span className="text-white/80 font-bold text-sm sm:text-base leading-none select-none px-0.5">
-          +
-        </span>
-
-        {/* Num 2 Blocks */}
-        {renderBaseTenBlocks(num2)}
-
-        {/* Equals Result Summary if answer >= 10 */}
-        {answer >= 10 && (
-          <>
-            <span className="text-white/80 font-bold text-sm sm:text-base leading-none select-none px-0.5">
-              =
-            </span>
-            {renderBaseTenBlocks(answer)}
-          </>
+      <div className="flex flex-wrap justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+        {Array.from({ length: frameCount }).map((_, fIdx) =>
+          renderTenFrameGrid(fIdx, num1, num2, total, false, 0)
         )}
       </div>
     );
   }
 
-  // SUBTRACTION (-): Base Ten representation of total with taken away
+  // SUBTRACTION (-): Ten Frames showing total items with taken away items crossed out
   if (operation === '-') {
     const total = num1;
     const takenAway = num2;
-    const remaining = Math.max(0, total - takenAway);
+    const frameCount = Math.max(1, Math.ceil(total / 10));
 
     return (
-      <div className="flex justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        {renderBaseTenBlocks(remaining)}
+      <div className="flex flex-wrap justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+        {Array.from({ length: frameCount }).map((_, fIdx) =>
+          renderTenFrameGrid(fIdx, 0, 0, total, true, takenAway)
+        )}
       </div>
     );
   }
 
-  // MULTIPLICATION (×): Grouped Sets of Base Ten Blocks
+  // MULTIPLICATION (×): Ten Frames for total product
   if (operation === '×') {
+    const total = num1 * num2;
+    const frameCount = Math.max(1, Math.ceil(total / 10));
+
     return (
-      <div className="flex justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        {renderBaseTenBlocks(answer)}
+      <div className="flex flex-wrap justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+        {Array.from({ length: frameCount }).map((_, fIdx) =>
+          renderTenFrameGrid(fIdx, total, 0, total, false, 0)
+        )}
       </div>
     );
   }
 
-  // DIVISION (÷): Shared Equal Groups of Base Ten Blocks
+  // DIVISION (÷): Ten Frames for quotient
   if (operation === '÷') {
+    const total = answer;
+    const frameCount = Math.max(1, Math.ceil(total / 10));
+
     return (
-      <div className="flex justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        {renderBaseTenBlocks(answer)}
+      <div className="flex flex-wrap justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+        {Array.from({ length: frameCount }).map((_, fIdx) =>
+          renderTenFrameGrid(fIdx, total, 0, total, false, 0)
+        )}
       </div>
     );
   }
