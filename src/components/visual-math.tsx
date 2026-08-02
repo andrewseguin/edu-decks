@@ -89,9 +89,9 @@ export function VisualMath({ problem }: VisualMathProps) {
     }
 
     if (operation === '÷') {
-      // Step 1: Fill total num1 White Area blocks into grid (1 every 25ms)
+      // Step 1: Fill total Cyan items into group containers (1 every 25ms)
       const total = num1;
-      const quotientX = answer;
+      const groupCount = num2;
       const intervalMs = total > 30 ? 20 : 45;
       let currentCyan = 0;
       const cyanInterval = setInterval(() => {
@@ -100,13 +100,13 @@ export function VisualMath({ problem }: VisualMathProps) {
         if (currentCyan >= total) {
           clearInterval(cyanInterval);
 
-          // Step 2: 400ms pause, then sequentially reveal Cyan X-Axis headers across (1 every 150ms)
+          // Step 2: 400ms pause, then sequentially highlight Orange Group Cards (1 every 150ms)
           setTimeout(() => {
             let currentOrange = 0;
             const orangeInterval = setInterval(() => {
               currentOrange++;
               setOrangeVisible(currentOrange);
-              if (currentOrange >= quotientX) {
+              if (currentOrange >= groupCount) {
                 clearInterval(orangeInterval);
               }
             }, 150);
@@ -367,13 +367,12 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // DIVISION (÷): Inverse Multiplication Area Grid Model
-  // num1 = total area (white blocks), num2 = Orange Y-Axis down, answer = Cyan X-Axis across
+  // DIVISION (÷): Grid of Orange Group Container Cards holding Cyan Item Blocks
   if (operation === '÷') {
-    const xCount = answer; // Cyan X-Axis across (the answer quotient!)
-    const yCount = num2;   // Orange Y-Axis down (the divisor!)
-    const cols = xCount + 1;
-    const rows = yCount + 1;
+    const itemsPerGroup = answer; // Cyan items in each group box
+    const groupCount = num2;      // Orange group container cards down
+    const cols = itemsPerGroup + 1;
+    const rows = groupCount;
 
     // Max available container dimensions inside card lower region
     const maxW = 480;
@@ -390,77 +389,55 @@ export function VisualMath({ problem }: VisualMathProps) {
     const fontSize = Math.max(7, Math.floor(blockSize * 0.52));
 
     return (
-      <div className="flex flex-col justify-center items-center p-1 sm:p-1.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        <div
-          className="grid p-1.5 rounded-xl bg-white/15 border border-white/30 shadow-xs"
-          style={{ gap: `${gapSize}px` }}
-        >
-          {/* Top Row: Corner + Cyan X-Axis Headers (revealed sequentially up to answer!) */}
-          <div className="flex items-center" style={{ gap: `${gapSize}px` }}>
-            {/* Top-Left Corner Spacer */}
-            <div className="rounded-md bg-transparent shrink-0" style={{ width: `${blockSize}px`, height: `${blockSize}px` }} />
+      <div className="flex flex-col justify-center items-center gap-1.5 p-1.5 sm:p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+        {/* Stack of Orange Group Container Cards */}
+        {Array.from({ length: groupCount }).map((_, gIdx) => {
+          const rowStartIndex = gIdx * itemsPerGroup;
+          const isGroupActive = gIdx < orangeVisible;
 
-            {/* Cyan X-Axis Blocks across (revealed sequentially) */}
-            {Array.from({ length: xCount }).map((_, xIdx) => {
-              const isRevealed = xIdx < orangeVisible;
+          return (
+            <div
+              key={`div-row-group-${gIdx}`}
+              className={cn(
+                "flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-xl transition-all duration-300",
+                isGroupActive
+                  ? "bg-amber-500/20 border-2 border-amber-400/80 shadow-xs animate-fill-in"
+                  : "bg-white/10 border border-dashed border-white/25"
+              )}
+            >
+              {/* Orange Group Number Badge */}
+              <div
+                className="rounded-md bg-amber-400 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-amber-950 shrink-0"
+                style={{ width: `${blockSize}px`, height: `${blockSize}px`, fontSize: `${fontSize}px` }}
+              >
+                {gIdx + 1}
+              </div>
 
-              return (
-                <div
-                  key={`x-axis-${xIdx}`}
-                  className={cn(
-                    "rounded-md shadow-xs flex items-center justify-center font-bold leading-none shrink-0 transition-all duration-300",
-                    isRevealed
-                      ? "bg-cyan-300 border border-cyan-400 text-cyan-950 animate-silly-pop"
-                      : "bg-white/10 border border-dashed border-white/20 text-transparent"
-                  )}
-                  style={{ width: `${blockSize}px`, height: `${blockSize}px`, fontSize: `${fontSize}px` }}
-                >
-                  {xIdx + 1}
-                </div>
-              );
-            })}
-          </div>
+              {/* Cyan items inside this Orange Group Container Card */}
+              {Array.from({ length: itemsPerGroup }).map((_, cIdx) => {
+                const slotIndex = rowStartIndex + cIdx;
 
-          {/* Rows: Orange Y-Axis Header + White Area Blocks */}
-          {Array.from({ length: yCount }).map((_, yIdx) => {
-            const rowStartIndex = yIdx * xCount;
-
-            return (
-              <div key={`y-row-${yIdx}`} className="flex items-center" style={{ gap: `${gapSize}px` }}>
-                {/* Orange Y-Axis Block down */}
-                <div
-                  className="rounded-md bg-amber-400 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-amber-950 animate-fade-in-zoom leading-none shrink-0"
-                  style={{ width: `${blockSize}px`, height: `${blockSize}px`, fontSize: `${fontSize}px` }}
-                >
-                  {yIdx + 1}
-                </div>
-
-                {/* White Area Blocks inside matrix */}
-                {Array.from({ length: xCount }).map((_, xIdx) => {
-                  const areaIndex = rowStartIndex + xIdx;
-
-                  if (areaIndex >= cyanVisible) {
-                    return (
-                      <div
-                        key={`area-slot-${areaIndex}`}
-                        className="rounded-md bg-white/5 border border-dashed border-white/20 shrink-0"
-                        style={{ width: `${blockSize}px`, height: `${blockSize}px` }}
-                      />
-                    );
-                  }
-
+                if (slotIndex >= cyanVisible) {
                   return (
                     <div
-                      key={`area-slot-${areaIndex}`}
-                      className="rounded-md bg-white border border-white/80 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform shrink-0"
+                      key={`div-slot-${slotIndex}`}
+                      className="rounded-md bg-white/5 border border-dashed border-white/20 shrink-0"
                       style={{ width: `${blockSize}px`, height: `${blockSize}px` }}
                     />
                   );
-                })}
-              </div>
-            );
-          })}
-        </div>
+                }
+
+                return (
+                  <div
+                    key={`div-slot-${slotIndex}`}
+                    className="rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform shrink-0"
+                    style={{ width: `${blockSize}px`, height: `${blockSize}px` }}
+                  />
+                );
+              })}
+            </div>
+          );
+        })}
       </div>
     );
   }
