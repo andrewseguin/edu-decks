@@ -67,16 +67,16 @@ export function MathCard({
           </div>
         )}
 
-        {/* Speaker Button in Bottom Right */}
+        {/* Speaker Button matching First Read */}
         <Button
           variant="ghost"
-          className="absolute bottom-4 right-4 h-12 w-12 p-0 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 rounded-full"
+          className="absolute bottom-4 right-4 h-12 w-12 p-0 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 rounded-full flex items-center justify-center"
           onClick={handleSpeak}
           onPointerUp={(e) => e.stopPropagation()}
           onPointerDown={(e) => e.stopPropagation()}
           aria-label="Speak equation"
         >
-          <Volume2 className="h-12 w-12" />
+          <Volume2 className="h-7 w-7 text-white/70 hover:text-white transition-colors" />
         </Button>
       </CardContent>
     </Card>
