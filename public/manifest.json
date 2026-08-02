@@ -1,0 +1,21 @@
+{
+  "short_name": "Math Deck",
+  "name": "Math Deck - Mental Math Flashcards",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "/icon-512.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": "/",
+  "background_color": "#059669",
+  "theme_color": "#059669",
+  "display": "standalone",
+  "orientation": "any"
+}
