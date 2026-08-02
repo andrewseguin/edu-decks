@@ -24,6 +24,8 @@ type AppSettingsProps = {
   onAutoPlaySoundChange: (autoPlay: boolean) => void;
   quizOptionCount: number;
   onQuizOptionCountChange: (count: number) => void;
+  keepScreenAwake: boolean;
+  onKeepScreenAwakeChange: (keep: boolean) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onOpenRecordings: () => void;
@@ -47,6 +49,8 @@ export function AppSettings({
   onAutoPlaySoundChange,
   quizOptionCount,
   onQuizOptionCountChange,
+  keepScreenAwake,
+  onKeepScreenAwakeChange,
   open,
   onOpenChange,
   onOpenRecordings,
@@ -183,6 +187,16 @@ export function AppSettings({
                 id="autoplay-toggle"
                 checked={autoPlaySound}
                 onCheckedChange={onAutoPlaySoundChange}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="screen-awake-toggle" className="text-base">
+                Keep Screen Awake
+              </Label>
+              <Switch
+                id="screen-awake-toggle"
+                checked={keepScreenAwake}
+                onCheckedChange={onKeepScreenAwakeChange}
               />
             </div>
             <div>

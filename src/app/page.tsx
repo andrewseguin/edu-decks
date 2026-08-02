@@ -3,6 +3,7 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import useLocalStorage from "@/hooks/use-local-storage";
+import { useWakeLock } from "@/hooks/use-wake-lock";
 import { DEFAULT_LETTERS, getLetterInfo, LETTER_LEVELS } from "@/lib/letters";
 import { EASY_WORDS, HARD_WORDS } from "@/lib/words";
 import { splitIntoPhonicsSegments } from "@/lib/phonics";
@@ -152,6 +153,12 @@ export default function Home() {
   const [autoPlaySound, setAutoPlaySound] = useLocalStorage<boolean>("first-read-auto-play-sound", false);
   const [showLockSnackbar, setShowLockSnackbar] = useState(false);
   const [isQuizActive, setIsQuizActive] = useState(false);
+  const [keepScreenAwake, setKeepScreenAwake] = useLocalStorage<boolean>(
+    "first-read-keep-awake",
+    true
+  );
+
+  useWakeLock(keepScreenAwake);
 
   useEffect(() => {
     setHydrated(true);
@@ -710,6 +717,8 @@ export default function Home() {
             onEnableWordsChange={setEnableWords}
             quizOptionCount={quizOptionCount}
             onQuizOptionCountChange={setQuizOptionCount}
+            keepScreenAwake={keepScreenAwake}
+            onKeepScreenAwakeChange={setKeepScreenAwake}
             open={isSettingsOpen}
             onOpenChange={handleSettingsOpenChange}
             onOpenRecordings={() => setIsRecordingsModalOpen(true)}
