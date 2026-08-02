@@ -12,12 +12,12 @@ export function VisualMath({ problem }: VisualMathProps) {
   const { num1, num2, operation, answer } = problem;
   const [step, setStep] = useState(1);
 
-  // Trigger step 2 after 450ms so the user visually sees the second number fill-in or take-away
+  // Trigger Step 2 after 400ms: added with Orange blocks or removed with Orange ✕ badges
   useEffect(() => {
     setStep(1);
     const timer = setTimeout(() => {
       setStep(2);
-    }, 450);
+    }, 400);
     return () => clearTimeout(timer);
   }, [problem.id]);
 
@@ -26,7 +26,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     return null;
   }
 
-  // ADDITION (+): num1 Cyan blocks appear first, then num2 Orange blocks fill in on step 2
+  // ADDITION (+): Start with Cyan blocks (num1), then fill in Orange blocks (num2) on step 2
   if (operation === '+') {
     const total = num1 + num2;
     const frameCount = Math.max(1, Math.ceil(total / 10));
@@ -56,17 +56,18 @@ export function VisualMath({ problem }: VisualMathProps) {
                   );
                 }
 
+                // Step 1: Start with Cyan blocks for num1
                 if (isNum1) {
                   return (
                     <div
                       key={`slot-${slotIndex}`}
                       className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fade-in-zoom cursor-pointer hover:scale-125 transition-transform"
-                      style={{ animationDelay: `${slotIndex * 30}ms` }}
+                      style={{ animationDelay: `${slotIndex * 25}ms` }}
                     />
                   );
                 }
 
-                // num2 Orange blocks: only visible on Step 2 with fill-in drop animation!
+                // Step 2: Fill in Orange blocks for num2
                 if (isNum2) {
                   if (step < 2) {
                     return (
@@ -96,7 +97,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // SUBTRACTION (-): Total blocks appear first, then takenAway blocks dissolve on step 2
+  // SUBTRACTION (-): Start with Cyan blocks (num1), then overlay Orange ✕ badges on step 2
   if (operation === '-') {
     const total = num1;
     const takenAway = num2;
@@ -128,18 +129,20 @@ export function VisualMath({ problem }: VisualMathProps) {
                   );
                 }
 
+                // Step 2: Overlay Orange ✕ badge over removed blocks
                 if (isRemoved && step >= 2) {
                   return (
                     <div
                       key={`slot-${slotIndex}`}
-                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/10 text-white/40 border border-dashed border-white/30 flex items-center justify-center font-bold text-xs animate-take-away"
-                      style={{ animationDelay: `${removedIndex * 75}ms` }}
+                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-amber-400 text-amber-950 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-xs animate-fill-in cursor-pointer hover:scale-110"
+                      style={{ animationDelay: `${removedIndex * 70}ms` }}
                     >
                       ✕
                     </div>
                   );
                 }
 
+                // Step 1: Cyan block for num1
                 return (
                   <div
                     key={`slot-${slotIndex}`}
