@@ -7,7 +7,7 @@ type VisualMathProps = {
   problem: MathProblem;
 };
 
-// Helper: Render 2x5 Ten Frame Grid Box
+// Helper: Render 2x5 Ten Frame Grid Box with Cyan & Orange Counter Tokens
 function renderTenFrameGrid(
   frameIndex: number,
   num1Count: number,
@@ -19,7 +19,7 @@ function renderTenFrameGrid(
   const frameStartIndex = frameIndex * 10;
   const frameSlots = Array.from({ length: 10 }).map((_, i) => frameStartIndex + i);
 
-  // If this entire frame is beyond totalItems, skip extra empty frames beyond 1 frame
+  // Skip extra empty frames beyond 1 frame
   if (frameStartIndex >= Math.max(10, Math.ceil(totalItems / 10) * 10) && frameIndex > 0) {
     return null;
   }
@@ -50,7 +50,7 @@ function renderTenFrameGrid(
                 "w-4 h-4 sm:w-5 sm:h-5 rounded-md flex items-center justify-center font-bold text-xs transition-all duration-300 animate-fade-in-zoom cursor-pointer hover:scale-110",
                 isRemoved
                   ? "bg-white/10 text-white/40 border border-dashed border-white/30 scale-90"
-                  : "bg-white text-amber-700 shadow-xs"
+                  : "bg-cyan-300 text-cyan-950 shadow-xs border border-cyan-400"
               )}
               style={{ animationDelay: `${slotIndex * 20}ms` }}
             >
@@ -59,7 +59,7 @@ function renderTenFrameGrid(
           );
         }
 
-        // Addition & general: num1 slots get Color 1 (white), num2 slots get Color 2 (amber)
+        // Addition & general: num1 = Bright Cyan, num2 = Vibrant Orange
         const isNum1 = slotIndex < num1Count;
         const isNum2 = slotIndex >= num1Count && slotIndex < num1Count + num2Count;
         const isEmpty = slotIndex >= num1Count + num2Count;
@@ -78,7 +78,9 @@ function renderTenFrameGrid(
             key={`slot-${slotIndex}`}
             className={cn(
               "w-4 h-4 sm:w-5 sm:h-5 rounded-md shadow-xs animate-fade-in-zoom hover:scale-125 transition-transform cursor-pointer",
-              isNum1 ? "bg-white" : "bg-amber-300 border border-amber-400"
+              isNum1
+                ? "bg-cyan-300 border border-cyan-400"
+                : "bg-amber-400 border border-amber-500"
             )}
             style={{ animationDelay: `${slotIndex * 20}ms` }}
           />
@@ -96,7 +98,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     return null;
   }
 
-  // ADDITION (+): Ten Frames showing num1 (white) and num2 (amber) filling 2x5 grids
+  // ADDITION (+): Ten Frames showing num1 (Cyan) and num2 (Orange) filling 2x5 grids
   if (operation === '+') {
     const total = num1 + num2;
     const frameCount = Math.max(1, Math.ceil(total / 10));
