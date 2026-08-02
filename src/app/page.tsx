@@ -177,12 +177,9 @@ export default function MathDeckPage() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isQuizActive) return;
 
-      if (e.code === "Space") {
+      if (e.code === "Space" || e.code === "ArrowRight" || e.code === "ArrowDown") {
         e.preventDefault();
         handleCardTap();
-      } else if (e.code === "ArrowDown" || e.code === "ArrowRight") {
-        e.preventDefault();
-        handleNextCard();
       } else if (e.code === "ArrowLeft") {
         e.preventDefault();
         handlePrevCard();
