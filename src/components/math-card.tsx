@@ -65,7 +65,7 @@ export function MathCard({
         <div
           className={cn(
             "absolute inset-0 flex items-center justify-center p-6 transition-transform duration-300",
-            isFlipped ? "-translate-y-7 sm:-translate-y-9" : "translate-y-0"
+            isFlipped ? "-translate-y-10 sm:-translate-y-12" : "translate-y-0"
           )}
         >
           <div className="flex items-center justify-center whitespace-nowrap text-center">
@@ -130,7 +130,7 @@ export function MathCard({
 
         {/* Visual Blocks Overlay - Flex Centered in Lower Card Region */}
         {isFlipped && (
-          <div className="absolute bottom-2 inset-x-0 top-[105px] flex items-center justify-center pointer-events-none z-10 px-4">
+          <div className="absolute bottom-3 inset-x-0 top-[135px] flex items-center justify-center pointer-events-none z-10 px-4">
             <VisualMath problem={problem} />
           </div>
         )}
