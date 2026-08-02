@@ -93,7 +93,7 @@ export default function MathDeckPage() {
     setCardCount((c) => c + 1);
 
     if (autoPlayAudio && !isQuizActive && autoPlay) {
-      speak(newProblem.speechText);
+      speak(newProblem.problemSpeechText);
     }
   }, [activeOperations, minRange, maxRange, allowNegatives, autoPlayAudio, isQuizActive, speak]);
 
@@ -125,7 +125,7 @@ export default function MathDeckPage() {
       const prevIdx = historyIndex - 1;
       setHistoryIndex(prevIdx);
       if (autoPlayAudio && !isQuizActive) {
-        speak(history[prevIdx].speechText);
+        speak(history[prevIdx].problemSpeechText);
       }
     }
   };
@@ -136,7 +136,7 @@ export default function MathDeckPage() {
       const nextIdx = historyIndex + 1;
       setHistoryIndex(nextIdx);
       if (autoPlayAudio && !isQuizActive) {
-        speak(history[nextIdx].speechText);
+        speak(history[nextIdx].problemSpeechText);
       }
     } else {
       nextCard(true);

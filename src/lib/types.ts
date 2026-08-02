@@ -8,7 +8,9 @@ export type MathProblem = {
   answer: number;
   displayText: string;
   answerText: string;
-  speechText: string;
+  problemSpeechText: string; // e.g. "7 plus 5"
+  fullSpeechText: string;    // e.g. "7 plus 5 equals 12"
+  speechText: string;        // fallback alias
 };
 
 export type AppSettingsState = {

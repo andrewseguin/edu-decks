@@ -30,9 +30,14 @@ export function MathCard({
     onFlip();
   };
 
-  const handleSpeak = (e: React.MouseEvent) => {
+  const handleSpeakFront = (e: React.MouseEvent) => {
     e.stopPropagation();
-    onSpeak(problem.speechText);
+    onSpeak(problem.problemSpeechText);
+  };
+
+  const handleSpeakBack = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onSpeak(problem.fullSpeechText);
   };
 
   return (
@@ -62,21 +67,21 @@ export function MathCard({
               {problem.displayText}
             </span>
 
-            {/* Speaker Button */}
+            {/* Speaker Button on Front (Speaks "7 plus 5" only, without answer) */}
             <Button
               variant="ghost"
               className="absolute bottom-4 right-4 h-12 w-12 p-0 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 rounded-full flex items-center justify-center"
-              onClick={handleSpeak}
+              onClick={handleSpeakFront}
               onPointerUp={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
-              aria-label="Speak equation"
+              aria-label="Speak equation prompt"
             >
               <Volume2 className="h-7 w-7 text-white/70 hover:text-white transition-colors" />
             </Button>
           </CardContent>
         </Card>
 
-        {/* BACK FACE OF CARD (Displays Answer & Visual Blocks, Rotated 180deg) */}
+        {/* BACK FACE OF CARD (Displays Answer & Visual Blocks) */}
         <Card
           className="absolute inset-0 w-full h-full border-none rounded-3xl overflow-hidden backface-hidden rotate-y-180 flex flex-col items-center justify-center"
           style={{
@@ -93,14 +98,14 @@ export function MathCard({
             </span>
             <VisualMath problem={problem} />
 
-            {/* Speaker Button */}
+            {/* Speaker Button on Back (Speaks full "7 plus 5 equals 12") */}
             <Button
               variant="ghost"
               className="absolute bottom-4 right-4 h-12 w-12 p-0 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 rounded-full flex items-center justify-center"
-              onClick={handleSpeak}
+              onClick={handleSpeakBack}
               onPointerUp={(e) => e.stopPropagation()}
               onPointerDown={(e) => e.stopPropagation()}
-              aria-label="Speak equation"
+              aria-label="Speak full equation and answer"
             >
               <Volume2 className="h-7 w-7 text-white/70 hover:text-white transition-colors" />
             </Button>
