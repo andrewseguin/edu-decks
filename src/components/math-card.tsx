@@ -61,8 +61,13 @@ export function MathCard({
       onClick={handleCardClick}
     >
       <CardContent className="p-0 h-full w-full relative flex items-center justify-center">
-        {/* Full Color-Coded Equation Always Centered Directly on Card Background */}
-        <div className="absolute inset-0 flex items-center justify-center p-6">
+        {/* Full Color-Coded Equation Centered with Smooth Shift Up on Reveal */}
+        <div
+          className={cn(
+            "absolute inset-0 flex items-center justify-center p-6 transition-transform duration-300",
+            isFlipped ? "-translate-y-5 sm:-translate-y-6" : "translate-y-0"
+          )}
+        >
           <div className="flex items-center justify-center whitespace-nowrap text-center">
             {/* First Number (Cyan when revealed, White when unrevealed) */}
             <span

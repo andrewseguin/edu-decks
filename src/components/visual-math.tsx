@@ -73,7 +73,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     }
 
     if (operation === '×') {
-      // Incrementally reveal Cyan blocks across rows (num1 wide) down (num2 tall) (1 block every 80ms)
+      // Incrementally reveal Cyan blocks across rows (1 block every 70ms)
       const total = num1 * num2;
       let currentCyan = 0;
       const cyanInterval = setInterval(() => {
@@ -82,7 +82,7 @@ export function VisualMath({ problem }: VisualMathProps) {
         if (currentCyan >= total) {
           clearInterval(cyanInterval);
         }
-      }, 80);
+      }, 70);
 
       return () => clearInterval(cyanInterval);
     }
@@ -242,15 +242,25 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // MULTIPLICATION (×): Rectangular Area Grid (num1 columns across × num2 rows down)
+  // MULTIPLICATION (×): Rectangular Area Grid (Landscape-fitted & Scaled)
   if (operation === '×') {
     const total = num1 * num2;
-    const cols = Math.min(12, Math.max(1, num1));
+    // Fit landscape card ratio by making width at least as wide as height
+    const cols = Math.max(num1, num2);
+    const rows = Math.min(num1, num2);
+
+    // Dynamic block sizing based on row height
+    const blockSizeClass =
+      rows <= 2
+        ? "w-3.5 h-3.5 sm:w-4 sm:h-4"
+        : rows <= 4
+        ? "w-3 h-3 sm:w-3.5 sm:h-3.5"
+        : "w-2.5 h-2.5 sm:w-3 sm:h-3";
 
     return (
-      <div className="flex justify-center items-center p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+      <div className="flex justify-center items-center p-1.5 sm:p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
         <div
-          className="grid gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs"
+          className="grid gap-1 p-1.5 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs"
           style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
         >
           {Array.from({ length: total }).map((_, slotIndex) => {
@@ -258,7 +268,7 @@ export function VisualMath({ problem }: VisualMathProps) {
               return (
                 <div
                   key={`mult-slot-${slotIndex}`}
-                  className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
+                  className={cn("rounded-md bg-white/5 border border-dashed border-white/20", blockSizeClass)}
                 />
               );
             }
@@ -266,7 +276,7 @@ export function VisualMath({ problem }: VisualMathProps) {
             return (
               <div
                 key={`mult-slot-${slotIndex}`}
-                className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform"
+                className={cn("rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform", blockSizeClass)}
               />
             );
           })}
