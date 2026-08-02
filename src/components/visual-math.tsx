@@ -348,7 +348,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // DIVISION (÷): Dynamic Proportional Block Scaling (Guarantees 0% unexpected wrapping when separating!)
+  // DIVISION (÷): Pre-calculated Reserved Width & Fixed Padding (Guarantees ZERO Layout Wrap!)
   if (operation === '÷') {
     const total = num1;          // Cyan total items (num1)
     const itemsPerGroup = num2;  // Items inside each Orange group box (num2)
@@ -356,22 +356,30 @@ export function VisualMath({ problem }: VisualMathProps) {
 
     const isSeparated = orangeVisible > 0; // Triggers after 550ms
 
-    // Max available container width inside card
-    const maxW = 540;
+    // Max available container width inside card lower region
+    const maxW = 460;
 
-    // Calculate max square block size (in px) taking into account groups & gap expansion
-    const availW = maxW - 32 - groupCount * 12;
-    const rawBlockSize = Math.floor(availW / total);
-    const blockSize = Math.max(9, Math.min(20, rawBlockSize));
+    // Factor in full separated padding and gap offsets from the beginning to prevent any width expansion
+    const groupPadding = 12; // 6px padding per group box side
+    const groupGap = 10;     // 10px gap between separated groups
+    const itemGap = 3;       // 3px gap between items inside a group
+
+    const totalItemGaps = groupCount * Math.max(0, itemsPerGroup - 1) * itemGap;
+    const totalGroupGaps = Math.max(0, groupCount - 1) * groupGap;
+    const totalGroupPadding = groupCount * groupPadding;
+
+    const availWForBlocks = maxW - totalItemGaps - totalGroupGaps - totalGroupPadding - 16;
+    const rawBlockSize = Math.floor(availWForBlocks / total);
+    const blockSize = Math.max(8, Math.min(18, rawBlockSize));
 
     return (
       <div
         className={cn(
           "flex flex-wrap justify-center items-center rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs transition-all duration-500 ease-out p-1.5 sm:p-2",
-          isSeparated ? "gap-1.5 sm:gap-2.5" : "gap-0.5 sm:gap-1"
+          isSeparated ? "gap-2 sm:gap-2.5" : "gap-0.5 sm:gap-1"
         )}
       >
-        {/* Render 'answer' Orange Group Boxes, each holding 'num2' Cyan blocks */}
+        {/* Render 'answer' Orange Group Boxes with CONSTANT internal padding from start to finish */}
         {Array.from({ length: groupCount }).map((_, gIdx) => {
           const groupStartIndex = gIdx * itemsPerGroup;
           const groupSlots = Array.from({ length: itemsPerGroup }).map((_, i) => groupStartIndex + i);
@@ -380,10 +388,10 @@ export function VisualMath({ problem }: VisualMathProps) {
             <div
               key={`div-group-${gIdx}`}
               className={cn(
-                "flex items-center justify-center rounded-xl transition-all duration-500 ease-out whitespace-nowrap shrink-0",
+                "flex items-center justify-center rounded-xl transition-all duration-500 ease-out whitespace-nowrap shrink-0 p-1 sm:p-1.5 gap-0.5 sm:gap-1",
                 isSeparated
-                  ? "bg-amber-500/20 border-2 border-amber-400/80 p-1 sm:p-1.5 shadow-xs gap-0.5 sm:gap-1"
-                  : "bg-transparent border border-transparent p-0.5 gap-0.5"
+                  ? "bg-amber-500/20 border-2 border-amber-400/80 shadow-xs"
+                  : "bg-transparent border-2 border-transparent"
               )}
             >
               {groupSlots.map((slotIndex) => {
