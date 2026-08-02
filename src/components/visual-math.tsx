@@ -249,7 +249,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // MULTIPLICATION (×): Perfectly Proportioned Axis Grid (maxH=140px, maxW=560px, blockSize up to 34px)
+  // MULTIPLICATION (×): Perfectly Proportioned Axis Grid (maxH=120px, maxW=480px, top-[140px])
   if (operation === '×') {
     const xCount = num1; // Cyan X-Axis across
     const yCount = num2; // Orange Y-Axis down
@@ -257,24 +257,24 @@ export function VisualMath({ problem }: VisualMathProps) {
     const rows = yCount + 1; // Including X-axis header row
 
     // Max available container dimensions inside card lower region
-    const maxW = 560;
-    const maxH = 140;
+    const maxW = 480;
+    const maxH = 120; // 120px max height guarantees 0% collision!
 
     // Calculate max square block size (in px) taking into account container padding & gaps
-    const gapSize = Math.max(cols, rows) > 8 ? 3 : 5;
-    const padding = 12;
+    const gapSize = Math.max(cols, rows) > 8 ? 2 : 4;
+    const padding = 10;
 
     const availW = maxW - padding - (cols - 1) * gapSize;
     const availH = maxH - padding - (rows - 1) * gapSize;
 
     const rawSize = Math.min(availW / cols, availH / rows);
-    const blockSize = Math.max(12, Math.min(34, Math.floor(rawSize)));
-    const fontSize = Math.max(8, Math.floor(blockSize * 0.52));
+    const blockSize = Math.max(10, Math.min(26, Math.floor(rawSize)));
+    const fontSize = Math.max(7, Math.floor(blockSize * 0.52));
 
     return (
       <div className="flex flex-col justify-center items-center p-1 sm:p-1.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
         <div
-          className="grid p-1.5 sm:p-2 rounded-xl bg-white/15 border border-white/30 shadow-xs"
+          className="grid p-1.5 rounded-xl bg-white/15 border border-white/30 shadow-xs"
           style={{ gap: `${gapSize}px` }}
         >
           {/* Top Row: Spacer Corner + Cyan X-Axis Headers across */}

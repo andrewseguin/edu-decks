@@ -61,45 +61,55 @@ export function MathCard({
       onClick={handleCardClick}
     >
       <CardContent className="p-0 h-full w-full relative flex items-center justify-center">
-        {/* Full Color-Coded Equation Centered with Subtle Shift Up on Reveal */}
+        {/* Full Color-Coded Equation Centered with Shift Up on Reveal */}
         <div
           className={cn(
             "absolute inset-0 flex items-center justify-center p-6 transition-transform duration-300 pointer-events-none",
-            isFlipped ? "-translate-y-4 sm:-translate-y-5" : "translate-y-0"
+            isFlipped ? "-translate-y-12 sm:-translate-y-14" : "translate-y-0"
           )}
         >
           <div className="flex items-center justify-center whitespace-nowrap text-center">
             {/* First Number (Cyan when revealed, White when unrevealed) */}
             <span
               className={cn(
-                "font-headline font-bold leading-none select-none transition-all duration-300 text-5xl sm:text-7xl md:text-8xl",
+                "font-headline font-bold leading-none select-none transition-all duration-300",
                 isFlipped
-                  ? "text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)]"
-                  : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]"
+                  ? "text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-4xl sm:text-6xl md:text-7xl"
+                  : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl"
               )}
             >
               {problem.num1}
             </span>
 
             {/* Operator (+, -, ×, ÷) */}
-            <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl mx-2 sm:mx-3">
+            <span
+              className={cn(
+                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] mx-2 sm:mx-3 transition-all duration-300",
+                isFlipped ? "text-4xl sm:text-6xl md:text-7xl" : "text-5xl sm:text-7xl md:text-8xl"
+              )}
+            >
               {problem.operation}
             </span>
 
             {/* Second Number (Orange/Amber when revealed, White when unrevealed) */}
             <span
               className={cn(
-                "font-headline font-bold leading-none select-none transition-all duration-300 text-5xl sm:text-7xl md:text-8xl",
+                "font-headline font-bold leading-none select-none transition-all duration-300",
                 isFlipped
-                  ? "text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)]"
-                  : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]"
+                  ? "text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-4xl sm:text-6xl md:text-7xl"
+                  : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl"
               )}
             >
               {problem.num2}
             </span>
 
             {/* Equals Symbol */}
-            <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl ml-2 sm:ml-3 mr-2 sm:mr-3">
+            <span
+              className={cn(
+                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] ml-2 sm:ml-3 mr-2 sm:mr-3 transition-all duration-300",
+                isFlipped ? "text-4xl sm:text-6xl md:text-7xl" : "text-5xl sm:text-7xl md:text-8xl"
+              )}
+            >
               =
             </span>
 
@@ -107,10 +117,10 @@ export function MathCard({
             <div className="relative inline-flex items-center justify-center px-1">
               <span
                 className={cn(
-                  "font-headline font-bold leading-none select-none text-white transition-all duration-300 text-5xl sm:text-7xl md:text-8xl",
+                  "font-headline font-bold leading-none select-none text-white transition-all duration-300",
                   isFlipped
-                    ? "[text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] opacity-100 scale-100"
-                    : "opacity-0 scale-90"
+                    ? "[text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] opacity-100 scale-100 text-4xl sm:text-6xl md:text-7xl"
+                    : "opacity-0 scale-90 text-5xl sm:text-7xl md:text-8xl"
                 )}
               >
                 {problem.answerText}
@@ -128,9 +138,9 @@ export function MathCard({
           </div>
         </div>
 
-        {/* Visual Blocks Overlay - Absolute Bottom Layer */}
+        {/* Visual Blocks Overlay - Centered in Lower Half from top-[140px] to bottom-3 */}
         {isFlipped && (
-          <div className="absolute bottom-3 sm:bottom-4 inset-x-0 flex items-center justify-center pointer-events-none z-10 px-4">
+          <div className="absolute bottom-2 sm:bottom-3 inset-x-0 top-[140px] sm:top-[155px] flex items-center justify-center pointer-events-none z-10 px-4">
             <VisualMath problem={problem} />
           </div>
         )}
