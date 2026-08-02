@@ -171,7 +171,7 @@ export function VisualMath({ problem }: VisualMathProps) {
                   return (
                     <div
                       key={`slot-${slotIndex}`}
-                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform"
+                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs transition-opacity duration-200"
                     />
                   );
                 }
@@ -190,7 +190,7 @@ export function VisualMath({ problem }: VisualMathProps) {
                   return (
                     <div
                       key={`slot-${slotIndex}`}
-                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-amber-400 border border-amber-500 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform"
+                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-amber-400 border border-amber-500 shadow-xs transition-opacity duration-200"
                     />
                   );
                 }
@@ -204,7 +204,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // SUBTRACTION (-): Empty slots -> Cyan blocks (num1) fill in -> Clear 650ms Pause -> Silly popping Orange ✕ badges
+  // SUBTRACTION (-): Clean static Orange ✕ badges without wild popping
   if (operation === '-') {
     const total = num1;
     const takenAway = num2;
@@ -248,16 +248,14 @@ export function VisualMath({ problem }: VisualMathProps) {
                 // Reverse index from the end for subtraction take-away
                 const subReverseIndex = (total - 1) - slotIndex;
 
-                // Subtraction Orange ✕ Badge with silly popping animation & ONE-SHOT pop ring burst
+                // Subtraction Orange ✕ Badge with clean, subtle fade
                 if (isRemovedSlot && subReverseIndex < subtractionCount) {
                   return (
                     <div
                       key={`slot-${slotIndex}`}
-                      className="relative w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-transparent text-amber-400 border border-dashed border-amber-400/80 shadow-xs flex items-center justify-center font-bold text-xs sm:text-sm animate-silly-pop cursor-pointer hover:scale-125 transition-transform"
+                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-transparent text-amber-400 border border-dashed border-amber-400/80 shadow-xs flex items-center justify-center font-bold text-xs sm:text-sm transition-opacity duration-200"
                     >
                       <span>✕</span>
-                      {/* One-Shot Silly Pop Ring burst (runs ONCE and stops) */}
-                      <span className="absolute -inset-1 rounded-lg border border-amber-400/70 animate-silly-ring-once pointer-events-none" />
                     </div>
                   );
                 }
@@ -266,7 +264,7 @@ export function VisualMath({ problem }: VisualMathProps) {
                 return (
                   <div
                     key={`slot-${slotIndex}`}
-                    className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform"
+                    className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs transition-opacity duration-200"
                   />
                 );
               })}
@@ -277,7 +275,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // MULTIPLICATION (×): Perfectly Proportioned Axis Grid (maxH=120px, maxW=480px, top-[140px])
+  // MULTIPLICATION (×): Clean, quiet fade-in without wild popping
   if (operation === '×') {
     const xCount = num1; // Cyan X-Axis across
     const yCount = num2; // Orange Y-Axis down
@@ -314,7 +312,7 @@ export function VisualMath({ problem }: VisualMathProps) {
             {Array.from({ length: xCount }).map((_, xIdx) => (
               <div
                 key={`x-axis-${xIdx}`}
-                className="rounded-md bg-cyan-300 border border-cyan-400 shadow-xs flex items-center justify-center font-bold text-cyan-950 animate-fade-in-zoom leading-none shrink-0"
+                className="rounded-md bg-cyan-300 border border-cyan-400 shadow-xs flex items-center justify-center font-bold text-cyan-950 leading-none shrink-0"
                 style={{ width: `${blockSize}px`, height: `${blockSize}px`, fontSize: `${fontSize}px` }}
               >
                 {xIdx + 1}
@@ -330,7 +328,7 @@ export function VisualMath({ problem }: VisualMathProps) {
               <div key={`y-row-${yIdx}`} className="flex items-center" style={{ gap: `${gapSize}px` }}>
                 {/* Orange Y-Axis Block down */}
                 <div
-                  className="rounded-md bg-amber-400 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-amber-950 animate-fade-in-zoom leading-none shrink-0"
+                  className="rounded-md bg-amber-400 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-amber-950 leading-none shrink-0"
                   style={{ width: `${blockSize}px`, height: `${blockSize}px`, fontSize: `${fontSize}px` }}
                 >
                   {yIdx + 1}
@@ -353,7 +351,7 @@ export function VisualMath({ problem }: VisualMathProps) {
                   return (
                     <div
                       key={`area-slot-${areaIndex}`}
-                      className="rounded-md bg-white border border-white/80 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform shrink-0"
+                      className="rounded-md bg-white border border-white/80 shadow-xs transition-opacity duration-150 shrink-0"
                       style={{ width: `${blockSize}px`, height: `${blockSize}px` }}
                     />
                   );
@@ -366,7 +364,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // DIVISION (÷): Cyan blocks fill in grid first (like Addition/Subtraction), then grouped into num2 Orange groups!
+  // DIVISION (÷): Clean, quiet Orange group enclosures without wild animations
   if (operation === '÷') {
     const total = num1;            // Cyan total items
     const groupCount = num2;       // Orange groups to create
@@ -391,20 +389,13 @@ export function VisualMath({ problem }: VisualMathProps) {
             <div
               key={`div-group-${gIdx}`}
               className={cn(
-                "relative flex items-center justify-center gap-1.5 p-1.5 sm:p-2 rounded-xl transition-all duration-300",
+                "flex items-center justify-center gap-1.5 p-1.5 sm:p-2 rounded-xl transition-all duration-300",
                 isGrouped
-                  ? "bg-amber-500/20 border-2 border-amber-400/80 shadow-xs animate-silly-pop"
+                  ? "bg-amber-500/20 border-2 border-amber-400/80 shadow-xs"
                   : "bg-white/10 border border-dashed border-white/25"
               )}
             >
-              {/* Orange Group Number Badge when grouped */}
-              {isGrouped && (
-                <div className="absolute -top-2.5 -left-2.5 w-5 h-5 rounded-full bg-amber-400 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-[10px] text-amber-950 animate-fade-in-zoom">
-                  {gIdx + 1}
-                </div>
-              )}
-
-              {/* Cyan blocks (just like Addition and Subtraction!) */}
+              {/* Cyan blocks */}
               {groupSlots.map((slotIndex) => {
                 if (slotIndex >= total) return null;
 
@@ -421,7 +412,7 @@ export function VisualMath({ problem }: VisualMathProps) {
                   <div
                     key={`div-slot-${slotIndex}`}
                     className={cn(
-                      "rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform shrink-0",
+                      "rounded-md bg-cyan-300 border border-cyan-400 shadow-xs transition-opacity duration-200 shrink-0",
                       blockSizeClass
                     )}
                   />
