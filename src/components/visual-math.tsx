@@ -47,7 +47,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     }
 
     if (operation === '-') {
-      // Start with all Cyan blocks visible, then incrementally reveal Orange ✕ badges after 450ms
+      // Start with all Cyan blocks visible, then incrementally animate Orange ✕ badges from the END (1 every 140ms)
       const subTimer = setTimeout(() => {
         let currentSub = 0;
         const subInterval = setInterval(() => {
@@ -56,7 +56,7 @@ export function VisualMath({ problem }: VisualMathProps) {
           if (currentSub >= num2) {
             clearInterval(subInterval);
           }
-        }, 130);
+        }, 140);
       }, 450);
 
       return () => clearTimeout(subTimer);
@@ -144,7 +144,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // SUBTRACTION (-): Cyan blocks present -> Taken away incrementally by Orange ✕ badges with clear block & soft border
+  // SUBTRACTION (-): Start with Cyan blocks (num1), then animate Orange ✕ badges from the END backward
   if (operation === '-') {
     const total = num1;
     const takenAway = num2;
@@ -165,7 +165,6 @@ export function VisualMath({ problem }: VisualMathProps) {
               {frameSlots.map((slotIndex) => {
                 const isFilled = slotIndex < total;
                 const isRemovedSlot = slotIndex >= remaining && slotIndex < total;
-                const removedIdx = slotIndex - remaining;
 
                 if (!isFilled) {
                   return (
@@ -176,8 +175,11 @@ export function VisualMath({ problem }: VisualMathProps) {
                   );
                 }
 
-                // Subtraction Orange ✕ Badge: appears when subtractionCount reaches this item
-                if (isRemovedSlot && removedIdx < subtractionCount) {
+                // Calculate reverse index from the end (last block at total-1 has subReverseIndex = 0)
+                const subReverseIndex = (total - 1) - slotIndex;
+
+                // Subtraction Orange ✕ Badge: appears from the end backward as subtractionCount increments
+                if (isRemovedSlot && subReverseIndex < subtractionCount) {
                   return (
                     <div
                       key={`slot-${slotIndex}`}
