@@ -7,7 +7,7 @@ type VisualMathProps = {
   problem: MathProblem;
 };
 
-// Helper: Render 2x5 Ten Frame Grid Box with Cyan & Orange Counter Tokens
+// Helper: Render 2x5 Ten Frame Grid Box with Animated Sequential Fill In & Take Away
 function renderTenFrameGrid(
   frameIndex: number,
   num1Count: number,
@@ -33,6 +33,7 @@ function renderTenFrameGrid(
         if (isSubtraction) {
           const isFilled = slotIndex < totalItems;
           const isRemoved = slotIndex >= totalItems - subtractionTakenAway && slotIndex < totalItems;
+          const removedIndex = slotIndex - (totalItems - subtractionTakenAway);
 
           if (!isFilled) {
             return (
@@ -47,22 +48,27 @@ function renderTenFrameGrid(
             <div
               key={`slot-${slotIndex}`}
               className={cn(
-                "w-4 h-4 sm:w-5 sm:h-5 rounded-md flex items-center justify-center font-bold text-xs transition-all duration-300 animate-fade-in-zoom cursor-pointer hover:scale-110",
+                "w-4 h-4 sm:w-5 sm:h-5 rounded-md flex items-center justify-center font-bold text-xs cursor-pointer hover:scale-110",
                 isRemoved
-                  ? "bg-white/10 text-white/40 border border-dashed border-white/30 scale-90"
-                  : "bg-cyan-300 text-cyan-950 shadow-xs border border-cyan-400"
+                  ? "bg-white/10 text-white/40 border border-dashed border-white/30 animate-take-away"
+                  : "bg-cyan-300 text-cyan-950 shadow-xs border border-cyan-400 animate-fill-in"
               )}
-              style={{ animationDelay: `${slotIndex * 20}ms` }}
+              style={{
+                animationDelay: isRemoved
+                  ? `${280 + removedIndex * 80}ms`
+                  : `${slotIndex * 25}ms`,
+              }}
             >
               {isRemoved ? "✕" : ""}
             </div>
           );
         }
 
-        // Addition & general: num1 = Bright Cyan, num2 = Vibrant Orange
+        // Addition & general: num1 = Bright Cyan, num2 = Vibrant Orange (fills in after num1)
         const isNum1 = slotIndex < num1Count;
         const isNum2 = slotIndex >= num1Count && slotIndex < num1Count + num2Count;
         const isEmpty = slotIndex >= num1Count + num2Count;
+        const num2Index = slotIndex - num1Count;
 
         if (isEmpty) {
           return (
@@ -77,12 +83,16 @@ function renderTenFrameGrid(
           <div
             key={`slot-${slotIndex}`}
             className={cn(
-              "w-4 h-4 sm:w-5 sm:h-5 rounded-md shadow-xs animate-fade-in-zoom hover:scale-125 transition-transform cursor-pointer",
+              "w-4 h-4 sm:w-5 sm:h-5 rounded-md shadow-xs animate-fill-in hover:scale-125 transition-transform cursor-pointer",
               isNum1
                 ? "bg-cyan-300 border border-cyan-400"
                 : "bg-amber-400 border border-amber-500"
             )}
-            style={{ animationDelay: `${slotIndex * 20}ms` }}
+            style={{
+              animationDelay: isNum1
+                ? `${slotIndex * 25}ms`
+                : `${300 + num2Index * 65}ms`,
+            }}
           />
         );
       })}
@@ -98,7 +108,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     return null;
   }
 
-  // ADDITION (+): Ten Frames showing num1 (Cyan) and num2 (Orange) filling 2x5 grids
+  // ADDITION (+): Ten Frames showing num1 (Cyan) and num2 (Orange) sequentially filling 2x5 grids
   if (operation === '+') {
     const total = num1 + num2;
     const frameCount = Math.max(1, Math.ceil(total / 10));
@@ -112,7 +122,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // SUBTRACTION (-): Ten Frames showing total items with taken away items crossed out
+  // SUBTRACTION (-): Ten Frames showing total items with taken away items animating out
   if (operation === '-') {
     const total = num1;
     const takenAway = num2;
