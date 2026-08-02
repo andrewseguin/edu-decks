@@ -179,7 +179,7 @@ export default function MathDeckPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isQuizActive, historyIndex, history.length, handleNextCard, handlePrevCard]);
 
-  // Touch Pointer / Gesture Handling
+  // Touch Pointer / Swipe Gesture Handling
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
 
   const handlePointerDown = (e: React.PointerEvent) => {
@@ -201,14 +201,7 @@ export default function MathDeckPage() {
 
     touchStartRef.current = null;
 
-    // Tap flips the card 3D rotation
-    if (absDeltaX < 10 && absDeltaY < 10) {
-      if (Date.now() - lastMenuCloseTimeRef.current < 300) return;
-      setIsFlipped((f) => !f);
-      return;
-    }
-
-    // Swipe left/right advances cards
+    // Handle horizontal swipes ONLY for card navigation (don't double-trigger card clicks)
     if (absDeltaX > 50 && absDeltaX > absDeltaY) {
       if (deltaX > 0) {
         handlePrevCard();
@@ -240,7 +233,7 @@ export default function MathDeckPage() {
 
   return (
     <main
-      className="flex h-svh w-screen cursor-pointer items-center justify-center bg-background overflow-hidden relative focus:outline-none touch-none"
+      className="flex h-svh w-screen items-center justify-center bg-background overflow-hidden relative focus:outline-none touch-none select-none"
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       tabIndex={-1}
