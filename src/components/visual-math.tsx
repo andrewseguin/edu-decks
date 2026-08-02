@@ -87,11 +87,39 @@ export function VisualMath({ problem }: VisualMathProps) {
 
       return () => clearInterval(cyanInterval);
     }
+
+    if (operation === '÷') {
+      // Step 1: Reveal total num1 Cyan blocks (1 every 40ms)
+      const total = num1;
+      const groupCount = Math.max(1, answer);
+      let currentCyan = 0;
+      const cyanInterval = setInterval(() => {
+        currentCyan++;
+        setCyanVisible(currentCyan);
+        if (currentCyan >= total) {
+          clearInterval(cyanInterval);
+
+          // Step 2: 500ms pause, then sequentially partition into Orange Group Containers (1 every 200ms)
+          setTimeout(() => {
+            let currentOrange = 0;
+            const orangeInterval = setInterval(() => {
+              currentOrange++;
+              setOrangeVisible(currentOrange);
+              if (currentOrange >= groupCount) {
+                clearInterval(orangeInterval);
+              }
+            }, 200);
+          }, 500);
+        }
+      }, 40);
+
+      return () => clearInterval(cyanInterval);
+    }
   }, [problem.id, num1, num2, operation]);
 
-  // Don't render visual frames if numbers are extremely huge (> 100 for mult, > 40 for add/sub)
-  if (operation === '×') {
-    if (Math.abs(num1) > 12 || Math.abs(num2) > 12 || Math.abs(answer) > 100) {
+  // Don't render visual frames if numbers are extremely huge (> 100 for mult/div, > 40 for add/sub)
+  if (operation === '×' || operation === '÷') {
+    if (Math.abs(num1) > 144 || Math.abs(num2) > 12 || Math.abs(answer) > 100) {
       return null;
     }
   } else {
@@ -338,29 +366,64 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // DIVISION (÷)
+  // DIVISION (÷): Total Cyan blocks (num1) partitioned into Orange group containers of size num2
   if (operation === '÷') {
-    const total = answer;
-    const frameCount = Math.max(1, Math.ceil(total / 10));
+    const total = num1;        // Total Cyan items to partition
+    const groupSize = Math.max(1, num2); // Items per group
+    const groupCount = Math.max(1, answer); // Total groups (answer)
+
+    const blockSizeClass =
+      total <= 12
+        ? "w-3.5 h-3.5 sm:w-4 sm:h-4"
+        : total <= 30
+        ? "w-2.5 h-2.5 sm:w-3 sm:h-3"
+        : "w-2 h-2 sm:w-2.5 sm:h-2.5";
 
     return (
-      <div className="flex flex-wrap justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        {Array.from({ length: frameCount }).map((_, fIdx) => {
-          const frameStartIndex = fIdx * 10;
-          const frameSlots = Array.from({ length: 10 }).map((_, i) => frameStartIndex + i);
+      <div className="flex flex-wrap justify-center items-center gap-2 p-1.5 sm:p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+        {Array.from({ length: groupCount }).map((_, gIdx) => {
+          const groupStartIndex = gIdx * groupSize;
+          const groupItems = Array.from({ length: groupSize }).map((_, i) => groupStartIndex + i);
+
+          const isGroupPartitioned = gIdx < orangeVisible;
 
           return (
             <div
-              key={`tf-${fIdx}`}
-              className="grid grid-rows-2 grid-cols-5 gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs"
+              key={`div-group-${gIdx}`}
+              className={cn(
+                "relative flex items-center gap-1 p-1.5 sm:p-2 rounded-xl transition-all duration-300",
+                isGroupPartitioned
+                  ? "bg-amber-500/20 border-2 border-amber-400 shadow-xs animate-silly-pop"
+                  : "bg-white/10 border border-dashed border-white/25"
+              )}
             >
-              {frameSlots.map((slotIndex) => {
-                const isFilled = slotIndex < total;
-                if (!isFilled) return null;
+              {/* Orange Group Number Badge when Partitioned */}
+              {isGroupPartitioned && (
+                <div className="absolute -top-2.5 -left-2.5 w-5 h-5 rounded-full bg-amber-400 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-[10px] text-amber-950 animate-fade-in-zoom">
+                  {gIdx + 1}
+                </div>
+              )}
+
+              {/* Cyan items inside this group */}
+              {groupItems.map((slotIndex) => {
+                if (slotIndex >= total) return null;
+
+                if (slotIndex >= cyanVisible) {
+                  return (
+                    <div
+                      key={`div-slot-${slotIndex}`}
+                      className={cn("rounded-md bg-white/5 border border-dashed border-white/20", blockSizeClass)}
+                    />
+                  );
+                }
+
                 return (
                   <div
-                    key={`slot-${slotIndex}`}
-                    className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fade-in-zoom cursor-pointer hover:scale-125 transition-transform"
+                    key={`div-slot-${slotIndex}`}
+                    className={cn(
+                      "rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform",
+                      blockSizeClass
+                    )}
                   />
                 );
               })}
