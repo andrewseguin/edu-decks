@@ -10,34 +10,65 @@ type VisualMathProps = {
 
 export function VisualMath({ problem }: VisualMathProps) {
   const { num1, num2, operation, answer } = problem;
-  const [step, setStep] = useState(1);
+  const [cyanVisible, setCyanVisible] = useState(0);
+  const [orangeVisible, setOrangeVisible] = useState(0);
+  const [subtractionCount, setSubtractionCount] = useState(0);
 
   useEffect(() => {
-    setStep(1);
-    // Step 1: Empty frame or initial Cyan blocks
-    // Step 2: Cyan blocks fill in (for addition) or Subtraction Orange ✕ badges begin
-    const timer1 = setTimeout(() => {
-      setStep(2);
-    }, 250);
+    // Reset state for new problem
+    setCyanVisible(0);
+    setOrangeVisible(0);
+    setSubtractionCount(0);
 
-    // Step 3: Orange blocks fill in (for addition)
-    const cyanDuration = Math.max(1, num1) * 100;
-    const timer2 = setTimeout(() => {
-      setStep(3);
-    }, 250 + cyanDuration + 100);
+    if (operation === '+') {
+      // Step 1: Incrementally reveal Cyan blocks (1 every 90ms)
+      let currentCyan = 0;
+      const cyanInterval = setInterval(() => {
+        currentCyan++;
+        setCyanVisible(currentCyan);
+        if (currentCyan >= num1) {
+          clearInterval(cyanInterval);
 
-    return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
-    };
-  }, [problem.id, num1]);
+          // Step 2: Incrementally reveal Orange blocks (1 every 110ms) after Cyan finishes
+          setTimeout(() => {
+            let currentOrange = 0;
+            const orangeInterval = setInterval(() => {
+              currentOrange++;
+              setOrangeVisible(currentOrange);
+              if (currentOrange >= num2) {
+                clearInterval(orangeInterval);
+              }
+            }, 110);
+          }, 200);
+        }
+      }, 90);
+
+      return () => clearInterval(cyanInterval);
+    }
+
+    if (operation === '-') {
+      // Start with all Cyan blocks visible, then incrementally reveal Orange ✕ badges after 450ms
+      const subTimer = setTimeout(() => {
+        let currentSub = 0;
+        const subInterval = setInterval(() => {
+          currentSub++;
+          setSubtractionCount(currentSub);
+          if (currentSub >= num2) {
+            clearInterval(subInterval);
+          }
+        }, 130);
+      }, 450);
+
+      return () => clearTimeout(subTimer);
+    }
+  }, [problem.id, num1, num2, operation]);
 
   // Don't render visual frames if numbers are huge (> 40)
   if (Math.abs(num1) > 40 || Math.abs(num2) > 40 || Math.abs(answer) > 40) {
     return null;
   }
 
-  // ADDITION (+): Empty slots first -> Cyan blocks incrementally appear -> Orange blocks incrementally appear
+  // ADDITION (+): Truly empty slots -> Cyan blocks increment -> Orange blocks increment
   if (operation === '+') {
     const total = num1 + num2;
     const frameCount = Math.max(1, Math.ceil(total / 10));
@@ -54,12 +85,11 @@ export function VisualMath({ problem }: VisualMathProps) {
               className="grid grid-rows-2 grid-cols-5 gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs"
             >
               {frameSlots.map((slotIndex) => {
-                const isNum1 = slotIndex < num1;
-                const isNum2 = slotIndex >= num1 && slotIndex < total;
-                const isEmpty = slotIndex >= total;
+                const isNum1Slot = slotIndex < num1;
+                const isNum2Slot = slotIndex >= num1 && slotIndex < total;
+                const isEmptySlot = slotIndex >= total;
 
-                // Slot is empty beyond total problem answer
-                if (isEmpty) {
+                if (isEmptySlot) {
                   return (
                     <div
                       key={`slot-${slotIndex}`}
@@ -68,9 +98,9 @@ export function VisualMath({ problem }: VisualMathProps) {
                   );
                 }
 
-                // Cyan blocks: appear incrementally on Step 2
-                if (isNum1) {
-                  if (step < 2) {
+                // Cyan block: TRULY empty until cyanVisible reaches this slot
+                if (isNum1Slot) {
+                  if (slotIndex >= cyanVisible) {
                     return (
                       <div
                         key={`slot-${slotIndex}`}
@@ -82,14 +112,14 @@ export function VisualMath({ problem }: VisualMathProps) {
                     <div
                       key={`slot-${slotIndex}`}
                       className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform"
-                      style={{ animationDelay: `${slotIndex * 100}ms` }}
                     />
                   );
                 }
 
-                // Orange blocks: appear incrementally on Step 3
-                if (isNum2) {
-                  if (step < 3) {
+                // Orange block: TRULY empty until orangeVisible reaches this slot
+                if (isNum2Slot) {
+                  const orangeIdx = slotIndex - num1;
+                  if (orangeIdx >= orangeVisible) {
                     return (
                       <div
                         key={`slot-${slotIndex}`}
@@ -97,12 +127,10 @@ export function VisualMath({ problem }: VisualMathProps) {
                       />
                     );
                   }
-                  const num2Index = slotIndex - num1;
                   return (
                     <div
                       key={`slot-${slotIndex}`}
                       className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-amber-400 border border-amber-500 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform"
-                      style={{ animationDelay: `${num2Index * 120}ms` }}
                     />
                   );
                 }
@@ -136,8 +164,8 @@ export function VisualMath({ problem }: VisualMathProps) {
             >
               {frameSlots.map((slotIndex) => {
                 const isFilled = slotIndex < total;
-                const isRemoved = slotIndex >= remaining && slotIndex < total;
-                const removedIndex = slotIndex - remaining;
+                const isRemovedSlot = slotIndex >= remaining && slotIndex < total;
+                const removedIdx = slotIndex - remaining;
 
                 if (!isFilled) {
                   return (
@@ -148,13 +176,12 @@ export function VisualMath({ problem }: VisualMathProps) {
                   );
                 }
 
-                // Step 2: Incrementally taken away by Orange ✕ badges in a clear block with soft border
-                if (isRemoved && step >= 2) {
+                // Subtraction Orange ✕ Badge: appears when subtractionCount reaches this item
+                if (isRemovedSlot && removedIdx < subtractionCount) {
                   return (
                     <div
                       key={`slot-${slotIndex}`}
                       className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-amber-400/90 text-amber-950 border border-amber-300/80 shadow-xs flex items-center justify-center font-bold text-xs animate-fill-in cursor-pointer hover:scale-110"
-                      style={{ animationDelay: `${removedIndex * 120}ms` }}
                     >
                       ✕
                     </div>
@@ -166,7 +193,6 @@ export function VisualMath({ problem }: VisualMathProps) {
                   <div
                     key={`slot-${slotIndex}`}
                     className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fade-in-zoom cursor-pointer hover:scale-125 transition-transform"
-                    style={{ animationDelay: `${slotIndex * 30}ms` }}
                   />
                 );
               })}
@@ -200,7 +226,6 @@ export function VisualMath({ problem }: VisualMathProps) {
                   <div
                     key={`slot-${slotIndex}`}
                     className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fade-in-zoom cursor-pointer hover:scale-125 transition-transform"
-                    style={{ animationDelay: `${slotIndex * 35}ms` }}
                   />
                 );
               })}
@@ -234,7 +259,6 @@ export function VisualMath({ problem }: VisualMathProps) {
                   <div
                     key={`slot-${slotIndex}`}
                     className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fade-in-zoom cursor-pointer hover:scale-125 transition-transform"
-                    style={{ animationDelay: `${slotIndex * 35}ms` }}
                   />
                 );
               })}
