@@ -73,9 +73,9 @@ export function VisualMath({ problem }: VisualMathProps) {
     }
 
     if (operation === '×') {
-      // Incrementally reveal White Area blocks inside the matrix (1 block every 30ms)
+      // Incrementally reveal White Area blocks inside the matrix (1 block every 25ms)
       const total = num1 * num2;
-      const intervalMs = total > 30 ? 25 : 50;
+      const intervalMs = total > 30 ? 20 : 45;
       let currentCyan = 0;
       const cyanInterval = setInterval(() => {
         currentCyan++;
@@ -253,28 +253,33 @@ export function VisualMath({ problem }: VisualMathProps) {
   if (operation === '×') {
     const xCount = num1; // Cyan X-Axis across
     const yCount = num2; // Orange Y-Axis down
+    const maxDim = Math.max(xCount, yCount);
 
     const blockSizeClass =
-      xCount <= 6 && yCount <= 4
-        ? "w-3.5 h-3.5 sm:w-4 sm:h-4"
-        : xCount <= 10 && yCount <= 7
-        ? "w-3 h-3 sm:w-3.5 sm:h-3.5"
-        : "w-2.5 h-2.5 sm:w-3 sm:h-3";
+      maxDim <= 4
+        ? "w-3.5 h-3.5 sm:w-4 sm:h-4 text-[9px] sm:text-[11px]"
+        : maxDim <= 6
+        ? "w-2.5 h-2.5 sm:w-3 sm:h-3 text-[7px] sm:text-[9px]"
+        : maxDim <= 8
+        ? "w-2 h-2 sm:w-2.5 sm:h-2.5 text-[6px] sm:text-[7px]"
+        : "w-1.5 h-1.5 sm:w-2 sm:h-2 text-[5px] sm:text-[6px]";
+
+    const gapClass = maxDim > 6 ? "gap-0.5" : "gap-1";
 
     return (
-      <div className="flex flex-col justify-center items-center p-1.5 sm:p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        <div className="grid gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 shadow-xs">
+      <div className="flex flex-col justify-center items-center p-1 sm:p-1.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs max-h-[115px] sm:max-h-[135px]">
+        <div className={cn("grid p-1 sm:p-1.5 rounded-xl bg-white/15 border border-white/30 shadow-xs", gapClass)}>
           {/* Top Row: Spacer Corner + Cyan X-Axis Headers across */}
-          <div className="flex items-center gap-1.5">
+          <div className={cn("flex items-center", gapClass)}>
             {/* Top-Left Corner Spacer */}
-            <div className={cn("rounded-md bg-transparent", blockSizeClass)} />
+            <div className={cn("rounded-sm bg-transparent", blockSizeClass)} />
 
             {/* Cyan X-Axis Blocks across */}
             {Array.from({ length: xCount }).map((_, xIdx) => (
               <div
                 key={`x-axis-${xIdx}`}
                 className={cn(
-                  "rounded-md bg-cyan-300 border border-cyan-400 shadow-xs flex items-center justify-center font-bold text-[9px] sm:text-[11px] text-cyan-950 animate-fade-in-zoom",
+                  "rounded-xs sm:rounded-sm bg-cyan-300 border border-cyan-400 shadow-xs flex items-center justify-center font-bold text-cyan-950 animate-fade-in-zoom leading-none shrink-0",
                   blockSizeClass
                 )}
               >
@@ -288,11 +293,11 @@ export function VisualMath({ problem }: VisualMathProps) {
             const rowStartIndex = yIdx * xCount;
 
             return (
-              <div key={`y-row-${yIdx}`} className="flex items-center gap-1.5">
+              <div key={`y-row-${yIdx}`} className={cn("flex items-center", gapClass)}>
                 {/* Orange Y-Axis Block down */}
                 <div
                   className={cn(
-                    "rounded-md bg-amber-400 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-[9px] sm:text-[11px] text-amber-950 animate-fade-in-zoom",
+                    "rounded-xs sm:rounded-sm bg-amber-400 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-amber-950 animate-fade-in-zoom leading-none shrink-0",
                     blockSizeClass
                   )}
                 >
@@ -307,7 +312,7 @@ export function VisualMath({ problem }: VisualMathProps) {
                     return (
                       <div
                         key={`area-slot-${areaIndex}`}
-                        className={cn("rounded-md bg-white/5 border border-dashed border-white/20", blockSizeClass)}
+                        className={cn("rounded-xs sm:rounded-sm bg-white/5 border border-dashed border-white/20 shrink-0", blockSizeClass)}
                       />
                     );
                   }
@@ -316,7 +321,7 @@ export function VisualMath({ problem }: VisualMathProps) {
                     <div
                       key={`area-slot-${areaIndex}`}
                       className={cn(
-                        "rounded-md bg-white border border-white/80 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform",
+                        "rounded-xs sm:rounded-sm bg-white border border-white/80 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform shrink-0",
                         blockSizeClass
                       )}
                     />

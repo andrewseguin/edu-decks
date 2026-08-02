@@ -65,7 +65,7 @@ export function MathCard({
         <div
           className={cn(
             "absolute inset-0 flex items-center justify-center p-6 transition-transform duration-300",
-            isFlipped ? "-translate-y-5 sm:-translate-y-6" : "translate-y-0"
+            isFlipped ? "-translate-y-7 sm:-translate-y-9" : "translate-y-0"
           )}
         >
           <div className="flex items-center justify-center whitespace-nowrap text-center">
