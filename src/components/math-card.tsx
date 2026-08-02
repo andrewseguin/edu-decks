@@ -60,9 +60,9 @@ export function MathCard({
       }}
       onClick={handleCardClick}
     >
-      <CardContent className="p-6 h-full w-full relative flex flex-col justify-between items-center">
-        {/* Main Center Area: Inline Equation Completion */}
-        <div className="my-auto flex flex-col items-center justify-center gap-3 sm:gap-4 w-full">
+      <CardContent className="p-0 h-full w-full relative flex items-center justify-center">
+        {/* Inline Equation Completion - 100% Stationary Center Position */}
+        <div className="absolute inset-0 flex items-center justify-center">
           <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
             {/* Equation Prefix (7 + 5 =) */}
             <span className="font-headline font-normal leading-none select-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-6xl sm:text-8xl md:text-[8.5rem]">
@@ -80,19 +80,19 @@ export function MathCard({
               </span>
             )}
           </div>
-
-          {/* Visual Block Groupings (Unfurl smoothly beneath revealed equation) */}
-          {isFlipped && (
-            <div className="animate-fade-in-zoom mt-1">
-              <VisualMath problem={problem} />
-            </div>
-          )}
         </div>
+
+        {/* Visual Blocks Overlay - Absolute Bottom Layer (Does NOT shift equation) */}
+        {isFlipped && (
+          <div className="absolute bottom-3 inset-x-0 flex items-center justify-center animate-fade-in-zoom pointer-events-none z-10">
+            <VisualMath problem={problem} />
+          </div>
+        )}
 
         {/* Speaker Button in Bottom Right */}
         <Button
           variant="ghost"
-          className="absolute bottom-4 right-4 h-12 w-12 p-0 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 rounded-full flex items-center justify-center z-10"
+          className="absolute bottom-4 right-4 h-12 w-12 p-0 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 rounded-full flex items-center justify-center z-20"
           onClick={handleSpeak}
           onPointerUp={(e) => e.stopPropagation()}
           onPointerDown={(e) => e.stopPropagation()}
