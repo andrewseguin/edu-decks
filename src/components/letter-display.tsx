@@ -59,6 +59,7 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
   const [localAudioUrl, setLocalAudioUrl] = useState<string | null>(null);
   const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const autoPlayTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const recordingValueRef = useRef<string | null>(null);
@@ -76,6 +77,12 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
     if (abortControllerRef.current) {
       abortControllerRef.current.abort();
       abortControllerRef.current = null;
+    }
+    if (currentAudioRef.current) {
+      currentAudioRef.current.onended = null;
+      currentAudioRef.current.onerror = null;
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
     }
     if (currentSourceRef.current) {
       currentSourceRef.current.onended = null;
@@ -312,99 +319,61 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
 
     if (content.isHardWord) return;
 
-    if (!buffers || !audioContext) return;
-
-    const segments = splitIntoPhonicsSegments(content.value);
-    let currentIndex = 0;
     setIsPlaying(true);
+    setHighlightedIndex(null);
 
-    const playNextSegment = () => {
+    // Directly play the high-clarity word MP3 voice sound
+    const basePath = process.env.NODE_ENV === 'production' ? '/first-read' : '';
+    const mp3Url = `${basePath}/sounds/words/${content.value.toLowerCase()}.mp3`;
+    const audio = new Audio(mp3Url);
+    currentAudioRef.current = audio;
+
+    const fallbackToSpeechSynthesis = () => {
       if (signal.aborted) return;
-
-      if (currentIndex < segments.length) {
-        setHighlightedIndex(currentIndex);
-        const segment = segments[currentIndex];
-        const soundKey = getSoundKeyForSegment(segment);
-        const buffer = buffers[soundKey];
-
-        if (buffer) {
-          if (audioContext.state === 'suspended') {
-            audioContext.resume(); // We don't await here to avoid delaying the chain too much, but it's called in user-gesture
-          }
-
-          const source = audioContext.createBufferSource();
-          source.buffer = buffer;
-          source.connect(audioContext.destination);
-          currentSourceRef.current = source;
-
-          source.onended = () => {
-            if (signal.aborted) return;
-            currentIndex++;
-            playNextSegment();
-          };
-
-          source.start(0);
-        } else {
-          // No audio file found, skip
-          if (signal.aborted) return;
-          currentIndex++;
-          playNextSegment();
-        }
-      } else {
-        setHighlightedIndex(null);
-        
-        // After word finishes spelling out, speak the whole word
-        const basePath = process.env.NODE_ENV === 'production' ? '/first-read' : '';
-        const mp3Url = `${basePath}/sounds/words/${content.value.toLowerCase()}.mp3`;
-        const audio = new Audio(mp3Url);
-
-        const fallbackToSpeechSynthesis = () => {
-          if (signal.aborted) return;
-          const utterance = new SpeechSynthesisUtterance(content.value);
-          const voices = window.speechSynthesis.getVoices();
-          const googleVoice = voices.find(v => v.name === 'Google US English');
-          if (googleVoice) {
-            utterance.voice = googleVoice;
-          }
-          utterance.rate = 0.9;
-          
-          currentUtteranceRef.current = utterance;
-
-          utterance.onend = () => {
-            if (signal.aborted) return;
-            setIsPlaying(false);
-            currentUtteranceRef.current = null;
-          };
-          
-          utterance.onerror = () => {
-            if (signal.aborted) return;
-            setIsPlaying(false);
-            currentUtteranceRef.current = null;
-          };
-
-          window.speechSynthesis.speak(utterance);
-        };
-
-        audio.onended = () => {
-          if (signal.aborted) return;
-          setIsPlaying(false);
-        };
-
-        audio.onerror = () => {
-          fallbackToSpeechSynthesis();
-        };
-
-        audio.play().catch(() => {
-          fallbackToSpeechSynthesis();
-        });
-
-        if (abortControllerRef.current === abortController) {
-          abortControllerRef.current = null;
-        }
+      const utterance = new SpeechSynthesisUtterance(content.value);
+      const voices = window.speechSynthesis.getVoices();
+      const googleVoice = voices.find(v => v.name === 'Google US English');
+      if (googleVoice) {
+        utterance.voice = googleVoice;
       }
+      utterance.rate = 0.9;
+      
+      currentUtteranceRef.current = utterance;
+
+      utterance.onend = () => {
+        if (signal.aborted) return;
+        setIsPlaying(false);
+        currentUtteranceRef.current = null;
+      };
+      
+      utterance.onerror = () => {
+        if (signal.aborted) return;
+        setIsPlaying(false);
+        currentUtteranceRef.current = null;
+      };
+
+      window.speechSynthesis.speak(utterance);
     };
 
-    playNextSegment();
+    audio.onended = () => {
+      if (signal.aborted) return;
+      setIsPlaying(false);
+      currentAudioRef.current = null;
+    };
+
+    audio.onerror = () => {
+      currentAudioRef.current = null;
+      fallbackToSpeechSynthesis();
+    };
+
+    audio.play().catch(() => {
+      currentAudioRef.current = null;
+      fallbackToSpeechSynthesis();
+    });
+
+    if (abortControllerRef.current === abortController) {
+      abortControllerRef.current = null;
+    }
   }
 
   if (content.type === "message") {
