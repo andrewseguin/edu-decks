@@ -348,7 +348,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // DIVISION (÷): Unified Grid -> Blocks physically move into 'answer' Orange Group Boxes (items per group = num2)
+  // DIVISION (÷): Dynamic Proportional Block Scaling (Guarantees 0% unexpected wrapping when separating!)
   if (operation === '÷') {
     const total = num1;          // Cyan total items (num1)
     const itemsPerGroup = num2;  // Items inside each Orange group box (num2)
@@ -356,18 +356,19 @@ export function VisualMath({ problem }: VisualMathProps) {
 
     const isSeparated = orangeVisible > 0; // Triggers after 550ms
 
-    const blockSizeClass =
-      total <= 12
-        ? "w-4 h-4 sm:w-5 sm:h-5"
-        : total <= 30
-        ? "w-3 h-3 sm:w-3.5 sm:h-3.5"
-        : "w-2.5 h-2.5 sm:w-3 sm:h-3";
+    // Max available container width inside card
+    const maxW = 540;
+
+    // Calculate max square block size (in px) taking into account groups & gap expansion
+    const availW = maxW - 32 - groupCount * 12;
+    const rawBlockSize = Math.floor(availW / total);
+    const blockSize = Math.max(9, Math.min(20, rawBlockSize));
 
     return (
       <div
         className={cn(
-          "flex flex-wrap justify-center items-center rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs transition-all duration-500 ease-out p-2",
-          isSeparated ? "gap-2.5 sm:gap-3.5" : "gap-1"
+          "flex flex-wrap justify-center items-center rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs transition-all duration-500 ease-out p-1.5 sm:p-2",
+          isSeparated ? "gap-1.5 sm:gap-2.5" : "gap-0.5 sm:gap-1"
         )}
       >
         {/* Render 'answer' Orange Group Boxes, each holding 'num2' Cyan blocks */}
@@ -379,10 +380,10 @@ export function VisualMath({ problem }: VisualMathProps) {
             <div
               key={`div-group-${gIdx}`}
               className={cn(
-                "flex items-center justify-center gap-1 sm:gap-1.5 rounded-xl transition-all duration-500 ease-out",
+                "flex items-center justify-center rounded-xl transition-all duration-500 ease-out whitespace-nowrap shrink-0",
                 isSeparated
-                  ? "bg-amber-500/20 border-2 border-amber-400/80 p-1.5 sm:p-2 shadow-xs"
-                  : "bg-transparent border border-transparent p-0.5"
+                  ? "bg-amber-500/20 border-2 border-amber-400/80 p-1 sm:p-1.5 shadow-xs gap-0.5 sm:gap-1"
+                  : "bg-transparent border border-transparent p-0.5 gap-0.5"
               )}
             >
               {groupSlots.map((slotIndex) => {
@@ -391,10 +392,8 @@ export function VisualMath({ problem }: VisualMathProps) {
                 return (
                   <div
                     key={`div-slot-${slotIndex}`}
-                    className={cn(
-                      "rounded-md bg-cyan-300 border border-cyan-400 shadow-xs cursor-pointer hover:scale-125 transition-all duration-500 shrink-0",
-                      blockSizeClass
-                    )}
+                    className="rounded-md bg-cyan-300 border border-cyan-400 shadow-xs cursor-pointer hover:scale-125 transition-all duration-500 shrink-0"
+                    style={{ width: `${blockSize}px`, height: `${blockSize}px` }}
                   />
                 );
               })}
