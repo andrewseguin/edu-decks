@@ -73,9 +73,9 @@ export function VisualMath({ problem }: VisualMathProps) {
     }
 
     if (operation === '×') {
-      // Incrementally reveal blocks across rows (1 block every 40ms)
+      // Incrementally reveal White Area blocks inside the matrix (1 block every 30ms)
       const total = num1 * num2;
-      const intervalMs = total > 30 ? 30 : 60;
+      const intervalMs = total > 30 ? 25 : 50;
       let currentCyan = 0;
       const cyanInterval = setInterval(() => {
         currentCyan++;
@@ -249,62 +249,83 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // MULTIPLICATION (×): Solid Orange Square Block on the left, num1 Cyan Square Blocks across
+  // MULTIPLICATION (×): Cyan X-Axis (num1 across) + Orange Y-Axis (num2 down) + White Area blocks inside
   if (operation === '×') {
-    const itemsPerRow = num1; // Cyan: number of items in each row
-    const rowCount = num2;    // Orange: number of rows down
+    const xCount = num1; // Cyan X-Axis across
+    const yCount = num2; // Orange Y-Axis down
 
     const blockSizeClass =
-      itemsPerRow <= 6 && rowCount <= 4
+      xCount <= 6 && yCount <= 4
         ? "w-3.5 h-3.5 sm:w-4 sm:h-4"
-        : itemsPerRow <= 10 && rowCount <= 6
+        : xCount <= 10 && yCount <= 7
         ? "w-3 h-3 sm:w-3.5 sm:h-3.5"
         : "w-2.5 h-2.5 sm:w-3 sm:h-3";
 
     return (
-      <div className="flex flex-col justify-center items-center gap-1.5 p-1.5 sm:p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        {Array.from({ length: rowCount }).map((_, rIdx) => {
-          const rowStartIndex = rIdx * itemsPerRow;
+      <div className="flex flex-col justify-center items-center p-1.5 sm:p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+        <div className="grid gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 shadow-xs">
+          {/* Top Row: Spacer Corner + Cyan X-Axis Headers across */}
+          <div className="flex items-center gap-1.5">
+            {/* Top-Left Corner Spacer */}
+            <div className={cn("rounded-md bg-transparent", blockSizeClass)} />
 
-          return (
-            <div
-              key={`mult-row-${rIdx}`}
-              className="flex items-center gap-1.5 p-1 rounded-xl bg-white/15 border border-white/30 shadow-xs"
-            >
-              {/* Solid Orange Row Square Block */}
+            {/* Cyan X-Axis Blocks across */}
+            {Array.from({ length: xCount }).map((_, xIdx) => (
               <div
+                key={`x-axis-${xIdx}`}
                 className={cn(
-                  "rounded-md bg-amber-400 border border-amber-500 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform",
+                  "rounded-md bg-cyan-300 border border-cyan-400 shadow-xs flex items-center justify-center font-bold text-[9px] sm:text-[11px] text-cyan-950 animate-fade-in-zoom",
                   blockSizeClass
                 )}
-              />
+              >
+                {xIdx + 1}
+              </div>
+            ))}
+          </div>
 
-              {/* Cyan items in each row */}
-              {Array.from({ length: itemsPerRow }).map((_, cIdx) => {
-                const slotIndex = rowStartIndex + cIdx;
+          {/* Rows: Orange Y-Axis Header + White Area Blocks */}
+          {Array.from({ length: yCount }).map((_, yIdx) => {
+            const rowStartIndex = yIdx * xCount;
 
-                if (slotIndex >= cyanVisible) {
+            return (
+              <div key={`y-row-${yIdx}`} className="flex items-center gap-1.5">
+                {/* Orange Y-Axis Block down */}
+                <div
+                  className={cn(
+                    "rounded-md bg-amber-400 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-[9px] sm:text-[11px] text-amber-950 animate-fade-in-zoom",
+                    blockSizeClass
+                  )}
+                >
+                  {yIdx + 1}
+                </div>
+
+                {/* White Area Blocks inside matrix */}
+                {Array.from({ length: xCount }).map((_, xIdx) => {
+                  const areaIndex = rowStartIndex + xIdx;
+
+                  if (areaIndex >= cyanVisible) {
+                    return (
+                      <div
+                        key={`area-slot-${areaIndex}`}
+                        className={cn("rounded-md bg-white/5 border border-dashed border-white/20", blockSizeClass)}
+                      />
+                    );
+                  }
+
                   return (
                     <div
-                      key={`mult-slot-${slotIndex}`}
-                      className={cn("rounded-md bg-white/5 border border-dashed border-white/20", blockSizeClass)}
+                      key={`area-slot-${areaIndex}`}
+                      className={cn(
+                        "rounded-md bg-white border border-white/80 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform",
+                        blockSizeClass
+                      )}
                     />
                   );
-                }
-
-                return (
-                  <div
-                    key={`mult-slot-${slotIndex}`}
-                    className={cn(
-                      "rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform",
-                      blockSizeClass
-                    )}
-                  />
-                );
-              })}
-            </div>
-          );
-        })}
+                })}
+              </div>
+            );
+          })}
+        </div>
       </div>
     );
   }
