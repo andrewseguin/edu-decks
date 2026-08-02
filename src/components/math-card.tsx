@@ -61,28 +61,30 @@ export function MathCard({
       onClick={handleCardClick}
     >
       <CardContent className="p-0 h-full w-full relative flex items-center justify-center">
-        {/* Inline Equation Completion - 100% Stationary Center Position */}
+        {/* Inline Equation Completion - Fixed Width Reserved Slot so Equation Never Shifts */}
         <div className="absolute inset-0 flex items-center justify-center">
-          <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
-            {/* Equation Prefix (7 + 5 =) */}
-            <span className="font-headline font-normal leading-none select-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-6xl sm:text-8xl md:text-[8.5rem]">
+          <div className="flex items-center justify-center whitespace-nowrap">
+            {/* Stationary Equation Prefix (7 + 5 =) */}
+            <span className="font-headline font-normal leading-none select-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-6xl sm:text-8xl md:text-[8.5rem] mr-2 sm:mr-3">
               {problem.displayText} =
             </span>
 
-            {/* Target Value: "?" when unrevealed, Answer "12" when revealed */}
-            {!isFlipped ? (
-              <span className="font-headline font-bold leading-none select-none text-white/70 bg-white/10 px-3 sm:px-4 py-0.5 sm:py-1 rounded-2xl border-2 border-dashed border-white/30 text-5xl sm:text-7xl md:text-[7.5rem] animate-pulse">
-                ?
-              </span>
-            ) : (
-              <span className="font-headline font-bold leading-none select-none text-white [text-shadow:0_0_12px_rgba(255,255,255,0.6),3px_3px_6px_rgba(0,0,0,0.2)] text-6xl sm:text-8xl md:text-[8.5rem] animate-fade-in-zoom">
-                {problem.answerText}
-              </span>
-            )}
+            {/* Fixed Width Target Slot - Ensures zero horizontal shift */}
+            <div className="w-[1.8em] sm:w-[2em] flex items-center justify-start">
+              {!isFlipped ? (
+                <span className="font-headline font-bold leading-none select-none text-white/70 bg-white/10 px-3 sm:px-4 py-0.5 sm:py-1 rounded-2xl border-2 border-dashed border-white/30 text-5xl sm:text-7xl md:text-[7.5rem] animate-pulse">
+                  ?
+                </span>
+              ) : (
+                <span className="font-headline font-bold leading-none select-none text-white [text-shadow:0_0_12px_rgba(255,255,255,0.6),3px_3px_6px_rgba(0,0,0,0.2)] text-6xl sm:text-8xl md:text-[8.5rem] animate-fade-in-zoom">
+                  {problem.answerText}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
-        {/* Visual Blocks Overlay - Absolute Bottom Layer (Does NOT shift equation) */}
+        {/* Visual Blocks Overlay - Absolute Bottom Layer */}
         {isFlipped && (
           <div className="absolute bottom-3 inset-x-0 flex items-center justify-center animate-fade-in-zoom pointer-events-none z-10">
             <VisualMath problem={problem} />
