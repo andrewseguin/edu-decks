@@ -48,7 +48,7 @@ export function MathCard({
     <Card
       key={problem.id}
       className={cn(
-        "relative select-none [-webkit-touch-callout:none] w-[90vw] h-[52vw] max-w-[700px] max-h-[min(380px,58svh)] border-none rounded-3xl overflow-hidden flex flex-col items-center justify-center cursor-pointer transition-all duration-300",
+        "relative select-none [-webkit-touch-callout:none] w-[90vw] h-[45vw] max-w-[700px] max-h-[min(350px,55svh)] border-none rounded-3xl overflow-hidden cursor-pointer transition-all duration-300",
         animClass
       )}
       style={{
@@ -60,42 +60,34 @@ export function MathCard({
       }}
       onClick={handleCardClick}
     >
-      <CardContent className="p-6 h-full w-full flex flex-col items-center justify-between relative">
-        {/* Top Header Badge */}
-        <div className="w-full flex items-center justify-between">
-          <span className="px-3 py-1 rounded-full text-xs font-headline font-bold text-white/80 bg-white/10 uppercase tracking-wider">
-            {opInfo.name} ({problem.operation})
-          </span>
-        </div>
-
-        {/* Center Display Area: Equation + Pulse Fade Answer */}
-        <div className="my-auto flex flex-col items-center justify-center gap-2 sm:gap-3 text-center w-full">
-          {/* Main Equation (Fixed Position) */}
-          <span className="font-headline font-normal leading-none select-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-6xl sm:text-8xl md:text-[8.5rem]">
+      <CardContent className="p-0 h-full w-full relative flex flex-col items-center justify-center">
+        {/* Fixed Main Equation - Never Shifts Position */}
+        <div className="flex items-center justify-center w-full h-full">
+          <span className="font-headline font-normal leading-none select-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-7xl sm:text-9xl md:text-[10.5rem]">
             {problem.displayText}
           </span>
-
-          {/* Pulse Fade Revealed Answer */}
-          {isFlipped && (
-            <div className="flex flex-col items-center gap-2 sm:gap-3 animate-fade-in-zoom w-full">
-              <span className="font-headline font-bold text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-[6.5rem] leading-none">
-                = {problem.answerText}
-              </span>
-              <VisualMath problem={problem} />
-            </div>
-          )}
         </div>
 
-        {/* Speaker Button */}
+        {/* Revealed Answer Overlay - Smoothly Fades In over bottom without shifting equation */}
+        {isFlipped && (
+          <div className="absolute bottom-3 inset-x-0 flex flex-col items-center justify-center gap-1.5 animate-fade-in-zoom pointer-events-none bg-black/20 backdrop-blur-xs py-2 px-4 rounded-b-3xl">
+            <span className="font-headline font-bold text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-3xl sm:text-5xl md:text-6xl leading-none">
+              = {problem.answerText}
+            </span>
+            <VisualMath problem={problem} />
+          </div>
+        )}
+
+        {/* Speaker Button in Bottom Right */}
         <Button
           variant="ghost"
-          className="absolute bottom-4 right-4 h-12 w-12 p-0 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 rounded-full flex items-center justify-center"
+          className="absolute bottom-3 right-3 h-11 w-11 p-0 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300 rounded-full flex items-center justify-center z-20"
           onClick={handleSpeak}
           onPointerUp={(e) => e.stopPropagation()}
           onPointerDown={(e) => e.stopPropagation()}
           aria-label="Speak equation"
         >
-          <Volume2 className="h-7 w-7 text-white/70 hover:text-white transition-colors" />
+          <Volume2 className="h-7 w-7 text-white/80 hover:text-white transition-colors" />
         </Button>
       </CardContent>
     </Card>
