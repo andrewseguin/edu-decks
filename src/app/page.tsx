@@ -668,7 +668,7 @@ export default function Home() {
 
   return (
     <main
-      className="flex h-svh w-screen cursor-pointer items-center justify-center overflow-hidden relative focus:outline-none touch-none"
+      className="flex h-svh w-screen cursor-pointer items-center justify-center bg-background overflow-hidden relative focus:outline-none touch-none"
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       tabIndex={-1}
