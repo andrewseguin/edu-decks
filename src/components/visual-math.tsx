@@ -249,25 +249,30 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // MULTIPLICATION (×): Smart Proportional Scaling Algorithm (Maximizes block size to fill space without overflow)
+  // MULTIPLICATION (×): Smart Proportional Scaling Algorithm (Strict Height Constraint maxH=88px)
   if (operation === '×') {
     const xCount = num1; // Cyan X-Axis across
     const yCount = num2; // Orange Y-Axis down
     const cols = xCount + 1; // Including Y-axis header column
     const rows = yCount + 1; // Including X-axis header row
 
-    // Max available container dimensions inside card
-    const maxW = 460;
-    const maxH = 115;
+    // Max available container dimensions inside card bottom region
+    const maxW = 420;
+    const maxH = 88; // 88px max height ensures grid never touches card bottom border!
 
-    // Calculate max square block size (in px) that fits container bounds
-    const rawSize = Math.min(maxW / cols, maxH / rows);
-    const blockSize = Math.max(10, Math.min(28, Math.floor(rawSize)));
-    const fontSize = Math.max(7, Math.floor(blockSize * 0.5));
-    const gapSize = blockSize > 20 ? 6 : blockSize > 14 ? 4 : 2;
+    // Calculate max square block size (in px) taking into account container padding & gaps
+    const gapSize = Math.max(cols, rows) > 7 ? 2 : 4;
+    const padding = 16;
+
+    const availW = maxW - padding - (cols - 1) * gapSize;
+    const availH = maxH - padding - (rows - 1) * gapSize;
+
+    const rawSize = Math.min(availW / cols, availH / rows);
+    const blockSize = Math.max(9, Math.min(26, Math.floor(rawSize)));
+    const fontSize = Math.max(7, Math.floor(blockSize * 0.52));
 
     return (
-      <div className="flex flex-col justify-center items-center p-1 sm:p-1.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs max-h-[125px]">
+      <div className="flex flex-col justify-center items-center p-1 sm:p-1.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
         <div
           className="grid p-1.5 rounded-xl bg-white/15 border border-white/30 shadow-xs"
           style={{ gap: `${gapSize}px` }}
@@ -275,7 +280,7 @@ export function VisualMath({ problem }: VisualMathProps) {
           {/* Top Row: Spacer Corner + Cyan X-Axis Headers across */}
           <div className="flex items-center" style={{ gap: `${gapSize}px` }}>
             {/* Top-Left Corner Spacer */}
-            <div className="rounded-md bg-transparent" style={{ width: `${blockSize}px`, height: `${blockSize}px` }} />
+            <div className="rounded-md bg-transparent shrink-0" style={{ width: `${blockSize}px`, height: `${blockSize}px` }} />
 
             {/* Cyan X-Axis Blocks across */}
             {Array.from({ length: xCount }).map((_, xIdx) => (
