@@ -98,13 +98,13 @@ export function MathCard({
               =
             </span>
 
-            {/* Answer Digit (Always rendered in exact position) */}
+            {/* Answer Digit (Subtle text shadow matching equation) */}
             <div className="relative inline-flex items-center justify-center px-1">
               <span
                 className={cn(
                   "font-headline font-bold leading-none select-none text-white transition-all duration-300 text-5xl sm:text-7xl md:text-8xl",
                   isFlipped
-                    ? "[text-shadow:0_0_16px_rgba(255,255,255,0.8),3px_3px_6px_rgba(0,0,0,0.2)] opacity-100 scale-100"
+                    ? "[text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] opacity-100 scale-100"
                     : "opacity-0 scale-90"
                 )}
               >
