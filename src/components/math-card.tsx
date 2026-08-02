@@ -48,7 +48,7 @@ export function MathCard({
     <Card
       key={problem.id}
       className={cn(
-        "relative select-none [-webkit-touch-callout:none] w-[90vw] h-[45vw] max-w-[700px] max-h-[min(350px,55svh)] border-none rounded-3xl overflow-hidden cursor-pointer transition-all duration-300",
+        "relative select-none [-webkit-touch-callout:none] w-[90vw] h-[45vw] max-w-[720px] max-h-[min(360px,56svh)] border-none rounded-3xl overflow-hidden cursor-pointer transition-all duration-300",
         animClass
       )}
       style={{
@@ -60,34 +60,45 @@ export function MathCard({
       }}
       onClick={handleCardClick}
     >
-      <CardContent className="p-0 h-full w-full relative flex flex-col items-center justify-center">
-        {/* Fixed Main Equation - Never Shifts Position */}
-        <div className="flex items-center justify-center w-full h-full">
-          <span className="font-headline font-normal leading-none select-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-7xl sm:text-9xl md:text-[10.5rem]">
-            {problem.displayText}
-          </span>
-        </div>
-
-        {/* Revealed Answer Overlay - Smoothly Fades In over bottom without shifting equation */}
-        {isFlipped && (
-          <div className="absolute bottom-3 inset-x-0 flex flex-col items-center justify-center gap-1.5 animate-fade-in-zoom pointer-events-none bg-black/20 backdrop-blur-xs py-2 px-4 rounded-b-3xl">
-            <span className="font-headline font-bold text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-3xl sm:text-5xl md:text-6xl leading-none">
-              = {problem.answerText}
+      <CardContent className="p-6 h-full w-full relative flex flex-col justify-between items-center">
+        {/* Main Center Area: Inline Equation Completion */}
+        <div className="my-auto flex flex-col items-center justify-center gap-3 sm:gap-4 w-full">
+          <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
+            {/* Equation Prefix (7 + 5 =) */}
+            <span className="font-headline font-normal leading-none select-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-6xl sm:text-8xl md:text-[8.5rem]">
+              {problem.displayText} =
             </span>
-            <VisualMath problem={problem} />
+
+            {/* Target Value: "?" when unrevealed, Answer "12" when revealed */}
+            {!isFlipped ? (
+              <span className="font-headline font-bold leading-none select-none text-white/70 bg-white/10 px-3 sm:px-4 py-0.5 sm:py-1 rounded-2xl border-2 border-dashed border-white/30 text-5xl sm:text-7xl md:text-[7.5rem] animate-pulse">
+                ?
+              </span>
+            ) : (
+              <span className="font-headline font-bold leading-none select-none text-white [text-shadow:0_0_12px_rgba(255,255,255,0.6),3px_3px_6px_rgba(0,0,0,0.2)] text-6xl sm:text-8xl md:text-[8.5rem] animate-fade-in-zoom">
+                {problem.answerText}
+              </span>
+            )}
           </div>
-        )}
+
+          {/* Visual Block Groupings (Unfurl smoothly beneath revealed equation) */}
+          {isFlipped && (
+            <div className="animate-fade-in-zoom mt-1">
+              <VisualMath problem={problem} />
+            </div>
+          )}
+        </div>
 
         {/* Speaker Button in Bottom Right */}
         <Button
           variant="ghost"
-          className="absolute bottom-3 right-3 h-11 w-11 p-0 text-white/80 hover:text-white hover:bg-white/10 transition-all duration-300 rounded-full flex items-center justify-center z-20"
+          className="absolute bottom-4 right-4 h-12 w-12 p-0 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 rounded-full flex items-center justify-center z-10"
           onClick={handleSpeak}
           onPointerUp={(e) => e.stopPropagation()}
           onPointerDown={(e) => e.stopPropagation()}
           aria-label="Speak equation"
         >
-          <Volume2 className="h-7 w-7 text-white/80 hover:text-white transition-colors" />
+          <Volume2 className="h-7 w-7 text-white/70 hover:text-white transition-colors" />
         </Button>
       </CardContent>
     </Card>
