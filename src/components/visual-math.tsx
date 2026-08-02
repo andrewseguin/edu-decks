@@ -198,7 +198,7 @@ export function VisualMath({ problem }: VisualMathProps) {
                 // Reverse index from the end for subtraction take-away
                 const subReverseIndex = (total - 1) - slotIndex;
 
-                // Subtraction Orange ✕ Badge with silly popping animation & pop ripple ring
+                // Subtraction Orange ✕ Badge with silly popping animation & ONE-SHOT pop ring burst
                 if (isRemovedSlot && subReverseIndex < subtractionCount) {
                   return (
                     <div
@@ -206,8 +206,8 @@ export function VisualMath({ problem }: VisualMathProps) {
                       className="relative w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-transparent text-amber-400 border border-dashed border-amber-400/80 shadow-xs flex items-center justify-center font-bold text-xs sm:text-sm animate-silly-pop cursor-pointer hover:scale-125 transition-transform"
                     >
                       <span>✕</span>
-                      {/* Subtle Silly Pop Ring burst */}
-                      <span className="absolute -inset-1 rounded-lg border border-amber-400/70 animate-ping opacity-60 pointer-events-none" />
+                      {/* One-Shot Silly Pop Ring burst (runs ONCE and stops) */}
+                      <span className="absolute -inset-1 rounded-lg border border-amber-400/70 animate-silly-ring-once pointer-events-none" />
                     </div>
                   );
                 }
