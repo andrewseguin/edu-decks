@@ -61,11 +61,18 @@ export function MathCard({
       onClick={handleCardClick}
     >
       <CardContent className="p-0 h-full w-full relative flex items-center justify-center">
-        {/* Full Color-Coded Equation Always Centered */}
+        {/* Full Equation Always Centered */}
         <div className="absolute inset-0 flex items-center justify-center p-6">
           <div className="flex items-center justify-center whitespace-nowrap text-center">
-            {/* First Number (Cyan) */}
-            <span className="font-headline font-bold leading-none select-none text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-5xl sm:text-7xl md:text-8xl">
+            {/* First Number (Cyan when revealed, White when unrevealed) */}
+            <span
+              className={cn(
+                "font-headline font-bold leading-none select-none transition-colors duration-300 text-5xl sm:text-7xl md:text-8xl",
+                isFlipped
+                  ? "text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)]"
+                  : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]"
+              )}
+            >
               {problem.num1}
             </span>
 
@@ -74,8 +81,15 @@ export function MathCard({
               {problem.operation}
             </span>
 
-            {/* Second Number (Orange/Amber) */}
-            <span className="font-headline font-bold leading-none select-none text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-5xl sm:text-7xl md:text-8xl">
+            {/* Second Number (Orange/Amber when revealed, White when unrevealed) */}
+            <span
+              className={cn(
+                "font-headline font-bold leading-none select-none transition-colors duration-300 text-5xl sm:text-7xl md:text-8xl",
+                isFlipped
+                  ? "text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)]"
+                  : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]"
+              )}
+            >
               {problem.num2}
             </span>
 
