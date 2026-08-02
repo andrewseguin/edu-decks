@@ -71,6 +71,21 @@ export function VisualMath({ problem }: VisualMathProps) {
 
       return () => clearInterval(cyanInterval);
     }
+
+    if (operation === '×') {
+      // Incrementally reveal Cyan blocks across rows (num1 wide) down (num2 tall) (1 block every 80ms)
+      const total = num1 * num2;
+      let currentCyan = 0;
+      const cyanInterval = setInterval(() => {
+        currentCyan++;
+        setCyanVisible(currentCyan);
+        if (currentCyan >= total) {
+          clearInterval(cyanInterval);
+        }
+      }, 80);
+
+      return () => clearInterval(cyanInterval);
+    }
   }, [problem.id, num1, num2, operation]);
 
   // Don't render visual frames if numbers are huge (> 40)
@@ -227,35 +242,35 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // MULTIPLICATION (×)
+  // MULTIPLICATION (×): Rectangular Area Grid (num1 columns across × num2 rows down)
   if (operation === '×') {
     const total = num1 * num2;
-    const frameCount = Math.max(1, Math.ceil(total / 10));
+    const cols = Math.min(12, Math.max(1, num1));
 
     return (
-      <div className="flex flex-wrap justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        {Array.from({ length: frameCount }).map((_, fIdx) => {
-          const frameStartIndex = fIdx * 10;
-          const frameSlots = Array.from({ length: 10 }).map((_, i) => frameStartIndex + i);
+      <div className="flex justify-center items-center p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+        <div
+          className="grid gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs"
+          style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
+        >
+          {Array.from({ length: total }).map((_, slotIndex) => {
+            if (slotIndex >= cyanVisible) {
+              return (
+                <div
+                  key={`mult-slot-${slotIndex}`}
+                  className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
+                />
+              );
+            }
 
-          return (
-            <div
-              key={`tf-${fIdx}`}
-              className="grid grid-rows-2 grid-cols-5 gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs"
-            >
-              {frameSlots.map((slotIndex) => {
-                const isFilled = slotIndex < total;
-                if (!isFilled) return null;
-                return (
-                  <div
-                    key={`slot-${slotIndex}`}
-                    className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fade-in-zoom cursor-pointer hover:scale-125 transition-transform"
-                  />
-                );
-              })}
-            </div>
-          );
-        })}
+            return (
+              <div
+                key={`mult-slot-${slotIndex}`}
+                className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform"
+              />
+            );
+          })}
+        </div>
       </div>
     );
   }
