@@ -27,6 +27,8 @@ export type AppSettingsState = {
 
 export const OPERATION_COLORS: Record<MathOperation, {
   hex: string;
+  glassBg: string;
+  glassBorder: string;
   badgeBg: string;
   badgeText: string;
   border: string;
@@ -35,7 +37,9 @@ export const OPERATION_COLORS: Record<MathOperation, {
   name: string;
 }> = {
   '+': {
-    hex: '#047857',
+    hex: '#059669',
+    glassBg: 'bg-card/90 dark:bg-card/95 bg-emerald-500/5 dark:bg-emerald-500/10 backdrop-blur-xl',
+    glassBorder: 'border-2 border-emerald-500/30 dark:border-emerald-500/40 shadow-xl shadow-emerald-500/5',
     badgeBg: 'bg-emerald-100 dark:bg-emerald-950/80 text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-800',
     badgeText: 'text-emerald-600 dark:text-emerald-400',
     border: 'border-emerald-500/30 dark:border-emerald-500/40 shadow-emerald-500/10',
@@ -44,7 +48,9 @@ export const OPERATION_COLORS: Record<MathOperation, {
     name: 'Addition',
   },
   '-': {
-    hex: '#B45309',
+    hex: '#D97706',
+    glassBg: 'bg-card/90 dark:bg-card/95 bg-amber-500/5 dark:bg-amber-500/10 backdrop-blur-xl',
+    glassBorder: 'border-2 border-amber-500/30 dark:border-amber-500/40 shadow-xl shadow-amber-500/5',
     badgeBg: 'bg-amber-100 dark:bg-amber-950/80 text-amber-700 dark:text-amber-300 border-amber-300 dark:border-amber-800',
     badgeText: 'text-amber-600 dark:text-amber-400',
     border: 'border-amber-500/30 dark:border-amber-500/40 shadow-amber-500/10',
@@ -53,7 +59,9 @@ export const OPERATION_COLORS: Record<MathOperation, {
     name: 'Subtraction',
   },
   '×': {
-    hex: '#6D28D9',
+    hex: '#7C3AED',
+    glassBg: 'bg-card/90 dark:bg-card/95 bg-purple-500/5 dark:bg-purple-500/10 backdrop-blur-xl',
+    glassBorder: 'border-2 border-purple-500/30 dark:border-purple-500/40 shadow-xl shadow-purple-500/5',
     badgeBg: 'bg-purple-100 dark:bg-purple-950/80 text-purple-700 dark:text-purple-300 border-purple-300 dark:border-purple-800',
     badgeText: 'text-purple-600 dark:text-purple-400',
     border: 'border-purple-500/30 dark:border-purple-500/40 shadow-purple-500/10',
@@ -62,7 +70,9 @@ export const OPERATION_COLORS: Record<MathOperation, {
     name: 'Multiplication',
   },
   '÷': {
-    hex: '#0369A1',
+    hex: '#0284C7',
+    glassBg: 'bg-card/90 dark:bg-card/95 bg-sky-500/5 dark:bg-sky-500/10 backdrop-blur-xl',
+    glassBorder: 'border-2 border-sky-500/30 dark:border-sky-500/40 shadow-xl shadow-sky-500/5',
     badgeBg: 'bg-sky-100 dark:bg-sky-950/80 text-sky-700 dark:text-sky-300 border-sky-300 dark:border-sky-800',
     badgeText: 'text-sky-600 dark:text-sky-400',
     border: 'border-sky-500/30 dark:border-sky-500/40 shadow-sky-500/10',
