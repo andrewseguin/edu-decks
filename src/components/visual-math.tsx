@@ -73,7 +73,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     }
 
     if (operation === '×') {
-      // Incrementally reveal Cyan blocks across rows (1 block every 40ms for large arrays)
+      // Incrementally reveal blocks across rows (num1 wide) down (num2 tall) (1 block every 40ms)
       const total = num1 * num2;
       const intervalMs = total > 30 ? 30 : 60;
       let currentCyan = 0;
@@ -249,7 +249,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // MULTIPLICATION (×): Rectangular Area Grid (Supports up to 12x12 = 144 / 100)
+  // MULTIPLICATION (×): Rectangular Area Grid with Alternating Cyan (num1 across) & Orange (num2 down) rows
   if (operation === '×') {
     const total = num1 * num2;
     const cols = Math.max(num1, num2);
@@ -272,6 +272,9 @@ export function VisualMath({ problem }: VisualMathProps) {
           style={{ gridTemplateColumns: `repeat(${cols}, minmax(0, 1fr))` }}
         >
           {Array.from({ length: total }).map((_, slotIndex) => {
+            const rowIndex = Math.floor(slotIndex / cols);
+            const isOrangeRow = rowIndex % 2 === 1;
+
             if (slotIndex >= cyanVisible) {
               return (
                 <div
@@ -284,7 +287,13 @@ export function VisualMath({ problem }: VisualMathProps) {
             return (
               <div
                 key={`mult-slot-${slotIndex}`}
-                className={cn("rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform", blockSizeClass)}
+                className={cn(
+                  "rounded-md shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform",
+                  blockSizeClass,
+                  isOrangeRow
+                    ? "bg-amber-400 border border-amber-500"
+                    : "bg-cyan-300 border border-cyan-400"
+                )}
               />
             );
           })}
