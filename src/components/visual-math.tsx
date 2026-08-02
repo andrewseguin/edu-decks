@@ -249,7 +249,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // MULTIPLICATION (×): num1 Cyan blocks inside num2 Orange row container boxes (No extra badges to miscount)
+  // MULTIPLICATION (×): Orange Row Square on the left, num1 Cyan Item Squares across
   if (operation === '×') {
     const itemsPerRow = num1; // Cyan: number of items in each row
     const rowCount = num2;    // Orange: number of rows down
@@ -269,8 +269,18 @@ export function VisualMath({ problem }: VisualMathProps) {
           return (
             <div
               key={`mult-row-${rIdx}`}
-              className="flex items-center gap-1 px-2 py-1 rounded-xl bg-amber-500/15 border-2 border-amber-400/60 shadow-xs"
+              className="flex items-center gap-1.5 p-1 rounded-xl bg-white/15 border border-white/30 shadow-xs"
             >
+              {/* Orange Row Square Block */}
+              <div
+                className={cn(
+                  "rounded-md bg-amber-400 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-[9px] text-amber-950",
+                  blockSizeClass
+                )}
+              >
+                {rIdx + 1}
+              </div>
+
               {/* Cyan items in each row */}
               {Array.from({ length: itemsPerRow }).map((_, cIdx) => {
                 const slotIndex = rowStartIndex + cIdx;
