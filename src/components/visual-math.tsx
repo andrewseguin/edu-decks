@@ -89,10 +89,9 @@ export function VisualMath({ problem }: VisualMathProps) {
     }
 
     if (operation === '÷') {
-      // Step 1: Fill total Cyan items into group containers (1 every 25ms)
+      // Step 1: Fill total num1 Cyan blocks (1 every 40ms)
       const total = num1;
       const groupCount = num2;
-      const intervalMs = total > 30 ? 20 : 45;
       let currentCyan = 0;
       const cyanInterval = setInterval(() => {
         currentCyan++;
@@ -100,7 +99,7 @@ export function VisualMath({ problem }: VisualMathProps) {
         if (currentCyan >= total) {
           clearInterval(cyanInterval);
 
-          // Step 2: 400ms pause, then sequentially highlight Orange Group Cards (1 every 150ms)
+          // Step 2: 500ms pause, then group Cyan blocks into num2 Orange groups (1 group every 200ms)
           setTimeout(() => {
             let currentOrange = 0;
             const orangeInterval = setInterval(() => {
@@ -109,10 +108,10 @@ export function VisualMath({ problem }: VisualMathProps) {
               if (currentOrange >= groupCount) {
                 clearInterval(orangeInterval);
               }
-            }, 150);
-          }, 400);
+            }, 200);
+          }, 500);
         }
-      }, intervalMs);
+      }, 40);
 
       return () => clearInterval(cyanInterval);
     }
@@ -367,62 +366,53 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // DIVISION (÷): Grid of Orange Group Container Cards holding Cyan Item Blocks
+  // DIVISION (÷): Cyan blocks fill in grid first (like Addition/Subtraction), then grouped into num2 Orange groups!
   if (operation === '÷') {
-    const itemsPerGroup = answer; // Cyan items in each group box
-    const groupCount = num2;      // Orange group container cards down
-    const cols = itemsPerGroup + 1;
-    const rows = groupCount;
+    const total = num1;            // Cyan total items
+    const groupCount = num2;       // Orange groups to create
+    const itemsPerGroup = answer;  // Items inside each group
 
-    // Max available container dimensions inside card lower region
-    const maxW = 480;
-    const maxH = 120;
-
-    const gapSize = Math.max(cols, rows) > 8 ? 2 : 4;
-    const padding = 10;
-
-    const availW = maxW - padding - (cols - 1) * gapSize;
-    const availH = maxH - padding - (rows - 1) * gapSize;
-
-    const rawSize = Math.min(availW / cols, availH / rows);
-    const blockSize = Math.max(10, Math.min(26, Math.floor(rawSize)));
-    const fontSize = Math.max(7, Math.floor(blockSize * 0.52));
+    const blockSizeClass =
+      total <= 12
+        ? "w-4 h-4 sm:w-5 sm:h-5"
+        : total <= 30
+        ? "w-3 h-3 sm:w-3.5 sm:h-3.5"
+        : "w-2.5 h-2.5 sm:w-3 sm:h-3";
 
     return (
-      <div className="flex flex-col justify-center items-center gap-1.5 p-1.5 sm:p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        {/* Stack of Orange Group Container Cards */}
+      <div className="flex flex-wrap justify-center items-center gap-2.5 p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
         {Array.from({ length: groupCount }).map((_, gIdx) => {
-          const rowStartIndex = gIdx * itemsPerGroup;
-          const isGroupActive = gIdx < orangeVisible;
+          const groupStartIndex = gIdx * itemsPerGroup;
+          const groupSlots = Array.from({ length: itemsPerGroup }).map((_, i) => groupStartIndex + i);
+
+          const isGrouped = gIdx < orangeVisible;
 
           return (
             <div
-              key={`div-row-group-${gIdx}`}
+              key={`div-group-${gIdx}`}
               className={cn(
-                "flex items-center gap-1 sm:gap-1.5 p-1 sm:p-1.5 rounded-xl transition-all duration-300",
-                isGroupActive
-                  ? "bg-amber-500/20 border-2 border-amber-400/80 shadow-xs animate-fill-in"
+                "relative flex items-center justify-center gap-1.5 p-1.5 sm:p-2 rounded-xl transition-all duration-300",
+                isGrouped
+                  ? "bg-amber-500/20 border-2 border-amber-400/80 shadow-xs animate-silly-pop"
                   : "bg-white/10 border border-dashed border-white/25"
               )}
             >
-              {/* Orange Group Number Badge */}
-              <div
-                className="rounded-md bg-amber-400 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-amber-950 shrink-0"
-                style={{ width: `${blockSize}px`, height: `${blockSize}px`, fontSize: `${fontSize}px` }}
-              >
-                {gIdx + 1}
-              </div>
+              {/* Orange Group Number Badge when grouped */}
+              {isGrouped && (
+                <div className="absolute -top-2.5 -left-2.5 w-5 h-5 rounded-full bg-amber-400 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-[10px] text-amber-950 animate-fade-in-zoom">
+                  {gIdx + 1}
+                </div>
+              )}
 
-              {/* Cyan items inside this Orange Group Container Card */}
-              {Array.from({ length: itemsPerGroup }).map((_, cIdx) => {
-                const slotIndex = rowStartIndex + cIdx;
+              {/* Cyan blocks (just like Addition and Subtraction!) */}
+              {groupSlots.map((slotIndex) => {
+                if (slotIndex >= total) return null;
 
                 if (slotIndex >= cyanVisible) {
                   return (
                     <div
                       key={`div-slot-${slotIndex}`}
-                      className="rounded-md bg-white/5 border border-dashed border-white/20 shrink-0"
-                      style={{ width: `${blockSize}px`, height: `${blockSize}px` }}
+                      className={cn("rounded-md bg-white/5 border border-dashed border-white/20 shrink-0", blockSizeClass)}
                     />
                   );
                 }
@@ -430,8 +420,10 @@ export function VisualMath({ problem }: VisualMathProps) {
                 return (
                   <div
                     key={`div-slot-${slotIndex}`}
-                    className="rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform shrink-0"
-                    style={{ width: `${blockSize}px`, height: `${blockSize}px` }}
+                    className={cn(
+                      "rounded-md bg-cyan-300 border border-cyan-400 shadow-xs animate-fill-in cursor-pointer hover:scale-125 transition-transform shrink-0",
+                      blockSizeClass
+                    )}
                   />
                 );
               })}
