@@ -89,31 +89,23 @@ export function VisualMath({ problem }: VisualMathProps) {
     }
 
     if (operation === '÷') {
-      // Step 1: Fill total num1 Cyan blocks (1 every 40ms)
-      const total = num1;
+      // Step 1: All num1 Cyan blocks are ALREADY present from the beginning!
+      setCyanVisible(num1);
+
+      // Step 2: After 500ms pause, sequentially split into num2 Orange groups (1 group every 200ms)
       const groupCount = num2;
-      let currentCyan = 0;
-      const cyanInterval = setInterval(() => {
-        currentCyan++;
-        setCyanVisible(currentCyan);
-        if (currentCyan >= total) {
-          clearInterval(cyanInterval);
+      const timeoutId = setTimeout(() => {
+        let currentOrange = 0;
+        const orangeInterval = setInterval(() => {
+          currentOrange++;
+          setOrangeVisible(currentOrange);
+          if (currentOrange >= groupCount) {
+            clearInterval(orangeInterval);
+          }
+        }, 200);
+      }, 500);
 
-          // Step 2: 500ms pause, then group Cyan blocks into num2 Orange groups (1 group every 200ms)
-          setTimeout(() => {
-            let currentOrange = 0;
-            const orangeInterval = setInterval(() => {
-              currentOrange++;
-              setOrangeVisible(currentOrange);
-              if (currentOrange >= groupCount) {
-                clearInterval(orangeInterval);
-              }
-            }, 200);
-          }, 500);
-        }
-      }, 40);
-
-      return () => clearInterval(cyanInterval);
+      return () => clearTimeout(timeoutId);
     }
   }, [problem.id, num1, num2, operation]);
 
@@ -364,10 +356,10 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // DIVISION (÷): Clean, quiet Orange group enclosures without wild animations
+  // DIVISION (÷): Cyan blocks ALREADY present from start -> Split into num2 Orange groups after 500ms
   if (operation === '÷') {
-    const total = num1;            // Cyan total items
-    const groupCount = num2;       // Orange groups to create
+    const total = num1;            // Cyan total items (already present!)
+    const groupCount = num2;       // Orange groups to split into
     const itemsPerGroup = answer;  // Items inside each group
 
     const blockSizeClass =
@@ -395,24 +387,15 @@ export function VisualMath({ problem }: VisualMathProps) {
                   : "bg-white/10 border border-dashed border-white/25"
               )}
             >
-              {/* Cyan blocks */}
+              {/* Cyan blocks (ALREADY PRESENT!) */}
               {groupSlots.map((slotIndex) => {
                 if (slotIndex >= total) return null;
-
-                if (slotIndex >= cyanVisible) {
-                  return (
-                    <div
-                      key={`div-slot-${slotIndex}`}
-                      className={cn("rounded-md bg-white/5 border border-dashed border-white/20 shrink-0", blockSizeClass)}
-                    />
-                  );
-                }
 
                 return (
                   <div
                     key={`div-slot-${slotIndex}`}
                     className={cn(
-                      "rounded-md bg-cyan-300 border border-cyan-400 shadow-xs transition-opacity duration-200 shrink-0",
+                      "rounded-md bg-cyan-300 border border-cyan-400 shadow-xs cursor-pointer hover:scale-125 transition-transform shrink-0",
                       blockSizeClass
                     )}
                   />
