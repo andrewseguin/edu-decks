@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 type MathCardProps = {
   problem: MathProblem;
   isFlipped: boolean;
+  slideDirection: "next" | "prev";
   onCardTap: () => void;
   onSpeak: (text: string) => void;
 };
@@ -17,6 +18,7 @@ type MathCardProps = {
 export function MathCard({
   problem,
   isFlipped,
+  slideDirection,
   onCardTap,
   onSpeak,
 }: MathCardProps) {
@@ -40,9 +42,16 @@ export function MathCard({
     onSpeak(problem.fullSpeechText);
   };
 
+  const animClass =
+    slideDirection === "next" ? "animate-slide-in-right" : "animate-slide-in-left";
+
   return (
     <div
-      className="w-[90vw] h-[45vw] max-w-[700px] max-h-[min(350px,55svh)] perspective-1000 cursor-pointer select-none"
+      key={problem.id}
+      className={cn(
+        "w-[90vw] h-[45vw] max-w-[700px] max-h-[min(350px,55svh)] perspective-1000 cursor-pointer select-none",
+        animClass
+      )}
       onClick={handleCardClick}
     >
       <div

@@ -96,6 +96,37 @@
   animation: fadeInZoom 0.3s ease-out forwards;
 }
 
+/* Card Deck Slide Animations */
+@keyframes slideInRight {
+  0% {
+    transform: translateX(100%) scale(0.92);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  0% {
+    transform: translateX(-100%) scale(0.92);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
 /* 3D Flip Utilities */
 .perspective-1000 {
   perspective: 1000px;

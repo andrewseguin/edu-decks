@@ -42,6 +42,7 @@ export default function MathDeckPage() {
   const [isQuizActive, setIsQuizActive] = useState(false);
   const [showLockSnackbar, setShowLockSnackbar] = useState(false);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [slideDirection, setSlideDirection] = useState<"next" | "prev">("next");
 
   // Deck state
   const [history, setHistory] = useState<MathProblem[]>([]);
@@ -78,32 +79,25 @@ export default function MathDeckPage() {
   }, [isLocked]);
 
   const nextCard = useCallback((autoPlay: boolean = true) => {
-    const doAdvance = () => {
-      const newProblem = generateMathProblem(
-        activeOperations,
-        minRange,
-        maxRange,
-        allowNegatives
-      );
-      setHistory((prev) => {
-        const nextHist = [...prev, newProblem];
-        setHistoryIndex(nextHist.length - 1);
-        return nextHist;
-      });
-      setCardCount((c) => c + 1);
+    setSlideDirection("next");
+    setIsFlipped(false);
+    const newProblem = generateMathProblem(
+      activeOperations,
+      minRange,
+      maxRange,
+      allowNegatives
+    );
+    setHistory((prev) => {
+      const nextHist = [...prev, newProblem];
+      setHistoryIndex(nextHist.length - 1);
+      return nextHist;
+    });
+    setCardCount((c) => c + 1);
 
-      if (autoPlayAudio && !isQuizActive && autoPlay) {
-        speak(newProblem.problemSpeechText);
-      }
-    };
-
-    if (isFlipped) {
-      setIsFlipped(false);
-      setTimeout(doAdvance, 250);
-    } else {
-      doAdvance();
+    if (autoPlayAudio && !isQuizActive && autoPlay) {
+      speak(newProblem.problemSpeechText);
     }
-  }, [activeOperations, minRange, maxRange, allowNegatives, autoPlayAudio, isQuizActive, isFlipped, speak]);
+  }, [activeOperations, minRange, maxRange, allowNegatives, autoPlayAudio, isQuizActive, speak]);
 
   useEffect(() => {
     if (hydrated && history.length === 0) {
@@ -128,42 +122,28 @@ export default function MathDeckPage() {
   };
 
   const handlePrevCard = () => {
-    const doPrev = () => {
-      if (historyIndex > 0) {
-        const prevIdx = historyIndex - 1;
-        setHistoryIndex(prevIdx);
-        if (autoPlayAudio && !isQuizActive) {
-          speak(history[prevIdx].problemSpeechText);
-        }
+    setSlideDirection("prev");
+    setIsFlipped(false);
+    if (historyIndex > 0) {
+      const prevIdx = historyIndex - 1;
+      setHistoryIndex(prevIdx);
+      if (autoPlayAudio && !isQuizActive) {
+        speak(history[prevIdx].problemSpeechText);
       }
-    };
-
-    if (isFlipped) {
-      setIsFlipped(false);
-      setTimeout(doPrev, 250);
-    } else {
-      doPrev();
     }
   };
 
   const handleNextCard = () => {
-    const doNext = () => {
-      if (historyIndex < history.length - 1) {
-        const nextIdx = historyIndex + 1;
-        setHistoryIndex(nextIdx);
-        if (autoPlayAudio && !isQuizActive) {
-          speak(history[nextIdx].problemSpeechText);
-        }
-      } else {
-        nextCard(true);
+    setSlideDirection("next");
+    setIsFlipped(false);
+    if (historyIndex < history.length - 1) {
+      const nextIdx = historyIndex + 1;
+      setHistoryIndex(nextIdx);
+      if (autoPlayAudio && !isQuizActive) {
+        speak(history[nextIdx].problemSpeechText);
       }
-    };
-
-    if (isFlipped) {
-      setIsFlipped(false);
-      setTimeout(doNext, 250);
     } else {
-      doNext();
+      nextCard(true);
     }
   };
 
@@ -276,6 +256,7 @@ export default function MathDeckPage() {
         <MathCard
           problem={currentProblem}
           isFlipped={isFlipped}
+          slideDirection={slideDirection}
           onCardTap={handleCardTap}
           onSpeak={(text) => speak(text, true)}
         />
