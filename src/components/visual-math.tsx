@@ -73,8 +73,9 @@ export function VisualMath({ problem }: VisualMathProps) {
     }
 
     if (operation === '×') {
-      // Incrementally reveal Cyan blocks across rows (1 block every 70ms)
+      // Incrementally reveal Cyan blocks across rows (1 block every 40ms for large arrays)
       const total = num1 * num2;
+      const intervalMs = total > 30 ? 30 : 60;
       let currentCyan = 0;
       const cyanInterval = setInterval(() => {
         currentCyan++;
@@ -82,15 +83,21 @@ export function VisualMath({ problem }: VisualMathProps) {
         if (currentCyan >= total) {
           clearInterval(cyanInterval);
         }
-      }, 70);
+      }, intervalMs);
 
       return () => clearInterval(cyanInterval);
     }
   }, [problem.id, num1, num2, operation]);
 
-  // Don't render visual frames if numbers are huge (> 40)
-  if (Math.abs(num1) > 40 || Math.abs(num2) > 40 || Math.abs(answer) > 40) {
-    return null;
+  // Don't render visual frames if numbers are extremely huge (> 100 for mult, > 40 for add/sub)
+  if (operation === '×') {
+    if (Math.abs(num1) > 12 || Math.abs(num2) > 12 || Math.abs(answer) > 100) {
+      return null;
+    }
+  } else {
+    if (Math.abs(num1) > 40 || Math.abs(num2) > 40 || Math.abs(answer) > 40) {
+      return null;
+    }
   }
 
   // ADDITION (+): Truly empty slots -> Cyan blocks increment -> Orange blocks increment
@@ -242,20 +249,21 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // MULTIPLICATION (×): Rectangular Area Grid (Landscape-fitted & Scaled)
+  // MULTIPLICATION (×): Rectangular Area Grid (Supports up to 12x12 = 144 / 100)
   if (operation === '×') {
     const total = num1 * num2;
-    // Fit landscape card ratio by making width at least as wide as height
     const cols = Math.max(num1, num2);
     const rows = Math.min(num1, num2);
 
-    // Dynamic block sizing based on row height
+    // Dynamic block sizing based on row height & total columns
     const blockSizeClass =
-      rows <= 2
+      rows <= 2 && cols <= 10
         ? "w-3.5 h-3.5 sm:w-4 sm:h-4"
-        : rows <= 4
+        : rows <= 4 && cols <= 10
         ? "w-3 h-3 sm:w-3.5 sm:h-3.5"
-        : "w-2.5 h-2.5 sm:w-3 sm:h-3";
+        : rows <= 7
+        ? "w-2.5 h-2.5 sm:w-3 sm:h-3"
+        : "w-2 h-2 sm:w-2.5 sm:h-2.5";
 
     return (
       <div className="flex justify-center items-center p-1.5 sm:p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
