@@ -434,7 +434,7 @@ export function VisualMath({ problem }: VisualMathProps) {
       );
     }
 
-    // FRACTION MULTIPLICATION (×): Seamless Connected Cells -> Padded Rounded Sub-Cards with Horizontal Split Lines
+    // FRACTION MULTIPLICATION (×): Seamless Cyan Columns -> Padded White Sub-Cards with Orange Cut Lines
     if (operation === '×') {
       const cols = f1.d; // d1 vertical columns
       const cyanCols = f1.n; // n1 Cyan columns
@@ -465,7 +465,7 @@ export function VisualMath({ problem }: VisualMathProps) {
               className="fill-white/5 stroke-white/30 stroke-2"
             />
 
-            {/* Grid Cells: Step 1 = gap:0, rx:0 (seamless tall bars) -> Step 2 = gap:3, rx:6 (separated sub-cards) */}
+            {/* Grid Cells: Step 1 = gap:0, rx:0 (seamless tall bars) -> Step 2 = gap:3, rx:6 (White answer sub-cards) */}
             {Array.from({ length: cols }).map((_, c) => {
               const isCyanCol = c < cyanCols;
 
@@ -480,8 +480,8 @@ export function VisualMath({ problem }: VisualMathProps) {
                 let strokeClass = "stroke-white/20";
 
                 if (isCyanCol) {
-                  fillClass = isOverlap ? "fill-amber-400" : "fill-cyan-300";
-                  strokeClass = isOverlap ? "stroke-amber-500" : "stroke-cyan-400";
+                  fillClass = isOverlap ? "fill-white" : "fill-cyan-300";
+                  strokeClass = isOverlap ? "stroke-white/90" : "stroke-cyan-400";
                 }
 
                 return (
@@ -502,7 +502,7 @@ export function VisualMath({ problem }: VisualMathProps) {
               });
             })}
 
-            {/* Step 2: Glowing Orange Horizontal Cut Lines to explicitly demonstrate the split */}
+            {/* Step 2: Glowing Orange Horizontal Cut Lines (2nd fraction multiplier) */}
             {Array.from({ length: rows - 1 }).map((_, rIdx) => {
               const lineY = isSubdivided
                 ? (rIdx + 1) * cellH + rIdx * gap + gap / 2
