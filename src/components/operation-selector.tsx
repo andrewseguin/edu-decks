@@ -3,6 +3,7 @@
 import { MathOperation, OPERATION_COLORS } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Label } from "@/components/ui/label";
 import { Calculator, Sparkles, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -30,9 +31,9 @@ export function OperationSelector({
   const operations: MathOperation[] = ['+', '-', '×', '÷'];
   const rangePresets = [
     { label: "1 - 10", min: 1, max: 10 },
+    { label: "1 - 12", min: 1, max: 12 },
     { label: "1 - 20", min: 1, max: 20 },
     { label: "1 - 50", min: 1, max: 50 },
-    { label: "1 - 100", min: 1, max: 100 },
   ];
 
   return (
@@ -103,12 +104,19 @@ export function OperationSelector({
             </div>
           </div>
 
-          {/* Number Range selection */}
+          {/* Number Range selection (Presets + Custom Min/Max) */}
           <div>
-            <h4 className="font-medium leading-none font-headline text-lg mb-4">
-              Number Range
-            </h4>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="flex items-center justify-between mb-3">
+              <h4 className="font-medium leading-none font-headline text-lg">
+                Number Range
+              </h4>
+              <span className="text-xs font-bold text-muted-foreground bg-muted px-2.5 py-1 rounded-full font-mono">
+                {minRange} – {maxRange}
+              </span>
+            </div>
+
+            {/* Presets */}
+            <div className="grid grid-cols-4 gap-1.5 mb-3">
               {rangePresets.map((preset) => {
                 const isSelected = minRange === preset.min && maxRange === preset.max;
                 return (
@@ -117,7 +125,7 @@ export function OperationSelector({
                     type="button"
                     variant={isSelected ? "default" : "outline"}
                     size="sm"
-                    className="rounded-xl font-headline font-bold h-10 text-xs"
+                    className="rounded-xl font-headline font-bold h-9 text-xs p-0"
                     onClick={() => onRangeChange(preset.min, preset.max)}
                   >
                     {preset.label}
@@ -125,9 +133,84 @@ export function OperationSelector({
                 );
               })}
             </div>
+
+            {/* Custom Min / Max Stepper Controls */}
+            <div className="grid grid-cols-2 gap-3 bg-muted/40 p-3 rounded-2xl border">
+              {/* Min Control */}
+              <div className="space-y-1.5">
+                <Label className="text-[11px] font-headline font-bold text-muted-foreground uppercase tracking-wider">
+                  Min Number
+                </Label>
+                <div className="flex items-center gap-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 rounded-lg shrink-0 font-bold text-base"
+                    onClick={() => onRangeChange(Math.max(0, minRange - 1), maxRange)}
+                  >
+                    -
+                  </Button>
+                  <input
+                    type="number"
+                    value={minRange}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10) || 0;
+                      onRangeChange(Math.max(0, Math.min(val, maxRange - 1)), maxRange);
+                    }}
+                    className="w-full h-8 text-center font-headline font-bold text-sm bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 rounded-lg shrink-0 font-bold text-base"
+                    onClick={() => onRangeChange(Math.min(minRange + 1, maxRange - 1), maxRange)}
+                  >
+                    +
+                  </Button>
+                </div>
+              </div>
+
+              {/* Max Control */}
+              <div className="space-y-1.5">
+                <Label className="text-[11px] font-headline font-bold text-muted-foreground uppercase tracking-wider">
+                  Max Number
+                </Label>
+                <div className="flex items-center gap-1">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 rounded-lg shrink-0 font-bold text-base"
+                    onClick={() => onRangeChange(minRange, Math.max(minRange + 1, maxRange - 1))}
+                  >
+                    -
+                  </Button>
+                  <input
+                    type="number"
+                    value={maxRange}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value, 10) || minRange + 1;
+                      onRangeChange(minRange, Math.max(minRange + 1, val));
+                    }}
+                    className="w-full h-8 text-center font-headline font-bold text-sm bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-8 w-8 rounded-lg shrink-0 font-bold text-base"
+                    onClick={() => onRangeChange(minRange, maxRange + 1)}
+                  >
+                    +
+                  </Button>
+                </div>
+              </div>
+            </div>
           </div>
 
-          {/* Quiz Start Button (matching First Read's bottom action button) */}
+          {/* Quiz Start Button */}
           <div className="pt-4 border-t">
             <Button
               variant="default"
