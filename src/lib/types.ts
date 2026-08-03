@@ -1,5 +1,10 @@
 export type MathOperation = '+' | '-' | '×' | '÷';
 
+export type Fraction = {
+  n: number; // Numerator
+  d: number; // Denominator
+};
+
 export type MathProblem = {
   id: string;
   num1: number;
@@ -8,9 +13,15 @@ export type MathProblem = {
   answer: number;
   displayText: string;
   answerText: string;
-  problemSpeechText: string; // e.g. "7 plus 5"
+  problemSpeechText: string; // e.g. "7 plus 5" or "1 half plus 1 fourth"
   fullSpeechText: string;    // e.g. "7 plus 5 equals 12"
   speechText: string;        // fallback alias
+
+  // Fraction fields (when isFraction === true)
+  isFraction?: boolean;
+  frac1?: Fraction;
+  frac2?: Fraction;
+  fracAnswer?: Fraction;
 };
 
 export type AppSettingsState = {
@@ -18,6 +29,7 @@ export type AppSettingsState = {
   minRange: number;
   maxRange: number;
   allowNegatives: boolean;
+  showFractions: boolean;
   autoPlayAudio: boolean;
   showCardCount: boolean;
   showTimer: boolean;

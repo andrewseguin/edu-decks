@@ -1,6 +1,6 @@
 "use client";
 
-import { Settings, Lock } from "lucide-react";
+import { Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -20,14 +20,14 @@ type AppSettingsProps = {
   onRangeChange: (min: number, max: number) => void;
   allowNegatives: boolean;
   onAllowNegativesChange: (allow: boolean) => void;
+  showFractions: boolean;
+  onShowFractionsChange: (show: boolean) => void;
   showCardCount: boolean;
   onShowCardCountChange: (show: boolean) => void;
   showTimer: boolean;
   onShowTimerChange: (show: boolean) => void;
   autoPlayAudio: boolean;
   onAutoPlayAudioChange: (autoPlay: boolean) => void;
-  quizOptionCount: number;
-  onQuizOptionCountChange: (count: number) => void;
   keepScreenAwake: boolean;
   onKeepScreenAwakeChange: (keep: boolean) => void;
   open: boolean;
@@ -38,19 +38,16 @@ type AppSettingsProps = {
 export function AppSettings({
   allowNegatives,
   onAllowNegativesChange,
+  showFractions,
+  onShowFractionsChange,
   showCardCount,
   onShowCardCountChange,
   showTimer,
   onShowTimerChange,
   autoPlayAudio,
   onAutoPlayAudioChange,
-  quizOptionCount,
-  onQuizOptionCountChange,
-  keepScreenAwake,
-  onKeepScreenAwakeChange,
   open,
   onOpenChange,
-  onLockApp,
 }: AppSettingsProps) {
   return (
     <Popover open={open} onOpenChange={onOpenChange}>
@@ -65,7 +62,7 @@ export function AppSettings({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[90vw] sm:w-[300px]"
+        className="w-[90vw] sm:w-[320px]"
         align="center"
         sideOffset={8}
         collisionPadding={16}
@@ -107,11 +104,21 @@ export function AppSettings({
             </div>
           </div>
 
-          {/* Modes & Quiz */}
+          {/* Modes & Fractions */}
           <div className="space-y-4">
             <h4 className="font-medium leading-none font-headline text-lg">
-              Modes & Quiz
+              Modes & Problem Types
             </h4>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="fractions-toggle" className="text-base font-normal">
+                Show Fractions
+              </Label>
+              <Switch
+                id="fractions-toggle"
+                checked={showFractions}
+                onCheckedChange={onShowFractionsChange}
+              />
+            </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="negatives-toggle" className="text-base font-normal">
                 Allow Negative Answers
@@ -122,30 +129,12 @@ export function AppSettings({
                 onCheckedChange={onAllowNegativesChange}
               />
             </div>
-
-            <div className="space-y-2 pt-1">
-              <Label className="text-base font-normal">Quiz Cards Shown</Label>
-              <div className="grid grid-cols-3 gap-2">
-                {[4, 6, 8].map((count) => (
-                  <Button
-                    key={count}
-                    type="button"
-                    variant={quizOptionCount === count ? "default" : "outline"}
-                    size="sm"
-                    className="rounded-xl font-bold font-headline h-9"
-                    onClick={() => onQuizOptionCountChange(count)}
-                  >
-                    {count} Cards
-                  </Button>
-                ))}
-              </div>
-            </div>
           </div>
 
-          {/* Audio & Screen */}
+          {/* Audio */}
           <div className="space-y-4">
             <h4 className="font-medium leading-none font-headline text-lg">
-              Card & Audio Controls
+              Audio Controls
             </h4>
             <div className="flex items-center justify-between">
               <Label htmlFor="autoplay-toggle" className="text-base font-normal">
@@ -157,33 +146,6 @@ export function AppSettings({
                 onCheckedChange={onAutoPlayAudioChange}
               />
             </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="screen-awake-toggle" className="text-base font-normal">
-                Keep Screen Awake
-              </Label>
-              <Switch
-                id="screen-awake-toggle"
-                checked={keepScreenAwake}
-                onCheckedChange={onKeepScreenAwakeChange}
-              />
-            </div>
-          </div>
-
-          {/* Lock Settings */}
-          <div>
-            <Button
-              variant="destructive"
-              className="w-full justify-start gap-2 h-12 rounded-xl font-headline font-bold text-base"
-              onClick={() => {
-                onOpenChange(false);
-                onLockApp?.();
-              }}
-            >
-              <div className="p-1.5 rounded-md bg-white/20">
-                <Lock className="h-4 w-4 text-white" />
-              </div>
-              Lock Settings
-            </Button>
           </div>
         </div>
       </PopoverContent>

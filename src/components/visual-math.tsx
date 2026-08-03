@@ -1,12 +1,94 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MathProblem } from "@/lib/types";
+import { MathProblem, Fraction } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 type VisualMathProps = {
   problem: MathProblem;
 };
+
+// SVG Fraction Circle Component
+function FractionCircle({
+  fraction,
+  fillColor,
+  strokeColor,
+  size = 64,
+}: {
+  fraction: Fraction;
+  fillColor: string;
+  strokeColor: string;
+  size?: number;
+}) {
+  const { n, d } = fraction;
+  const radius = size / 2 - 4;
+  const center = size / 2;
+
+  // Handle whole numbers or values >= 1
+  const wholeCount = Math.floor(n / d);
+  const remainderN = n % d;
+  const totalCircles = Math.max(1, wholeCount + (remainderN > 0 ? 1 : 0));
+
+  return (
+    <div className="flex items-center gap-1.5">
+      {Array.from({ length: totalCircles }).map((_, circleIdx) => {
+        let filledSlices = d;
+        if (circleIdx === wholeCount) {
+          filledSlices = remainderN;
+        } else if (circleIdx > wholeCount) {
+          filledSlices = 0;
+        }
+
+        const slices = Array.from({ length: d }).map((_, i) => {
+          const startAngle = (i * 360) / d - 90;
+          const endAngle = ((i + 1) * 360) / d - 90;
+
+          const startRad = (startAngle * Math.PI) / 180;
+          const endRad = (endAngle * Math.PI) / 180;
+
+          const x1 = center + radius * Math.cos(startRad);
+          const y1 = center + radius * Math.sin(startRad);
+          const x2 = center + radius * Math.cos(endRad);
+          const y2 = center + radius * Math.sin(endRad);
+
+          const largeArcFlag = 360 / d > 180 ? 1 : 0;
+
+          const pathData =
+            d === 1
+              ? `M ${center - radius}, ${center} a ${radius},${radius} 0 1,0 ${radius * 2},0 a ${radius},${radius} 0 1,0 -${radius * 2},0`
+              : `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
+
+          const isFilled = i < filledSlices;
+
+          return (
+            <path
+              key={`slice-${i}`}
+              d={pathData}
+              className={cn(
+                "transition-all duration-300",
+                isFilled
+                  ? `${fillColor} ${strokeColor} stroke-2`
+                  : "fill-white/10 stroke-white/30 stroke-1 stroke-dashed"
+              )}
+            />
+          );
+        });
+
+        return (
+          <svg
+            key={`circle-${circleIdx}`}
+            width={size}
+            height={size}
+            viewBox={`0 0 ${size} ${size}`}
+            className="drop-shadow-xs"
+          >
+            {slices}
+          </svg>
+        );
+      })}
+    </div>
+  );
+}
 
 export function VisualMath({ problem }: VisualMathProps) {
   const { num1, num2, operation, answer } = problem;
@@ -21,7 +103,6 @@ export function VisualMath({ problem }: VisualMathProps) {
     setSubtractionCount(0);
 
     if (operation === '+') {
-      // Step 1: Incrementally reveal Cyan blocks (1 every 90ms)
       let currentCyan = 0;
       const cyanInterval = setInterval(() => {
         currentCyan++;
@@ -29,7 +110,6 @@ export function VisualMath({ problem }: VisualMathProps) {
         if (currentCyan >= num1) {
           clearInterval(cyanInterval);
 
-          // Step 2: Incrementally reveal Orange blocks (1 every 110ms) after Cyan finishes + 400ms pause
           setTimeout(() => {
             let currentOrange = 0;
             const orangeInterval = setInterval(() => {
@@ -47,7 +127,6 @@ export function VisualMath({ problem }: VisualMathProps) {
     }
 
     if (operation === '-') {
-      // Step 1: Incrementally reveal Cyan blocks (num1) from empty slots (1 every 90ms)
       let currentCyan = 0;
       const cyanInterval = setInterval(() => {
         currentCyan++;
@@ -55,7 +134,6 @@ export function VisualMath({ problem }: VisualMathProps) {
         if (currentCyan >= num1) {
           clearInterval(cyanInterval);
 
-          // Step 2: Clear 650ms pause before starting to animate Orange ✕ badges from the END
           setTimeout(() => {
             let currentSub = 0;
             const subInterval = setInterval(() => {
@@ -73,7 +151,6 @@ export function VisualMath({ problem }: VisualMathProps) {
     }
 
     if (operation === '×') {
-      // Incrementally reveal White Area blocks inside the matrix (1 block every 25ms)
       const total = num1 * num2;
       const intervalMs = total > 30 ? 20 : 45;
       let currentCyan = 0;
@@ -89,10 +166,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     }
 
     if (operation === '÷') {
-      // Step 1: Cyan blocks are ALREADY present in one unified grid at t=0
       setCyanVisible(num1);
-
-      // Step 2: After 550ms pause, trigger separation animation into 'answer' Orange groups
       const timeoutId = setTimeout(() => {
         setOrangeVisible(1);
       }, 550);
@@ -100,6 +174,50 @@ export function VisualMath({ problem }: VisualMathProps) {
       return () => clearTimeout(timeoutId);
     }
   }, [problem.id, num1, num2, operation]);
+
+  // Fraction Visualizer Component
+  if (problem.isFraction && problem.frac1 && problem.frac2) {
+    const f1 = problem.frac1;
+    const f2 = problem.frac2;
+    const ans = problem.fracAnswer;
+
+    return (
+      <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-5 p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+        {/* Fraction 1 Circle (Cyan) */}
+        <div className="flex flex-col items-center gap-1">
+          <FractionCircle fraction={f1} fillColor="fill-cyan-300" strokeColor="stroke-cyan-400" size={54} />
+          <span className="text-xs font-headline font-bold text-cyan-300">
+            {f1.n}/{f1.d}
+          </span>
+        </div>
+
+        <span className="text-lg sm:text-xl font-bold text-white/80">
+          {problem.operation}
+        </span>
+
+        {/* Fraction 2 Circle (Orange) */}
+        <div className="flex flex-col items-center gap-1">
+          <FractionCircle fraction={f2} fillColor="fill-amber-400" strokeColor="stroke-amber-500" size={54} />
+          <span className="text-xs font-headline font-bold text-amber-300">
+            {f2.n}/{f2.d}
+          </span>
+        </div>
+
+        {ans && (
+          <>
+            <span className="text-lg sm:text-xl font-bold text-white/80">=</span>
+            {/* Answer Fraction Circle (White) */}
+            <div className="flex flex-col items-center gap-1">
+              <FractionCircle fraction={ans} fillColor="fill-white" strokeColor="stroke-white/80" size={54} />
+              <span className="text-xs font-headline font-bold text-white">
+                {ans.n}/{ans.d}
+              </span>
+            </div>
+          </>
+        )}
+      </div>
+    );
+  }
 
   // Don't render visual frames if numbers are extremely huge (> 100 for mult/div, > 40 for add/sub)
   if (operation === '×' || operation === '÷') {
@@ -112,7 +230,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     }
   }
 
-  // ADDITION (+): Truly empty slots -> Cyan blocks increment -> Orange blocks increment
+  // ADDITION (+)
   if (operation === '+') {
     const total = num1 + num2;
     const frameCount = Math.max(1, Math.ceil(total / 10));
@@ -142,7 +260,6 @@ export function VisualMath({ problem }: VisualMathProps) {
                   );
                 }
 
-                // Cyan block: TRULY empty until cyanVisible reaches this slot
                 if (isNum1Slot) {
                   if (slotIndex >= cyanVisible) {
                     return (
@@ -160,7 +277,6 @@ export function VisualMath({ problem }: VisualMathProps) {
                   );
                 }
 
-                // Orange block: TRULY empty until orangeVisible reaches this slot
                 if (isNum2Slot) {
                   const orangeIdx = slotIndex - num1;
                   if (orangeIdx >= orangeVisible) {
@@ -188,7 +304,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // SUBTRACTION (-): Clean static Orange ✕ badges without wild popping
+  // SUBTRACTION (-)
   if (operation === '-') {
     const total = num1;
     const takenAway = num2;
@@ -219,7 +335,6 @@ export function VisualMath({ problem }: VisualMathProps) {
                   );
                 }
 
-                // Cyan block not yet filled in during Step 1
                 if (slotIndex >= cyanVisible) {
                   return (
                     <div
@@ -229,10 +344,8 @@ export function VisualMath({ problem }: VisualMathProps) {
                   );
                 }
 
-                // Reverse index from the end for subtraction take-away
                 const subReverseIndex = (total - 1) - slotIndex;
 
-                // Subtraction Orange ✕ Badge with clean, subtle fade
                 if (isRemovedSlot && subReverseIndex < subtractionCount) {
                   return (
                     <div
@@ -244,7 +357,6 @@ export function VisualMath({ problem }: VisualMathProps) {
                   );
                 }
 
-                // Initial Cyan block for num1
                 return (
                   <div
                     key={`slot-${slotIndex}`}
@@ -259,18 +371,16 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // MULTIPLICATION (×): Clean, quiet fade-in without wild popping
+  // MULTIPLICATION (×)
   if (operation === '×') {
-    const xCount = num1; // Cyan X-Axis across
-    const yCount = num2; // Orange Y-Axis down
-    const cols = xCount + 1; // Including Y-axis header column
-    const rows = yCount + 1; // Including X-axis header row
+    const xCount = num1;
+    const yCount = num2;
+    const cols = xCount + 1;
+    const rows = yCount + 1;
 
-    // Max available container dimensions inside card lower region
     const maxW = 480;
-    const maxH = 120; // 120px max height guarantees 0% collision!
+    const maxH = 120;
 
-    // Calculate max square block size (in px) taking into account container padding & gaps
     const gapSize = Math.max(cols, rows) > 8 ? 2 : 4;
     const padding = 10;
 
@@ -287,12 +397,8 @@ export function VisualMath({ problem }: VisualMathProps) {
           className="grid p-1.5 rounded-xl bg-white/15 border border-white/30 shadow-xs"
           style={{ gap: `${gapSize}px` }}
         >
-          {/* Top Row: Spacer Corner + Cyan X-Axis Headers across */}
           <div className="flex items-center" style={{ gap: `${gapSize}px` }}>
-            {/* Top-Left Corner Spacer */}
             <div className="rounded-md bg-transparent shrink-0" style={{ width: `${blockSize}px`, height: `${blockSize}px` }} />
-
-            {/* Cyan X-Axis Blocks across */}
             {Array.from({ length: xCount }).map((_, xIdx) => (
               <div
                 key={`x-axis-${xIdx}`}
@@ -304,13 +410,11 @@ export function VisualMath({ problem }: VisualMathProps) {
             ))}
           </div>
 
-          {/* Rows: Orange Y-Axis Header + White Area Blocks */}
           {Array.from({ length: yCount }).map((_, yIdx) => {
             const rowStartIndex = yIdx * xCount;
 
             return (
               <div key={`y-row-${yIdx}`} className="flex items-center" style={{ gap: `${gapSize}px` }}>
-                {/* Orange Y-Axis Block down */}
                 <div
                   className="rounded-md bg-amber-400 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-amber-950 leading-none shrink-0"
                   style={{ width: `${blockSize}px`, height: `${blockSize}px`, fontSize: `${fontSize}px` }}
@@ -318,7 +422,6 @@ export function VisualMath({ problem }: VisualMathProps) {
                   {yIdx + 1}
                 </div>
 
-                {/* White Area Blocks inside matrix */}
                 {Array.from({ length: xCount }).map((_, xIdx) => {
                   const areaIndex = rowStartIndex + xIdx;
 
@@ -348,21 +451,19 @@ export function VisualMath({ problem }: VisualMathProps) {
     );
   }
 
-  // DIVISION (÷): Pre-calculated Reserved Width & Fixed Padding (Guarantees ZERO Layout Wrap!)
+  // DIVISION (÷)
   if (operation === '÷') {
-    const total = num1;          // Cyan total items (num1)
-    const itemsPerGroup = num2;  // Items inside each Orange group box (num2)
-    const groupCount = answer;   // Number of Orange group boxes created = ANSWER!
+    const total = num1;
+    const itemsPerGroup = num2;
+    const groupCount = answer;
 
-    const isSeparated = orangeVisible > 0; // Triggers after 550ms
+    const isSeparated = orangeVisible > 0;
 
-    // Max available container width inside card lower region
     const maxW = 460;
 
-    // Factor in full separated padding and gap offsets from the beginning to prevent any width expansion
-    const groupPadding = 12; // 6px padding per group box side
-    const groupGap = 10;     // 10px gap between separated groups
-    const itemGap = 3;       // 3px gap between items inside a group
+    const groupPadding = 12;
+    const groupGap = 10;
+    const itemGap = 3;
 
     const totalItemGaps = groupCount * Math.max(0, itemsPerGroup - 1) * itemGap;
     const totalGroupGaps = Math.max(0, groupCount - 1) * groupGap;
@@ -379,7 +480,6 @@ export function VisualMath({ problem }: VisualMathProps) {
           isSeparated ? "gap-2 sm:gap-2.5" : "gap-0.5 sm:gap-1"
         )}
       >
-        {/* Render 'answer' Orange Group Boxes with CONSTANT internal padding from start to finish */}
         {Array.from({ length: groupCount }).map((_, gIdx) => {
           const groupStartIndex = gIdx * itemsPerGroup;
           const groupSlots = Array.from({ length: itemsPerGroup }).map((_, i) => groupStartIndex + i);

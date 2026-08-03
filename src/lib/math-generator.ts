@@ -1,4 +1,4 @@
-import { MathOperation, MathProblem } from "./types";
+import { Fraction, MathOperation, MathProblem } from "./types";
 
 function getRandomInt(min: number, max: number): number {
   const minCeil = Math.ceil(min);
@@ -6,14 +6,55 @@ function getRandomInt(min: number, max: number): number {
   return Math.floor(Math.random() * (maxFloor - minCeil + 1)) + minCeil;
 }
 
+// Helper: Greatest Common Divisor
+function gcd(a: number, b: number): number {
+  return b === 0 ? Math.abs(a) : gcd(b, a % b);
+}
+
+// Simplify fraction
+export function simplifyFraction(n: number, d: number): Fraction {
+  if (d === 0) return { n: 0, d: 1 };
+  const common = gcd(n, d);
+  const sign = (n < 0) !== (d < 0) ? -1 : 1;
+  return {
+    n: sign * Math.abs(n / common),
+    d: Math.abs(d / common),
+  };
+}
+
+// Convert fraction to spoken text (e.g. 1/2 -> "one half", 3/4 -> "three fourths")
+export function fractionToWords(f: Fraction): string {
+  if (f.d === 1) return `${f.n}`;
+  const numNames = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
+  const denSingular = ["", "whole", "half", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"];
+  const denPlural = ["", "wholes", "halves", "thirds", "fourths", "fifths", "sixths", "sevenths", "eighths", "ninths", "tenths"];
+
+  const nStr = f.n <= 12 ? numNames[f.n] || `${f.n}` : `${f.n}`;
+  const dStr = f.n === 1 ? (denSingular[f.d] || `${f.d}th`) : (denPlural[f.d] || `${f.d}ths`);
+  return `${nStr} ${dStr}`;
+}
+
+export function formatFractionText(f: Fraction): string {
+  if (f.d === 1) return `${f.n}`;
+  return `${f.n}/${f.d}`;
+}
+
 export function generateMathProblem(
   activeOperations: MathOperation[],
   minRange: number,
   maxRange: number,
-  allowNegatives: boolean = false
+  allowNegatives: boolean = false,
+  showFractions: boolean = false
 ): MathProblem {
   const operations: MathOperation[] = activeOperations.length > 0 ? activeOperations : ['+'];
   const operation = operations[Math.floor(Math.random() * operations.length)];
+
+  // Randomly decide if this problem is a fraction problem when showFractions is enabled (50% chance)
+  const isFraction = showFractions && Math.random() < 0.6;
+
+  if (isFraction) {
+    return generateFractionProblem(operation, allowNegatives);
+  }
 
   let num1 = 0;
   let num2 = 0;
@@ -87,53 +128,85 @@ export function generateMathProblem(
     problemSpeechText,
     fullSpeechText,
     speechText: problemSpeechText,
+    isFraction: false,
   };
 }
 
-export function generateQuizOptions(
-  problem: MathProblem,
-  count: number,
-  minRange: number,
-  maxRange: number
-): number[] {
-  const correctAnswer = problem.answer;
-  const optionsSet = new Set<number>([correctAnswer]);
+function generateFractionProblem(
+  operation: MathOperation,
+  allowNegatives: boolean
+): MathProblem {
+  const denominators = [2, 3, 4, 6, 8];
+  const d1 = denominators[Math.floor(Math.random() * denominators.length)];
+  const d2 = denominators[Math.floor(Math.random() * denominators.length)];
 
-  const candidates: number[] = [
-    correctAnswer + 1,
-    correctAnswer - 1,
-    correctAnswer + 2,
-    correctAnswer - 2,
-    correctAnswer + 10,
-    correctAnswer - 10,
-    correctAnswer + 5,
-    correctAnswer - 5,
-    problem.num1 + problem.num2,
-    Math.abs(problem.num1 - problem.num2),
-  ];
+  let n1 = getRandomInt(1, d1 - 1);
+  let n2 = getRandomInt(1, d2 - 1);
 
-  for (const c of candidates) {
-    if (optionsSet.size >= count) break;
-    if (!Number.isNaN(c) && (c >= 0 || problem.answer < 0)) {
-      optionsSet.add(c);
+  let frac1 = simplifyFraction(n1, d1);
+  let frac2 = simplifyFraction(n2, d2);
+  let fracAnswer: Fraction = { n: 1, d: 1 };
+
+  switch (operation) {
+    case '+': {
+      // n1/d1 + n2/d2 = (n1*d2 + n2*d1)/(d1*d2)
+      fracAnswer = simplifyFraction(frac1.n * frac2.d + frac2.n * frac1.d, frac1.d * frac2.d);
+      break;
+    }
+    case '-': {
+      const val1 = frac1.n / frac1.d;
+      const val2 = frac2.n / frac2.d;
+      if (!allowNegatives && val1 < val2) {
+        const temp = frac1;
+        frac1 = frac2;
+        frac2 = temp;
+      }
+      fracAnswer = simplifyFraction(frac1.n * frac2.d - frac2.n * frac1.d, frac1.d * frac2.d);
+      break;
+    }
+    case '×': {
+      fracAnswer = simplifyFraction(frac1.n * frac2.n, frac1.d * frac2.d);
+      break;
+    }
+    case '÷': {
+      fracAnswer = simplifyFraction(frac1.n * frac2.d, frac1.d * frac2.n);
+      break;
     }
   }
 
-  let attempts = 0;
-  while (optionsSet.size < count && attempts < 100) {
-    attempts++;
-    const delta = getRandomInt(-10, 10);
-    const randAns = correctAnswer + delta;
-    if (randAns !== correctAnswer && randAns >= 0) {
-      optionsSet.add(randAns);
-    }
-  }
+  const text1 = formatFractionText(frac1);
+  const text2 = formatFractionText(frac2);
+  const textAns = formatFractionText(fracAnswer);
 
-  const options = Array.from(optionsSet);
-  for (let i = options.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [options[i], options[j]] = [options[j], options[i]];
-  }
+  const words1 = fractionToWords(frac1);
+  const words2 = fractionToWords(frac2);
+  const wordsAns = fractionToWords(fracAnswer);
 
-  return options;
+  let opWord = "plus";
+  if (operation === '-') opWord = "minus";
+  if (operation === '×') opWord = "times";
+  if (operation === '÷') opWord = "divided by";
+
+  const problemSpeechText = `${words1} ${opWord} ${words2}`;
+  const fullSpeechText = `${words1} ${opWord} ${words2} equals ${wordsAns}`;
+  const displayText = `${text1} ${operation} ${text2}`;
+
+  const id = `frac-${operation}-${text1}-${text2}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+
+  return {
+    id,
+    num1: frac1.n,
+    num2: frac2.n,
+    operation,
+    answer: fracAnswer.n / fracAnswer.d,
+    displayText,
+    answerText: textAns,
+    problemSpeechText,
+    fullSpeechText,
+    speechText: problemSpeechText,
+    isFraction: true,
+    frac1,
+    frac2,
+    fracAnswer,
+  };
 }

@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { MathOperation, MathProblem, OPERATION_COLORS } from "@/lib/types";
 import { generateMathProblem } from "@/lib/math-generator";
+import { FractionDisplay } from "./fraction-display";
 import { Button } from "@/components/ui/button";
 import { Volume2, X, Sparkles, Delete, CornerDownLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -12,6 +13,7 @@ type QuizDisplayProps = {
   minRange: number;
   maxRange: number;
   allowNegatives: boolean;
+  showFractions?: boolean;
   autoPlayAudio: boolean;
   onSpeak: (text: string) => void;
   onPlayChime: (correct: boolean) => void;
@@ -23,6 +25,7 @@ export function QuizDisplay({
   minRange,
   maxRange,
   allowNegatives,
+  showFractions = false,
   autoPlayAudio,
   onSpeak,
   onPlayChime,
@@ -39,8 +42,8 @@ export function QuizDisplay({
 
   const playAudioPrompt = useCallback((problem: MathProblem) => {
     setIsPlayingSound(true);
-    onSpeak(`${problem.num1} ${getOpWord(problem.operation)} ${problem.num2}`);
-    setTimeout(() => setIsPlayingSound(false), 1200);
+    onSpeak(problem.problemSpeechText);
+    setTimeout(() => setIsPlayingSound(false), 1400);
   }, [onSpeak]);
 
   const nextQuestion = useCallback(() => {
@@ -50,7 +53,8 @@ export function QuizDisplay({
       activeOperations,
       minRange,
       maxRange,
-      allowNegatives
+      allowNegatives,
+      showFractions
     );
     setCurrentProblem(problem);
     setInputVal("");
@@ -61,7 +65,7 @@ export function QuizDisplay({
         playAudioPrompt(problem);
       }, 400);
     }
-  }, [activeOperations, minRange, maxRange, allowNegatives, autoPlayAudio, playAudioPrompt]);
+  }, [activeOperations, minRange, maxRange, allowNegatives, showFractions, autoPlayAudio, playAudioPrompt]);
 
   useEffect(() => {
     nextQuestion();
@@ -73,9 +77,12 @@ export function QuizDisplay({
   const handleSubmitInput = useCallback((submittedText: string) => {
     if (!currentProblem || isCorrect !== null || !submittedText) return;
 
-    const userNum = parseInt(submittedText, 10);
+    // Check string match for fraction or number
+    const isAnswerCorrect =
+      submittedText.trim() === currentProblem.answerText.trim() ||
+      parseFloat(submittedText) === currentProblem.answer;
 
-    if (userNum === currentProblem.answer) {
+    if (isAnswerCorrect) {
       setIsCorrect(true);
       setScore((s) => s + 1);
       setStreak((s) => s + 1);
@@ -105,15 +112,23 @@ export function QuizDisplay({
       return;
     }
 
-    // Limit input length to max 4 characters
-    if (inputVal.length >= 4) return;
+    // Handle Fraction Slash /
+    if (digit === "/") {
+      if (inputVal && !inputVal.includes("/")) {
+        const newInput = inputVal + "/";
+        setInputVal(newInput);
+      }
+      return;
+    }
+
+    // Limit input length to max 6 characters
+    if (inputVal.length >= 6) return;
 
     const newInput = inputVal + digit;
     setInputVal(newInput);
 
-    // Auto-submit if digit length matches expected answer length
-    const expectedStr = currentProblem.answer.toString();
-    if (newInput === expectedStr) {
+    // Auto-submit if input matches exact answer text
+    if (newInput === currentProblem.answerText) {
       handleSubmitInput(newInput);
     }
   }, [inputVal, isCorrect, currentProblem, handleSubmitInput]);
@@ -128,8 +143,8 @@ export function QuizDisplay({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key >= "0" && e.key <= "9") {
         handleKeyPress(e.key);
-      } else if (e.key === "-") {
-        handleKeyPress("-");
+      } else if (e.key === "-" || e.key === "/") {
+        handleKeyPress(e.key);
       } else if (e.key === "Backspace" || e.key === "Delete") {
         handleDelete();
       } else if (e.key === "Enter" || e.key === " ") {
@@ -198,7 +213,7 @@ export function QuizDisplay({
 
       {/* Main Content Area: Responsive Stack (Portrait) vs Side-by-Side (Landscape / Short Screens) */}
       <div className="w-full max-w-5xl mx-auto flex-1 flex flex-col max-h-[600px]:flex-row landscape:flex-row items-center justify-center gap-2 sm:gap-4 min-h-0 py-1 px-2 sm:px-4">
-        {/* Left Side (Landscape) / Top Side (Portrait): Hero Equation Card */}
+        {/* Hero Equation Card */}
         <div className="w-full flex-1 flex items-center justify-center min-h-0 min-w-0 p-1">
           <div
             className={cn(
@@ -215,20 +230,28 @@ export function QuizDisplay({
             onClick={() => playAudioPrompt(currentProblem)}
           >
             <div className="flex items-center justify-center text-center max-w-full">
-              {/* First Number (Cyan) */}
-              <span className="font-headline font-bold leading-none select-none text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-2xl sm:text-4xl md:text-5xl lg:text-6xl shrink-0">
-                {currentProblem.num1}
-              </span>
+              {/* First Number / Fraction */}
+              {currentProblem.isFraction && currentProblem.frac1 ? (
+                <FractionDisplay fraction={currentProblem.frac1} colorClass="text-cyan-300" size="md" />
+              ) : (
+                <span className="font-headline font-bold leading-none select-none text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-2xl sm:text-4xl md:text-5xl lg:text-6xl shrink-0">
+                  {currentProblem.num1}
+                </span>
+              )}
 
               {/* Operator */}
               <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-2xl sm:text-4xl md:text-5xl lg:text-6xl mx-1 sm:mx-2.5 shrink-0">
                 {currentProblem.operation}
               </span>
 
-              {/* Second Number (Orange) */}
-              <span className="font-headline font-bold leading-none select-none text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-2xl sm:text-4xl md:text-5xl lg:text-6xl shrink-0">
-                {currentProblem.num2}
-              </span>
+              {/* Second Number / Fraction */}
+              {currentProblem.isFraction && currentProblem.frac2 ? (
+                <FractionDisplay fraction={currentProblem.frac2} colorClass="text-amber-300" size="md" />
+              ) : (
+                <span className="font-headline font-bold leading-none select-none text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-2xl sm:text-4xl md:text-5xl lg:text-6xl shrink-0">
+                  {currentProblem.num2}
+                </span>
+              )}
 
               {/* Equals Symbol */}
               <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-2xl sm:text-4xl md:text-5xl lg:text-6xl ml-1 sm:ml-2.5 mr-1 sm:mr-2.5 shrink-0">
@@ -264,8 +287,8 @@ export function QuizDisplay({
           </div>
         </div>
 
-        {/* Right Side (Landscape) / Bottom Side (Portrait): Numeric Keypad Grid (3x4 Layout) */}
-        <div className="w-full max-w-[240px] sm:max-w-[280px] grid grid-cols-3 gap-1.5 sm:gap-2.5 shrink-0 my-auto p-1">
+        {/* Right Side (Landscape) / Bottom Side (Portrait): Numeric Keypad Grid */}
+        <div className="w-full max-w-[250px] sm:max-w-[290px] grid grid-cols-3 gap-1.5 sm:gap-2.5 shrink-0 my-auto p-1">
           {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
             <button
               key={num}
@@ -284,17 +307,21 @@ export function QuizDisplay({
             </button>
           ))}
 
-          {/* Backspace Button */}
+          {/* Fraction Bar / Button */}
           <button
             type="button"
-            className="h-10 sm:h-12 rounded-2xl flex items-center justify-center font-headline font-bold text-base sm:text-lg shadow-md transition-all active:scale-95 bg-card text-muted-foreground border-2 border-transparent hover:border-destructive/40 hover:text-destructive hover:scale-[1.02] outline-none select-none"
+            className="h-10 sm:h-12 rounded-2xl flex items-center justify-center font-headline font-bold text-lg sm:text-xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
+            style={{
+              backgroundColor: `${opInfo.hex}18`,
+              color: opInfo.hex,
+            }}
             onClick={(e) => {
               e.stopPropagation();
-              handleDelete();
+              handleKeyPress("/");
             }}
-            aria-label="Delete last digit"
+            aria-label="Fraction bar"
           >
-            <Delete className="w-4 h-4 sm:w-5 sm:h-5" />
+            /
           </button>
 
           {/* 0 Key */}
@@ -313,23 +340,17 @@ export function QuizDisplay({
             0
           </button>
 
-          {/* Submit Key */}
+          {/* Backspace Button */}
           <button
             type="button"
-            className={cn(
-              "h-10 sm:h-12 rounded-2xl flex items-center justify-center font-headline font-bold text-base sm:text-lg shadow-md transition-all active:scale-95 text-white border-2 border-transparent outline-none select-none",
-              inputVal ? "opacity-100 hover:scale-[1.02]" : "opacity-50"
-            )}
-            style={{
-              backgroundColor: opInfo.hex,
-            }}
+            className="h-10 sm:h-12 rounded-2xl flex items-center justify-center font-headline font-bold text-base sm:text-lg shadow-md transition-all active:scale-95 bg-card text-muted-foreground border-2 border-transparent hover:border-destructive/40 hover:text-destructive hover:scale-[1.02] outline-none select-none"
             onClick={(e) => {
               e.stopPropagation();
-              handleSubmitInput(inputVal);
+              handleDelete();
             }}
-            aria-label="Submit answer"
+            aria-label="Delete last digit"
           >
-            <CornerDownLeft className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+            <Delete className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
       </div>
