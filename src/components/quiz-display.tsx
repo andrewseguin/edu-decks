@@ -148,11 +148,11 @@ export function QuizDisplay({
 
   return (
     <div
-      className="fixed inset-0 z-40 bg-background flex flex-col justify-between p-3 sm:p-6 animate-in fade-in duration-300 select-none overflow-y-auto"
+      className="fixed inset-0 z-40 bg-background flex flex-col justify-between p-3 sm:p-5 select-none overflow-hidden"
       onClick={(e) => e.stopPropagation()}
     >
       {/* Top Header Bar */}
-      <div className="flex items-center justify-between w-full max-w-4xl mx-auto gap-2 shrink-0">
+      <div className="flex items-center justify-between w-full max-w-5xl mx-auto gap-2 shrink-0 h-10">
         <Button
           variant="outline"
           size="sm"
@@ -196,138 +196,141 @@ export function QuizDisplay({
         </div>
       </div>
 
-      {/* Hero Equation Card */}
-      <div className="w-full max-w-2xl mx-auto my-auto py-2 shrink-0 flex justify-center">
-        <div
-          className={cn(
-            "w-full rounded-3xl p-5 sm:p-8 flex items-center justify-center relative cursor-pointer shadow-xl transition-all duration-300",
-            isCorrect === true && "border-4 border-emerald-400 shadow-emerald-500/30 scale-[1.02]",
-            isCorrect === false && "border-4 border-destructive animate-shake"
-          )}
-          style={{
-            backgroundColor: opInfo.hex,
-            boxShadow:
-              "0 1px 1px rgba(0,0,0,0.12), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.12), 0 8px 8px rgba(0,0,0,0.12)",
-          }}
-          onClick={() => playAudioPrompt(currentProblem)}
-        >
-          <div className="flex items-center justify-center whitespace-nowrap text-center">
-            {/* First Number (Cyan) */}
-            <span className="font-headline font-bold leading-none select-none text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-5xl sm:text-7xl md:text-8xl">
-              {currentProblem.num1}
-            </span>
+      {/* Main Content Area: Responsive Stack (Portrait) vs Side-by-Side (Landscape / Short Screens) */}
+      <div className="w-full max-w-5xl mx-auto flex-1 flex flex-col max-h-[600px]:flex-row landscape:flex-row items-center justify-center gap-3 sm:gap-6 min-h-0 py-1">
+        {/* Left Side (Landscape) / Top Side (Portrait): Hero Equation Card */}
+        <div className="w-full flex-1 flex items-center justify-center shrink-0 min-h-0 max-h-[220px] max-h-[600px]:max-h-full landscape:max-h-full">
+          <div
+            className={cn(
+              "w-full rounded-3xl p-4 sm:p-6 flex items-center justify-center relative cursor-pointer shadow-xl transition-all duration-300 h-full max-h-[240px] sm:max-h-[280px]",
+              isCorrect === true && "border-4 border-emerald-400 shadow-emerald-500/30 scale-[1.02]",
+              isCorrect === false && "border-4 border-destructive animate-shake"
+            )}
+            style={{
+              backgroundColor: opInfo.hex,
+              boxShadow:
+                "0 1px 1px rgba(0,0,0,0.12), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.12), 0 8px 8px rgba(0,0,0,0.12)",
+            }}
+            onClick={() => playAudioPrompt(currentProblem)}
+          >
+            <div className="flex items-center justify-center whitespace-nowrap text-center">
+              {/* First Number (Cyan) */}
+              <span className="font-headline font-bold leading-none select-none text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-4xl sm:text-6xl md:text-7xl">
+                {currentProblem.num1}
+              </span>
 
-            {/* Operator */}
-            <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl mx-2 sm:mx-4">
-              {currentProblem.operation}
-            </span>
+              {/* Operator */}
+              <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-4xl sm:text-6xl md:text-7xl mx-2 sm:mx-3">
+                {currentProblem.operation}
+              </span>
 
-            {/* Second Number (Orange) */}
-            <span className="font-headline font-bold leading-none select-none text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-5xl sm:text-7xl md:text-8xl">
-              {currentProblem.num2}
-            </span>
+              {/* Second Number (Orange) */}
+              <span className="font-headline font-bold leading-none select-none text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-4xl sm:text-6xl md:text-7xl">
+                {currentProblem.num2}
+              </span>
 
-            {/* Equals Symbol */}
-            <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl ml-2 sm:ml-4 mr-2 sm:mr-4">
-              =
-            </span>
+              {/* Equals Symbol */}
+              <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-4xl sm:text-6xl md:text-7xl ml-2 sm:ml-3 mr-2 sm:mr-3">
+                =
+              </span>
 
-            {/* User Input / Question Mark Box (Clean static styling, no animate-pulse) */}
-            <div className="relative inline-flex items-center justify-center px-1">
-              <div
-                className={cn(
-                  "min-w-[70px] sm:min-w-[100px] h-[60px] sm:h-[84px] px-4 flex items-center justify-center rounded-2xl border-2 transition-all duration-200",
-                  isCorrect === true
-                    ? "bg-emerald-500 border-emerald-300 text-white shadow-lg"
-                    : isCorrect === false
-                    ? "bg-destructive/30 border-destructive text-white"
-                    : inputVal
-                    ? "bg-white/30 border-white text-white shadow-md"
-                    : "bg-white/20 border-dashed border-white/40 text-white"
-                )}
-              >
-                {inputVal ? (
-                  <span className="font-headline font-bold leading-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] text-4xl sm:text-6xl md:text-7xl">
-                    {inputVal}
-                  </span>
-                ) : (
-                  <span className="font-headline font-bold text-white/80 text-3xl sm:text-5xl md:text-6xl">
-                    ?
-                  </span>
-                )}
+              {/* User Input / Question Mark Box */}
+              <div className="relative inline-flex items-center justify-center px-1">
+                <div
+                  className={cn(
+                    "min-w-[60px] sm:min-w-[90px] h-[50px] sm:h-[76px] px-3 flex items-center justify-center rounded-2xl border-2 transition-all duration-200",
+                    isCorrect === true
+                      ? "bg-emerald-500 border-emerald-300 text-white shadow-lg"
+                      : isCorrect === false
+                      ? "bg-destructive/30 border-destructive text-white"
+                      : inputVal
+                      ? "bg-white/30 border-white text-white shadow-md"
+                      : "bg-white/20 border-dashed border-white/40 text-white"
+                  )}
+                >
+                  {inputVal ? (
+                    <span className="font-headline font-bold leading-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] text-3xl sm:text-5xl md:text-6xl">
+                      {inputVal}
+                    </span>
+                  ) : (
+                    <span className="font-headline font-bold text-white/80 text-2xl sm:text-4xl md:text-5xl">
+                      ?
+                    </span>
+                  )}
+                </div>
               </div>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Numeric Keypad Grid (3x4 Layout) */}
-      <div className="w-full max-w-sm mx-auto grid grid-cols-3 gap-2.5 sm:gap-3 shrink-0 pb-2">
-        {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
+        {/* Right Side (Landscape) / Bottom Side (Portrait): Numeric Keypad Grid (3x4 Layout) */}
+        <div className="w-full max-w-xs sm:max-w-sm grid grid-cols-3 gap-2 sm:gap-3 shrink-0 my-auto">
+          {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
+            <button
+              key={num}
+              type="button"
+              className="h-11 sm:h-14 rounded-2xl flex items-center justify-center font-headline font-bold text-2xl sm:text-3xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
+              style={{
+                backgroundColor: `${opInfo.hex}18`,
+                color: opInfo.hex,
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleKeyPress(num);
+              }}
+            >
+              {num}
+            </button>
+          ))}
+
+          {/* Backspace Button */}
           <button
-            key={num}
             type="button"
-            className="h-14 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-3xl sm:text-4xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
+            className="h-11 sm:h-14 rounded-2xl flex items-center justify-center font-headline font-bold text-lg sm:text-xl shadow-md transition-all active:scale-95 bg-card text-muted-foreground border-2 border-transparent hover:border-destructive/40 hover:text-destructive hover:scale-[1.02] outline-none select-none"
+            onClick={(e) => {
+              e.stopPropagation();
+              handleDelete();
+            }}
+            aria-label="Delete last digit"
+          >
+            <Delete className="w-5 h-5 sm:w-6 sm:h-6" />
+          </button>
+
+          {/* 0 Key */}
+          <button
+            type="button"
+            className="h-11 sm:h-14 rounded-2xl flex items-center justify-center font-headline font-bold text-2xl sm:text-3xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
             style={{
               backgroundColor: `${opInfo.hex}18`,
               color: opInfo.hex,
             }}
             onClick={(e) => {
               e.stopPropagation();
-              handleKeyPress(num);
+              handleKeyPress("0");
             }}
           >
-            {num}
+            0
           </button>
-        ))}
 
-        {/* Backspace Button */}
-        <button
-          type="button"
-          className="h-14 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-xl sm:text-2xl shadow-md transition-all active:scale-95 bg-card text-muted-foreground border-2 border-transparent hover:border-destructive/40 hover:text-destructive hover:scale-[1.02] outline-none select-none"
-          onClick={(e) => {
-            e.stopPropagation();
-            handleDelete();
-          }}
-          aria-label="Delete last digit"
-        >
-          <Delete className="w-6 h-6 sm:w-7 sm:h-7" />
-        </button>
-
-        {/* 0 Key */}
-        <button
-          type="button"
-          className="h-14 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-3xl sm:text-4xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
-          style={{
-            backgroundColor: `${opInfo.hex}18`,
-            color: opInfo.hex,
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleKeyPress("0");
-          }}
-        >
-          0
-        </button>
-
-        {/* Submit Key */}
-        <button
-          type="button"
-          className={cn(
-            "h-14 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-xl sm:text-2xl shadow-md transition-all active:scale-95 text-white border-2 border-transparent outline-none select-none",
-            inputVal ? "opacity-100 hover:scale-[1.02]" : "opacity-50"
-          )}
-          style={{
-            backgroundColor: opInfo.hex,
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            handleSubmitInput(inputVal);
-          }}
-          aria-label="Submit answer"
-        >
-          <CornerDownLeft className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-        </button>
+          {/* Submit Key */}
+          <button
+            type="button"
+            className={cn(
+              "h-11 sm:h-14 rounded-2xl flex items-center justify-center font-headline font-bold text-lg sm:text-xl shadow-md transition-all active:scale-95 text-white border-2 border-transparent outline-none select-none",
+              inputVal ? "opacity-100 hover:scale-[1.02]" : "opacity-50"
+            )}
+            style={{
+              backgroundColor: opInfo.hex,
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleSubmitInput(inputVal);
+            }}
+            aria-label="Submit answer"
+          >
+            <CornerDownLeft className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+          </button>
+        </div>
       </div>
     </div>
   );
