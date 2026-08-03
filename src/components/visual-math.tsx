@@ -258,7 +258,7 @@ export function VisualMath({ problem }: VisualMathProps) {
 
             return (
               <div key={`pie-${pIdx}`} className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 shadow-xs">
-                <svg width={64} height={64} viewBox="0 0 64 64" className="drop-shadow-xs">
+                <svg width={104} height={104} viewBox="0 0 104 104" className="drop-shadow-xs">
                   {Array.from({ length: commonD }).map((_, i) => {
                     const globalSlotIndex = pieStartSlot + i;
                     const isCyanSlot = globalSlotIndex < c1;
@@ -267,8 +267,8 @@ export function VisualMath({ problem }: VisualMathProps) {
                     const startAngle = (i * 360) / commonD - 90;
                     const endAngle = ((i + 1) * 360) / commonD - 90;
 
-                    const radius = 28;
-                    const center = 32;
+                    const radius = 46;
+                    const center = 52;
 
                     const startRad = (startAngle * Math.PI) / 180;
                     const endRad = (endAngle * Math.PI) / 180;
@@ -345,7 +345,7 @@ export function VisualMath({ problem }: VisualMathProps) {
 
             return (
               <div key={`pie-${pIdx}`} className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 shadow-xs">
-                <svg width={64} height={64} viewBox="0 0 64 64" className="drop-shadow-xs">
+                <svg width={104} height={104} viewBox="0 0 104 104" className="drop-shadow-xs">
                   {Array.from({ length: commonD }).map((_, i) => {
                     const globalSlotIndex = pieStartSlot + i;
                     const isCyanSlot = globalSlotIndex < c1;
@@ -354,8 +354,8 @@ export function VisualMath({ problem }: VisualMathProps) {
                     const startAngle = (i * 360) / commonD - 90;
                     const endAngle = ((i + 1) * 360) / commonD - 90;
 
-                    const radius = 28;
-                    const center = 32;
+                    const radius = 46;
+                    const center = 52;
 
                     const startRad = (startAngle * Math.PI) / 180;
                     const endRad = (endAngle * Math.PI) / 180;

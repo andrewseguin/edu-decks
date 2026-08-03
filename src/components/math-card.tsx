@@ -65,17 +65,18 @@ export function MathCard({
         {/* Full Color-Coded Equation Area: Continuous Fluid Glide from Center to Top */}
         <div
           className={cn(
-            "absolute inset-0 flex items-center justify-center p-4 transition-transform duration-500 ease-out pointer-events-none z-20",
+            "absolute inset-0 flex flex-col items-center justify-center p-4 transition-transform duration-500 ease-out pointer-events-none z-20",
             isFlipped ? "-translate-y-16 sm:-translate-y-20 md:-translate-y-24" : "translate-y-0"
           )}
         >
+          {/* Main Equation Line */}
           <div className="flex items-center justify-center whitespace-nowrap text-center">
             {/* First Number / Fraction */}
             {problem.isFraction && problem.frac1 ? (
               <FractionDisplay
                 fraction={problem.frac1}
                 colorClass={isFlipped ? "text-cyan-300" : "text-white"}
-                size={isFlipped ? (problem.hasConversion ? "sm" : "md") : "lg"}
+                size={isFlipped ? "md" : "lg"}
               />
             ) : (
               <span
@@ -93,10 +94,8 @@ export function MathCard({
             {/* Operator (+, -, ×, ÷) */}
             <span
               className={cn(
-                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] mx-2 sm:mx-3 transition-all duration-500",
-                isFlipped
-                  ? (problem.hasConversion ? "text-2xl sm:text-4xl" : "text-4xl sm:text-6xl md:text-7xl")
-                  : "text-5xl sm:text-7xl md:text-8xl"
+                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] mx-2.5 sm:mx-4 transition-all duration-500",
+                isFlipped ? "text-4xl sm:text-6xl md:text-7xl" : "text-5xl sm:text-7xl md:text-8xl"
               )}
             >
               {problem.operation}
@@ -107,7 +106,7 @@ export function MathCard({
               <FractionDisplay
                 fraction={problem.frac2}
                 colorClass={isFlipped ? "text-amber-300" : "text-white"}
-                size={isFlipped ? (problem.hasConversion ? "sm" : "md") : "lg"}
+                size={isFlipped ? "md" : "lg"}
               />
             ) : (
               <span
@@ -125,36 +124,12 @@ export function MathCard({
             {/* Equals Symbol */}
             <span
               className={cn(
-                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] ml-2 sm:ml-3 mr-2 sm:mr-3 transition-all duration-500",
-                isFlipped
-                  ? (problem.hasConversion ? "text-2xl sm:text-4xl" : "text-4xl sm:text-6xl md:text-7xl")
-                  : "text-5xl sm:text-7xl md:text-8xl"
+                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] ml-2.5 sm:ml-4 mr-2.5 sm:mr-4 transition-all duration-500",
+                isFlipped ? "text-4xl sm:text-6xl md:text-7xl" : "text-5xl sm:text-7xl md:text-8xl"
               )}
             >
               =
             </span>
-
-            {/* Intermediate Converted Step (e.g. = 2/4 + 1/4 =) when revealed */}
-            {isFlipped && problem.hasConversion && problem.convertedFrac1 && problem.convertedFrac2 && (
-              <>
-                <FractionDisplay
-                  fraction={problem.convertedFrac1}
-                  colorClass="text-cyan-300/80"
-                  size="sm"
-                />
-                <span className="font-headline font-normal text-white/70 text-2xl sm:text-4xl mx-1.5 sm:mx-2.5">
-                  {problem.operation}
-                </span>
-                <FractionDisplay
-                  fraction={problem.convertedFrac2}
-                  colorClass="text-amber-300/80"
-                  size="sm"
-                />
-                <span className="font-headline font-normal text-white/70 text-2xl sm:text-4xl ml-1.5 sm:ml-2.5 mr-1.5 sm:mr-2.5">
-                  =
-                </span>
-              </>
-            )}
 
             {/* Answer Digit / Fraction / Frosted Question Mark Badge */}
             <div className="relative inline-flex items-center justify-center px-1">
@@ -168,7 +143,7 @@ export function MathCard({
                   <FractionDisplay
                     fraction={problem.fracAnswer}
                     colorClass="text-white"
-                    size={isFlipped ? (problem.hasConversion ? "sm" : "md") : "lg"}
+                    size={isFlipped ? "md" : "lg"}
                   />
                 </div>
               ) : (
@@ -194,6 +169,23 @@ export function MathCard({
               )}
             </div>
           </div>
+
+          {/* Subtitle Conversion Pill Badge (e.g. 4/8 + 3/8 = 7/8) when revealed */}
+          {isFlipped && problem.hasConversion && problem.convertedFrac1 && problem.convertedFrac2 && (
+            <div className="mt-2 sm:mt-3 px-3.5 py-1.5 rounded-full bg-black/25 border border-white/20 backdrop-blur-xs flex items-center gap-2 text-white/90 font-headline font-bold text-xs sm:text-base shadow-sm animate-fade-in">
+              <span className="text-cyan-300">
+                {problem.convertedFrac1.n}/{problem.convertedFrac1.d}
+              </span>
+              <span>{problem.operation}</span>
+              <span className="text-amber-300">
+                {problem.convertedFrac2.n}/{problem.convertedFrac2.d}
+              </span>
+              <span>=</span>
+              <span className="text-white">
+                {problem.convertedFrac1.n + (problem.operation === '+' ? problem.convertedFrac2.n : -problem.convertedFrac2.n)}/{problem.convertedFrac1.d}
+              </span>
+            </div>
+          )}
         </div>
 
         {/* Visual Blocks Overlay - Anchored in Lower Half */}
