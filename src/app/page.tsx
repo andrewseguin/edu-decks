@@ -99,7 +99,7 @@ export default function MathDeckPage() {
     setCardCount((c) => c + 1);
 
     if (autoPlayAudio && !isQuizActive && autoPlay) {
-      speak(newProblem.problemSpeechText);
+      speak(newProblem.problemSpeechText || newProblem.spokenText);
     }
   }, [activeOperations, minRange, maxRange, allowNegatives, showWholeNumbers, showFractions, autoPlayAudio, isQuizActive, speak]);
 
@@ -132,7 +132,7 @@ export default function MathDeckPage() {
       const prevIdx = historyIndex - 1;
       setHistoryIndex(prevIdx);
       if (autoPlayAudio && !isQuizActive) {
-        speak(history[prevIdx].problemSpeechText);
+        speak(history[prevIdx].problemSpeechText || history[prevIdx].spokenText);
       }
     }
   };
@@ -144,7 +144,7 @@ export default function MathDeckPage() {
       const nextIdx = historyIndex + 1;
       setHistoryIndex(nextIdx);
       if (autoPlayAudio && !isQuizActive) {
-        speak(history[nextIdx].problemSpeechText);
+        speak(history[nextIdx].problemSpeechText || history[nextIdx].spokenText);
       }
     } else {
       nextCard(true);
@@ -157,7 +157,7 @@ export default function MathDeckPage() {
       setIsFlipped(true);
       const currentProb = history[historyIndex];
       if (autoPlayAudio && !isQuizActive && currentProb) {
-        speak(currentProb.fullSpeechText);
+        speak(currentProb.fullSpeechText || currentProb.spokenText);
       }
     } else {
       handleNextCard();

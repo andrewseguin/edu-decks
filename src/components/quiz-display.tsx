@@ -71,7 +71,7 @@ export function QuizDisplay({
 
   const playAudioPrompt = useCallback((problem: MathProblem) => {
     setIsPlayingSound(true);
-    onSpeak(problem.problemSpeechText);
+    onSpeak(problem.problemSpeechText || problem.spokenText);
     setTimeout(() => setIsPlayingSound(false), 1400);
   }, [onSpeak]);
 
@@ -108,7 +108,8 @@ export function QuizDisplay({
     if (!currentProblem || isCorrect !== null || !submittedText) return;
 
     const parsedUserVal = parseFractionValue(submittedText);
-    const isExactStringMatch = submittedText.trim() === currentProblem.answerText.trim();
+    const expectedText = currentProblem.answerText || (currentProblem.fracAnswer ? `${currentProblem.fracAnswer.n}/${currentProblem.fracAnswer.d}` : String(currentProblem.answer));
+    const isExactStringMatch = submittedText.trim() === expectedText.trim();
     const isNumericMatch = parsedUserVal !== null && Math.abs(parsedUserVal - currentProblem.answer) < 0.0001;
 
     const isAnswerCorrect = isExactStringMatch || isNumericMatch;
@@ -411,5 +412,8 @@ function getOpWord(op: MathOperation): string {
       return 'times';
     case '÷':
       return 'divided by';
+    default:
+      return 'plus';
   }
 }
+
