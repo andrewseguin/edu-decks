@@ -48,7 +48,7 @@ export function MathCard({
     <Card
       key={problem.id}
       className={cn(
-        "relative select-none [-webkit-touch-callout:none] w-[90vw] h-[45vw] max-w-[700px] max-h-[min(350px,55svh)] border-none rounded-3xl overflow-hidden cursor-pointer transition-all duration-300",
+        "relative select-none [-webkit-touch-callout:none] w-[92vw] max-w-[660px] aspect-[16/10] max-h-[72vh] sm:max-h-[78vh] border-none rounded-3xl overflow-hidden cursor-pointer transition-all duration-300",
         animClass
       )}
       style={{
@@ -60,12 +60,12 @@ export function MathCard({
       }}
       onClick={handleCardClick}
     >
-      <CardContent className="p-0 h-full w-full relative flex items-center justify-center">
-        {/* Full Color-Coded Equation Centered with Shift Up on Reveal */}
+      <CardContent className="p-3 sm:p-5 h-full w-full relative flex flex-col justify-between items-center">
+        {/* Full Color-Coded Equation Area */}
         <div
           className={cn(
-            "absolute inset-0 flex items-center justify-center p-6 transition-transform duration-300 pointer-events-none",
-            isFlipped ? "-translate-y-12 sm:-translate-y-14" : "translate-y-0"
+            "w-full flex items-center justify-center transition-all duration-300",
+            isFlipped ? "pt-1 sm:pt-2 shrink-0" : "my-auto"
           )}
         >
           <div className="flex items-center justify-center whitespace-nowrap text-center">
@@ -74,7 +74,7 @@ export function MathCard({
               className={cn(
                 "font-headline font-bold leading-none select-none transition-all duration-300",
                 isFlipped
-                  ? "text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-4xl sm:text-6xl md:text-7xl"
+                  ? "text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-3xl sm:text-5xl md:text-6xl"
                   : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl"
               )}
             >
@@ -85,7 +85,7 @@ export function MathCard({
             <span
               className={cn(
                 "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] mx-2 sm:mx-3 transition-all duration-300",
-                isFlipped ? "text-4xl sm:text-6xl md:text-7xl" : "text-5xl sm:text-7xl md:text-8xl"
+                isFlipped ? "text-3xl sm:text-5xl md:text-6xl" : "text-5xl sm:text-7xl md:text-8xl"
               )}
             >
               {problem.operation}
@@ -96,7 +96,7 @@ export function MathCard({
               className={cn(
                 "font-headline font-bold leading-none select-none transition-all duration-300",
                 isFlipped
-                  ? "text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-4xl sm:text-6xl md:text-7xl"
+                  ? "text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-3xl sm:text-5xl md:text-6xl"
                   : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl"
               )}
             >
@@ -107,7 +107,7 @@ export function MathCard({
             <span
               className={cn(
                 "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] ml-2 sm:ml-3 mr-2 sm:mr-3 transition-all duration-300",
-                isFlipped ? "text-4xl sm:text-6xl md:text-7xl" : "text-5xl sm:text-7xl md:text-8xl"
+                isFlipped ? "text-3xl sm:text-5xl md:text-6xl" : "text-5xl sm:text-7xl md:text-8xl"
               )}
             >
               =
@@ -119,16 +119,16 @@ export function MathCard({
                 className={cn(
                   "font-headline font-bold leading-none select-none text-white transition-all duration-300",
                   isFlipped
-                    ? "[text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] opacity-100 scale-100 text-4xl sm:text-6xl md:text-7xl"
+                    ? "[text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] opacity-100 scale-100 text-3xl sm:text-5xl md:text-6xl"
                     : "opacity-0 scale-90 text-5xl sm:text-7xl md:text-8xl"
                 )}
               >
                 {problem.answerText}
               </span>
 
-              {/* Obscuring Frosted Glass Pill Badge when Un-revealed */}
+              {/* Obscuring Frosted Glass Pill Badge when Unrevealed */}
               {!isFlipped && (
-                <div className="absolute inset-y-[-4px] inset-x-[-6px] flex items-center justify-center bg-white/20 backdrop-blur-md rounded-2xl border-2 border-dashed border-white/40 shadow-sm animate-pulse">
+                <div className="absolute inset-y-[-4px] inset-x-[-6px] flex items-center justify-center bg-white/20 backdrop-blur-md rounded-2xl border-2 border-dashed border-white/40 shadow-sm">
                   <span className="font-headline font-bold text-white text-3xl sm:text-5xl md:text-6xl">
                     ?
                   </span>
@@ -138,9 +138,9 @@ export function MathCard({
           </div>
         </div>
 
-        {/* Visual Blocks Overlay - Centered in Lower Half from top-[140px] to bottom-3 */}
+        {/* Visual Blocks Overlay - Dynamically Centered in Lower Half via Flexbox */}
         {isFlipped && (
-          <div className="absolute bottom-2 sm:bottom-3 inset-x-0 top-[140px] sm:top-[155px] flex items-center justify-center pointer-events-none z-10 px-4">
+          <div className="w-full flex-1 flex items-center justify-center min-h-0 pointer-events-none z-10 py-1 sm:py-2">
             <VisualMath problem={problem} />
           </div>
         )}
@@ -148,13 +148,12 @@ export function MathCard({
         {/* Speaker Button in Bottom Right */}
         <Button
           variant="ghost"
-          className="absolute bottom-3 right-3 h-10 w-10 sm:h-12 sm:w-12 p-0 text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300 rounded-full flex items-center justify-center z-20"
+          size="icon"
+          className="absolute bottom-2.5 right-2.5 text-white/80 hover:text-white hover:bg-white/20 rounded-full w-8 h-8 sm:w-10 sm:h-10 transition-transform active:scale-95 outline-none pointer-events-auto z-20"
           onClick={handleSpeak}
-          onPointerUp={(e) => e.stopPropagation()}
-          onPointerDown={(e) => e.stopPropagation()}
-          aria-label="Speak equation"
+          aria-label="Listen to equation"
         >
-          <Volume2 className="h-6 w-6 sm:h-7 sm:w-7 text-white/70 hover:text-white transition-colors" />
+          <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
         </Button>
       </CardContent>
     </Card>
