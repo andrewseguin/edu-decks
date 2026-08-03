@@ -31,7 +31,7 @@ export default function MathDeckPage() {
   const [showFractions, setShowFractions] = useLocalStorage<boolean>("math-deck-show-fractions", false);
   const [showCardCount, setShowCardCount] = useLocalStorage<boolean>("math-deck-show-card-count", true);
   const [showTimer, setShowTimer] = useLocalStorage<boolean>("math-deck-show-timer", true);
-  const [autoPlayAudio, setAutoPlayAudio] = useLocalStorage<boolean>("math-deck-autoplay-audio", true);
+  const [autoPlayAudio, setAutoPlayAudio] = useLocalStorage<boolean>("math-deck-autoplay-audio", false);
   const [keepScreenAwake, setKeepScreenAwake] = useLocalStorage<boolean>("math-deck-keep-awake", true);
   const [quizOptionCount, setQuizOptionCount] = useLocalStorage<number>("math-deck-quiz-options", 4);
   const [isLocked, setIsLocked] = useLocalStorage<boolean>("math-deck-locked", false);
