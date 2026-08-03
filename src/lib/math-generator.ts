@@ -44,13 +44,21 @@ export function generateMathProblem(
   minRange: number,
   maxRange: number,
   allowNegatives: boolean = false,
+  showWholeNumbers: boolean = true,
   showFractions: boolean = false
 ): MathProblem {
   const operations: MathOperation[] = activeOperations.length > 0 ? activeOperations : ['+'];
   const operation = operations[Math.floor(Math.random() * operations.length)];
 
-  // Randomly decide if this problem is a fraction problem when showFractions is enabled (50% chance)
-  const isFraction = showFractions && Math.random() < 0.6;
+  // Determine if this problem should be a fraction problem
+  let isFraction = false;
+  if (showFractions && !showWholeNumbers) {
+    isFraction = true;
+  } else if (showFractions && showWholeNumbers) {
+    isFraction = Math.random() < 0.5;
+  } else {
+    isFraction = false;
+  }
 
   if (isFraction) {
     return generateFractionProblem(operation, allowNegatives);
@@ -149,7 +157,6 @@ function generateFractionProblem(
 
   switch (operation) {
     case '+': {
-      // n1/d1 + n2/d2 = (n1*d2 + n2*d1)/(d1*d2)
       fracAnswer = simplifyFraction(frac1.n * frac2.d + frac2.n * frac1.d, frac1.d * frac2.d);
       break;
     }

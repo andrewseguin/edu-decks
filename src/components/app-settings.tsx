@@ -20,6 +20,8 @@ type AppSettingsProps = {
   onRangeChange: (min: number, max: number) => void;
   allowNegatives: boolean;
   onAllowNegativesChange: (allow: boolean) => void;
+  showWholeNumbers: boolean;
+  onShowWholeNumbersChange: (show: boolean) => void;
   showFractions: boolean;
   onShowFractionsChange: (show: boolean) => void;
   showCardCount: boolean;
@@ -38,6 +40,8 @@ type AppSettingsProps = {
 export function AppSettings({
   allowNegatives,
   onAllowNegativesChange,
+  showWholeNumbers,
+  onShowWholeNumbersChange,
   showFractions,
   onShowFractionsChange,
   showCardCount,
@@ -77,11 +81,58 @@ export function AppSettings({
             <ThemeToggleGroup />
           </div>
 
-          {/* Counters */}
+          {/* Number Types */}
           <div className="space-y-4">
             <h4 className="font-medium leading-none font-headline text-lg">
-              Counters
+              Number Types
             </h4>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="whole-numbers-toggle" className="text-base font-normal">
+                Whole Numbers
+              </Label>
+              <Switch
+                id="whole-numbers-toggle"
+                checked={showWholeNumbers}
+                onCheckedChange={(checked) => {
+                  if (!checked && !showFractions) {
+                    onShowFractionsChange(true);
+                  }
+                  onShowWholeNumbersChange(checked);
+                }}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="fractions-toggle" className="text-base font-normal">
+                Fractions
+              </Label>
+              <Switch
+                id="fractions-toggle"
+                checked={showFractions}
+                onCheckedChange={(checked) => {
+                  if (!checked && !showWholeNumbers) {
+                    onShowWholeNumbersChange(true);
+                  }
+                  onShowFractionsChange(checked);
+                }}
+              />
+            </div>
+          </div>
+
+          {/* Counters & Rules */}
+          <div className="space-y-4">
+            <h4 className="font-medium leading-none font-headline text-lg">
+              Card Rules & Counters
+            </h4>
+            <div className="flex items-center justify-between">
+              <Label htmlFor="negatives-toggle" className="text-base font-normal">
+                Allow Negative Answers
+              </Label>
+              <Switch
+                id="negatives-toggle"
+                checked={allowNegatives}
+                onCheckedChange={onAllowNegativesChange}
+              />
+            </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="card-count-toggle" className="text-base font-normal">
                 Show Card Count
@@ -100,33 +151,6 @@ export function AppSettings({
                 id="timer-toggle"
                 checked={showTimer}
                 onCheckedChange={onShowTimerChange}
-              />
-            </div>
-          </div>
-
-          {/* Modes & Fractions */}
-          <div className="space-y-4">
-            <h4 className="font-medium leading-none font-headline text-lg">
-              Modes & Problem Types
-            </h4>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="fractions-toggle" className="text-base font-normal">
-                Show Fractions
-              </Label>
-              <Switch
-                id="fractions-toggle"
-                checked={showFractions}
-                onCheckedChange={onShowFractionsChange}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="negatives-toggle" className="text-base font-normal">
-                Allow Negative Answers
-              </Label>
-              <Switch
-                id="negatives-toggle"
-                checked={allowNegatives}
-                onCheckedChange={onAllowNegativesChange}
               />
             </div>
           </div>

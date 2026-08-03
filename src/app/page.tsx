@@ -28,6 +28,7 @@ export default function MathDeckPage() {
   const [minRange, setMinRange] = useLocalStorage<number>("math-deck-min-range", 1);
   const [maxRange, setMaxRange] = useLocalStorage<number>("math-deck-max-range", 10);
   const [allowNegatives, setAllowNegatives] = useLocalStorage<boolean>("math-deck-allow-negatives", false);
+  const [showWholeNumbers, setShowWholeNumbers] = useLocalStorage<boolean>("math-deck-show-whole-numbers", true);
   const [showFractions, setShowFractions] = useLocalStorage<boolean>("math-deck-show-fractions", false);
   const [showCardCount, setShowCardCount] = useLocalStorage<boolean>("math-deck-show-card-count", true);
   const [showTimer, setShowTimer] = useLocalStorage<boolean>("math-deck-show-timer", true);
@@ -87,6 +88,7 @@ export default function MathDeckPage() {
       minRange,
       maxRange,
       allowNegatives,
+      showWholeNumbers,
       showFractions
     );
     setHistory((prev) => {
@@ -99,7 +101,7 @@ export default function MathDeckPage() {
     if (autoPlayAudio && !isQuizActive && autoPlay) {
       speak(newProblem.problemSpeechText);
     }
-  }, [activeOperations, minRange, maxRange, allowNegatives, showFractions, autoPlayAudio, isQuizActive, speak]);
+  }, [activeOperations, minRange, maxRange, allowNegatives, showWholeNumbers, showFractions, autoPlayAudio, isQuizActive, speak]);
 
   useEffect(() => {
     if (hydrated && history.length === 0) {
@@ -273,6 +275,10 @@ export default function MathDeckPage() {
             minRange={minRange}
             maxRange={maxRange}
             onRangeChange={handleRangeChange}
+            showWholeNumbers={showWholeNumbers}
+            onShowWholeNumbersChange={setShowWholeNumbers}
+            showFractions={showFractions}
+            onShowFractionsChange={setShowFractions}
             open={isOperationSelectorOpen}
             onOpenChange={handleOperationSelectorOpenChange}
             onStartQuiz={() => setIsQuizActive(true)}
@@ -285,6 +291,8 @@ export default function MathDeckPage() {
             onRangeChange={handleRangeChange}
             allowNegatives={allowNegatives}
             onAllowNegativesChange={setAllowNegatives}
+            showWholeNumbers={showWholeNumbers}
+            onShowWholeNumbersChange={setShowWholeNumbers}
             showFractions={showFractions}
             onShowFractionsChange={setShowFractions}
             showCardCount={showCardCount}

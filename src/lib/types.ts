@@ -29,6 +29,7 @@ export type AppSettingsState = {
   minRange: number;
   maxRange: number;
   allowNegatives: boolean;
+  showWholeNumbers: boolean;
   showFractions: boolean;
   autoPlayAudio: boolean;
   showCardCount: boolean;

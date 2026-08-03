@@ -13,6 +13,10 @@ type OperationSelectorProps = {
   minRange: number;
   maxRange: number;
   onRangeChange: (min: number, max: number) => void;
+  showWholeNumbers: boolean;
+  onShowWholeNumbersChange: (show: boolean) => void;
+  showFractions: boolean;
+  onShowFractionsChange: (show: boolean) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onStartQuiz: () => void;
@@ -24,6 +28,10 @@ export function OperationSelector({
   minRange,
   maxRange,
   onRangeChange,
+  showWholeNumbers,
+  onShowWholeNumbersChange,
+  showFractions,
+  onShowFractionsChange,
   open,
   onOpenChange,
   onStartQuiz,
@@ -101,6 +109,44 @@ export function OperationSelector({
                   </Button>
                 );
               })}
+            </div>
+          </div>
+
+          {/* Number Types Selection */}
+          <div>
+            <h4 className="font-medium leading-none font-headline text-lg mb-3">
+              Number Types
+            </h4>
+            <div className="grid grid-cols-2 gap-2">
+              <Button
+                type="button"
+                variant={showWholeNumbers ? "default" : "outline"}
+                className="rounded-xl font-headline font-bold h-10 text-xs"
+                onClick={() => {
+                  const nextWhole = !showWholeNumbers;
+                  if (!nextWhole && !showFractions) {
+                    onShowFractionsChange(true);
+                  }
+                  onShowWholeNumbersChange(nextWhole);
+                }}
+              >
+                Whole Numbers
+              </Button>
+
+              <Button
+                type="button"
+                variant={showFractions ? "default" : "outline"}
+                className="rounded-xl font-headline font-bold h-10 text-xs"
+                onClick={() => {
+                  const nextFrac = !showFractions;
+                  if (!nextFrac && !showWholeNumbers) {
+                    onShowWholeNumbersChange(true);
+                  }
+                  onShowFractionsChange(nextFrac);
+                }}
+              >
+                Fractions 🍰
+              </Button>
             </div>
           </div>
 
