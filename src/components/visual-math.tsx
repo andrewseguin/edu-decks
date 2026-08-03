@@ -434,7 +434,7 @@ export function VisualMath({ problem }: VisualMathProps) {
       );
     }
 
-    // FRACTION MULTIPLICATION (×): Seamless Connected Cells -> Padded Rounded Sub-Cards Model
+    // FRACTION MULTIPLICATION (×): Seamless Connected Cells -> Padded Rounded Sub-Cards with Horizontal Split Lines
     if (operation === '×') {
       const cols = f1.d; // d1 vertical columns
       const cyanCols = f1.n; // n1 Cyan columns
@@ -500,6 +500,27 @@ export function VisualMath({ problem }: VisualMathProps) {
                   />
                 );
               });
+            })}
+
+            {/* Step 2: Glowing Orange Horizontal Cut Lines to explicitly demonstrate the split */}
+            {Array.from({ length: rows - 1 }).map((_, rIdx) => {
+              const lineY = isSubdivided
+                ? (rIdx + 1) * cellH + rIdx * gap + gap / 2
+                : (rIdx + 1) * cellH;
+
+              return (
+                <line
+                  key={`h-line-${rIdx}`}
+                  x1={0}
+                  y1={lineY}
+                  x2={gridW}
+                  y2={lineY}
+                  className={cn(
+                    "stroke-amber-400 stroke-3 stroke-dashed transition-all duration-700 ease-out origin-left",
+                    isSubdivided ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"
+                  )}
+                />
+              );
             })}
           </svg>
         </div>
