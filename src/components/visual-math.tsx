@@ -8,6 +8,11 @@ type VisualMathProps = {
   problem: MathProblem;
 };
 
+// Greatest Common Divisor helper
+function gcd(a: number, b: number): number {
+  return b === 0 ? Math.abs(a) : gcd(b, a % b);
+}
+
 // SVG Fraction Circle Component
 function FractionCircle({
   fraction,
@@ -24,7 +29,6 @@ function FractionCircle({
   const radius = size / 2 - 4;
   const center = size / 2;
 
-  // Handle whole numbers or values >= 1
   const wholeCount = Math.floor(n / d);
   const remainderN = n % d;
   const totalCircles = Math.max(1, wholeCount + (remainderN > 0 ? 1 : 0));
@@ -102,6 +106,62 @@ export function VisualMath({ problem }: VisualMathProps) {
     setOrangeVisible(0);
     setSubtractionCount(0);
 
+    if (problem.isFraction && problem.frac1 && problem.frac2) {
+      const f1 = problem.frac1;
+      const f2 = problem.frac2;
+      const commonD = problem.fracAnswer ? problem.fracAnswer.d : (f1.d * f2.d) / gcd(f1.d, f2.d);
+      const c1 = f1.n * (commonD / f1.d);
+      const c2 = f2.n * (commonD / f2.d);
+
+      if (operation === '+') {
+        let currentCyan = 0;
+        const cyanInterval = setInterval(() => {
+          currentCyan++;
+          setCyanVisible(currentCyan);
+          if (currentCyan >= c1) {
+            clearInterval(cyanInterval);
+
+            setTimeout(() => {
+              let currentOrange = 0;
+              const orangeInterval = setInterval(() => {
+                currentOrange++;
+                setOrangeVisible(currentOrange);
+                if (currentOrange >= c2) {
+                  clearInterval(orangeInterval);
+                }
+              }, 110);
+            }, 400);
+          }
+        }, 90);
+
+        return () => clearInterval(cyanInterval);
+      }
+
+      if (operation === '-') {
+        let currentCyan = 0;
+        const cyanInterval = setInterval(() => {
+          currentCyan++;
+          setCyanVisible(currentCyan);
+          if (currentCyan >= c1) {
+            clearInterval(cyanInterval);
+
+            setTimeout(() => {
+              let currentSub = 0;
+              const subInterval = setInterval(() => {
+                currentSub++;
+                setSubtractionCount(currentSub);
+                if (currentSub >= c2) {
+                  clearInterval(subInterval);
+                }
+              }, 150);
+            }, 650);
+          }
+        }, 90);
+
+        return () => clearInterval(cyanInterval);
+      }
+    }
+
     if (operation === '+') {
       let currentCyan = 0;
       const cyanInterval = setInterval(() => {
@@ -173,17 +233,196 @@ export function VisualMath({ problem }: VisualMathProps) {
 
       return () => clearTimeout(timeoutId);
     }
-  }, [problem.id, num1, num2, operation]);
+  }, [problem.id, num1, num2, operation, problem.isFraction, problem.frac1, problem.frac2, problem.fracAnswer]);
 
-  // Fraction Visualizer Component
+  // Fraction Visualizer Component with 2-Step Addition & Subtraction
   if (problem.isFraction && problem.frac1 && problem.frac2) {
     const f1 = problem.frac1;
     const f2 = problem.frac2;
     const ans = problem.fracAnswer;
 
+    // Common denominator for unified pie visualization
+    const commonD = ans ? ans.d : (f1.d * f2.d) / gcd(f1.d, f2.d);
+    const c1 = f1.n * (commonD / f1.d);
+    const c2 = f2.n * (commonD / f2.d);
+
+    // FRACTION ADDITION (+): Cyan pie slices fill first, then Orange pie slices fill in right beside them!
+    if (operation === '+') {
+      const totalFilled = c1 + c2;
+      const pieCount = Math.max(1, Math.ceil(totalFilled / commonD));
+
+      return (
+        <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+          {Array.from({ length: pieCount }).map((_, pIdx) => {
+            const pieStartSlot = pIdx * commonD;
+
+            return (
+              <div key={`pie-${pIdx}`} className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 shadow-xs">
+                <svg width={64} height={64} viewBox="0 0 64 64" className="drop-shadow-xs">
+                  {Array.from({ length: commonD }).map((_, i) => {
+                    const globalSlotIndex = pieStartSlot + i;
+                    const isCyanSlot = globalSlotIndex < c1;
+                    const isOrangeSlot = globalSlotIndex >= c1 && globalSlotIndex < c1 + c2;
+
+                    const startAngle = (i * 360) / commonD - 90;
+                    const endAngle = ((i + 1) * 360) / commonD - 90;
+
+                    const radius = 28;
+                    const center = 32;
+
+                    const startRad = (startAngle * Math.PI) / 180;
+                    const endRad = (endAngle * Math.PI) / 180;
+
+                    const x1 = center + radius * Math.cos(startRad);
+                    const y1 = center + radius * Math.sin(startRad);
+                    const x2 = center + radius * Math.cos(endRad);
+                    const y2 = center + radius * Math.sin(endRad);
+
+                    const largeArc = 360 / commonD > 180 ? 1 : 0;
+                    const pathData =
+                      commonD === 1
+                        ? `M ${center - radius}, ${center} a ${radius},${radius} 0 1,0 ${radius * 2},0 a ${radius},${radius} 0 1,0 -${radius * 2},0`
+                        : `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+
+                    if (isCyanSlot) {
+                      const isVisible = globalSlotIndex < cyanVisible;
+                      return (
+                        <path
+                          key={`slice-${i}`}
+                          d={pathData}
+                          className={cn(
+                            "transition-all duration-300",
+                            isVisible
+                              ? "fill-cyan-300 stroke-cyan-400 stroke-2"
+                              : "fill-white/10 stroke-white/30 stroke-1 stroke-dashed"
+                          )}
+                        />
+                      );
+                    }
+
+                    if (isOrangeSlot) {
+                      const orangeSlotIdx = globalSlotIndex - c1;
+                      const isVisible = orangeSlotIdx < orangeVisible;
+                      return (
+                        <path
+                          key={`slice-${i}`}
+                          d={pathData}
+                          className={cn(
+                            "transition-all duration-300",
+                            isVisible
+                              ? "fill-amber-400 stroke-amber-500 stroke-2"
+                              : "fill-white/10 stroke-white/30 stroke-1 stroke-dashed"
+                          )}
+                        />
+                      );
+                    }
+
+                    return (
+                      <path
+                        key={`slice-${i}`}
+                        d={pathData}
+                        className="fill-white/10 stroke-white/30 stroke-1 stroke-dashed"
+                      />
+                    );
+                  })}
+                </svg>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    // FRACTION SUBTRACTION (-): Cyan pie slices fill first, then Orange ✕ take-away badges animate!
+    if (operation === '-') {
+      const pieCount = Math.max(1, Math.ceil(c1 / commonD));
+      const remaining = Math.max(0, c1 - c2);
+
+      return (
+        <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+          {Array.from({ length: pieCount }).map((_, pIdx) => {
+            const pieStartSlot = pIdx * commonD;
+
+            return (
+              <div key={`pie-${pIdx}`} className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 shadow-xs">
+                <svg width={64} height={64} viewBox="0 0 64 64" className="drop-shadow-xs">
+                  {Array.from({ length: commonD }).map((_, i) => {
+                    const globalSlotIndex = pieStartSlot + i;
+                    const isCyanSlot = globalSlotIndex < c1;
+                    const isRemovedSlot = globalSlotIndex >= remaining && globalSlotIndex < c1;
+
+                    const startAngle = (i * 360) / commonD - 90;
+                    const endAngle = ((i + 1) * 360) / commonD - 90;
+
+                    const radius = 28;
+                    const center = 32;
+
+                    const startRad = (startAngle * Math.PI) / 180;
+                    const endRad = (endAngle * Math.PI) / 180;
+
+                    const x1 = center + radius * Math.cos(startRad);
+                    const y1 = center + radius * Math.sin(startRad);
+                    const x2 = center + radius * Math.cos(endRad);
+                    const y2 = center + radius * Math.sin(endRad);
+
+                    const largeArc = 360 / commonD > 180 ? 1 : 0;
+                    const pathData =
+                      commonD === 1
+                        ? `M ${center - radius}, ${center} a ${radius},${radius} 0 1,0 ${radius * 2},0 a ${radius},${radius} 0 1,0 -${radius * 2},0`
+                        : `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+
+                    if (!isCyanSlot) {
+                      return (
+                        <path
+                          key={`slice-${i}`}
+                          d={pathData}
+                          className="fill-white/10 stroke-white/30 stroke-1 stroke-dashed"
+                        />
+                      );
+                    }
+
+                    if (globalSlotIndex >= cyanVisible) {
+                      return (
+                        <path
+                          key={`slice-${i}`}
+                          d={pathData}
+                          className="fill-white/10 stroke-white/30 stroke-1 stroke-dashed"
+                        />
+                      );
+                    }
+
+                    const subReverseIndex = (c1 - 1) - globalSlotIndex;
+
+                    if (isRemovedSlot && subReverseIndex < subtractionCount) {
+                      return (
+                        <g key={`slice-g-${i}`}>
+                          <path
+                            d={pathData}
+                            className="fill-amber-500/20 stroke-amber-400 stroke-2 stroke-dashed transition-all duration-300"
+                          />
+                        </g>
+                      );
+                    }
+
+                    return (
+                      <path
+                        key={`slice-${i}`}
+                        d={pathData}
+                        className="fill-cyan-300 stroke-cyan-400 stroke-2 transition-all duration-300"
+                      />
+                    );
+                  })}
+                </svg>
+              </div>
+            );
+          })}
+        </div>
+      );
+    }
+
+    // Default Fraction Circle Display for Multiplication & Division
     return (
       <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-5 p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        {/* Fraction 1 Circle (Cyan) */}
         <div className="flex flex-col items-center gap-1">
           <FractionCircle fraction={f1} fillColor="fill-cyan-300" strokeColor="stroke-cyan-400" size={54} />
           <span className="text-xs font-headline font-bold text-cyan-300">
@@ -195,7 +434,6 @@ export function VisualMath({ problem }: VisualMathProps) {
           {problem.operation}
         </span>
 
-        {/* Fraction 2 Circle (Orange) */}
         <div className="flex flex-col items-center gap-1">
           <FractionCircle fraction={f2} fillColor="fill-amber-400" strokeColor="stroke-amber-500" size={54} />
           <span className="text-xs font-headline font-bold text-amber-300">
@@ -206,7 +444,6 @@ export function VisualMath({ problem }: VisualMathProps) {
         {ans && (
           <>
             <span className="text-lg sm:text-xl font-bold text-white/80">=</span>
-            {/* Answer Fraction Circle (White) */}
             <div className="flex flex-col items-center gap-1">
               <FractionCircle fraction={ans} fillColor="fill-white" strokeColor="stroke-white/80" size={54} />
               <span className="text-xs font-headline font-bold text-white">
