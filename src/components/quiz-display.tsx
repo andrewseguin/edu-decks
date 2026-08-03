@@ -145,7 +145,7 @@ export function QuizDisplay({
 
     // Handle Fraction Slash /
     if (digit === "/") {
-      if (inputVal && !inputVal.includes("/")) {
+      if ((showFractions || currentProblem.isFraction) && inputVal && !inputVal.includes("/")) {
         const newInput = inputVal + "/";
         setInputVal(newInput);
       }
@@ -162,7 +162,7 @@ export function QuizDisplay({
     if (newInput === currentProblem.answerText) {
       handleSubmitInput(newInput);
     }
-  }, [inputVal, isCorrect, currentProblem, handleSubmitInput]);
+  }, [inputVal, isCorrect, currentProblem, showFractions, handleSubmitInput]);
 
   const handleDelete = useCallback(() => {
     if (isCorrect !== null) return;
@@ -174,8 +174,10 @@ export function QuizDisplay({
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key >= "0" && e.key <= "9") {
         handleKeyPress(e.key);
-      } else if (e.key === "-" || e.key === "/") {
-        handleKeyPress(e.key);
+      } else if (e.key === "-") {
+        handleKeyPress("-");
+      } else if (e.key === "/" && (showFractions || currentProblem?.isFraction)) {
+        handleKeyPress("/");
       } else if (e.key === "Backspace" || e.key === "Delete") {
         handleDelete();
       } else if (e.key === "Enter" || e.key === " ") {
@@ -186,12 +188,13 @@ export function QuizDisplay({
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleKeyPress, handleDelete, handleSubmitInput, inputVal]);
+  }, [handleKeyPress, handleDelete, handleSubmitInput, inputVal, showFractions, currentProblem?.isFraction]);
 
   if (!currentProblem) return null;
 
   const opInfo = OPERATION_COLORS[currentProblem.operation];
   const userFraction = stringToFraction(inputVal);
+  const isFractionActive = showFractions || currentProblem.isFraction;
 
   return (
     <div
@@ -243,7 +246,7 @@ export function QuizDisplay({
         </div>
       </div>
 
-      {/* Main Content Area: Stacked Vertical (Desktop & Portrait) vs Side-by-Side (Short Mobile Landscape ONLY) */}
+      {/* Main Content Area */}
       <div className="w-full max-w-2xl mx-auto flex-1 flex flex-col [@media(orientation:landscape)_and_(max-height:540px)]:flex-row [@media(orientation:landscape)_and_(max-height:540px)]:max-w-5xl items-center justify-center gap-4 sm:gap-6 min-h-0 py-2">
         {/* Hero Equation Card */}
         <div className="w-full flex-1 flex items-center justify-center min-h-0 min-w-0 [@media(orientation:landscape)_and_(max-height:540px)]:max-h-full">
@@ -343,22 +346,26 @@ export function QuizDisplay({
             </button>
           ))}
 
-          {/* Fraction Bar / Button */}
-          <button
-            type="button"
-            className="h-13 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-xl sm:text-2xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
-            style={{
-              backgroundColor: `${opInfo.hex}18`,
-              color: opInfo.hex,
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleKeyPress("/");
-            }}
-            aria-label="Fraction bar"
-          >
-            /
-          </button>
+          {/* Fraction Bar Button (Only shown when fractions mode or a fraction problem is active) */}
+          {isFractionActive ? (
+            <button
+              type="button"
+              className="h-13 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-xl sm:text-2xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
+              style={{
+                backgroundColor: `${opInfo.hex}18`,
+                color: opInfo.hex,
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleKeyPress("/");
+              }}
+              aria-label="Fraction bar"
+            >
+              /
+            </button>
+          ) : (
+            <div className="h-13 sm:h-16 rounded-2xl bg-transparent pointer-events-none" />
+          )}
 
           {/* 0 Key */}
           <button
