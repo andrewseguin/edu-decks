@@ -434,7 +434,7 @@ export function VisualMath({ problem }: VisualMathProps) {
       );
     }
 
-    // FRACTION MULTIPLICATION (×): 100% Butter-Smooth SVG Rect Morphing (Stable React Keys)
+    // FRACTION MULTIPLICATION (×): Physical Separation with Gap & Rounded Corner Separation
     if (operation === '×') {
       const cols = f1.d; // d1 vertical columns
       const cyanCols = f1.n; // n1 Cyan columns
@@ -447,10 +447,13 @@ export function VisualMath({ problem }: VisualMathProps) {
       const gridH = 120;
       const cellW = gridW / cols;
 
+      const gap = 4;
+      const subH = (gridH - (rows - 1) * gap - 4) / rows;
+
       return (
         <div className="flex flex-col items-center justify-center gap-1.5">
           <svg width={gridW + 12} height={gridH + 12} viewBox={`-6 -6 ${gridW + 12} ${gridH + 12}`} className="drop-shadow-md overflow-visible">
-            {/* Outer Grid Border */}
+            {/* Outer Grid Backdrop */}
             <rect
               x={0}
               y={0}
@@ -460,7 +463,7 @@ export function VisualMath({ problem }: VisualMathProps) {
               className="fill-white/5 stroke-white/30 stroke-2"
             />
 
-            {/* Grid Cells - Stable React Keys for 100% Fluid SVG Rect Morphing */}
+            {/* Sub-Cards with Physical Gap & Rounded Corner Separation */}
             {Array.from({ length: cols }).map((_, c) => {
               const isCyanCol = c < cyanCols;
 
@@ -468,10 +471,12 @@ export function VisualMath({ problem }: VisualMathProps) {
                 const isOrangeRow = isSubdivided && r < orangeRows;
                 const isOverlap = isCyanCol && isOrangeRow;
 
-                // Morphing position calculation: Step 1 (1 tall row) -> Step 2 ('rows' rows)
-                const cellH = isSubdivided ? gridH / rows : (r === 0 ? gridH : 0);
-                const y = isSubdivided ? r * (gridH / rows) : 0;
-                const x = c * cellW;
+                // Step 1: 1 tall bar (y=2, height=gridH-4). Step 2: separated sub-cards with 4px gap!
+                const targetY = isSubdivided ? 2 + r * (subH + gap) : 2;
+                const targetH = isSubdivided ? subH : (r === 0 ? gridH - 4 : 0);
+
+                const x = c * cellW + 2;
+                const w = cellW - 4;
 
                 let fillClass = "fill-transparent";
                 let strokeClass = "stroke-white/20";
@@ -484,11 +489,11 @@ export function VisualMath({ problem }: VisualMathProps) {
                 return (
                   <rect
                     key={`cell-${c}-${r}`}
-                    x={x + 1.5}
-                    y={y + 1.5}
-                    width={cellW - 3}
-                    height={Math.max(0, cellH - 3)}
-                    rx={isSubdivided ? 4 : 8}
+                    x={x}
+                    y={targetY}
+                    width={w}
+                    height={Math.max(0, targetH)}
+                    rx={isSubdivided ? 6 : 10}
                     opacity={!isSubdivided && r > 0 ? 0 : 1}
                     className={cn(
                       "transition-all duration-700 ease-out",
@@ -498,24 +503,6 @@ export function VisualMath({ problem }: VisualMathProps) {
                   />
                 );
               });
-            })}
-
-            {/* Step 2: Animated Orange Horizontal Cut Line Smooth Fade & Expansion */}
-            {Array.from({ length: rows - 1 }).map((_, rIdx) => {
-              const lineY = (rIdx + 1) * (gridH / rows);
-              return (
-                <line
-                  key={`h-line-${rIdx}`}
-                  x1={0}
-                  y1={lineY}
-                  x2={gridW}
-                  y2={lineY}
-                  className={cn(
-                    "stroke-amber-400 stroke-3 stroke-dashed transition-all duration-700 ease-out origin-left",
-                    isSubdivided ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"
-                  )}
-                />
-              );
             })}
           </svg>
         </div>
