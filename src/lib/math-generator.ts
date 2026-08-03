@@ -48,7 +48,6 @@ export function generateMathProblem(
   activeOperations: MathOperation[],
   minRange: number,
   maxRange: number,
-  allowNegatives: boolean = false,
   showWholeNumbers: boolean = true,
   showFractions: boolean = false
 ): MathProblem {
@@ -66,7 +65,7 @@ export function generateMathProblem(
   }
 
   if (isFraction) {
-    return generateFractionProblem(operation, allowNegatives);
+    return generateFractionProblem(operation);
   }
 
   let num1 = 0;
@@ -92,7 +91,7 @@ export function generateMathProblem(
     case '-': {
       num1 = getRandomInt(safeMin, safeMax);
       num2 = getRandomInt(safeMin, safeMax);
-      if (!allowNegatives && num1 < num2) {
+      if (num1 < num2) {
         const temp = num1;
         num1 = num2;
         num2 = temp;
@@ -146,8 +145,7 @@ export function generateMathProblem(
 }
 
 function generateFractionProblem(
-  operation: MathOperation,
-  allowNegatives: boolean
+  operation: MathOperation
 ): MathProblem {
   // Clean denominator pairs with LCM <= 12 (both same and different denominators)
   const cleanPairs: [number, number][] = [
@@ -157,8 +155,8 @@ function generateFractionProblem(
 
   if (operation === '+' || operation === '-') {
     const pair = cleanPairs[Math.floor(Math.random() * cleanPairs.length)];
-    const d1 = pair[0];
-    const d2 = pair[1];
+    let d1 = pair[0];
+    let d2 = pair[1];
 
     let n1 = getRandomInt(1, d1 - 1);
     let n2 = getRandomInt(1, d2 - 1);
@@ -166,11 +164,13 @@ function generateFractionProblem(
     const val1 = n1 / d1;
     const val2 = n2 / d2;
 
-    if (operation === '-' && !allowNegatives && val1 < val2) {
+    if (operation === '-' && val1 < val2) {
       const tempN = n1;
       const tempD = d1;
       n1 = n2;
+      d1 = d2;
       n2 = tempN;
+      d2 = tempD;
     }
 
     const frac1: Fraction = { n: n1, d: d1 };

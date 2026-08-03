@@ -12,7 +12,7 @@ type QuizDisplayProps = {
   activeOperations: MathOperation[];
   minRange: number;
   maxRange: number;
-  allowNegatives: boolean;
+  allowNegatives?: boolean;
   showWholeNumbers?: boolean;
   showFractions?: boolean;
   autoPlayAudio: boolean;
@@ -82,7 +82,6 @@ export function QuizDisplay({
       activeOperations,
       minRange,
       maxRange,
-      allowNegatives,
       showWholeNumbers,
       showFractions
     );
@@ -95,7 +94,7 @@ export function QuizDisplay({
         playAudioPrompt(problem);
       }, 400);
     }
-  }, [activeOperations, minRange, maxRange, allowNegatives, showWholeNumbers, showFractions, autoPlayAudio, playAudioPrompt]);
+  }, [activeOperations, minRange, maxRange, showWholeNumbers, showFractions, autoPlayAudio, playAudioPrompt]);
 
   useEffect(() => {
     nextQuestion();

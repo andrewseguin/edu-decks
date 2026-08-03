@@ -18,8 +18,8 @@ type AppSettingsProps = {
   minRange: number;
   maxRange: number;
   onRangeChange: (min: number, max: number) => void;
-  allowNegatives: boolean;
-  onAllowNegativesChange: (allow: boolean) => void;
+  allowNegatives?: boolean;
+  onAllowNegativesChange?: (allow: boolean) => void;
   showWholeNumbers: boolean;
   onShowWholeNumbersChange: (show: boolean) => void;
   showFractions: boolean;
@@ -38,8 +38,6 @@ type AppSettingsProps = {
 };
 
 export function AppSettings({
-  allowNegatives,
-  onAllowNegativesChange,
   showWholeNumbers,
   onShowWholeNumbersChange,
   showFractions,
@@ -86,16 +84,6 @@ export function AppSettings({
             <h4 className="font-medium leading-none font-headline text-lg">
               Card Rules & Counters
             </h4>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="negatives-toggle" className="text-base font-normal">
-                Allow Negative Answers
-              </Label>
-              <Switch
-                id="negatives-toggle"
-                checked={allowNegatives}
-                onCheckedChange={onAllowNegativesChange}
-              />
-            </div>
             <div className="flex items-center justify-between">
               <Label htmlFor="card-count-toggle" className="text-base font-normal">
                 Show Card Count
