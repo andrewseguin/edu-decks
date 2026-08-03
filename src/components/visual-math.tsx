@@ -937,13 +937,13 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
     }
   }
 
-  // Don't render visual frames if numbers are extremely huge (> 100 for mult/div, > 40 for add/sub)
+  // Don't render visual frames if numbers are extremely huge (> 144 for mult/div, > 100 for add/sub)
   if (operation === '×' || operation === '÷') {
     if (Math.abs(num1) > 144 || Math.abs(num2) > 12 || Math.abs(answer) > 100) {
       return null;
     }
   } else {
-    if (Math.abs(num1) > 40 || Math.abs(num2) > 40 || Math.abs(answer) > 40) {
+    if (Math.abs(num1) > 100 || Math.abs(num2) > 100 || Math.abs(answer) > 100) {
       return null;
     }
   }
@@ -952,10 +952,14 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
   if (operation === '+') {
     const total = num1 + num2;
     const frameCount = Math.max(1, Math.ceil(total / 10));
+    const isCompact = frameCount > 4;
+    const slotSize = isCompact ? "w-3 h-3 sm:w-4 sm:h-4" : "w-4 h-4 sm:w-5 sm:h-5";
+    const framePadding = isCompact ? "p-1 sm:p-1.5" : "p-2";
+    const frameGap = isCompact ? "gap-1" : "gap-1.5";
 
     return (
       <div className="flex flex-col items-center justify-center gap-1.5">
-        <div className="flex flex-wrap justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+        <div className="flex flex-wrap justify-center items-center gap-1.5 p-1.5 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
           {Array.from({ length: frameCount }).map((_, fIdx) => {
             const frameStartIndex = fIdx * 10;
             const frameSlots = Array.from({ length: 10 }).map((_, i) => frameStartIndex + i);
@@ -963,7 +967,7 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
             return (
               <div
                 key={`tf-${fIdx}`}
-                className="grid grid-rows-2 grid-cols-5 gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs"
+                className={cn("grid grid-rows-2 grid-cols-5 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs", framePadding, frameGap)}
               >
                 {frameSlots.map((slotIndex) => {
                   const isNum1Slot = slotIndex < num1;
@@ -974,7 +978,7 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
                     return (
                       <div
                         key={`slot-${slotIndex}`}
-                        className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
+                        className={cn("rounded-md bg-white/5 border border-dashed border-white/20", slotSize)}
                       />
                     );
                   }
@@ -984,14 +988,14 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
                       return (
                         <div
                           key={`slot-${slotIndex}`}
-                          className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
+                          className={cn("rounded-md bg-white/5 border border-dashed border-white/20", slotSize)}
                         />
                       );
                     }
                     return (
                       <div
                         key={`slot-${slotIndex}`}
-                        className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs transition-opacity duration-200"
+                        className={cn("rounded-md bg-cyan-300 border border-cyan-400 shadow-xs transition-opacity duration-200", slotSize)}
                       />
                     );
                   }
@@ -1002,14 +1006,14 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
                       return (
                         <div
                           key={`slot-${slotIndex}`}
-                          className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
+                          className={cn("rounded-md bg-white/5 border border-dashed border-white/20", slotSize)}
                         />
                       );
                     }
                     return (
                       <div
                         key={`slot-${slotIndex}`}
-                        className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-amber-400 border border-amber-500 shadow-xs transition-opacity duration-200"
+                        className={cn("rounded-md bg-amber-400 border border-amber-500 shadow-xs transition-opacity duration-200", slotSize)}
                       />
                     );
                   }
@@ -1040,10 +1044,14 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
     const takenAway = num2;
     const remaining = Math.max(0, total - takenAway);
     const frameCount = Math.max(1, Math.ceil(total / 10));
+    const isCompact = frameCount > 4;
+    const slotSize = isCompact ? "w-3 h-3 sm:w-4 sm:h-4" : "w-4 h-4 sm:w-5 sm:h-5";
+    const framePadding = isCompact ? "p-1 sm:p-1.5" : "p-2";
+    const frameGap = isCompact ? "gap-1" : "gap-1.5";
 
     return (
       <div className="flex flex-col items-center justify-center gap-1.5">
-        <div className="flex flex-wrap justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+        <div className="flex flex-wrap justify-center items-center gap-1.5 p-1.5 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
           {Array.from({ length: frameCount }).map((_, fIdx) => {
             const frameStartIndex = fIdx * 10;
             const frameSlots = Array.from({ length: 10 }).map((_, i) => frameStartIndex + i);
@@ -1051,7 +1059,7 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
             return (
               <div
                 key={`tf-${fIdx}`}
-                className="grid grid-rows-2 grid-cols-5 gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs"
+                className={cn("grid grid-rows-2 grid-cols-5 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs", framePadding, frameGap)}
               >
                 {frameSlots.map((slotIndex) => {
                   const isFilled = slotIndex < total;
@@ -1061,7 +1069,7 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
                     return (
                       <div
                         key={`slot-${slotIndex}`}
-                        className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
+                        className={cn("rounded-md bg-white/5 border border-dashed border-white/20", slotSize)}
                       />
                     );
                   }
@@ -1070,7 +1078,7 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
                     return (
                       <div
                         key={`slot-${slotIndex}`}
-                        className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
+                        className={cn("rounded-md bg-white/5 border border-dashed border-white/20", slotSize)}
                       />
                     );
                   }
@@ -1081,7 +1089,7 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
                     return (
                       <div
                         key={`slot-${slotIndex}`}
-                        className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-transparent text-amber-400 border border-dashed border-amber-400/80 shadow-xs flex items-center justify-center font-bold text-xs sm:text-sm transition-opacity duration-200"
+                        className={cn("rounded-md bg-transparent text-amber-400 border border-dashed border-amber-400/80 shadow-xs flex items-center justify-center font-bold text-xs sm:text-sm transition-opacity duration-200", slotSize)}
                       >
                         <span>✕</span>
                       </div>
@@ -1091,7 +1099,7 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
                   return (
                     <div
                       key={`slot-${slotIndex}`}
-                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs transition-opacity duration-200"
+                      className={cn("rounded-md bg-cyan-300 border border-cyan-400 shadow-xs transition-opacity duration-200", slotSize)}
                     />
                   );
                 })}
