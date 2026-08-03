@@ -162,14 +162,9 @@ export function OperationSelector({
 
           {/* Number Range selection (Presets + Custom Option) */}
           <div>
-            <div className="flex items-center justify-between mb-3">
-              <h4 className="font-medium leading-none font-headline text-lg">
-                Number Range
-              </h4>
-              <span className="text-xs font-bold text-muted-foreground bg-muted px-2.5 py-1 rounded-full font-mono">
-                {minRange} – {maxRange}
-              </span>
-            </div>
+            <h4 className="font-medium leading-none font-headline text-lg mb-3">
+              Number Range
+            </h4>
 
             {/* Presets including Custom */}
             <div className="grid grid-cols-5 gap-1 mb-3">
