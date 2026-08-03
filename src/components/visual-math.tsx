@@ -434,7 +434,7 @@ export function VisualMath({ problem }: VisualMathProps) {
       );
     }
 
-    // FRACTION MULTIPLICATION (×): Seamless Cyan Columns -> Padded White Sub-Cards with Orange Cut Lines
+    // FRACTION MULTIPLICATION (×): Seamless Cyan Columns -> Padded White Sub-Cards with Bold Orange Cut Lines
     if (operation === '×') {
       const cols = f1.d; // d1 vertical columns
       const cyanCols = f1.n; // n1 Cyan columns
@@ -446,8 +446,8 @@ export function VisualMath({ problem }: VisualMathProps) {
       const gridW = 160;
       const gridH = 120;
 
-      // Step 1: gap = 0, rx = 0 (seamless tall bars). Step 2: gap = 3, rx = 6 (separated sub-cards)
-      const gap = isSubdivided ? 3 : 0;
+      // Step 1: gap = 0, rx = 0 (seamless tall bars). Step 2: gap = 4, rx = 6 (separated sub-cards)
+      const gap = isSubdivided ? 4 : 0;
       const cellW = (gridW - (cols - 1) * gap) / cols;
       const cellH = (gridH - (rows - 1) * gap) / rows;
       const cornerRadius = isSubdivided ? 6 : 0;
@@ -465,7 +465,7 @@ export function VisualMath({ problem }: VisualMathProps) {
               className="fill-white/5 stroke-white/30 stroke-2"
             />
 
-            {/* Grid Cells: Step 1 = gap:0, rx:0 (seamless tall bars) -> Step 2 = gap:3, rx:6 (White answer sub-cards) */}
+            {/* Grid Cells: Step 1 = gap:0, rx:0 (seamless tall bars) -> Step 2 = gap:4, rx:6 (White answer sub-cards) */}
             {Array.from({ length: cols }).map((_, c) => {
               const isCyanCol = c < cyanCols;
 
@@ -502,23 +502,24 @@ export function VisualMath({ problem }: VisualMathProps) {
               });
             })}
 
-            {/* Step 2: Glowing Orange Horizontal Cut Lines (2nd fraction multiplier) */}
+            {/* Step 2: Bold Glowing Orange Horizontal Cut Lines (2nd fraction multiplier) */}
             {Array.from({ length: rows - 1 }).map((_, rIdx) => {
               const lineY = isSubdivided
                 ? (rIdx + 1) * cellH + rIdx * gap + gap / 2
-                : (rIdx + 1) * cellH;
+                : (rIdx + 1) * (gridH / rows);
 
               return (
                 <line
                   key={`h-line-${rIdx}`}
-                  x1={0}
+                  x1={-6}
                   y1={lineY}
-                  x2={gridW}
+                  x2={gridW + 6}
                   y2={lineY}
-                  className={cn(
-                    "stroke-amber-400 stroke-3 stroke-dashed transition-all duration-700 ease-out origin-left",
-                    isSubdivided ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"
-                  )}
+                  stroke="#fbbf24"
+                  strokeWidth={4}
+                  strokeDasharray="8 4"
+                  className="transition-opacity duration-700 ease-out drop-shadow-sm"
+                  style={{ opacity: isSubdivided ? 1 : 0 }}
                 />
               );
             })}
