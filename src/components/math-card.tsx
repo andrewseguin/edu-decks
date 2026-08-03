@@ -1,187 +1,211 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { MathProblem } from "@/lib/types";
+import { MathProblem, OPERATION_COLORS } from "@/lib/types";
+import { VisualMath } from "./visual-math";
+import { FractionDisplay } from "./fraction-display";
+import { Volume2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { FractionDisplay } from "@/components/fraction-display";
-import { VisualMath } from "@/components/visual-math";
-import { Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type MathCardProps = {
   problem: MathProblem;
-  showAnswer?: boolean;
-  isFlipped?: boolean;
-  slideDirection?: "next" | "prev";
-  onCardClick?: () => void;
-  onCardTap?: () => void;
-  onSpeak?: (text: string) => void;
-  className?: string;
-  autoPlayAudio?: boolean;
+  isFlipped: boolean;
+  slideDirection: "next" | "prev";
+  onCardTap: () => void;
+  onSpeak: (text: string) => void;
 };
 
 export function MathCard({
   problem,
-  showAnswer = false,
   isFlipped,
   slideDirection,
-  onCardClick,
   onCardTap,
   onSpeak,
-  className,
-  autoPlayAudio = true,
 }: MathCardProps) {
-  const [isRevealed, setIsRevealed] = useState(isFlipped ?? showAnswer);
+  const opInfo = OPERATION_COLORS[problem.operation];
 
-  useEffect(() => {
-    setIsRevealed(isFlipped ?? showAnswer);
-  }, [showAnswer, isFlipped]);
+  const handleCardClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    if (target.closest("button")) {
+      return;
+    }
+    onCardTap();
+  };
 
-  const handleClick = () => {
-    if (!isRevealed) {
-      setIsRevealed(true);
-      if (onSpeak) {
-        onSpeak(problem.spokenText);
-      } else if (autoPlayAudio) {
-        speakText(problem.spokenText);
-      }
+  const handleSpeak = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (isFlipped) {
+      onSpeak(problem.fullSpeechText);
     } else {
-      if (onCardTap) {
-        onCardTap();
-      } else if (onCardClick) {
-        onCardClick();
-      }
+      onSpeak(problem.problemSpeechText);
     }
   };
 
-  const speakText = (text: string) => {
-    if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 0.9;
-      utterance.pitch = 1.0;
-      window.speechSynthesis.speak(utterance);
-    }
-  };
+  const animClass =
+    slideDirection === "next" ? "animate-slide-in-right" : "animate-slide-in-left";
 
   return (
     <Card
-      onClick={handleClick}
+      key={problem.id}
       className={cn(
-        "relative w-full max-w-sm sm:max-w-md h-[460px] sm:h-[490px] cursor-pointer select-none",
-        "bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500",
-        "border-2 border-white/20 shadow-2xl backdrop-blur-md",
-        "transition-all duration-300 hover:scale-[1.02] active:scale-[0.98]",
-        "flex flex-col justify-between items-center overflow-hidden",
-        className
+        "relative select-none [-webkit-touch-callout:none] w-[92vw] max-w-[660px] aspect-[16/10] max-h-[75vh] sm:max-h-[82vh] border-none rounded-3xl overflow-hidden cursor-pointer transition-all duration-300",
+        animClass
       )}
+      style={{
+        backgroundColor: opInfo.hex,
+        boxShadow:
+          "0 1px 1px rgba(0,0,0,0.12), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.12), 0 8px 8px rgba(0,0,0,0.12), 0 16px 16px rgba(0,0,0,0.12)",
+        borderTop: "1px solid rgba(255,255,255,0.2)",
+        borderLeft: "1px solid rgba(255,255,255,0.1)",
+      }}
+      onClick={handleCardClick}
     >
-      {/* Decorative ambient background glows */}
-      <div className="absolute -top-24 -left-24 w-48 h-48 bg-cyan-400/30 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-24 -right-24 w-48 h-48 bg-pink-400/30 rounded-full blur-3xl pointer-events-none" />
-
-      {/* Main Card Container */}
-      <CardContent className="relative z-10 w-full h-full p-4 sm:p-6 flex flex-col justify-between items-center text-white">
-        
-        {/* Top Header / Equation Area */}
-        <div className="w-full flex flex-col items-center justify-center pt-2 sm:pt-4">
-          <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap">
-            {problem.isFraction && problem.frac1 && problem.frac2 && problem.fracAnswer ? (
-              <div className="flex items-center gap-2 sm:gap-3">
-                <FractionDisplay fraction={problem.frac1} colorClass="text-cyan-300" />
-                <span className="text-3xl sm:text-5xl md:text-6xl font-bold font-headline drop-shadow-sm text-white/90">
-                  {problem.operation}
-                </span>
-                <FractionDisplay fraction={problem.frac2} colorClass="text-amber-300" />
-                <span className="text-3xl sm:text-5xl md:text-6xl font-bold font-headline drop-shadow-sm text-white/90">
-                  =
-                </span>
-                {isRevealed ? (
-                  <FractionDisplay fraction={problem.fracAnswer} colorClass="text-white" />
-                ) : (
-                  <span className="text-4xl sm:text-6xl md:text-7xl font-bold font-headline text-yellow-300 animate-pulse">
-                    ?
-                  </span>
-                )}
-              </div>
+      <CardContent className="p-4 sm:p-6 h-full w-full relative flex flex-col justify-between items-center overflow-hidden">
+        {/* Top/Center Equation Section */}
+        <div
+          className={cn(
+            "w-full flex-1 flex flex-col items-center justify-center transition-all duration-500 ease-out z-20 pointer-events-none",
+            isFlipped ? "justify-start pt-2 sm:pt-4" : "justify-center"
+          )}
+        >
+          {/* Main Equation Line */}
+          <div className="flex items-center justify-center whitespace-nowrap text-center">
+            {/* First Number / Fraction */}
+            {problem.isFraction && problem.frac1 ? (
+              <FractionDisplay
+                fraction={problem.frac1}
+                colorClass={isFlipped ? "text-cyan-300" : "text-white"}
+                size={isFlipped ? "md" : "lg"}
+              />
             ) : (
-              <>
-                <span className="text-5xl sm:text-7xl md:text-8xl font-headline font-black text-cyan-300 drop-shadow-md">
-                  {problem.num1}
+              <span
+                className={cn(
+                  "font-headline font-bold leading-none select-none transition-colors duration-500",
+                  isFlipped
+                    ? "text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-4xl sm:text-6xl md:text-7xl"
+                    : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl"
+                )}
+              >
+                {problem.num1}
+              </span>
+            )}
+
+            {/* Operator (+, -, ×, ÷) */}
+            <span
+              className={cn(
+                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] mx-2.5 sm:mx-4 transition-all duration-500",
+                isFlipped ? "text-4xl sm:text-6xl md:text-7xl" : "text-5xl sm:text-7xl md:text-8xl"
+              )}
+            >
+              {problem.operation}
+            </span>
+
+            {/* Second Number / Fraction */}
+            {problem.isFraction && problem.frac2 ? (
+              <FractionDisplay
+                fraction={problem.frac2}
+                colorClass={isFlipped ? "text-amber-300" : "text-white"}
+                size={isFlipped ? "md" : "lg"}
+              />
+            ) : (
+              <span
+                className={cn(
+                  "font-headline font-bold leading-none select-none transition-colors duration-500",
+                  isFlipped
+                    ? "text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-4xl sm:text-6xl md:text-7xl"
+                    : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl"
+                )}
+              >
+                {problem.num2}
+              </span>
+            )}
+
+            {/* Equals Symbol */}
+            <span
+              className={cn(
+                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] ml-2.5 sm:ml-4 mr-2.5 sm:mr-4 transition-all duration-500",
+                isFlipped ? "text-4xl sm:text-6xl md:text-7xl" : "text-5xl sm:text-7xl md:text-8xl"
+              )}
+            >
+              =
+            </span>
+
+            {/* Answer Digit / Fraction / Frosted Question Mark Badge */}
+            <div className="relative inline-flex items-center justify-center px-1">
+              {problem.isFraction && problem.fracAnswer ? (
+                <div
+                  className={cn(
+                    "transition-all duration-500",
+                    isFlipped ? "opacity-100 scale-100" : "opacity-0 scale-90"
+                  )}
+                >
+                  <FractionDisplay
+                    fraction={problem.fracAnswer}
+                    colorClass="text-white"
+                    size={isFlipped ? "md" : "lg"}
+                  />
+                </div>
+              ) : (
+                <span
+                  className={cn(
+                    "font-headline font-bold leading-none select-none text-white transition-all duration-500",
+                    isFlipped
+                      ? "[text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] opacity-100 scale-100 text-4xl sm:text-6xl md:text-7xl"
+                      : "opacity-0 scale-90 text-5xl sm:text-7xl md:text-8xl"
+                  )}
+                >
+                  {problem.answerText}
                 </span>
-                <span className="text-4xl sm:text-6xl md:text-7xl font-headline font-bold text-white/90 drop-shadow-sm">
-                  {problem.operation}
-                </span>
-                <span className="text-5xl sm:text-7xl md:text-8xl font-headline font-black text-amber-300 drop-shadow-md">
-                  {problem.num2}
-                </span>
-                <span className="text-4xl sm:text-6xl md:text-7xl font-headline font-bold text-white/90 drop-shadow-sm">
-                  =
-                </span>
-                {isRevealed ? (
-                  <span className="text-5xl sm:text-7xl md:text-8xl font-headline font-black text-white drop-shadow-lg animate-fade-in">
-                    {problem.answer}
-                  </span>
-                ) : (
-                  <span className="text-5xl sm:text-7xl md:text-8xl font-headline font-black text-yellow-300 animate-pulse">
+              )}
+
+              {/* Obscuring Frosted Glass Pill Badge when Unrevealed */}
+              {!isFlipped && (
+                <div className="absolute inset-y-[-4px] inset-x-[-6px] flex items-center justify-center bg-white/20 backdrop-blur-md rounded-2xl border-2 border-dashed border-white/40 shadow-sm transition-all duration-300">
+                  <span className="font-headline font-bold text-white text-3xl sm:text-5xl md:text-6xl">
                     ?
                   </span>
-                )}
-              </>
-            )}
+                </div>
+              )}
+            </div>
           </div>
 
-          {/* Subtitle conversion / unsimplified intermediate step badge when revealed */}
-          {isRevealed && problem.isFraction && problem.hasConversion && (
-            <div className="mt-3 px-3.5 py-1.5 rounded-full bg-white/15 border border-white/25 backdrop-blur-md shadow-xs animate-fade-in flex items-center gap-2">
-              <span className="text-xs sm:text-sm font-bold text-white/80 uppercase tracking-wider">
-                Step:
-              </span>
-              
-              {/* For Addition/Subtraction: Common denominator step (e.g. 2/4 + 1/4 = 3/4) */}
-              {(problem.operation === '+' || problem.operation === '-') && problem.convertedFrac1 && problem.convertedFrac2 && (
-                <div className="flex items-center gap-1.5">
-                  <FractionDisplay fraction={problem.convertedFrac1} colorClass="text-cyan-300" size="sm" />
-                  <span className="text-sm font-bold text-white/90">{problem.operation}</span>
-                  <FractionDisplay fraction={problem.convertedFrac2} colorClass="text-amber-300" size="sm" />
-                  <span className="text-sm font-bold text-white/90">=</span>
-                  <FractionDisplay fraction={problem.fracAnswer!} colorClass="text-white" size="sm" />
-                </div>
-              )}
-
-              {/* For Multiplication/Division: Unsimplified raw product step (e.g. 2/4 x 1/2 = 2/8 = 1/4) */}
-              {(problem.operation === '×' || problem.operation === '÷') && problem.rawFracAnswer && (
-                <div className="flex items-center gap-1.5">
-                  <FractionDisplay fraction={problem.frac1!} colorClass="text-cyan-300" size="sm" />
-                  <span className="text-sm font-bold text-white/90">{problem.operation}</span>
-                  <FractionDisplay fraction={problem.frac2!} colorClass="text-amber-300" size="sm" />
-                  <span className="text-sm font-bold text-white/90">=</span>
-                  <FractionDisplay fraction={problem.rawFracAnswer} colorClass="text-amber-300" size="sm" />
-                  <span className="text-sm font-bold text-white/90">=</span>
-                  <FractionDisplay fraction={problem.fracAnswer!} colorClass="text-white" size="sm" />
-                </div>
-              )}
+          {/* Subtitle Conversion Pill Badge with Stacked Fractions when revealed */}
+          {isFlipped && problem.hasConversion && problem.convertedFrac1 && problem.convertedFrac2 && (
+            <div className="mt-2 sm:mt-3 px-4 py-1.5 rounded-full bg-black/25 border border-white/20 backdrop-blur-xs flex items-center gap-2 text-white/90 font-headline font-bold shadow-sm animate-fade-in">
+              <FractionDisplay fraction={problem.convertedFrac1} colorClass="text-cyan-300" size="sm" />
+              <span className="text-sm sm:text-base font-normal">{problem.operation}</span>
+              <FractionDisplay fraction={problem.convertedFrac2} colorClass="text-amber-300" size="sm" />
+              <span className="text-sm sm:text-base font-normal">=</span>
+              <FractionDisplay
+                fraction={{
+                  n: problem.convertedFrac1.n + (problem.operation === '+' ? problem.convertedFrac2.n : -problem.convertedFrac2.n),
+                  d: problem.convertedFrac1.d,
+                }}
+                colorClass="text-white"
+                size="sm"
+              />
             </div>
           )}
         </div>
 
-        {/* Bottom Visual Area (Ten-Frame, Array Grid, or Fraction Slices) */}
-        <div className="w-full flex flex-col items-center justify-center pb-2">
-          <VisualMath problem={problem} />
-        </div>
+        {/* Visual Blocks Overlay - Flex Anchored in Lower Half */}
+        {isFlipped && (
+          <div className="w-full flex-1 flex items-center justify-center pointer-events-none z-10 transition-opacity duration-500 ease-out pb-2">
+            <VisualMath problem={problem} />
+          </div>
+        )}
 
-        {/* Tap Prompt Footer */}
-        <div className="w-full flex justify-center items-center pb-1">
-          {!isRevealed ? (
-            <span className="text-xs font-semibold text-white/70 tracking-wide uppercase flex items-center gap-1">
-              <Sparkles className="w-3.5 h-3.5 text-yellow-300 animate-spin" /> Tap to reveal answer
-            </span>
-          ) : (
-            <span className="text-xs font-medium text-white/50 tracking-wide uppercase">
-              Tap for next card
-            </span>
-          )}
-        </div>
+        {/* Speaker Button in Bottom Right */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="absolute bottom-3 right-3 text-white/80 hover:text-white hover:bg-white/20 rounded-full w-9 h-9 sm:w-10 sm:h-10 transition-transform active:scale-95 outline-none pointer-events-auto z-30"
+          onClick={handleSpeak}
+          aria-label="Listen to equation"
+        >
+          <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
+        </Button>
       </CardContent>
     </Card>
   );
