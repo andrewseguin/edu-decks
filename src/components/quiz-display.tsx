@@ -197,12 +197,13 @@ export function QuizDisplay({
       </div>
 
       {/* Main Content Area: Responsive Stack (Portrait) vs Side-by-Side (Landscape / Short Screens) */}
-      <div className="w-full max-w-5xl mx-auto flex-1 flex flex-col max-h-[600px]:flex-row landscape:flex-row items-center justify-center gap-2 sm:gap-5 min-h-0 py-1 overflow-hidden">
+      <div className="w-full max-w-5xl mx-auto flex-1 flex flex-col max-h-[600px]:flex-row landscape:flex-row items-center justify-center gap-2 sm:gap-4 min-h-0 py-1 px-2 sm:px-4">
         {/* Left Side (Landscape) / Top Side (Portrait): Hero Equation Card */}
-        <div className="w-full flex-1 flex items-center justify-center min-h-0 min-w-0 max-h-[180px] max-h-[600px]:max-h-full landscape:max-h-full p-1">
+        <div className="w-full flex-1 flex items-center justify-center min-h-0 min-w-0 p-1">
           <div
             className={cn(
-              "w-full rounded-3xl p-3 sm:p-6 flex items-center justify-center relative cursor-pointer shadow-xl transition-all duration-300 h-full max-h-[200px] sm:max-h-[260px]",
+              "w-full rounded-3xl px-3 py-4 sm:px-6 sm:py-6 flex items-center justify-center relative cursor-pointer shadow-xl transition-all duration-300",
+              "h-auto max-h-[160px] sm:max-h-[220px]",
               isCorrect === true && "border-4 border-emerald-400 shadow-emerald-500/30 scale-[1.02]",
               isCorrect === false && "border-4 border-destructive animate-shake"
             )}
@@ -213,24 +214,24 @@ export function QuizDisplay({
             }}
             onClick={() => playAudioPrompt(currentProblem)}
           >
-            <div className="flex items-center justify-center text-center max-w-full overflow-hidden">
+            <div className="flex items-center justify-center text-center max-w-full">
               {/* First Number (Cyan) */}
-              <span className="font-headline font-bold leading-none select-none text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-3xl sm:text-5xl md:text-6xl shrink-0">
+              <span className="font-headline font-bold leading-none select-none text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-2xl sm:text-4xl md:text-5xl lg:text-6xl shrink-0">
                 {currentProblem.num1}
               </span>
 
               {/* Operator */}
-              <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-3xl sm:text-5xl md:text-6xl mx-1.5 sm:mx-3 shrink-0">
+              <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-2xl sm:text-4xl md:text-5xl lg:text-6xl mx-1 sm:mx-2.5 shrink-0">
                 {currentProblem.operation}
               </span>
 
               {/* Second Number (Orange) */}
-              <span className="font-headline font-bold leading-none select-none text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-3xl sm:text-5xl md:text-6xl shrink-0">
+              <span className="font-headline font-bold leading-none select-none text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-2xl sm:text-4xl md:text-5xl lg:text-6xl shrink-0">
                 {currentProblem.num2}
               </span>
 
               {/* Equals Symbol */}
-              <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-3xl sm:text-5xl md:text-6xl ml-1.5 sm:ml-3 mr-1.5 sm:mr-3 shrink-0">
+              <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-2xl sm:text-4xl md:text-5xl lg:text-6xl ml-1 sm:ml-2.5 mr-1 sm:mr-2.5 shrink-0">
                 =
               </span>
 
@@ -238,7 +239,7 @@ export function QuizDisplay({
               <div className="relative inline-flex items-center justify-center px-0.5 shrink-0">
                 <div
                   className={cn(
-                    "min-w-[50px] sm:min-w-[76px] h-[44px] sm:h-[64px] px-2.5 flex items-center justify-center rounded-2xl border-2 transition-all duration-200",
+                    "min-w-[44px] sm:min-w-[70px] h-[40px] sm:h-[58px] px-2 flex items-center justify-center rounded-xl sm:rounded-2xl border-2 transition-all duration-200",
                     isCorrect === true
                       ? "bg-emerald-500 border-emerald-300 text-white shadow-lg"
                       : isCorrect === false
@@ -249,11 +250,11 @@ export function QuizDisplay({
                   )}
                 >
                   {inputVal ? (
-                    <span className="font-headline font-bold leading-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] text-2xl sm:text-4xl md:text-5xl">
+                    <span className="font-headline font-bold leading-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] text-xl sm:text-3xl md:text-4xl">
                       {inputVal}
                     </span>
                   ) : (
-                    <span className="font-headline font-bold text-white/80 text-xl sm:text-3xl md:text-4xl">
+                    <span className="font-headline font-bold text-white/80 text-lg sm:text-2xl md:text-3xl">
                       ?
                     </span>
                   )}
@@ -264,7 +265,7 @@ export function QuizDisplay({
         </div>
 
         {/* Right Side (Landscape) / Bottom Side (Portrait): Numeric Keypad Grid (3x4 Layout) */}
-        <div className="w-full max-w-[260px] sm:max-w-[300px] grid grid-cols-3 gap-1.5 sm:gap-2.5 shrink-0 my-auto p-1">
+        <div className="w-full max-w-[240px] sm:max-w-[280px] grid grid-cols-3 gap-1.5 sm:gap-2.5 shrink-0 my-auto p-1">
           {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
             <button
               key={num}
