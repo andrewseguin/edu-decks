@@ -60,19 +60,19 @@ export function MathCard({
       }}
       onClick={handleCardClick}
     >
-      <CardContent className="p-4 sm:p-6 h-full w-full relative flex flex-col justify-between items-center">
-        {/* Full Color-Coded Equation Area */}
+      <CardContent className="p-0 h-full w-full relative flex items-center justify-center">
+        {/* Full Color-Coded Equation Area: Continuous Fluid Glide from Center to Top */}
         <div
           className={cn(
-            "w-full flex items-center justify-center transition-all duration-300",
-            isFlipped ? "pt-3 sm:pt-6 shrink-0" : "my-auto"
+            "absolute inset-0 flex items-center justify-center p-4 transition-transform duration-500 ease-out pointer-events-none z-20",
+            isFlipped ? "-translate-y-16 sm:-translate-y-20 md:-translate-y-24" : "translate-y-0"
           )}
         >
           <div className="flex items-center justify-center whitespace-nowrap text-center">
             {/* First Number (Cyan when revealed, White when unrevealed) */}
             <span
               className={cn(
-                "font-headline font-bold leading-none select-none transition-all duration-300",
+                "font-headline font-bold leading-none select-none transition-colors duration-500",
                 isFlipped
                   ? "text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-4xl sm:text-6xl md:text-7xl"
                   : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl"
@@ -84,7 +84,7 @@ export function MathCard({
             {/* Operator (+, -, ×, ÷) */}
             <span
               className={cn(
-                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] mx-2 sm:mx-3.5 transition-all duration-300",
+                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] mx-2.5 sm:mx-4 transition-all duration-500",
                 isFlipped ? "text-4xl sm:text-6xl md:text-7xl" : "text-5xl sm:text-7xl md:text-8xl"
               )}
             >
@@ -94,7 +94,7 @@ export function MathCard({
             {/* Second Number (Orange/Amber when revealed, White when unrevealed) */}
             <span
               className={cn(
-                "font-headline font-bold leading-none select-none transition-all duration-300",
+                "font-headline font-bold leading-none select-none transition-colors duration-500",
                 isFlipped
                   ? "text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-4xl sm:text-6xl md:text-7xl"
                   : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl"
@@ -106,18 +106,18 @@ export function MathCard({
             {/* Equals Symbol */}
             <span
               className={cn(
-                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] ml-2 sm:ml-3.5 mr-2 sm:mr-3.5 transition-all duration-300",
+                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] ml-2.5 sm:ml-4 mr-2.5 sm:mr-4 transition-all duration-500",
                 isFlipped ? "text-4xl sm:text-6xl md:text-7xl" : "text-5xl sm:text-7xl md:text-8xl"
               )}
             >
               =
             </span>
 
-            {/* Answer Digit */}
+            {/* Answer Digit / Frosted Question Mark Badge */}
             <div className="relative inline-flex items-center justify-center px-1">
               <span
                 className={cn(
-                  "font-headline font-bold leading-none select-none text-white transition-all duration-300",
+                  "font-headline font-bold leading-none select-none text-white transition-all duration-500",
                   isFlipped
                     ? "[text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] opacity-100 scale-100 text-4xl sm:text-6xl md:text-7xl"
                     : "opacity-0 scale-90 text-5xl sm:text-7xl md:text-8xl"
@@ -128,7 +128,7 @@ export function MathCard({
 
               {/* Obscuring Frosted Glass Pill Badge when Unrevealed */}
               {!isFlipped && (
-                <div className="absolute inset-y-[-4px] inset-x-[-6px] flex items-center justify-center bg-white/20 backdrop-blur-md rounded-2xl border-2 border-dashed border-white/40 shadow-sm">
+                <div className="absolute inset-y-[-4px] inset-x-[-6px] flex items-center justify-center bg-white/20 backdrop-blur-md rounded-2xl border-2 border-dashed border-white/40 shadow-sm transition-all duration-300">
                   <span className="font-headline font-bold text-white text-3xl sm:text-5xl md:text-6xl">
                     ?
                   </span>
@@ -138,9 +138,9 @@ export function MathCard({
           </div>
         </div>
 
-        {/* Visual Blocks Overlay - Centered in Lower Region */}
+        {/* Visual Blocks Container: Anchored in Lower Half */}
         {isFlipped && (
-          <div className="w-full flex-1 flex items-center justify-center min-h-0 pointer-events-none z-10 py-2 sm:py-3">
+          <div className="absolute bottom-3 inset-x-0 top-[140px] sm:top-[165px] flex items-center justify-center pointer-events-none z-10 px-4 transition-opacity duration-500 ease-out">
             <VisualMath problem={problem} />
           </div>
         )}
@@ -149,7 +149,7 @@ export function MathCard({
         <Button
           variant="ghost"
           size="icon"
-          className="absolute bottom-3 right-3 text-white/80 hover:text-white hover:bg-white/20 rounded-full w-9 h-9 sm:w-10 sm:h-10 transition-transform active:scale-95 outline-none pointer-events-auto z-20"
+          className="absolute bottom-3 right-3 text-white/80 hover:text-white hover:bg-white/20 rounded-full w-9 h-9 sm:w-10 sm:h-10 transition-transform active:scale-95 outline-none pointer-events-auto z-30"
           onClick={handleSpeak}
           aria-label="Listen to equation"
         >
