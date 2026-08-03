@@ -441,21 +441,15 @@ export function VisualMath({ problem }: VisualMathProps) {
       const d2 = f2.d;
       const n2 = f2.n;
 
-      const totalSlices = d1 * d2;
       const isSubdivided = orangeVisible > 0;
+      const currentSliceCount = isSubdivided ? d1 * d2 : d1;
 
       return (
         <div className="flex flex-col items-center justify-center gap-1.5">
           <svg width={130} height={130} viewBox="0 0 130 130" className="drop-shadow-md">
-            {Array.from({ length: totalSlices }).map((_, i) => {
-              const mainSliceIdx = Math.floor(i / d2);
-              const subSliceIdx = i % d2;
-
-              const isMainCyan = mainSliceIdx < n1;
-              const isOverlapOrange = isMainCyan && subSliceIdx < n2;
-
-              const startAngle = (i * 360) / totalSlices - 90;
-              const endAngle = ((i + 1) * 360) / totalSlices - 90;
+            {Array.from({ length: currentSliceCount }).map((_, i) => {
+              const startAngle = (i * 360) / currentSliceCount - 90;
+              const endAngle = ((i + 1) * 360) / currentSliceCount - 90;
 
               const radius = 58;
               const center = 65;
@@ -468,26 +462,50 @@ export function VisualMath({ problem }: VisualMathProps) {
               const x2 = center + radius * Math.cos(endRad);
               const y2 = center + radius * Math.sin(endRad);
 
-              const largeArc = 360 / totalSlices > 180 ? 1 : 0;
+              const largeArc = 360 / currentSliceCount > 180 ? 1 : 0;
               const pathData =
-                totalSlices === 1
+                currentSliceCount === 1
                   ? `M ${center - radius}, ${center} a ${radius},${radius} 0 1,0 ${radius * 2},0 a ${radius},${radius} 0 1,0 -${radius * 2},0`
                   : `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+
+              if (!isSubdivided) {
+                // Step 1 (t=0ms): Show n1 Cyan main slices out of d1
+                const isCyan = i < n1;
+                return (
+                  <path
+                    key={`step1-slice-${i}`}
+                    d={pathData}
+                    className={cn(
+                      "transition-all duration-300",
+                      isCyan
+                        ? "fill-cyan-300 stroke-cyan-400 stroke-2"
+                        : "fill-white/10 stroke-white/30 stroke-1 stroke-dashed"
+                    )}
+                  />
+                );
+              }
+
+              // Step 2 (t=550ms): Subdivide into d1*d2 and shade n2 sub-slices per Cyan region in Orange
+              const mainSliceIdx = Math.floor(i / d2);
+              const subSliceIdx = i % d2;
+
+              const isMainCyan = mainSliceIdx < n1;
+              const isOrange = isMainCyan && subSliceIdx < n2;
 
               if (!isMainCyan) {
                 return (
                   <path
-                    key={`mult-slice-${i}`}
+                    key={`step2-slice-${i}`}
                     d={pathData}
                     className="fill-white/10 stroke-white/30 stroke-1 stroke-dashed transition-all duration-300"
                   />
                 );
               }
 
-              if (isOverlapOrange && isSubdivided) {
+              if (isOrange) {
                 return (
                   <path
-                    key={`mult-slice-${i}`}
+                    key={`step2-slice-${i}`}
                     d={pathData}
                     className="fill-amber-400 stroke-amber-500 stroke-2 transition-all duration-500"
                   />
@@ -496,9 +514,9 @@ export function VisualMath({ problem }: VisualMathProps) {
 
               return (
                 <path
-                  key={`mult-slice-${i}`}
+                  key={`step2-slice-${i}`}
                   d={pathData}
-                  className="fill-cyan-300 stroke-cyan-400 stroke-2 transition-all duration-500"
+                  className="fill-cyan-300 stroke-cyan-400 stroke-2 transition-all duration-300"
                 />
               );
             })}
