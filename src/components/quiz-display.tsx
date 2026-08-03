@@ -149,8 +149,6 @@ export function QuizDisplay({
   return (
     <div
       className="fixed inset-0 z-40 bg-background flex flex-col justify-between p-3 sm:p-6 animate-in fade-in duration-300 select-none overflow-y-auto"
-      onPointerDown={(e) => e.stopPropagation()}
-      onPointerUp={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
     >
       {/* Top Header Bar */}
@@ -159,10 +157,6 @@ export function QuizDisplay({
           variant="outline"
           size="sm"
           className="rounded-full gap-1.5 text-muted-foreground hover:text-foreground shrink-0 font-headline font-bold"
-          onPointerDown={(e) => {
-            e.stopPropagation();
-            onExit();
-          }}
           onClick={(e) => {
             e.stopPropagation();
             onExit();
@@ -180,10 +174,6 @@ export function QuizDisplay({
             "rounded-full gap-2 px-4 py-1.5 font-headline font-bold text-sm transition-transform active:scale-95 text-muted-foreground hover:text-foreground",
             isPlayingSound ? "animate-pulse scale-105 text-primary" : ""
           )}
-          onPointerDown={(e) => {
-            e.stopPropagation();
-            if (currentProblem) playAudioPrompt(currentProblem);
-          }}
           onClick={(e) => {
             e.stopPropagation();
             if (currentProblem) playAudioPrompt(currentProblem);
@@ -242,7 +232,7 @@ export function QuizDisplay({
               =
             </span>
 
-            {/* User Input / Question Mark Box */}
+            {/* User Input / Question Mark Box (Clean static styling, no animate-pulse) */}
             <div className="relative inline-flex items-center justify-center px-1">
               <div
                 className={cn(
@@ -253,7 +243,7 @@ export function QuizDisplay({
                     ? "bg-destructive/30 border-destructive text-white"
                     : inputVal
                     ? "bg-white/30 border-white text-white shadow-md"
-                    : "bg-white/20 border-dashed border-white/40 text-white animate-pulse"
+                    : "bg-white/20 border-dashed border-white/40 text-white"
                 )}
               >
                 {inputVal ? (
@@ -279,14 +269,11 @@ export function QuizDisplay({
         {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
           <button
             key={num}
+            type="button"
             className="h-14 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-3xl sm:text-4xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
             style={{
               backgroundColor: `${opInfo.hex}18`,
               color: opInfo.hex,
-            }}
-            onPointerDown={(e) => {
-              e.stopPropagation();
-              handleKeyPress(num);
             }}
             onClick={(e) => {
               e.stopPropagation();
@@ -299,11 +286,8 @@ export function QuizDisplay({
 
         {/* Backspace Button */}
         <button
+          type="button"
           className="h-14 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-xl sm:text-2xl shadow-md transition-all active:scale-95 bg-card text-muted-foreground border-2 border-transparent hover:border-destructive/40 hover:text-destructive hover:scale-[1.02] outline-none select-none"
-          onPointerDown={(e) => {
-            e.stopPropagation();
-            handleDelete();
-          }}
           onClick={(e) => {
             e.stopPropagation();
             handleDelete();
@@ -315,14 +299,11 @@ export function QuizDisplay({
 
         {/* 0 Key */}
         <button
+          type="button"
           className="h-14 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-3xl sm:text-4xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
           style={{
             backgroundColor: `${opInfo.hex}18`,
             color: opInfo.hex,
-          }}
-          onPointerDown={(e) => {
-            e.stopPropagation();
-            handleKeyPress("0");
           }}
           onClick={(e) => {
             e.stopPropagation();
@@ -334,16 +315,13 @@ export function QuizDisplay({
 
         {/* Submit Key */}
         <button
+          type="button"
           className={cn(
             "h-14 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-xl sm:text-2xl shadow-md transition-all active:scale-95 text-white border-2 border-transparent outline-none select-none",
             inputVal ? "opacity-100 hover:scale-[1.02]" : "opacity-50"
           )}
           style={{
             backgroundColor: opInfo.hex,
-          }}
-          onPointerDown={(e) => {
-            e.stopPropagation();
-            handleSubmitInput(inputVal);
           }}
           onClick={(e) => {
             e.stopPropagation();
