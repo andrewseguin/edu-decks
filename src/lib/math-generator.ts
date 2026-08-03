@@ -145,40 +145,74 @@ function generateFractionProblem(
   allowNegatives: boolean
 ): MathProblem {
   const denominators = [2, 3, 4, 6, 8];
-  const d1 = denominators[Math.floor(Math.random() * denominators.length)];
-  const d2 = denominators[Math.floor(Math.random() * denominators.length)];
+
+  if (operation === '+' || operation === '-') {
+    // Pick SAME denominator for clean, intuitive pie visualizers (e.g. 1/4 + 2/4 = 3/4)
+    const d = denominators[Math.floor(Math.random() * denominators.length)];
+    let n1 = getRandomInt(1, d - 1);
+    let n2 = getRandomInt(1, d - 1);
+
+    if (operation === '-' && !allowNegatives && n1 < n2) {
+      const temp = n1;
+      n1 = n2;
+      n2 = temp;
+    }
+
+    const frac1: Fraction = { n: n1, d };
+    const frac2: Fraction = { n: n2, d };
+    const fracAnswer: Fraction = operation === '+'
+      ? simplifyFraction(n1 + n2, d)
+      : simplifyFraction(n1 - n2, d);
+
+    const text1 = formatFractionText(frac1);
+    const text2 = formatFractionText(frac2);
+    const textAns = formatFractionText(fracAnswer);
+
+    const words1 = fractionToWords(frac1);
+    const words2 = fractionToWords(frac2);
+    const wordsAns = fractionToWords(fracAnswer);
+
+    const opWord = operation === '+' ? "plus" : "minus";
+    const problemSpeechText = `${words1} ${opWord} ${words2}`;
+    const fullSpeechText = `${words1} ${opWord} ${words2} equals ${wordsAns}`;
+    const displayText = `${text1} ${operation} ${text2}`;
+
+    const id = `frac-${operation}-${text1}-${text2}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+
+    return {
+      id,
+      num1: frac1.n,
+      num2: frac2.n,
+      operation,
+      answer: fracAnswer.n / fracAnswer.d,
+      displayText,
+      answerText: textAns,
+      problemSpeechText,
+      fullSpeechText,
+      speechText: problemSpeechText,
+      isFraction: true,
+      frac1,
+      frac2,
+      fracAnswer,
+    };
+  }
+
+  // For Multiplication and Division, pick small clean denominators (2, 3, 4)
+  const multDenominators = [2, 3, 4];
+  const d1 = multDenominators[Math.floor(Math.random() * multDenominators.length)];
+  const d2 = multDenominators[Math.floor(Math.random() * multDenominators.length)];
 
   let n1 = getRandomInt(1, d1 - 1);
   let n2 = getRandomInt(1, d2 - 1);
 
-  let frac1 = simplifyFraction(n1, d1);
-  let frac2 = simplifyFraction(n2, d2);
+  let frac1: Fraction = { n: n1, d: d1 };
+  let frac2: Fraction = { n: n2, d: d2 };
   let fracAnswer: Fraction = { n: 1, d: 1 };
 
-  switch (operation) {
-    case '+': {
-      fracAnswer = simplifyFraction(frac1.n * frac2.d + frac2.n * frac1.d, frac1.d * frac2.d);
-      break;
-    }
-    case '-': {
-      const val1 = frac1.n / frac1.d;
-      const val2 = frac2.n / frac2.d;
-      if (!allowNegatives && val1 < val2) {
-        const temp = frac1;
-        frac1 = frac2;
-        frac2 = temp;
-      }
-      fracAnswer = simplifyFraction(frac1.n * frac2.d - frac2.n * frac1.d, frac1.d * frac2.d);
-      break;
-    }
-    case '×': {
-      fracAnswer = simplifyFraction(frac1.n * frac2.n, frac1.d * frac2.d);
-      break;
-    }
-    case '÷': {
-      fracAnswer = simplifyFraction(frac1.n * frac2.d, frac1.d * frac2.n);
-      break;
-    }
+  if (operation === '×') {
+    fracAnswer = simplifyFraction(frac1.n * frac2.n, frac1.d * frac2.d);
+  } else {
+    fracAnswer = simplifyFraction(frac1.n * frac2.d, frac1.d * frac2.n);
   }
 
   const text1 = formatFractionText(frac1);
@@ -189,11 +223,7 @@ function generateFractionProblem(
   const words2 = fractionToWords(frac2);
   const wordsAns = fractionToWords(fracAnswer);
 
-  let opWord = "plus";
-  if (operation === '-') opWord = "minus";
-  if (operation === '×') opWord = "times";
-  if (operation === '÷') opWord = "divided by";
-
+  const opWord = operation === '×' ? "times" : "divided by";
   const problemSpeechText = `${words1} ${opWord} ${words2}`;
   const fullSpeechText = `${words1} ${opWord} ${words2} equals ${wordsAns}`;
   const displayText = `${text1} ${operation} ${text2}`;

@@ -242,7 +242,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     const ans = problem.fracAnswer;
 
     // Common denominator for unified pie visualization
-    const commonD = ans ? ans.d : (f1.d * f2.d) / gcd(f1.d, f2.d);
+    const commonD = (f1.d === f2.d) ? f1.d : (ans ? ans.d : (f1.d * f2.d) / gcd(f1.d, f2.d));
     const c1 = f1.n * (commonD / f1.d);
     const c2 = f2.n * (commonD / f2.d);
 
