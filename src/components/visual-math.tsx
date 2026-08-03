@@ -265,13 +265,17 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
         }
       } else if (operation === '×') {
         if (step === 1) {
+          setActiveStep(1);
           setCyanVisible(0);
         } else {
+          setActiveStep(2);
           setCyanVisible(num1 * num2);
         }
       }
     }
-  };  useEffect(() => {
+  };
+
+  useEffect(() => {
     let t1: ReturnType<typeof setTimeout> | null = null;
     let t2: ReturnType<typeof setTimeout> | null = null;
     let whiteInterval: ReturnType<typeof setInterval> | null = null;
@@ -283,7 +287,7 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
     if (problem.isFraction && problem.frac1) {
       setCyanVisible(problem.frac1.n);
     } else {
-      setCyanVisible(num1);
+      setCyanVisible(operation === '×' ? 0 : num1);
     }
     setOrangeVisible(0);
     setSubtractionCount(0);
@@ -430,16 +434,22 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
           }
         }, 90);
       } else if (operation === '×') {
+        setActiveStep(1);
+        setCyanVisible(0);
         const total = num1 * num2;
-        const intervalMs = total > 30 ? 20 : 45;
-        let currentCyan = 0;
-        cyanInterval = setInterval(() => {
-          currentCyan++;
-          setCyanVisible(currentCyan);
-          if (currentCyan >= total) {
-            if (cyanInterval) clearInterval(cyanInterval);
-          }
-        }, intervalMs);
+        const intervalMs = total > 30 ? 25 : 55;
+
+        t1 = setTimeout(() => {
+          setActiveStep(2);
+          let currentCyan = 0;
+          cyanInterval = setInterval(() => {
+            currentCyan++;
+            setCyanVisible(currentCyan);
+            if (currentCyan >= total) {
+              if (cyanInterval) clearInterval(cyanInterval);
+            }
+          }, intervalMs);
+        }, 700);
       } else if (operation === '÷') {
         setCyanVisible(num1);
         t1 = setTimeout(() => {
