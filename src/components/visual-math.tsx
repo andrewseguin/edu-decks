@@ -434,7 +434,7 @@ export function VisualMath({ problem }: VisualMathProps) {
       );
     }
 
-    // FRACTION MULTIPLICATION (×): Dynamic Physical Splitting Animation (Step 1: 1-row tall Cyan bars -> Step 2: divides into rows & shades top Orange)
+    // FRACTION MULTIPLICATION (×): Dynamic Physical Splitting Animation
     if (operation === '×') {
       const cols = f1.d; // d1 vertical columns
       const cyanCols = f1.n; // n1 Cyan columns
@@ -499,7 +499,7 @@ export function VisualMath({ problem }: VisualMathProps) {
               });
             })}
 
-            {/* Step 2: Animated Orange Horizontal Splitting Laser Line */}
+            {/* Step 2: Clean Steady Orange Horizontal Cut Line (no flashing) */}
             {isSubdivided && Array.from({ length: rows - 1 }).map((_, rIdx) => {
               const lineY = (rIdx + 1) * (gridH / rows);
               return (
@@ -509,7 +509,7 @@ export function VisualMath({ problem }: VisualMathProps) {
                   y1={lineY}
                   x2={gridW}
                   y2={lineY}
-                  className="stroke-amber-400 stroke-3 stroke-dashed animate-pulse transition-all duration-500"
+                  className="stroke-amber-400 stroke-3 stroke-dashed transition-all duration-500"
                 />
               );
             })}
