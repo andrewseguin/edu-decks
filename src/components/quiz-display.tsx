@@ -5,7 +5,7 @@ import { MathOperation, MathProblem, OPERATION_COLORS, Fraction } from "@/lib/ty
 import { generateMathProblem } from "@/lib/math-generator";
 import { FractionDisplay } from "./fraction-display";
 import { Button } from "@/components/ui/button";
-import { Volume2, X, Sparkles, Delete, CornerDownLeft } from "lucide-react";
+import { Volume2, X, Sparkles, Delete } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type QuizDisplayProps = {
@@ -195,11 +195,11 @@ export function QuizDisplay({
 
   return (
     <div
-      className="fixed inset-0 z-40 bg-background flex flex-col justify-between p-2 sm:p-4 select-none overflow-hidden"
+      className="fixed inset-0 z-40 bg-background flex flex-col justify-between p-3 sm:p-6 select-none overflow-hidden"
       onClick={(e) => e.stopPropagation()}
     >
       {/* Top Header Bar */}
-      <div className="flex items-center justify-between w-full max-w-5xl mx-auto gap-2 shrink-0 h-9 sm:h-10">
+      <div className="flex items-center justify-between w-full max-w-4xl mx-auto gap-2 shrink-0 h-10">
         <Button
           variant="outline"
           size="sm"
@@ -218,7 +218,7 @@ export function QuizDisplay({
           size="sm"
           variant="ghost"
           className={cn(
-            "rounded-full gap-1.5 px-3 py-1 font-headline font-bold text-xs sm:text-sm transition-transform active:scale-95 text-muted-foreground hover:text-foreground h-8",
+            "rounded-full gap-1.5 px-3.5 py-1.5 font-headline font-bold text-xs sm:text-sm transition-transform active:scale-95 text-muted-foreground hover:text-foreground h-8",
             isPlayingSound ? "animate-pulse scale-105 text-primary" : ""
           )}
           onClick={(e) => {
@@ -227,30 +227,30 @@ export function QuizDisplay({
           }}
           aria-label="Replay equation audio"
         >
-          <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+          <Volume2 className="w-4 h-4" />
           <span>Listen</span>
         </Button>
 
         {/* Score & Streak Badge */}
-        <div className="flex items-center gap-1.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-3 py-1 rounded-full font-bold text-xs sm:text-sm shrink-0 font-headline h-8">
-          <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+        <div className="flex items-center gap-1.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-3.5 py-1.5 rounded-full font-bold text-xs sm:text-sm shrink-0 font-headline h-8">
+          <Sparkles className="w-4 h-4" />
           <span>{score}</span>
           {streak > 1 && (
-            <span className="text-[10px] sm:text-xs bg-amber-500 text-white px-1.5 py-0.5 rounded-full font-black">
+            <span className="text-[10px] sm:text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full font-black">
               🔥 {streak}
             </span>
           )}
         </div>
       </div>
 
-      {/* Main Content Area: Responsive Stack (Portrait) vs Side-by-Side (Landscape / Short Screens) */}
-      <div className="w-full max-w-5xl mx-auto flex-1 flex flex-col max-h-[600px]:flex-row landscape:flex-row items-center justify-center gap-2 sm:gap-4 min-h-0 py-1 px-2 sm:px-4">
+      {/* Main Content Area: Stacked Vertical (Desktop & Portrait) vs Side-by-Side (Short Mobile Landscape ONLY) */}
+      <div className="w-full max-w-2xl mx-auto flex-1 flex flex-col [@media(orientation:landscape)_and_(max-height:540px)]:flex-row [@media(orientation:landscape)_and_(max-height:540px)]:max-w-5xl items-center justify-center gap-4 sm:gap-6 min-h-0 py-2">
         {/* Hero Equation Card */}
-        <div className="w-full flex-1 flex items-center justify-center min-h-0 min-w-0 p-1">
+        <div className="w-full flex-1 flex items-center justify-center min-h-0 min-w-0 [@media(orientation:landscape)_and_(max-height:540px)]:max-h-full">
           <div
             className={cn(
-              "w-full rounded-3xl px-3 py-4 sm:px-6 sm:py-6 flex items-center justify-center relative cursor-pointer shadow-xl transition-all duration-300",
-              "h-auto max-h-[160px] sm:max-h-[220px]",
+              "w-full rounded-3xl p-5 sm:p-8 flex items-center justify-center relative cursor-pointer shadow-xl transition-all duration-300",
+              "h-auto max-h-[220px] sm:max-h-[260px] [@media(orientation:landscape)_and_(max-height:540px)]:max-h-[180px]",
               isCorrect === true && "border-4 border-emerald-400 shadow-emerald-500/30 scale-[1.02]",
               isCorrect === false && "border-4 border-destructive animate-shake"
             )}
@@ -264,37 +264,37 @@ export function QuizDisplay({
             <div className="flex items-center justify-center text-center max-w-full">
               {/* First Number / Fraction */}
               {currentProblem.isFraction && currentProblem.frac1 ? (
-                <FractionDisplay fraction={currentProblem.frac1} colorClass="text-cyan-300" size="md" />
+                <FractionDisplay fraction={currentProblem.frac1} colorClass="text-cyan-300" size="lg" />
               ) : (
-                <span className="font-headline font-bold leading-none select-none text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-2xl sm:text-4xl md:text-5xl lg:text-6xl shrink-0">
+                <span className="font-headline font-bold leading-none select-none text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-5xl sm:text-7xl md:text-8xl shrink-0">
                   {currentProblem.num1}
                 </span>
               )}
 
               {/* Operator */}
-              <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-2xl sm:text-4xl md:text-5xl lg:text-6xl mx-1 sm:mx-2.5 shrink-0">
+              <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl mx-2 sm:mx-4 shrink-0">
                 {currentProblem.operation}
               </span>
 
               {/* Second Number / Fraction */}
               {currentProblem.isFraction && currentProblem.frac2 ? (
-                <FractionDisplay fraction={currentProblem.frac2} colorClass="text-amber-300" size="md" />
+                <FractionDisplay fraction={currentProblem.frac2} colorClass="text-amber-300" size="lg" />
               ) : (
-                <span className="font-headline font-bold leading-none select-none text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-2xl sm:text-4xl md:text-5xl lg:text-6xl shrink-0">
+                <span className="font-headline font-bold leading-none select-none text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-5xl sm:text-7xl md:text-8xl shrink-0">
                   {currentProblem.num2}
                 </span>
               )}
 
               {/* Equals Symbol */}
-              <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-2xl sm:text-4xl md:text-5xl lg:text-6xl ml-1 sm:ml-2.5 mr-1 sm:mr-2.5 shrink-0">
+              <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl ml-2 sm:ml-4 mr-2 sm:mr-4 shrink-0">
                 =
               </span>
 
               {/* User Input / Question Mark Box */}
-              <div className="relative inline-flex items-center justify-center px-0.5 shrink-0">
+              <div className="relative inline-flex items-center justify-center px-1 shrink-0">
                 <div
                   className={cn(
-                    "min-w-[44px] sm:min-w-[70px] h-[40px] sm:h-[58px] px-2.5 flex items-center justify-center rounded-xl sm:rounded-2xl border-2 transition-all duration-200",
+                    "min-w-[64px] sm:min-w-[90px] h-[54px] sm:h-[76px] px-3 flex items-center justify-center rounded-2xl border-2 transition-all duration-200",
                     isCorrect === true
                       ? "bg-emerald-500 border-emerald-300 text-white shadow-lg"
                       : isCorrect === false
@@ -306,14 +306,14 @@ export function QuizDisplay({
                 >
                   {inputVal ? (
                     userFraction ? (
-                      <FractionDisplay fraction={userFraction} colorClass="text-white" size="sm" />
+                      <FractionDisplay fraction={userFraction} colorClass="text-white" size="md" />
                     ) : (
-                      <span className="font-headline font-bold leading-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] text-xl sm:text-3xl md:text-4xl">
+                      <span className="font-headline font-bold leading-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] text-3xl sm:text-5xl md:text-6xl">
                         {inputVal}
                       </span>
                     )
                   ) : (
-                    <span className="font-headline font-bold text-white/80 text-lg sm:text-2xl md:text-3xl">
+                    <span className="font-headline font-bold text-white/80 text-2xl sm:text-4xl md:text-5xl">
                       ?
                     </span>
                   )}
@@ -323,13 +323,13 @@ export function QuizDisplay({
           </div>
         </div>
 
-        {/* Right Side (Landscape) / Bottom Side (Portrait): Numeric Keypad Grid */}
-        <div className="w-full max-w-[250px] sm:max-w-[290px] grid grid-cols-3 gap-1.5 sm:gap-2.5 shrink-0 my-auto p-1">
+        {/* Numeric Keypad Grid (3x4 Layout) */}
+        <div className="w-full max-w-xs sm:max-w-sm grid grid-cols-3 gap-2.5 sm:gap-3 shrink-0 my-auto p-1">
           {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
             <button
               key={num}
               type="button"
-              className="h-10 sm:h-12 rounded-2xl flex items-center justify-center font-headline font-bold text-xl sm:text-2xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
+              className="h-13 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-2xl sm:text-3xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
               style={{
                 backgroundColor: `${opInfo.hex}18`,
                 color: opInfo.hex,
@@ -346,7 +346,7 @@ export function QuizDisplay({
           {/* Fraction Bar / Button */}
           <button
             type="button"
-            className="h-10 sm:h-12 rounded-2xl flex items-center justify-center font-headline font-bold text-lg sm:text-xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
+            className="h-13 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-xl sm:text-2xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
             style={{
               backgroundColor: `${opInfo.hex}18`,
               color: opInfo.hex,
@@ -363,7 +363,7 @@ export function QuizDisplay({
           {/* 0 Key */}
           <button
             type="button"
-            className="h-10 sm:h-12 rounded-2xl flex items-center justify-center font-headline font-bold text-xl sm:text-2xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
+            className="h-13 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-2xl sm:text-3xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
             style={{
               backgroundColor: `${opInfo.hex}18`,
               color: opInfo.hex,
@@ -379,14 +379,14 @@ export function QuizDisplay({
           {/* Backspace Button */}
           <button
             type="button"
-            className="h-10 sm:h-12 rounded-2xl flex items-center justify-center font-headline font-bold text-base sm:text-lg shadow-md transition-all active:scale-95 bg-card text-muted-foreground border-2 border-transparent hover:border-destructive/40 hover:text-destructive hover:scale-[1.02] outline-none select-none"
+            className="h-13 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-lg sm:text-xl shadow-md transition-all active:scale-95 bg-card text-muted-foreground border-2 border-transparent hover:border-destructive/40 hover:text-destructive hover:scale-[1.02] outline-none select-none"
             onClick={(e) => {
               e.stopPropagation();
               handleDelete();
             }}
             aria-label="Delete last digit"
           >
-            <Delete className="w-4 h-4 sm:w-5 sm:h-5" />
+            <Delete className="w-5 h-5 sm:w-6 sm:h-6" />
           </button>
         </div>
       </div>
