@@ -434,7 +434,7 @@ export function VisualMath({ problem }: VisualMathProps) {
       );
     }
 
-    // FRACTION MULTIPLICATION (×): 2-Step Animated Rectangular Area Model (Step 1: d1 columns -> Step 2: split by d2 rows)
+    // FRACTION MULTIPLICATION (×): 2-Step Smooth Fluid Area Model Transition
     if (operation === '×') {
       const cols = f1.d; // d1 vertical columns
       const cyanCols = f1.n; // n1 Cyan columns
@@ -446,8 +446,7 @@ export function VisualMath({ problem }: VisualMathProps) {
       const gridW = 160;
       const gridH = 120;
       const cellW = gridW / cols;
-      const currentRows = isSubdivided ? rows : 1;
-      const cellH = gridH / currentRows;
+      const cellH = gridH / rows;
 
       return (
         <div className="flex flex-col items-center justify-center gap-1.5">
@@ -462,11 +461,11 @@ export function VisualMath({ problem }: VisualMathProps) {
               className="fill-white/5 stroke-white/30 stroke-2"
             />
 
-            {/* Grid Cells */}
+            {/* Grid Cells - Always rendered at final grid resolution so transition is 100% fluid */}
             {Array.from({ length: cols }).map((_, c) => {
               const isCyanCol = c < cyanCols;
 
-              return Array.from({ length: currentRows }).map((_, r) => {
+              return Array.from({ length: rows }).map((_, r) => {
                 const isOrangeRow = isSubdivided && r < orangeRows;
                 const isOverlap = isCyanCol && isOrangeRow;
 
@@ -477,13 +476,8 @@ export function VisualMath({ problem }: VisualMathProps) {
                 let strokeClass = "stroke-white/20";
 
                 if (isCyanCol) {
-                  fillClass = "fill-cyan-300";
-                  strokeClass = "stroke-cyan-400";
-                }
-
-                if (isOverlap) {
-                  fillClass = "fill-amber-400";
-                  strokeClass = "stroke-amber-500";
+                  fillClass = isOverlap ? "fill-amber-400" : "fill-cyan-300";
+                  strokeClass = isOverlap ? "stroke-amber-500" : "stroke-cyan-400";
                 }
 
                 return (
@@ -493,9 +487,9 @@ export function VisualMath({ problem }: VisualMathProps) {
                     y={y + 1.5}
                     width={cellW - 3}
                     height={cellH - 3}
-                    rx={isSubdivided ? 4 : 8}
+                    rx={4}
                     className={cn(
-                      "transition-all duration-500 ease-out",
+                      "transition-colors duration-500 ease-out",
                       fillClass,
                       strokeClass
                     )}
@@ -504,8 +498,8 @@ export function VisualMath({ problem }: VisualMathProps) {
               });
             })}
 
-            {/* Step 2 (t=550ms): Glowing Orange Horizontal Cut Lines */}
-            {isSubdivided && Array.from({ length: rows - 1 }).map((_, rIdx) => {
+            {/* Step 2 (t=550ms): Glowing Orange Horizontal Cut Lines smooth fade in */}
+            {Array.from({ length: rows - 1 }).map((_, rIdx) => {
               const lineY = (rIdx + 1) * cellH;
               return (
                 <line
@@ -514,7 +508,10 @@ export function VisualMath({ problem }: VisualMathProps) {
                   y1={lineY}
                   x2={gridW}
                   y2={lineY}
-                  className="stroke-amber-400 stroke-3 stroke-dashed animate-fade-in"
+                  className={cn(
+                    "stroke-amber-400 stroke-3 stroke-dashed transition-opacity duration-500 ease-out",
+                    isSubdivided ? "opacity-100" : "opacity-0"
+                  )}
                 />
               );
             })}
