@@ -61,12 +61,12 @@ export function MathCard({
       }}
       onClick={handleCardClick}
     >
-      <CardContent className="p-0 h-full w-full relative flex items-center justify-center">
-        {/* Full Color-Coded Equation Area: Continuous Fluid Glide from Center to Top */}
+      <CardContent className="p-4 sm:p-6 h-full w-full relative flex flex-col justify-between items-center overflow-hidden">
+        {/* Top/Center Equation Section */}
         <div
           className={cn(
-            "absolute inset-0 flex flex-col items-center justify-center p-4 transition-transform duration-500 ease-out pointer-events-none z-20",
-            isFlipped ? "-translate-y-16 sm:-translate-y-20 md:-translate-y-24" : "translate-y-0"
+            "w-full flex-1 flex flex-col items-center justify-center transition-all duration-500 ease-out z-20 pointer-events-none",
+            isFlipped ? "justify-start pt-2 sm:pt-4" : "justify-center"
           )}
         >
           {/* Main Equation Line */}
@@ -172,7 +172,7 @@ export function MathCard({
 
           {/* Subtitle Conversion Pill Badge with Stacked Fractions when revealed */}
           {isFlipped && problem.hasConversion && problem.convertedFrac1 && problem.convertedFrac2 && (
-            <div className="mt-2.5 sm:mt-3.5 px-4 py-1.5 rounded-full bg-black/25 border border-white/20 backdrop-blur-xs flex items-center gap-2 text-white/90 font-headline font-bold shadow-sm animate-fade-in">
+            <div className="mt-2 sm:mt-3 px-4 py-1.5 rounded-full bg-black/25 border border-white/20 backdrop-blur-xs flex items-center gap-2 text-white/90 font-headline font-bold shadow-sm animate-fade-in">
               <FractionDisplay fraction={problem.convertedFrac1} colorClass="text-cyan-300" size="sm" />
               <span className="text-sm sm:text-base font-normal">{problem.operation}</span>
               <FractionDisplay fraction={problem.convertedFrac2} colorClass="text-amber-300" size="sm" />
@@ -189,9 +189,9 @@ export function MathCard({
           )}
         </div>
 
-        {/* Visual Blocks Overlay - Anchored in Lower Half */}
+        {/* Visual Blocks Overlay - Flex Anchored in Lower Half */}
         {isFlipped && (
-          <div className="absolute bottom-3 inset-x-0 top-[140px] sm:top-[165px] flex items-center justify-center pointer-events-none z-10 px-4 transition-opacity duration-500 ease-out">
+          <div className="w-full flex-1 flex items-center justify-center pointer-events-none z-10 transition-opacity duration-500 ease-out pb-2">
             <VisualMath problem={problem} />
           </div>
         )}

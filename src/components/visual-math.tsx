@@ -13,6 +13,11 @@ function gcd(a: number, b: number): number {
   return b === 0 ? Math.abs(a) : gcd(b, a % b);
 }
 
+// Helper: Least Common Multiple
+function lcm(a: number, b: number): number {
+  return (a * b) / gcd(a, b);
+}
+
 // SVG Fraction Circle Component
 function FractionCircle({
   fraction,
@@ -109,7 +114,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     if (problem.isFraction && problem.frac1 && problem.frac2) {
       const f1 = problem.frac1;
       const f2 = problem.frac2;
-      const commonD = problem.fracAnswer ? problem.fracAnswer.d : (f1.d * f2.d) / gcd(f1.d, f2.d);
+      const commonD = lcm(f1.d, f2.d);
       const c1 = f1.n * (commonD / f1.d);
       const c2 = f2.n * (commonD / f2.d);
 
@@ -241,8 +246,8 @@ export function VisualMath({ problem }: VisualMathProps) {
     const f2 = problem.frac2;
     const ans = problem.fracAnswer;
 
-    // Common denominator for unified pie visualization
-    const commonD = (f1.d === f2.d) ? f1.d : (ans ? ans.d : (f1.d * f2.d) / gcd(f1.d, f2.d));
+    // Common denominator for unified pie visualization (lcm of f1.d and f2.d)
+    const commonD = lcm(f1.d, f2.d);
     const c1 = f1.n * (commonD / f1.d);
     const c2 = f2.n * (commonD / f2.d);
 
@@ -252,13 +257,13 @@ export function VisualMath({ problem }: VisualMathProps) {
       const pieCount = Math.max(1, Math.ceil(totalFilled / commonD));
 
       return (
-        <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+        <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 max-w-full">
           {Array.from({ length: pieCount }).map((_, pIdx) => {
             const pieStartSlot = pIdx * commonD;
 
             return (
-              <div key={`pie-${pIdx}`} className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 shadow-xs">
-                <svg width={104} height={104} viewBox="0 0 104 104" className="drop-shadow-xs">
+              <div key={`pie-${pIdx}`} className="flex flex-col items-center justify-center">
+                <svg width={130} height={130} viewBox="0 0 130 130" className="drop-shadow-md">
                   {Array.from({ length: commonD }).map((_, i) => {
                     const globalSlotIndex = pieStartSlot + i;
                     const isCyanSlot = globalSlotIndex < c1;
@@ -267,8 +272,8 @@ export function VisualMath({ problem }: VisualMathProps) {
                     const startAngle = (i * 360) / commonD - 90;
                     const endAngle = ((i + 1) * 360) / commonD - 90;
 
-                    const radius = 46;
-                    const center = 52;
+                    const radius = 58;
+                    const center = 65;
 
                     const startRad = (startAngle * Math.PI) / 180;
                     const endRad = (endAngle * Math.PI) / 180;
@@ -339,13 +344,13 @@ export function VisualMath({ problem }: VisualMathProps) {
       const remaining = Math.max(0, c1 - c2);
 
       return (
-        <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-4 p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+        <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 max-w-full">
           {Array.from({ length: pieCount }).map((_, pIdx) => {
             const pieStartSlot = pIdx * commonD;
 
             return (
-              <div key={`pie-${pIdx}`} className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 shadow-xs">
-                <svg width={104} height={104} viewBox="0 0 104 104" className="drop-shadow-xs">
+              <div key={`pie-${pIdx}`} className="flex flex-col items-center justify-center">
+                <svg width={130} height={130} viewBox="0 0 130 130" className="drop-shadow-md">
                   {Array.from({ length: commonD }).map((_, i) => {
                     const globalSlotIndex = pieStartSlot + i;
                     const isCyanSlot = globalSlotIndex < c1;
@@ -354,8 +359,8 @@ export function VisualMath({ problem }: VisualMathProps) {
                     const startAngle = (i * 360) / commonD - 90;
                     const endAngle = ((i + 1) * 360) / commonD - 90;
 
-                    const radius = 46;
-                    const center = 52;
+                    const radius = 58;
+                    const center = 65;
 
                     const startRad = (startAngle * Math.PI) / 180;
                     const endRad = (endAngle * Math.PI) / 180;
@@ -424,7 +429,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     return (
       <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-5 p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
         <div className="flex flex-col items-center gap-1">
-          <FractionCircle fraction={f1} fillColor="fill-cyan-300" strokeColor="stroke-cyan-400" size={54} />
+          <FractionCircle fraction={f1} fillColor="fill-cyan-300" strokeColor="stroke-cyan-400" size={64} />
           <span className="text-xs font-headline font-bold text-cyan-300">
             {f1.d === 1 ? f1.n : `${f1.n}/${f1.d}`}
           </span>
@@ -435,7 +440,7 @@ export function VisualMath({ problem }: VisualMathProps) {
         </span>
 
         <div className="flex flex-col items-center gap-1">
-          <FractionCircle fraction={f2} fillColor="fill-amber-400" strokeColor="stroke-amber-500" size={54} />
+          <FractionCircle fraction={f2} fillColor="fill-amber-400" strokeColor="stroke-amber-500" size={64} />
           <span className="text-xs font-headline font-bold text-amber-300">
             {f2.d === 1 ? f2.n : `${f2.n}/${f2.d}`}
           </span>
@@ -445,7 +450,7 @@ export function VisualMath({ problem }: VisualMathProps) {
           <>
             <span className="text-lg sm:text-xl font-bold text-white/80">=</span>
             <div className="flex flex-col items-center gap-1">
-              <FractionCircle fraction={ans} fillColor="fill-white" strokeColor="stroke-white/80" size={54} />
+              <FractionCircle fraction={ans} fillColor="fill-white" strokeColor="stroke-white/80" size={64} />
               <span className="text-xs font-headline font-bold text-white">
                 {ans.d === 1 ? ans.n : `${ans.n}/${ans.d}`}
               </span>
