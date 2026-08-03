@@ -434,7 +434,7 @@ export function VisualMath({ problem }: VisualMathProps) {
       );
     }
 
-    // FRACTION MULTIPLICATION (×): Textbook Rectangular Area Model
+    // FRACTION MULTIPLICATION (×): 2-Step Animated Rectangular Area Model (Step 1: d1 columns -> Step 2: split by d2 rows)
     if (operation === '×') {
       const cols = f1.d; // d1 vertical columns
       const cyanCols = f1.n; // n1 Cyan columns
@@ -446,7 +446,8 @@ export function VisualMath({ problem }: VisualMathProps) {
       const gridW = 160;
       const gridH = 120;
       const cellW = gridW / cols;
-      const cellH = gridH / rows;
+      const currentRows = isSubdivided ? rows : 1;
+      const cellH = gridH / currentRows;
 
       return (
         <div className="flex flex-col items-center justify-center gap-1.5">
@@ -465,8 +466,8 @@ export function VisualMath({ problem }: VisualMathProps) {
             {Array.from({ length: cols }).map((_, c) => {
               const isCyanCol = c < cyanCols;
 
-              return Array.from({ length: rows }).map((_, r) => {
-                const isOrangeRow = r < orangeRows;
+              return Array.from({ length: currentRows }).map((_, r) => {
+                const isOrangeRow = isSubdivided && r < orangeRows;
                 const isOverlap = isCyanCol && isOrangeRow;
 
                 const x = c * cellW;
@@ -480,7 +481,7 @@ export function VisualMath({ problem }: VisualMathProps) {
                   strokeClass = "stroke-cyan-400";
                 }
 
-                if (isSubdivided && isOverlap) {
+                if (isOverlap) {
                   fillClass = "fill-amber-400";
                   strokeClass = "stroke-amber-500";
                 }
@@ -492,9 +493,9 @@ export function VisualMath({ problem }: VisualMathProps) {
                     y={y + 1.5}
                     width={cellW - 3}
                     height={cellH - 3}
-                    rx={4}
+                    rx={isSubdivided ? 4 : 8}
                     className={cn(
-                      "transition-all duration-500",
+                      "transition-all duration-500 ease-out",
                       fillClass,
                       strokeClass
                     )}
@@ -503,7 +504,7 @@ export function VisualMath({ problem }: VisualMathProps) {
               });
             })}
 
-            {/* Step 2: Animated Horizontal Orange Cut Line */}
+            {/* Step 2 (t=550ms): Glowing Orange Horizontal Cut Lines */}
             {isSubdivided && Array.from({ length: rows - 1 }).map((_, rIdx) => {
               const lineY = (rIdx + 1) * cellH;
               return (
