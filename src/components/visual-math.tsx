@@ -434,7 +434,7 @@ export function VisualMath({ problem }: VisualMathProps) {
       );
     }
 
-    // FRACTION MULTIPLICATION (×): Physical Separation with Gap & Rounded Corner Separation
+    // FRACTION MULTIPLICATION (×): Seamless Connected Cells -> Padded Rounded Sub-Cards Model
     if (operation === '×') {
       const cols = f1.d; // d1 vertical columns
       const cyanCols = f1.n; // n1 Cyan columns
@@ -445,25 +445,27 @@ export function VisualMath({ problem }: VisualMathProps) {
 
       const gridW = 160;
       const gridH = 120;
-      const cellW = gridW / cols;
 
-      const gap = 4;
-      const subH = (gridH - (rows - 1) * gap - 4) / rows;
+      // Step 1: gap = 0, rx = 0 (seamless tall bars). Step 2: gap = 3, rx = 6 (separated sub-cards)
+      const gap = isSubdivided ? 3 : 0;
+      const cellW = (gridW - (cols - 1) * gap) / cols;
+      const cellH = (gridH - (rows - 1) * gap) / rows;
+      const cornerRadius = isSubdivided ? 6 : 0;
 
       return (
         <div className="flex flex-col items-center justify-center gap-1.5">
           <svg width={gridW + 12} height={gridH + 12} viewBox={`-6 -6 ${gridW + 12} ${gridH + 12}`} className="drop-shadow-md overflow-visible">
-            {/* Outer Grid Backdrop */}
+            {/* Outer Backdrop */}
             <rect
-              x={0}
-              y={0}
-              width={gridW}
-              height={gridH}
+              x={-2}
+              y={-2}
+              width={gridW + 4}
+              height={gridH + 4}
               rx={12}
               className="fill-white/5 stroke-white/30 stroke-2"
             />
 
-            {/* Sub-Cards with Physical Gap & Rounded Corner Separation */}
+            {/* Grid Cells: Step 1 = gap:0, rx:0 (seamless tall bars) -> Step 2 = gap:3, rx:6 (separated sub-cards) */}
             {Array.from({ length: cols }).map((_, c) => {
               const isCyanCol = c < cyanCols;
 
@@ -471,12 +473,8 @@ export function VisualMath({ problem }: VisualMathProps) {
                 const isOrangeRow = isSubdivided && r < orangeRows;
                 const isOverlap = isCyanCol && isOrangeRow;
 
-                // Step 1: 1 tall bar (y=2, height=gridH-4). Step 2: separated sub-cards with 4px gap!
-                const targetY = isSubdivided ? 2 + r * (subH + gap) : 2;
-                const targetH = isSubdivided ? subH : (r === 0 ? gridH - 4 : 0);
-
-                const x = c * cellW + 2;
-                const w = cellW - 4;
+                const x = c * (cellW + gap);
+                const y = r * (cellH + gap);
 
                 let fillClass = "fill-transparent";
                 let strokeClass = "stroke-white/20";
@@ -490,11 +488,10 @@ export function VisualMath({ problem }: VisualMathProps) {
                   <rect
                     key={`cell-${c}-${r}`}
                     x={x}
-                    y={targetY}
-                    width={w}
-                    height={Math.max(0, targetH)}
-                    rx={isSubdivided ? 6 : 10}
-                    opacity={!isSubdivided && r > 0 ? 0 : 1}
+                    y={y}
+                    width={cellW}
+                    height={cellH}
+                    rx={cornerRadius}
                     className={cn(
                       "transition-all duration-700 ease-out",
                       fillClass,
