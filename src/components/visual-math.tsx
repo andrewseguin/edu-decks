@@ -266,10 +266,14 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
       } else if (operation === '×') {
         if (step === 1) {
           setActiveStep(1);
-          setCyanVisible(0);
+          setCyanVisible(num1);
+          setOrangeVisible(num2);
+          setWhiteCount(0);
         } else {
           setActiveStep(2);
-          setCyanVisible(num1 * num2);
+          setCyanVisible(num1);
+          setOrangeVisible(num2);
+          setWhiteCount(num1 * num2);
         }
       }
     }
@@ -436,20 +440,46 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
       } else if (operation === '×') {
         setActiveStep(1);
         setCyanVisible(0);
-        const total = num1 * num2;
-        const intervalMs = total > 30 ? 25 : 55;
+        setOrangeVisible(0);
+        setWhiteCount(0);
 
-        t1 = setTimeout(() => {
-          setActiveStep(2);
-          let currentCyan = 0;
-          cyanInterval = setInterval(() => {
-            currentCyan++;
-            setCyanVisible(currentCyan);
-            if (currentCyan >= total) {
-              if (cyanInterval) clearInterval(cyanInterval);
-            }
-          }, intervalMs);
-        }, 700);
+        // Step 1a: Increment X-axis Cyan Headers
+        let currentX = 0;
+        cyanInterval = setInterval(() => {
+          currentX++;
+          setCyanVisible(currentX);
+          if (currentX >= num1) {
+            if (cyanInterval) clearInterval(cyanInterval);
+
+            // Step 1b: Increment Y-axis Amber Headers
+            t1 = setTimeout(() => {
+              let currentY = 0;
+              orangeInterval = setInterval(() => {
+                currentY++;
+                setOrangeVisible(currentY);
+                if (currentY >= num2) {
+                  if (orangeInterval) clearInterval(orangeInterval);
+
+                  // Step 2: Fill interior White Grid Cells
+                  t2 = setTimeout(() => {
+                    setActiveStep(2);
+                    let currentWhite = 0;
+                    const totalCells = num1 * num2;
+                    const speed = totalCells > 30 ? 25 : 55;
+
+                    whiteInterval = setInterval(() => {
+                      currentWhite++;
+                      setWhiteCount(currentWhite);
+                      if (currentWhite >= totalCells) {
+                        if (whiteInterval) clearInterval(whiteInterval);
+                      }
+                    }, speed);
+                  }, 400);
+                }
+              }, 80);
+            }, 150);
+          }
+        }, 80);
       } else if (operation === '÷') {
         setCyanVisible(num1);
         t1 = setTimeout(() => {
@@ -1158,26 +1188,42 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
             className="grid p-1.5 rounded-xl bg-white/15 border border-white/30 shadow-xs"
             style={{ gap: `${gapSize}px` }}
           >
+            {/* Top X-Axis Header (Cyan) */}
             <div className="flex items-center" style={{ gap: `${gapSize}px` }}>
               <div className="rounded-md bg-transparent shrink-0" style={{ width: `${blockSize}px`, height: `${blockSize}px` }} />
-              {Array.from({ length: xCount }).map((_, xIdx) => (
-                <div
-                  key={`x-axis-${xIdx}`}
-                  className="rounded-md bg-cyan-300 border border-cyan-400 shadow-xs flex items-center justify-center font-bold text-cyan-950 leading-none shrink-0"
-                  style={{ width: `${blockSize}px`, height: `${blockSize}px`, fontSize: `${fontSize}px` }}
-                >
-                  {xIdx + 1}
-                </div>
-              ))}
+              {Array.from({ length: xCount }).map((_, xIdx) => {
+                const isVisible = xIdx < cyanVisible;
+                return (
+                  <div
+                    key={`x-axis-${xIdx}`}
+                    className={cn(
+                      "rounded-md shadow-xs flex items-center justify-center font-bold leading-none shrink-0 transition-all duration-300",
+                      isVisible
+                        ? "bg-cyan-300 border border-cyan-400 text-cyan-950 opacity-100 scale-100"
+                        : "bg-white/5 border border-dashed border-white/20 text-transparent opacity-30 scale-90"
+                    )}
+                    style={{ width: `${blockSize}px`, height: `${blockSize}px`, fontSize: `${fontSize}px` }}
+                  >
+                    {xIdx + 1}
+                  </div>
+                );
+              })}
             </div>
 
+            {/* Grid Rows with Y-Axis Header (Amber) */}
             {Array.from({ length: yCount }).map((_, yIdx) => {
               const rowStartIndex = yIdx * xCount;
+              const isYVisible = yIdx < orangeVisible;
 
               return (
                 <div key={`y-row-${yIdx}`} className="flex items-center" style={{ gap: `${gapSize}px` }}>
                   <div
-                    className="rounded-md bg-amber-400 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-amber-950 leading-none shrink-0"
+                    className={cn(
+                      "rounded-md shadow-xs flex items-center justify-center font-bold leading-none shrink-0 transition-all duration-300",
+                      isYVisible
+                        ? "bg-amber-400 border border-amber-500 text-amber-950 opacity-100 scale-100"
+                        : "bg-white/5 border border-dashed border-white/20 text-transparent opacity-30 scale-90"
+                    )}
                     style={{ width: `${blockSize}px`, height: `${blockSize}px`, fontSize: `${fontSize}px` }}
                   >
                     {yIdx + 1}
@@ -1185,12 +1231,13 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
 
                   {Array.from({ length: xCount }).map((_, xIdx) => {
                     const areaIndex = rowStartIndex + xIdx;
+                    const isCellFilled = activeStep === 2 ? areaIndex < whiteCount : false;
 
-                    if (areaIndex >= cyanVisible) {
+                    if (!isCellFilled) {
                       return (
                         <div
                           key={`area-slot-${areaIndex}`}
-                          className="rounded-md bg-white/5 border border-dashed border-white/20 shrink-0"
+                          className="rounded-md bg-white/5 border border-dashed border-white/20 shrink-0 transition-all duration-200"
                           style={{ width: `${blockSize}px`, height: `${blockSize}px` }}
                         />
                       );
@@ -1199,7 +1246,7 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
                     return (
                       <div
                         key={`area-slot-${areaIndex}`}
-                        className="rounded-md bg-white border border-white/80 shadow-xs transition-opacity duration-150 shrink-0"
+                        className="rounded-md bg-white border border-white/80 shadow-xs shrink-0 transition-all duration-200 animate-fade-in"
                         style={{ width: `${blockSize}px`, height: `${blockSize}px` }}
                       />
                     );
