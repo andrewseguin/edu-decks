@@ -170,20 +170,21 @@ export function MathCard({
             </div>
           </div>
 
-          {/* Subtitle Conversion Pill Badge (e.g. 4/8 + 3/8 = 7/8) when revealed */}
+          {/* Subtitle Conversion Pill Badge with Stacked Fractions when revealed */}
           {isFlipped && problem.hasConversion && problem.convertedFrac1 && problem.convertedFrac2 && (
-            <div className="mt-2 sm:mt-3 px-3.5 py-1.5 rounded-full bg-black/25 border border-white/20 backdrop-blur-xs flex items-center gap-2 text-white/90 font-headline font-bold text-xs sm:text-base shadow-sm animate-fade-in">
-              <span className="text-cyan-300">
-                {problem.convertedFrac1.n}/{problem.convertedFrac1.d}
-              </span>
-              <span>{problem.operation}</span>
-              <span className="text-amber-300">
-                {problem.convertedFrac2.n}/{problem.convertedFrac2.d}
-              </span>
-              <span>=</span>
-              <span className="text-white">
-                {problem.convertedFrac1.n + (problem.operation === '+' ? problem.convertedFrac2.n : -problem.convertedFrac2.n)}/{problem.convertedFrac1.d}
-              </span>
+            <div className="mt-2.5 sm:mt-3.5 px-4 py-1.5 rounded-full bg-black/25 border border-white/20 backdrop-blur-xs flex items-center gap-2 text-white/90 font-headline font-bold shadow-sm animate-fade-in">
+              <FractionDisplay fraction={problem.convertedFrac1} colorClass="text-cyan-300" size="sm" />
+              <span className="text-sm sm:text-base font-normal">{problem.operation}</span>
+              <FractionDisplay fraction={problem.convertedFrac2} colorClass="text-amber-300" size="sm" />
+              <span className="text-sm sm:text-base font-normal">=</span>
+              <FractionDisplay
+                fraction={{
+                  n: problem.convertedFrac1.n + (problem.operation === '+' ? problem.convertedFrac2.n : -problem.convertedFrac2.n),
+                  d: problem.convertedFrac1.d,
+                }}
+                colorClass="text-white"
+                size="sm"
+              />
             </div>
           )}
         </div>
