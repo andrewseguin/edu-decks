@@ -65,8 +65,8 @@ export function MathCard({
         {/* Top/Center Equation Section */}
         <div
           className={cn(
-            "w-full flex-1 flex flex-col items-center justify-start pt-2 sm:pt-4 transition-all duration-500 ease-out z-20 pointer-events-none",
-            isFlipped ? "translate-y-0" : "translate-y-[22%] sm:translate-y-[28%]"
+            "w-full flex flex-col items-center transition-all duration-500 ease-out z-20 pointer-events-none",
+            isFlipped ? "flex-none pt-2 sm:pt-4" : "flex-1 justify-center"
           )}
         >
           {/* Main Equation Line */}
@@ -198,11 +198,13 @@ export function MathCard({
           )}
         </div>
 
-        {/* Visual Blocks Overlay - Flex Anchored in Lower Half */}
+        {/* Visual Blocks Overlay - Lower Half when revealed */}
         <div
           className={cn(
-            "w-full flex-1 flex items-center justify-center pointer-events-none z-10 transition-all duration-500 ease-out pb-2",
-            isFlipped ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-6 scale-95 pointer-events-none"
+            "w-full flex items-center justify-center pointer-events-none z-10 transition-all duration-500 ease-out pb-2",
+            isFlipped
+              ? "flex-1 opacity-100 translate-y-0 scale-100"
+              : "h-0 flex-none opacity-0 translate-y-6 scale-95 pointer-events-none overflow-hidden"
           )}
         >
           <VisualMath problem={problem} isFlipped={isFlipped} />
