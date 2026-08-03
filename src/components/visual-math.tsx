@@ -104,12 +104,14 @@ export function VisualMath({ problem }: VisualMathProps) {
   const [cyanVisible, setCyanVisible] = useState(0);
   const [orangeVisible, setOrangeVisible] = useState(0);
   const [subtractionCount, setSubtractionCount] = useState(0);
+  const [whiteCount, setWhiteCount] = useState(0);
 
   useEffect(() => {
     // Reset state for new problem
     setCyanVisible(0);
     setOrangeVisible(0);
     setSubtractionCount(0);
+    setWhiteCount(0);
 
     if (problem.isFraction && problem.frac1 && problem.frac2) {
       const f1 = problem.frac1;
@@ -168,11 +170,29 @@ export function VisualMath({ problem }: VisualMathProps) {
 
       if (operation === '×') {
         setCyanVisible(f1.n);
-        const timeoutId = setTimeout(() => {
+        setOrangeVisible(0);
+        setWhiteCount(0);
+
+        // Step 2: Orange Cut Line & Separation at t=550ms
+        const t1 = setTimeout(() => {
           setOrangeVisible(1);
+
+          // Step 3: Incremental White fill starting at t=1100ms
+          const totalOverlapCells = f1.n * f2.n;
+          let currentWhite = 0;
+
+          const t2 = setTimeout(() => {
+            const whiteInterval = setInterval(() => {
+              currentWhite++;
+              setWhiteCount(currentWhite);
+              if (currentWhite >= totalOverlapCells) {
+                clearInterval(whiteInterval);
+              }
+            }, 180);
+          }, 450);
         }, 550);
 
-        return () => clearTimeout(timeoutId);
+        return () => clearTimeout(t1);
       }
     }
 
@@ -434,7 +454,7 @@ export function VisualMath({ problem }: VisualMathProps) {
       );
     }
 
-    // FRACTION MULTIPLICATION (×): Seamless Cyan Columns -> Padded White Sub-Cards with Bold Orange Cut Lines
+    // FRACTION MULTIPLICATION (×): 3-Step Incremental Sequence (Step 1: Cyan bars -> Step 2: Orange Cut Line & Separation -> Step 3: Incremental White Fill)
     if (operation === '×') {
       const cols = f1.d; // d1 vertical columns
       const cyanCols = f1.n; // n1 Cyan columns
@@ -446,7 +466,7 @@ export function VisualMath({ problem }: VisualMathProps) {
       const gridW = 160;
       const gridH = 120;
 
-      // Step 1: gap = 0, rx = 0 (seamless tall bars). Step 2: gap = 4, rx = 6 (separated sub-cards)
+      // Step 1: gap = 0, rx = 0 (seamless tall bars). Step 2 & 3: gap = 4, rx = 6 (separated sub-cards)
       const gap = isSubdivided ? 4 : 0;
       const cellW = (gridW - (cols - 1) * gap) / cols;
       const cellH = (gridH - (rows - 1) * gap) / rows;
@@ -465,13 +485,17 @@ export function VisualMath({ problem }: VisualMathProps) {
               className="fill-white/5 stroke-white/30 stroke-2"
             />
 
-            {/* Grid Cells: Step 1 = gap:0, rx:0 (seamless tall bars) -> Step 2 = gap:4, rx:6 (White answer sub-cards) */}
+            {/* Grid Cells: Step 1 (Cyan bars) -> Step 2 (Separated Cyan sub-cards) -> Step 3 (Incremental White fill) */}
             {Array.from({ length: cols }).map((_, c) => {
               const isCyanCol = c < cyanCols;
 
               return Array.from({ length: rows }).map((_, r) => {
                 const isOrangeRow = isSubdivided && r < orangeRows;
                 const isOverlap = isCyanCol && isOrangeRow;
+
+                // Step 3 incremental white indexing (row by row left to right)
+                const overlapIdx = r * cyanCols + c;
+                const isWhite = isSubdivided && isOverlap && overlapIdx < whiteCount;
 
                 const x = c * (cellW + gap);
                 const y = r * (cellH + gap);
@@ -480,8 +504,8 @@ export function VisualMath({ problem }: VisualMathProps) {
                 let strokeClass = "stroke-white/20";
 
                 if (isCyanCol) {
-                  fillClass = isOverlap ? "fill-white" : "fill-cyan-300";
-                  strokeClass = isOverlap ? "stroke-white/90" : "stroke-cyan-400";
+                  fillClass = isWhite ? "fill-white" : "fill-cyan-300";
+                  strokeClass = isWhite ? "stroke-white/90 shadow-sm" : "stroke-cyan-400";
                 }
 
                 return (
@@ -493,7 +517,7 @@ export function VisualMath({ problem }: VisualMathProps) {
                     height={cellH}
                     rx={cornerRadius}
                     className={cn(
-                      "transition-all duration-700 ease-out",
+                      "transition-all duration-500 ease-out",
                       fillClass,
                       strokeClass
                     )}
