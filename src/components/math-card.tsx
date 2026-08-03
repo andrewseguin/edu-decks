@@ -61,12 +61,14 @@ export function MathCard({
       }}
       onClick={handleCardClick}
     >
-      <CardContent className="p-4 sm:p-6 h-full w-full relative flex flex-col justify-between items-center overflow-hidden">
-        {/* Top/Center Equation Section */}
+      <CardContent className="p-4 sm:p-6 h-full w-full relative overflow-hidden">
+        {/* Main Equation Container */}
         <div
           className={cn(
-            "w-full flex-1 flex flex-col items-center justify-start pt-2 sm:pt-4 transition-all duration-500 ease-out z-20 pointer-events-none",
-            isFlipped ? "translate-y-0" : "translate-y-[28%] sm:translate-y-[34%]"
+            "absolute inset-0 flex flex-col items-center justify-center transition-all duration-500 ease-out z-20 pointer-events-none p-4 sm:p-6",
+            isFlipped
+              ? "-translate-y-[22%] sm:-translate-y-[26%]"
+              : "translate-y-0"
           )}
         >
           {/* Main Equation Line */}
@@ -201,7 +203,7 @@ export function MathCard({
         {/* Visual Blocks Overlay - Lower Half when revealed */}
         <div
           className={cn(
-            "w-full flex-1 flex items-center justify-center pointer-events-none z-10 transition-all duration-500 ease-out pb-2",
+            "absolute inset-x-0 bottom-2 sm:bottom-3 top-[48%] flex items-center justify-center pointer-events-none z-10 transition-all duration-500 ease-out p-2 sm:p-4",
             isFlipped
               ? "opacity-100 translate-y-0 scale-100"
               : "opacity-0 translate-y-8 scale-95 pointer-events-none"
