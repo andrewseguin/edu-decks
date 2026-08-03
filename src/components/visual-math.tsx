@@ -187,7 +187,7 @@ export function VisualMath({ problem }: VisualMathProps) {
         <div className="flex flex-col items-center gap-1">
           <FractionCircle fraction={f1} fillColor="fill-cyan-300" strokeColor="stroke-cyan-400" size={54} />
           <span className="text-xs font-headline font-bold text-cyan-300">
-            {f1.n}/{f1.d}
+            {f1.d === 1 ? f1.n : `${f1.n}/${f1.d}`}
           </span>
         </div>
 
@@ -199,7 +199,7 @@ export function VisualMath({ problem }: VisualMathProps) {
         <div className="flex flex-col items-center gap-1">
           <FractionCircle fraction={f2} fillColor="fill-amber-400" strokeColor="stroke-amber-500" size={54} />
           <span className="text-xs font-headline font-bold text-amber-300">
-            {f2.n}/{f2.d}
+            {f2.d === 1 ? f2.n : `${f2.n}/${f2.d}`}
           </span>
         </div>
 
@@ -210,7 +210,7 @@ export function VisualMath({ problem }: VisualMathProps) {
             <div className="flex flex-col items-center gap-1">
               <FractionCircle fraction={ans} fillColor="fill-white" strokeColor="stroke-white/80" size={54} />
               <span className="text-xs font-headline font-bold text-white">
-                {ans.n}/{ans.d}
+                {ans.d === 1 ? ans.n : `${ans.n}/${ans.d}`}
               </span>
             </div>
           </>

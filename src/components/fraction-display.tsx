@@ -16,16 +16,27 @@ export function FractionDisplay({
   colorClass = "text-white",
   size = "md",
 }: FractionDisplayProps) {
-  if (fraction.d === 1) {
-    return <span className={cn(colorClass, className)}>{fraction.n}</span>;
-  }
-
   const sizeClasses = {
     sm: "text-lg sm:text-xl",
     md: "text-2xl sm:text-4xl",
-    lg: "text-3xl sm:text-5xl md:text-6xl",
-    xl: "text-4xl sm:text-6xl md:text-7xl",
+    lg: "text-4xl sm:text-6xl md:text-7xl",
+    xl: "text-5xl sm:text-7xl md:text-8xl",
   };
+
+  if (fraction.d === 1) {
+    return (
+      <span
+        className={cn(
+          "font-headline font-bold leading-none inline-block select-none",
+          colorClass,
+          sizeClasses[size],
+          className
+        )}
+      >
+        {fraction.n}
+      </span>
+    );
+  }
 
   return (
     <div
