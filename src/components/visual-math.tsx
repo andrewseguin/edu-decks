@@ -165,6 +165,15 @@ export function VisualMath({ problem }: VisualMathProps) {
 
         return () => clearInterval(cyanInterval);
       }
+
+      if (operation === '×') {
+        setCyanVisible(f1.n);
+        const timeoutId = setTimeout(() => {
+          setOrangeVisible(1);
+        }, 550);
+
+        return () => clearTimeout(timeoutId);
+      }
     }
 
     if (operation === '+') {
@@ -240,7 +249,7 @@ export function VisualMath({ problem }: VisualMathProps) {
     }
   }, [problem.id, num1, num2, operation, problem.isFraction, problem.frac1, problem.frac2, problem.fracAnswer]);
 
-  // Fraction Visualizer Component with 2-Step Addition & Subtraction
+  // Fraction Visualizer Component with 2-Step Addition, Subtraction & Multiplication
   if (problem.isFraction && problem.frac1 && problem.frac2) {
     const f1 = problem.frac1;
     const f2 = problem.frac2;
@@ -425,7 +434,80 @@ export function VisualMath({ problem }: VisualMathProps) {
       );
     }
 
-    // Default Fraction Circle Display for Multiplication & Division
+    // FRACTION MULTIPLICATION (×): "Fraction of a Fraction" Model
+    if (operation === '×') {
+      const d1 = f1.d;
+      const n1 = f1.n;
+      const d2 = f2.d;
+      const n2 = f2.n;
+
+      const totalSlices = d1 * d2;
+      const isSubdivided = orangeVisible > 0;
+
+      return (
+        <div className="flex flex-col items-center justify-center gap-1.5">
+          <svg width={130} height={130} viewBox="0 0 130 130" className="drop-shadow-md">
+            {Array.from({ length: totalSlices }).map((_, i) => {
+              const mainSliceIdx = Math.floor(i / d2);
+              const subSliceIdx = i % d2;
+
+              const isMainCyan = mainSliceIdx < n1;
+              const isOverlapOrange = isMainCyan && subSliceIdx < n2;
+
+              const startAngle = (i * 360) / totalSlices - 90;
+              const endAngle = ((i + 1) * 360) / totalSlices - 90;
+
+              const radius = 58;
+              const center = 65;
+
+              const startRad = (startAngle * Math.PI) / 180;
+              const endRad = (endAngle * Math.PI) / 180;
+
+              const x1 = center + radius * Math.cos(startRad);
+              const y1 = center + radius * Math.sin(startRad);
+              const x2 = center + radius * Math.cos(endRad);
+              const y2 = center + radius * Math.sin(endRad);
+
+              const largeArc = 360 / totalSlices > 180 ? 1 : 0;
+              const pathData =
+                totalSlices === 1
+                  ? `M ${center - radius}, ${center} a ${radius},${radius} 0 1,0 ${radius * 2},0 a ${radius},${radius} 0 1,0 -${radius * 2},0`
+                  : `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+
+              if (!isMainCyan) {
+                return (
+                  <path
+                    key={`mult-slice-${i}`}
+                    d={pathData}
+                    className="fill-white/10 stroke-white/30 stroke-1 stroke-dashed transition-all duration-300"
+                  />
+                );
+              }
+
+              if (isOverlapOrange && isSubdivided) {
+                return (
+                  <path
+                    key={`mult-slice-${i}`}
+                    d={pathData}
+                    className="fill-amber-400 stroke-amber-500 stroke-2 transition-all duration-500"
+                  />
+                );
+              }
+
+              return (
+                <path
+                  key={`mult-slice-${i}`}
+                  d={pathData}
+                  className="fill-cyan-300 stroke-cyan-400 stroke-2 transition-all duration-500"
+                />
+              );
+            })}
+          </svg>
+        </div>
+      );
+    }
+
+    // Default Fraction Circle Display for Division
     return (
       <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-5 p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
         <div className="flex flex-col items-center gap-1">
