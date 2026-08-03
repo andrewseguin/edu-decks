@@ -81,43 +81,6 @@ export function AppSettings({
             <ThemeToggleGroup />
           </div>
 
-          {/* Number Types */}
-          <div className="space-y-4">
-            <h4 className="font-medium leading-none font-headline text-lg">
-              Number Types
-            </h4>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="whole-numbers-toggle" className="text-base font-normal">
-                Whole Numbers
-              </Label>
-              <Switch
-                id="whole-numbers-toggle"
-                checked={showWholeNumbers}
-                onCheckedChange={(checked) => {
-                  if (!checked && !showFractions) {
-                    onShowFractionsChange(true);
-                  }
-                  onShowWholeNumbersChange(checked);
-                }}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="fractions-toggle" className="text-base font-normal">
-                Fractions
-              </Label>
-              <Switch
-                id="fractions-toggle"
-                checked={showFractions}
-                onCheckedChange={(checked) => {
-                  if (!checked && !showWholeNumbers) {
-                    onShowWholeNumbersChange(true);
-                  }
-                  onShowFractionsChange(checked);
-                }}
-              />
-            </div>
-          </div>
-
           {/* Counters & Rules */}
           <div className="space-y-4">
             <h4 className="font-medium leading-none font-headline text-lg">
