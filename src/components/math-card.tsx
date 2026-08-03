@@ -65,26 +65,34 @@ export function MathCard({
         {/* Top/Center Equation Section */}
         <div
           className={cn(
-            "w-full flex-1 flex flex-col items-center justify-center transition-all duration-500 ease-out z-20 pointer-events-none",
-            isFlipped ? "justify-start pt-2 sm:pt-4" : "justify-center"
+            "w-full flex-1 flex flex-col items-center justify-start pt-2 sm:pt-4 transition-all duration-500 ease-out z-20 pointer-events-none",
+            isFlipped ? "translate-y-0" : "translate-y-[22%] sm:translate-y-[28%]"
           )}
         >
           {/* Main Equation Line */}
-          <div className="flex items-center justify-center whitespace-nowrap text-center">
+          <div
+            className={cn(
+              "flex items-center justify-center whitespace-nowrap text-center transition-all duration-500 ease-out origin-top",
+              isFlipped ? "scale-[0.82] sm:scale-[0.88]" : "scale-100"
+            )}
+          >
             {/* First Number / Fraction */}
             {problem.isFraction && problem.frac1 ? (
               <FractionDisplay
                 fraction={problem.frac1}
-                colorClass={isFlipped ? "text-cyan-300" : "text-white"}
-                size={isFlipped ? "md" : "lg"}
+                colorClass={cn(
+                  "transition-colors duration-500",
+                  isFlipped ? "text-cyan-300" : "text-white"
+                )}
+                size="lg"
               />
             ) : (
               <span
                 className={cn(
-                  "font-headline font-bold leading-none select-none transition-colors duration-500",
+                  "font-headline font-bold leading-none select-none transition-colors duration-500 text-5xl sm:text-7xl md:text-8xl",
                   isFlipped
-                    ? "text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-4xl sm:text-6xl md:text-7xl"
-                    : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl"
+                    ? "text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)]"
+                    : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]"
                 )}
               >
                 {problem.num1}
@@ -92,12 +100,7 @@ export function MathCard({
             )}
 
             {/* Operator (+, -, ×, ÷) */}
-            <span
-              className={cn(
-                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] mx-2.5 sm:mx-4 transition-all duration-500",
-                isFlipped ? "text-4xl sm:text-6xl md:text-7xl" : "text-5xl sm:text-7xl md:text-8xl"
-              )}
-            >
+            <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] mx-2.5 sm:mx-4 text-5xl sm:text-7xl md:text-8xl">
               {problem.operation}
             </span>
 
@@ -105,16 +108,19 @@ export function MathCard({
             {problem.isFraction && problem.frac2 ? (
               <FractionDisplay
                 fraction={problem.frac2}
-                colorClass={isFlipped ? "text-amber-300" : "text-white"}
-                size={isFlipped ? "md" : "lg"}
+                colorClass={cn(
+                  "transition-colors duration-500",
+                  isFlipped ? "text-amber-300" : "text-white"
+                )}
+                size="lg"
               />
             ) : (
               <span
                 className={cn(
-                  "font-headline font-bold leading-none select-none transition-colors duration-500",
+                  "font-headline font-bold leading-none select-none transition-colors duration-500 text-5xl sm:text-7xl md:text-8xl",
                   isFlipped
-                    ? "text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-4xl sm:text-6xl md:text-7xl"
-                    : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl"
+                    ? "text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)]"
+                    : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]"
                 )}
               >
                 {problem.num2}
@@ -122,12 +128,7 @@ export function MathCard({
             )}
 
             {/* Equals Symbol */}
-            <span
-              className={cn(
-                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] ml-2.5 sm:ml-4 mr-2.5 sm:mr-4 transition-all duration-500",
-                isFlipped ? "text-4xl sm:text-6xl md:text-7xl" : "text-5xl sm:text-7xl md:text-8xl"
-              )}
-            >
+            <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] ml-2.5 sm:ml-4 mr-2.5 sm:mr-4 text-5xl sm:text-7xl md:text-8xl">
               =
             </span>
 
@@ -136,23 +137,23 @@ export function MathCard({
               {problem.isFraction && problem.fracAnswer ? (
                 <div
                   className={cn(
-                    "transition-all duration-500",
-                    isFlipped ? "opacity-100 scale-100" : "opacity-0 scale-90"
+                    "transition-all duration-500 ease-out",
+                    isFlipped ? "opacity-100 scale-100" : "opacity-0 scale-75"
                   )}
                 >
                   <FractionDisplay
                     fraction={problem.fracAnswer}
                     colorClass="text-white"
-                    size={isFlipped ? "md" : "lg"}
+                    size="lg"
                   />
                 </div>
               ) : (
                 <span
                   className={cn(
-                    "font-headline font-bold leading-none select-none text-white transition-all duration-500",
+                    "font-headline font-bold leading-none select-none text-white transition-all duration-500 ease-out text-5xl sm:text-7xl md:text-8xl",
                     isFlipped
-                      ? "[text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] opacity-100 scale-100 text-4xl sm:text-6xl md:text-7xl"
-                      : "opacity-0 scale-90 text-5xl sm:text-7xl md:text-8xl"
+                      ? "[text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] opacity-100 scale-100"
+                      : "opacity-0 scale-75"
                   )}
                 >
                   {problem.answerText}
@@ -160,19 +161,27 @@ export function MathCard({
               )}
 
               {/* Obscuring Frosted Glass Pill Badge when Unrevealed */}
-              {!isFlipped && (
-                <div className="absolute inset-y-[-4px] inset-x-[-6px] flex items-center justify-center bg-white/20 backdrop-blur-md rounded-2xl border-2 border-dashed border-white/40 shadow-sm transition-all duration-300">
-                  <span className="font-headline font-bold text-white text-3xl sm:text-5xl md:text-6xl">
-                    ?
-                  </span>
-                </div>
-              )}
+              <div
+                className={cn(
+                  "absolute inset-y-[-4px] inset-x-[-6px] flex items-center justify-center bg-white/20 backdrop-blur-md rounded-2xl border-2 border-dashed border-white/40 shadow-sm transition-all duration-500 ease-out",
+                  isFlipped ? "opacity-0 scale-75 pointer-events-none" : "opacity-100 scale-100"
+                )}
+              >
+                <span className="font-headline font-bold text-white text-3xl sm:text-5xl md:text-6xl">
+                  ?
+                </span>
+              </div>
             </div>
           </div>
 
           {/* Subtitle Conversion Pill Badge with Stacked Fractions when revealed */}
-          {isFlipped && problem.hasConversion && problem.convertedFrac1 && problem.convertedFrac2 && (
-            <div className="mt-2 sm:mt-3 px-4 py-1.5 rounded-full bg-black/25 border border-white/20 backdrop-blur-xs flex items-center gap-2 text-white/90 font-headline font-bold shadow-sm animate-fade-in">
+          {problem.hasConversion && problem.convertedFrac1 && problem.convertedFrac2 && (
+            <div
+              className={cn(
+                "mt-2 sm:mt-3 px-4 py-1.5 rounded-full bg-black/25 border border-white/20 backdrop-blur-xs flex items-center gap-2 text-white/90 font-headline font-bold shadow-sm transition-all duration-500 ease-out",
+                isFlipped ? "opacity-100 translate-y-0 scale-100" : "opacity-0 -translate-y-2 scale-90 pointer-events-none"
+              )}
+            >
               <FractionDisplay fraction={problem.convertedFrac1} colorClass="text-cyan-300" size="sm" />
               <span className="text-sm sm:text-base font-normal">{problem.operation}</span>
               <FractionDisplay fraction={problem.convertedFrac2} colorClass="text-amber-300" size="sm" />
@@ -190,11 +199,14 @@ export function MathCard({
         </div>
 
         {/* Visual Blocks Overlay - Flex Anchored in Lower Half */}
-        {isFlipped && (
-          <div className="w-full flex-1 flex items-center justify-center pointer-events-none z-10 transition-opacity duration-500 ease-out pb-2">
-            <VisualMath problem={problem} />
-          </div>
-        )}
+        <div
+          className={cn(
+            "w-full flex-1 flex items-center justify-center pointer-events-none z-10 transition-all duration-500 ease-out pb-2",
+            isFlipped ? "opacity-100 translate-y-0 scale-100" : "opacity-0 translate-y-6 scale-95 pointer-events-none"
+          )}
+        >
+          <VisualMath problem={problem} isFlipped={isFlipped} />
+        </div>
 
         {/* Speaker Button in Bottom Right */}
         <Button

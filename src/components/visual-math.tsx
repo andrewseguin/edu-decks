@@ -3,9 +3,11 @@
 import { useState, useEffect } from "react";
 import { MathProblem, Fraction } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { RotateCcw } from "lucide-react";
 
 type VisualMathProps = {
   problem: MathProblem;
+  isFlipped?: boolean;
 };
 
 // Greatest Common Divisor helper
@@ -99,19 +101,205 @@ function FractionCircle({
   );
 }
 
-export function VisualMath({ problem }: VisualMathProps) {
+// Helper to construct SVG path data for rectangles with individual corner radii (uniform path structure for CSS d attribute transitions)
+function getRoundedRectPath(
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  tl: number,
+  tr: number,
+  br: number,
+  bl: number
+): string {
+  const maxR = Math.min(w / 2, h / 2);
+  const rTL = Math.max(0, Math.min(tl, maxR));
+  const rTR = Math.max(0, Math.min(tr, maxR));
+  const rBR = Math.max(0, Math.min(br, maxR));
+  const rBL = Math.max(0, Math.min(bl, maxR));
+
+  const safeTL = rTL === 0 ? 0.001 : rTL;
+  const safeTR = rTR === 0 ? 0.001 : rTR;
+  const safeBR = rBR === 0 ? 0.001 : rBR;
+  const safeBL = rBL === 0 ? 0.001 : rBL;
+
+  return [
+    `M ${x + safeTL} ${y}`,
+    `L ${x + w - safeTR} ${y}`,
+    `A ${safeTR} ${safeTR} 0 0 1 ${x + w} ${y + safeTR}`,
+    `L ${x + w} ${y + h - safeBR}`,
+    `A ${safeBR} ${safeBR} 0 0 1 ${x + w - safeBR} ${y + h}`,
+    `L ${x + safeBL} ${y + h}`,
+    `A ${safeBL} ${safeBL} 0 0 1 ${x} ${y + h - safeBL}`,
+    `L ${x} ${y + safeTL}`,
+    `A ${safeTL} ${safeTL} 0 0 1 ${x + safeTL} ${y}`,
+    'Z',
+  ].join(' ');
+}
+
+type StepConfig = {
+  step: number;
+  label: string;
+  activeColor: string;
+};
+
+function StepControls({
+  steps,
+  activeStep,
+  onStepClick,
+  onReplay,
+}: {
+  steps: StepConfig[];
+  activeStep: number;
+  onStepClick: (step: number) => void;
+  onReplay: () => void;
+}) {
+  return (
+    <div className="flex items-center gap-1 sm:gap-1.5 mt-2 bg-black/30 backdrop-blur-md px-2.5 sm:px-3 py-1 rounded-full border border-white/20 shadow-sm pointer-events-auto z-30 select-none animate-fade-in">
+      {steps.map((s) => (
+        <button
+          key={`step-btn-${s.step}`}
+          type="button"
+          onClick={() => onStepClick(s.step)}
+          className={cn(
+            "px-2 sm:px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-headline font-bold transition-colors duration-300 cursor-pointer border",
+            activeStep === s.step
+              ? s.activeColor
+              : "bg-transparent text-white/70 border-transparent hover:text-white hover:bg-white/15"
+          )}
+        >
+          {s.label}
+        </button>
+      ))}
+      <div className="w-px h-3 bg-white/25 mx-0.5" />
+      <button
+        type="button"
+        onClick={onReplay}
+        title="Replay animation"
+        className="p-1 rounded-full text-white/70 hover:text-white hover:bg-white/20 transition-transform active:scale-95 cursor-pointer"
+      >
+        <RotateCcw className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
+      </button>
+    </div>
+  );
+}
+
+export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
   const { num1, num2, operation, answer } = problem;
   const [cyanVisible, setCyanVisible] = useState(0);
   const [orangeVisible, setOrangeVisible] = useState(0);
   const [subtractionCount, setSubtractionCount] = useState(0);
   const [whiteCount, setWhiteCount] = useState(0);
+  const [activeStep, setActiveStep] = useState(1);
+  const [replayKey, setReplayKey] = useState(0);
 
-  useEffect(() => {
+  const replayAnimation = () => {
+    setReplayKey((k) => k + 1);
+  };
+
+  const handleStepClick = (step: number) => {
+    setActiveStep(step);
+
+    if (problem.isFraction && problem.frac1 && problem.frac2) {
+      const f1 = problem.frac1;
+      const f2 = problem.frac2;
+      const commonD = lcm(f1.d, f2.d);
+      const c1 = f1.n * (commonD / f1.d);
+      const c2 = f2.n * (commonD / f2.d);
+
+      if (operation === '×') {
+        if (step === 1) {
+          setCyanVisible(f1.n);
+          setOrangeVisible(0);
+          setWhiteCount(0);
+        } else if (step === 2) {
+          setCyanVisible(f1.n);
+          setOrangeVisible(1);
+          setWhiteCount(0);
+        } else if (step === 3) {
+          setCyanVisible(f1.n);
+          setOrangeVisible(1);
+          setWhiteCount(f1.n * f2.n);
+        }
+      } else if (operation === '+') {
+        if (step === 1) {
+          setCyanVisible(c1);
+          setOrangeVisible(0);
+        } else {
+          setCyanVisible(c1);
+          setOrangeVisible(c2);
+        }
+      } else if (operation === '-') {
+        if (step === 1) {
+          setCyanVisible(c1);
+          setSubtractionCount(0);
+        } else {
+          setCyanVisible(c1);
+          setSubtractionCount(c2);
+        }
+      } else if (operation === '÷') {
+        if (step === 1) {
+          setCyanVisible(c1);
+          setOrangeVisible(0);
+        } else {
+          setCyanVisible(c1);
+          setOrangeVisible(c2);
+        }
+      }
+    } else {
+      if (operation === '+') {
+        if (step === 1) {
+          setCyanVisible(num1);
+          setOrangeVisible(0);
+        } else {
+          setCyanVisible(num1);
+          setOrangeVisible(num2);
+        }
+      } else if (operation === '-') {
+        if (step === 1) {
+          setCyanVisible(num1);
+          setSubtractionCount(0);
+        } else {
+          setCyanVisible(num1);
+          setSubtractionCount(num2);
+        }
+      } else if (operation === '×') {
+        if (step === 1) {
+          setCyanVisible(0);
+        } else {
+          setCyanVisible(num1 * num2);
+        }
+      }
+    }
+  };  useEffect(() => {
+    let t1: ReturnType<typeof setTimeout> | null = null;
+    let t2: ReturnType<typeof setTimeout> | null = null;
+    let whiteInterval: ReturnType<typeof setInterval> | null = null;
+    let cyanInterval: ReturnType<typeof setInterval> | null = null;
+    let orangeInterval: ReturnType<typeof setInterval> | null = null;
+    let subInterval: ReturnType<typeof setInterval> | null = null;
+
     // Reset state for new problem
-    setCyanVisible(0);
+    if (problem.isFraction && problem.frac1) {
+      setCyanVisible(problem.frac1.n);
+    } else {
+      setCyanVisible(num1);
+    }
     setOrangeVisible(0);
     setSubtractionCount(0);
     setWhiteCount(0);
+    setActiveStep(1);
+
+    if (!isFlipped) {
+      return () => {
+        if (t1) clearTimeout(t1);
+        if (t2) clearTimeout(t2);
+        if (whiteInterval) clearInterval(whiteInterval);
+        if (cyanInterval) clearInterval(cyanInterval);
+        if (orangeInterval) clearInterval(orangeInterval);
+        if (subInterval) clearInterval(subInterval);
+      };
+    }
 
     if (problem.isFraction && problem.frac1 && problem.frac2) {
       const f1 = problem.frac1;
@@ -122,152 +310,154 @@ export function VisualMath({ problem }: VisualMathProps) {
 
       if (operation === '+') {
         let currentCyan = 0;
-        const cyanInterval = setInterval(() => {
+        cyanInterval = setInterval(() => {
           currentCyan++;
           setCyanVisible(currentCyan);
           if (currentCyan >= c1) {
-            clearInterval(cyanInterval);
+            if (cyanInterval) clearInterval(cyanInterval);
 
-            setTimeout(() => {
+            t1 = setTimeout(() => {
+              setActiveStep(2);
               let currentOrange = 0;
-              const orangeInterval = setInterval(() => {
+              orangeInterval = setInterval(() => {
                 currentOrange++;
                 setOrangeVisible(currentOrange);
                 if (currentOrange >= c2) {
-                  clearInterval(orangeInterval);
+                  if (orangeInterval) clearInterval(orangeInterval);
                 }
               }, 110);
             }, 400);
           }
         }, 90);
-
-        return () => clearInterval(cyanInterval);
-      }
-
-      if (operation === '-') {
+      } else if (operation === '-') {
         let currentCyan = 0;
-        const cyanInterval = setInterval(() => {
+        cyanInterval = setInterval(() => {
           currentCyan++;
           setCyanVisible(currentCyan);
           if (currentCyan >= c1) {
-            clearInterval(cyanInterval);
+            if (cyanInterval) clearInterval(cyanInterval);
 
-            setTimeout(() => {
+            t1 = setTimeout(() => {
+              setActiveStep(2);
               let currentSub = 0;
-              const subInterval = setInterval(() => {
+              subInterval = setInterval(() => {
                 currentSub++;
                 setSubtractionCount(currentSub);
                 if (currentSub >= c2) {
-                  clearInterval(subInterval);
+                  if (subInterval) clearInterval(subInterval);
                 }
               }, 150);
             }, 650);
           }
         }, 90);
-
-        return () => clearInterval(cyanInterval);
-      }
-
-      if (operation === '×') {
+      } else if (operation === '×') {
+        setActiveStep(1);
         setCyanVisible(f1.n);
         setOrangeVisible(0);
         setWhiteCount(0);
 
-        // Step 2: Orange Cut Line & Separation at t=550ms
-        const t1 = setTimeout(() => {
+        // Step 2: Orange Cut Line & Separation at t=900ms
+        t1 = setTimeout(() => {
+          setActiveStep(2);
           setOrangeVisible(1);
 
-          // Step 3: Incremental White fill starting at t=1100ms
+          // Step 3: Incremental White fill starting at t=1900ms
           const totalOverlapCells = f1.n * f2.n;
           let currentWhite = 0;
 
-          const t2 = setTimeout(() => {
-            const whiteInterval = setInterval(() => {
+          t2 = setTimeout(() => {
+            setActiveStep(3);
+            whiteInterval = setInterval(() => {
               currentWhite++;
               setWhiteCount(currentWhite);
-              if (currentWhite >= totalOverlapCells) {
+              if (currentWhite >= totalOverlapCells && whiteInterval) {
                 clearInterval(whiteInterval);
               }
-            }, 180);
-          }, 450);
-        }, 550);
+            }, 240);
+          }, 1000);
+        }, 900);
+      } else if (operation === '÷') {
+        setActiveStep(1);
+        setCyanVisible(c1);
+        setOrangeVisible(0);
 
-        return () => clearTimeout(t1);
+        t1 = setTimeout(() => {
+          setActiveStep(2);
+          setOrangeVisible(c2);
+        }, 900);
+      }
+    } else {
+      if (operation === '+') {
+        let currentCyan = 0;
+        cyanInterval = setInterval(() => {
+          currentCyan++;
+          setCyanVisible(currentCyan);
+          if (currentCyan >= num1) {
+            if (cyanInterval) clearInterval(cyanInterval);
+
+            t1 = setTimeout(() => {
+              setActiveStep(2);
+              let currentOrange = 0;
+              orangeInterval = setInterval(() => {
+                currentOrange++;
+                setOrangeVisible(currentOrange);
+                if (currentOrange >= num2) {
+                  if (orangeInterval) clearInterval(orangeInterval);
+                }
+              }, 110);
+            }, 400);
+          }
+        }, 90);
+      } else if (operation === '-') {
+        let currentCyan = 0;
+        cyanInterval = setInterval(() => {
+          currentCyan++;
+          setCyanVisible(currentCyan);
+          if (currentCyan >= num1) {
+            if (cyanInterval) clearInterval(cyanInterval);
+
+            t1 = setTimeout(() => {
+              setActiveStep(2);
+              let currentSub = 0;
+              subInterval = setInterval(() => {
+                currentSub++;
+                setSubtractionCount(currentSub);
+                if (currentSub >= num2) {
+                  if (subInterval) clearInterval(subInterval);
+                }
+              }, 150);
+            }, 650);
+          }
+        }, 90);
+      } else if (operation === '×') {
+        const total = num1 * num2;
+        const intervalMs = total > 30 ? 20 : 45;
+        let currentCyan = 0;
+        cyanInterval = setInterval(() => {
+          currentCyan++;
+          setCyanVisible(currentCyan);
+          if (currentCyan >= total) {
+            if (cyanInterval) clearInterval(cyanInterval);
+          }
+        }, intervalMs);
+      } else if (operation === '÷') {
+        setCyanVisible(num1);
+        t1 = setTimeout(() => {
+          setActiveStep(2);
+          setOrangeVisible(1);
+        }, 550);
       }
     }
 
-    if (operation === '+') {
-      let currentCyan = 0;
-      const cyanInterval = setInterval(() => {
-        currentCyan++;
-        setCyanVisible(currentCyan);
-        if (currentCyan >= num1) {
-          clearInterval(cyanInterval);
-
-          setTimeout(() => {
-            let currentOrange = 0;
-            const orangeInterval = setInterval(() => {
-              currentOrange++;
-              setOrangeVisible(currentOrange);
-              if (currentOrange >= num2) {
-                clearInterval(orangeInterval);
-              }
-            }, 110);
-          }, 400);
-        }
-      }, 90);
-
-      return () => clearInterval(cyanInterval);
-    }
-
-    if (operation === '-') {
-      let currentCyan = 0;
-      const cyanInterval = setInterval(() => {
-        currentCyan++;
-        setCyanVisible(currentCyan);
-        if (currentCyan >= num1) {
-          clearInterval(cyanInterval);
-
-          setTimeout(() => {
-            let currentSub = 0;
-            const subInterval = setInterval(() => {
-              currentSub++;
-              setSubtractionCount(currentSub);
-              if (currentSub >= num2) {
-                clearInterval(subInterval);
-              }
-            }, 150);
-          }, 650);
-        }
-      }, 90);
-
-      return () => clearInterval(cyanInterval);
-    }
-
-    if (operation === '×') {
-      const total = num1 * num2;
-      const intervalMs = total > 30 ? 20 : 45;
-      let currentCyan = 0;
-      const cyanInterval = setInterval(() => {
-        currentCyan++;
-        setCyanVisible(currentCyan);
-        if (currentCyan >= total) {
-          clearInterval(cyanInterval);
-        }
-      }, intervalMs);
-
-      return () => clearInterval(cyanInterval);
-    }
-
-    if (operation === '÷') {
-      setCyanVisible(num1);
-      const timeoutId = setTimeout(() => {
-        setOrangeVisible(1);
-      }, 550);
-
-      return () => clearTimeout(timeoutId);
-    }
-  }, [problem.id, num1, num2, operation, problem.isFraction, problem.frac1, problem.frac2, problem.fracAnswer]);
+    return () => {
+      if (t1) clearTimeout(t1);
+      if (t2) clearTimeout(t2);
+      if (whiteInterval) clearInterval(whiteInterval);
+      if (cyanInterval) clearInterval(cyanInterval);
+      if (orangeInterval) clearInterval(orangeInterval);
+      if (subInterval) clearInterval(subInterval);
+    };
+  }, [problem.id, isFlipped, replayKey, num1, num2, operation, problem.isFraction]);
 
   // Fraction Visualizer Component with 2-Step Addition, Subtraction & Multiplication
   if (problem.isFraction && problem.frac1 && problem.frac2) {
@@ -286,83 +476,95 @@ export function VisualMath({ problem }: VisualMathProps) {
       const pieCount = Math.max(1, Math.ceil(totalFilled / commonD));
 
       return (
-        <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 max-w-full">
-          {Array.from({ length: pieCount }).map((_, pIdx) => {
-            const pieStartSlot = pIdx * commonD;
+        <div className="flex flex-col items-center justify-center gap-1.5">
+          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 max-w-full">
+            {Array.from({ length: pieCount }).map((_, pIdx) => {
+              const pieStartSlot = pIdx * commonD;
 
-            return (
-              <div key={`pie-${pIdx}`} className="flex flex-col items-center justify-center">
-                <svg width={130} height={130} viewBox="0 0 130 130" className="drop-shadow-md">
-                  {Array.from({ length: commonD }).map((_, i) => {
-                    const globalSlotIndex = pieStartSlot + i;
-                    const isCyanSlot = globalSlotIndex < c1;
-                    const isOrangeSlot = globalSlotIndex >= c1 && globalSlotIndex < c1 + c2;
+              return (
+                <div key={`pie-${pIdx}`} className="flex flex-col items-center justify-center">
+                  <svg width={130} height={130} viewBox="0 0 130 130" className="drop-shadow-md">
+                    {Array.from({ length: commonD }).map((_, i) => {
+                      const globalSlotIndex = pieStartSlot + i;
+                      const isCyanSlot = globalSlotIndex < c1;
+                      const isOrangeSlot = globalSlotIndex >= c1 && globalSlotIndex < c1 + c2;
 
-                    const startAngle = (i * 360) / commonD - 90;
-                    const endAngle = ((i + 1) * 360) / commonD - 90;
+                      const startAngle = (i * 360) / commonD - 90;
+                      const endAngle = ((i + 1) * 360) / commonD - 90;
 
-                    const radius = 58;
-                    const center = 65;
+                      const radius = 58;
+                      const center = 65;
 
-                    const startRad = (startAngle * Math.PI) / 180;
-                    const endRad = (endAngle * Math.PI) / 180;
+                      const startRad = (startAngle * Math.PI) / 180;
+                      const endRad = (endAngle * Math.PI) / 180;
 
-                    const x1 = center + radius * Math.cos(startRad);
-                    const y1 = center + radius * Math.sin(startRad);
-                    const x2 = center + radius * Math.cos(endRad);
-                    const y2 = center + radius * Math.sin(endRad);
+                      const x1 = center + radius * Math.cos(startRad);
+                      const y1 = center + radius * Math.sin(startRad);
+                      const x2 = center + radius * Math.cos(endRad);
+                      const y2 = center + radius * Math.sin(endRad);
 
-                    const largeArc = 360 / commonD > 180 ? 1 : 0;
-                    const pathData =
-                      commonD === 1
-                        ? `M ${center - radius}, ${center} a ${radius},${radius} 0 1,0 ${radius * 2},0 a ${radius},${radius} 0 1,0 -${radius * 2},0`
-                        : `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+                      const largeArc = 360 / commonD > 180 ? 1 : 0;
+                      const pathData =
+                        commonD === 1
+                          ? `M ${center - radius}, ${center} a ${radius},${radius} 0 1,0 ${radius * 2},0 a ${radius},${radius} 0 1,0 -${radius * 2},0`
+                          : `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
 
-                    if (isCyanSlot) {
-                      const isVisible = globalSlotIndex < cyanVisible;
+                      if (isCyanSlot) {
+                        const isVisible = globalSlotIndex < cyanVisible;
+                        return (
+                          <path
+                            key={`slice-${i}`}
+                            d={pathData}
+                            className={cn(
+                              "transition-all duration-300",
+                              isVisible
+                                ? "fill-cyan-300 stroke-cyan-400 stroke-2"
+                                : "fill-white/10 stroke-white/30 stroke-1 stroke-dashed"
+                            )}
+                          />
+                        );
+                      }
+
+                      if (isOrangeSlot) {
+                        const orangeSlotIdx = globalSlotIndex - c1;
+                        const isVisible = orangeSlotIdx < orangeVisible;
+                        return (
+                          <path
+                            key={`slice-${i}`}
+                            d={pathData}
+                            className={cn(
+                              "transition-all duration-300",
+                              isVisible
+                                ? "fill-amber-400 stroke-amber-500 stroke-2"
+                                : "fill-white/10 stroke-white/30 stroke-1 stroke-dashed"
+                            )}
+                          />
+                        );
+                      }
+
                       return (
                         <path
                           key={`slice-${i}`}
                           d={pathData}
-                          className={cn(
-                            "transition-all duration-300",
-                            isVisible
-                              ? "fill-cyan-300 stroke-cyan-400 stroke-2"
-                              : "fill-white/10 stroke-white/30 stroke-1 stroke-dashed"
-                          )}
+                          className="fill-white/10 stroke-white/30 stroke-1 stroke-dashed"
                         />
                       );
-                    }
+                    })}
+                  </svg>
+                </div>
+              );
+            })}
+          </div>
 
-                    if (isOrangeSlot) {
-                      const orangeSlotIdx = globalSlotIndex - c1;
-                      const isVisible = orangeSlotIdx < orangeVisible;
-                      return (
-                        <path
-                          key={`slice-${i}`}
-                          d={pathData}
-                          className={cn(
-                            "transition-all duration-300",
-                            isVisible
-                              ? "fill-amber-400 stroke-amber-500 stroke-2"
-                              : "fill-white/10 stroke-white/30 stroke-1 stroke-dashed"
-                          )}
-                        />
-                      );
-                    }
-
-                    return (
-                      <path
-                        key={`slice-${i}`}
-                        d={pathData}
-                        className="fill-white/10 stroke-white/30 stroke-1 stroke-dashed"
-                      />
-                    );
-                  })}
-                </svg>
-              </div>
-            );
-          })}
+          <StepControls
+            steps={[
+              { step: 1, label: `1. Start (${f1.d === 1 ? f1.n : `${f1.n}/${f1.d}`})`, activeColor: "bg-cyan-300 text-cyan-950 border-cyan-200" },
+              { step: 2, label: `2. Add (${f2.d === 1 ? f2.n : `${f2.n}/${f2.d}`})`, activeColor: "bg-amber-400 text-amber-950 border-amber-300" },
+            ]}
+            activeStep={activeStep}
+            onStepClick={handleStepClick}
+            onReplay={replayAnimation}
+          />
         </div>
       );
     }
@@ -373,83 +575,95 @@ export function VisualMath({ problem }: VisualMathProps) {
       const remaining = Math.max(0, c1 - c2);
 
       return (
-        <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 max-w-full">
-          {Array.from({ length: pieCount }).map((_, pIdx) => {
-            const pieStartSlot = pIdx * commonD;
+        <div className="flex flex-col items-center justify-center gap-1.5">
+          <div className="flex flex-wrap justify-center items-center gap-4 sm:gap-6 max-w-full">
+            {Array.from({ length: pieCount }).map((_, pIdx) => {
+              const pieStartSlot = pIdx * commonD;
 
-            return (
-              <div key={`pie-${pIdx}`} className="flex flex-col items-center justify-center">
-                <svg width={130} height={130} viewBox="0 0 130 130" className="drop-shadow-md">
-                  {Array.from({ length: commonD }).map((_, i) => {
-                    const globalSlotIndex = pieStartSlot + i;
-                    const isCyanSlot = globalSlotIndex < c1;
-                    const isRemovedSlot = globalSlotIndex >= remaining && globalSlotIndex < c1;
+              return (
+                <div key={`pie-${pIdx}`} className="flex flex-col items-center justify-center">
+                  <svg width={130} height={130} viewBox="0 0 130 130" className="drop-shadow-md">
+                    {Array.from({ length: commonD }).map((_, i) => {
+                      const globalSlotIndex = pieStartSlot + i;
+                      const isCyanSlot = globalSlotIndex < c1;
+                      const isRemovedSlot = globalSlotIndex >= remaining && globalSlotIndex < c1;
 
-                    const startAngle = (i * 360) / commonD - 90;
-                    const endAngle = ((i + 1) * 360) / commonD - 90;
+                      const startAngle = (i * 360) / commonD - 90;
+                      const endAngle = ((i + 1) * 360) / commonD - 90;
 
-                    const radius = 58;
-                    const center = 65;
+                      const radius = 58;
+                      const center = 65;
 
-                    const startRad = (startAngle * Math.PI) / 180;
-                    const endRad = (endAngle * Math.PI) / 180;
+                      const startRad = (startAngle * Math.PI) / 180;
+                      const endRad = (endAngle * Math.PI) / 180;
 
-                    const x1 = center + radius * Math.cos(startRad);
-                    const y1 = center + radius * Math.sin(startRad);
-                    const x2 = center + radius * Math.cos(endRad);
-                    const y2 = center + radius * Math.sin(endRad);
+                      const x1 = center + radius * Math.cos(startRad);
+                      const y1 = center + radius * Math.sin(startRad);
+                      const x2 = center + radius * Math.cos(endRad);
+                      const y2 = center + radius * Math.sin(endRad);
 
-                    const largeArc = 360 / commonD > 180 ? 1 : 0;
-                    const pathData =
-                      commonD === 1
-                        ? `M ${center - radius}, ${center} a ${radius},${radius} 0 1,0 ${radius * 2},0 a ${radius},${radius} 0 1,0 -${radius * 2},0`
-                        : `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+                      const largeArc = 360 / commonD > 180 ? 1 : 0;
+                      const pathData =
+                        commonD === 1
+                          ? `M ${center - radius}, ${center} a ${radius},${radius} 0 1,0 ${radius * 2},0 a ${radius},${radius} 0 1,0 -${radius * 2},0`
+                          : `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
 
-                    if (!isCyanSlot) {
-                      return (
-                        <path
-                          key={`slice-${i}`}
-                          d={pathData}
-                          className="fill-white/10 stroke-white/30 stroke-1 stroke-dashed"
-                        />
-                      );
-                    }
-
-                    if (globalSlotIndex >= cyanVisible) {
-                      return (
-                        <path
-                          key={`slice-${i}`}
-                          d={pathData}
-                          className="fill-white/10 stroke-white/30 stroke-1 stroke-dashed"
-                        />
-                      );
-                    }
-
-                    const subReverseIndex = (c1 - 1) - globalSlotIndex;
-
-                    if (isRemovedSlot && subReverseIndex < subtractionCount) {
-                      return (
-                        <g key={`slice-g-${i}`}>
+                      if (!isCyanSlot) {
+                        return (
                           <path
+                            key={`slice-${i}`}
                             d={pathData}
-                            className="fill-amber-500/20 stroke-amber-400 stroke-2 stroke-dashed transition-all duration-300"
+                            className="fill-white/10 stroke-white/30 stroke-1 stroke-dashed"
                           />
-                        </g>
-                      );
-                    }
+                        );
+                      }
 
-                    return (
-                      <path
-                        key={`slice-${i}`}
-                        d={pathData}
-                        className="fill-cyan-300 stroke-cyan-400 stroke-2 transition-all duration-300"
-                      />
-                    );
-                  })}
-                </svg>
-              </div>
-            );
-          })}
+                      if (globalSlotIndex >= cyanVisible) {
+                        return (
+                          <path
+                            key={`slice-${i}`}
+                            d={pathData}
+                            className="fill-white/10 stroke-white/30 stroke-1 stroke-dashed"
+                          />
+                        );
+                      }
+
+                      const subReverseIndex = (c1 - 1) - globalSlotIndex;
+
+                      if (isRemovedSlot && subReverseIndex < subtractionCount) {
+                        return (
+                          <g key={`slice-g-${i}`}>
+                            <path
+                              d={pathData}
+                              className="fill-amber-500/20 stroke-amber-400 stroke-2 stroke-dashed transition-all duration-300"
+                            />
+                          </g>
+                        );
+                      }
+
+                      return (
+                        <path
+                          key={`slice-${i}`}
+                          d={pathData}
+                          className="fill-cyan-300 stroke-cyan-400 stroke-2 transition-all duration-300"
+                        />
+                      );
+                    })}
+                  </svg>
+                </div>
+              );
+            })}
+          </div>
+
+          <StepControls
+            steps={[
+              { step: 1, label: `1. Start (${f1.d === 1 ? f1.n : `${f1.n}/${f1.d}`})`, activeColor: "bg-cyan-300 text-cyan-950 border-cyan-200" },
+              { step: 2, label: `2. Subtract (${f2.d === 1 ? f2.n : `${f2.n}/${f2.d}`})`, activeColor: "bg-amber-400 text-amber-950 border-amber-300" },
+            ]}
+            activeStep={activeStep}
+            onStepClick={handleStepClick}
+            onReplay={replayAnimation}
+          />
         </div>
       );
     }
@@ -463,25 +677,28 @@ export function VisualMath({ problem }: VisualMathProps) {
 
       const isSubdivided = orangeVisible > 0;
 
+      const pad = 8;
+      const gap = isSubdivided ? 4 : 0;
       const gridW = 160;
       const gridH = 120;
 
-      // Step 1: gap = 0, rx = 0 (seamless tall bars). Step 2 & 3: gap = 4, rx = 6 (separated sub-cards)
-      const gap = isSubdivided ? 4 : 0;
+      const svgW = gridW + pad * 2;
+      const svgH = gridH + pad * 2;
+
       const cellW = (gridW - (cols - 1) * gap) / cols;
       const cellH = (gridH - (rows - 1) * gap) / rows;
-      const cornerRadius = isSubdivided ? 6 : 0;
+      const cornerRadius = 6;
 
       return (
         <div className="flex flex-col items-center justify-center gap-1.5">
-          <svg width={gridW + 12} height={gridH + 12} viewBox={`-6 -6 ${gridW + 12} ${gridH + 12}`} className="drop-shadow-md overflow-visible">
+          <svg width={svgW} height={svgH} viewBox={`0 0 ${svgW} ${svgH}`} className="drop-shadow-md overflow-visible">
             {/* Outer Backdrop */}
             <rect
-              x={-2}
-              y={-2}
-              width={gridW + 4}
-              height={gridH + 4}
-              rx={12}
+              x={1}
+              y={1}
+              width={svgW - 2}
+              height={svgH - 2}
+              rx={14}
               className="fill-white/5 stroke-white/30 stroke-2"
             />
 
@@ -497,8 +714,8 @@ export function VisualMath({ problem }: VisualMathProps) {
                 const overlapIdx = r * cyanCols + c;
                 const isWhite = isSubdivided && isOverlap && overlapIdx < whiteCount;
 
-                const x = c * (cellW + gap);
-                const y = r * (cellH + gap);
+                const x = pad + c * (cellW + gap);
+                const y = pad + r * (cellH + gap);
 
                 let fillClass = "fill-transparent";
                 let strokeClass = "stroke-white/20";
@@ -508,14 +725,17 @@ export function VisualMath({ problem }: VisualMathProps) {
                   strokeClass = isWhite ? "stroke-white/90 shadow-sm" : "stroke-cyan-400";
                 }
 
+                const tlRadius = isSubdivided ? 6 : (c === 0 && r === 0 ? 6 : 0);
+                const trRadius = isSubdivided ? 6 : (c === cols - 1 && r === 0 ? 6 : 0);
+                const brRadius = isSubdivided ? 6 : (c === cols - 1 && r === rows - 1 ? 6 : 0);
+                const blRadius = isSubdivided ? 6 : (c === 0 && r === rows - 1 ? 6 : 0);
+
+                const cellPath = getRoundedRectPath(x, y, cellW, cellH, tlRadius, trRadius, brRadius, blRadius);
+
                 return (
-                  <rect
+                  <path
                     key={`cell-${c}-${r}`}
-                    x={x}
-                    y={y}
-                    width={cellW}
-                    height={cellH}
-                    rx={cornerRadius}
+                    d={cellPath}
                     className={cn(
                       "transition-all duration-500 ease-out",
                       fillClass,
@@ -529,63 +749,192 @@ export function VisualMath({ problem }: VisualMathProps) {
             {/* Step 2: Bold Glowing Orange Horizontal Cut Lines (2nd fraction multiplier) */}
             {Array.from({ length: rows - 1 }).map((_, rIdx) => {
               const lineY = isSubdivided
-                ? (rIdx + 1) * cellH + rIdx * gap + gap / 2
-                : (rIdx + 1) * (gridH / rows);
+                ? pad + (rIdx + 1) * cellH + rIdx * gap + gap / 2
+                : pad + (rIdx + 1) * (gridH / rows);
 
               return (
                 <line
                   key={`h-line-${rIdx}`}
-                  x1={-6}
+                  x1={pad - 3}
                   y1={lineY}
-                  x2={gridW + 6}
+                  x2={svgW - pad + 3}
                   y2={lineY}
                   stroke="#fbbf24"
-                  strokeWidth={4}
+                  strokeWidth={3.5}
                   strokeDasharray="8 4"
+                  strokeLinecap="round"
                   className="transition-opacity duration-700 ease-out drop-shadow-sm"
                   style={{ opacity: isSubdivided ? 1 : 0 }}
                 />
               );
             })}
           </svg>
+
+          <StepControls
+            steps={[
+              { step: 1, label: `1. Start (${f1.n}/${f1.d})`, activeColor: "bg-cyan-300 text-cyan-950 border-cyan-200" },
+              { step: 2, label: `2. Grid Cut (${f2.n}/${f2.d})`, activeColor: "bg-amber-400 text-amber-950 border-amber-300" },
+              { step: 3, label: `3. Answer (${ans ? (ans.d === 1 ? ans.n : `${ans.n}/${ans.d}`) : ''})`, activeColor: "bg-white text-slate-900 border-white" },
+            ]}
+            activeStep={activeStep}
+            onStepClick={handleStepClick}
+            onReplay={replayAnimation}
+          />
         </div>
       );
     }
 
-    // Default Fraction Circle Display for Division
-    return (
-      <div className="flex flex-wrap justify-center items-center gap-3 sm:gap-5 p-2 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        <div className="flex flex-col items-center gap-1">
-          <FractionCircle fraction={f1} fillColor="fill-cyan-300" strokeColor="stroke-cyan-400" size={64} />
-          <span className="text-xs font-headline font-bold text-cyan-300">
-            {f1.d === 1 ? f1.n : `${f1.n}/${f1.d}`}
-          </span>
-        </div>
+    // FRACTION DIVISION (÷): Dual Bracket Common Grid Model ("Compare Quantities on Common Grid")
+    if (operation === '÷') {
+      const isDivisorVisible = orangeVisible > 0;
 
-        <span className="text-lg sm:text-xl font-bold text-white/80">
-          {problem.operation}
-        </span>
+      const D = commonD;
+      const totalBoxes = Math.max(D, c1, c2);
 
-        <div className="flex flex-col items-center gap-1">
-          <FractionCircle fraction={f2} fillColor="fill-amber-400" strokeColor="stroke-amber-500" size={64} />
-          <span className="text-xs font-headline font-bold text-amber-300">
-            {f2.d === 1 ? f2.n : `${f2.n}/${f2.d}`}
-          </span>
-        </div>
+      const maxW = 270;
+      const gap = 4;
+      const pad = 10;
+      const gridW = maxW - pad * 2;
+      const boxW = Math.min(34, Math.max(14, Math.floor((gridW - (totalBoxes - 1) * gap) / totalBoxes)));
+      const boxH = 32;
 
-        {ans && (
-          <>
-            <span className="text-lg sm:text-xl font-bold text-white/80">=</span>
-            <div className="flex flex-col items-center gap-1">
-              <FractionCircle fraction={ans} fillColor="fill-white" strokeColor="stroke-white/80" size={64} />
-              <span className="text-xs font-headline font-bold text-white">
-                {ans.d === 1 ? ans.n : `${ans.n}/${ans.d}`}
+      const gridY = pad + 20;
+      const svgW = totalBoxes * boxW + (totalBoxes - 1) * gap + pad * 2;
+      const svgH = gridY + boxH + (isDivisorVisible ? 24 : 6) + pad;
+
+      // Cyan bracket width (Dividend = c1 boxes)
+      const cyanW = c1 * boxW + (c1 - 1) * gap;
+      // Amber bracket width (Divisor = c2 boxes)
+      const amberW = c2 * boxW + (c2 - 1) * gap;
+
+      return (
+        <div className="flex flex-col items-center justify-center gap-2">
+          <div className="flex flex-col items-center justify-center gap-1">
+            <svg width={svgW} height={svgH} viewBox={`0 0 ${svgW} ${svgH}`} className="drop-shadow-md overflow-visible">
+              {/* Outer Container Frame */}
+              <rect
+                x={1}
+                y={1}
+                width={svgW - 2}
+                height={svgH - 2}
+                rx={14}
+                className="fill-white/5 stroke-white/25 stroke-2"
+              />
+
+              {/* Top Cyan Bracket (Dividend) */}
+              <g className="animate-fade-in">
+                <path
+                  d={`M ${pad} ${gridY - 4} L ${pad} ${gridY - 12} L ${pad + cyanW} ${gridY - 12} L ${pad + cyanW} ${gridY - 4}`}
+                  className="fill-none stroke-cyan-300 stroke-2"
+                />
+                <rect
+                  x={pad + cyanW / 2 - 36}
+                  y={gridY - 20}
+                  width={72}
+                  height={15}
+                  rx={7.5}
+                  className="fill-cyan-400 stroke-cyan-300 stroke-1"
+                />
+                <text
+                  x={pad + cyanW / 2}
+                  y={gridY - 9}
+                  textAnchor="middle"
+                  className="font-headline font-extrabold text-[10px] fill-cyan-950 select-none pointer-events-none"
+                >
+                  {f1.d === 1 ? f1.n : `${f1.n}/${f1.d}`} = {c1} box{c1 > 1 ? 'es' : ''}
+                </text>
+              </g>
+
+              {/* Grid Boxes (Representing 1 Whole) */}
+              {Array.from({ length: totalBoxes }).map((_, i) => {
+                const x = pad + i * (boxW + gap);
+
+                const isCyanSlot = i < c1 && i < cyanVisible;
+                const isAmberSlot = isDivisorVisible && i < c2;
+
+                let fillStyle = "fill-white/5 stroke-white/20 stroke-1 stroke-dashed";
+                if (isCyanSlot) {
+                  fillStyle = "fill-cyan-300 stroke-cyan-400 stroke-2";
+                }
+
+                return (
+                  <g key={`grid-box-${i}`} className="transition-all duration-500">
+                    <rect
+                      x={x}
+                      y={gridY}
+                      width={boxW}
+                      height={boxH}
+                      rx={6}
+                      className={cn("transition-all duration-500 ease-out", fillStyle)}
+                    />
+
+                    {/* Step 2 Amber highlight line inside box */}
+                    {isAmberSlot && (
+                      <line
+                        x1={x + 3}
+                        y1={gridY + boxH - 3}
+                        x2={x + boxW - 3}
+                        y2={gridY + boxH - 3}
+                        className="stroke-amber-400 stroke-[3px] stroke-linecap-round animate-fade-in"
+                      />
+                    )}
+                  </g>
+                );
+              })}
+
+              {/* Bottom Amber Bracket (Divisor - Step 2) */}
+              {isDivisorVisible && (
+                <g className="animate-fade-in transition-all duration-500">
+                  <path
+                    d={`M ${pad} ${gridY + boxH + 4} L ${pad} ${gridY + boxH + 12} L ${pad + amberW} ${gridY + boxH + 12} L ${pad + amberW} ${gridY + boxH + 4}`}
+                    className="fill-none stroke-amber-400 stroke-2 stroke-dashed"
+                  />
+                  <rect
+                    x={pad + amberW / 2 - 36}
+                    y={gridY + boxH + 6}
+                    width={72}
+                    height={15}
+                    rx={7.5}
+                    className="fill-amber-400 stroke-amber-300 stroke-1"
+                  />
+                  <text
+                    x={pad + amberW / 2}
+                    y={gridY + boxH + 17}
+                    textAnchor="middle"
+                    className="font-headline font-extrabold text-[10px] fill-amber-950 select-none pointer-events-none"
+                  >
+                    {f2.d === 1 ? f2.n : `${f2.n}/${f2.d}`} = {c2} box{c2 > 1 ? 'es' : ''}
+                  </text>
+                </g>
+              )}
+            </svg>
+          </div>
+
+          {/* Explanation Badge */}
+          {isDivisorVisible ? (
+            <div className="bg-amber-400/20 border border-amber-400/40 px-3 py-1 rounded-full text-xs font-headline font-bold text-amber-200 shadow-xs animate-fade-in">
+              <span>
+                {c1} Cyan boxes ÷ {c2} Amber boxes = <strong className="text-white font-extrabold">{ans ? (ans.d === 1 ? ans.n : `${ans.n}/${ans.d}`) : ''}</strong>
               </span>
             </div>
-          </>
-        )}
-      </div>
-    );
+          ) : (
+            <div className="bg-cyan-400/20 border border-cyan-400/40 px-3 py-1 rounded-full text-xs font-headline font-bold text-cyan-200 shadow-xs animate-fade-in">
+              <span>Shaded <strong className="text-white font-extrabold">{f1.d === 1 ? f1.n : `${f1.n}/${f1.d}`}</strong> ({c1} boxes) in Cyan</span>
+            </div>
+          )}
+
+          <StepControls
+            steps={[
+              { step: 1, label: `1. Start (${f1.d === 1 ? f1.n : `${f1.n}/${f1.d}`})`, activeColor: "bg-cyan-300 text-cyan-950 border-cyan-200" },
+              { step: 2, label: `2. Compare (${f2.d === 1 ? f2.n : `${f2.n}/${f2.d}`})`, activeColor: "bg-amber-400 text-amber-950 border-amber-300" },
+            ]}
+            activeStep={activeStep}
+            onStepClick={handleStepClick}
+            onReplay={replayAnimation}
+          />
+        </div>
+      );
+    }
   }
 
   // Don't render visual frames if numbers are extremely huge (> 100 for mult/div, > 40 for add/sub)
@@ -605,32 +954,23 @@ export function VisualMath({ problem }: VisualMathProps) {
     const frameCount = Math.max(1, Math.ceil(total / 10));
 
     return (
-      <div className="flex flex-wrap justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        {Array.from({ length: frameCount }).map((_, fIdx) => {
-          const frameStartIndex = fIdx * 10;
-          const frameSlots = Array.from({ length: 10 }).map((_, i) => frameStartIndex + i);
+      <div className="flex flex-col items-center justify-center gap-1.5">
+        <div className="flex flex-wrap justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+          {Array.from({ length: frameCount }).map((_, fIdx) => {
+            const frameStartIndex = fIdx * 10;
+            const frameSlots = Array.from({ length: 10 }).map((_, i) => frameStartIndex + i);
 
-          return (
-            <div
-              key={`tf-${fIdx}`}
-              className="grid grid-rows-2 grid-cols-5 gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs"
-            >
-              {frameSlots.map((slotIndex) => {
-                const isNum1Slot = slotIndex < num1;
-                const isNum2Slot = slotIndex >= num1 && slotIndex < total;
-                const isEmptySlot = slotIndex >= total;
+            return (
+              <div
+                key={`tf-${fIdx}`}
+                className="grid grid-rows-2 grid-cols-5 gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs"
+              >
+                {frameSlots.map((slotIndex) => {
+                  const isNum1Slot = slotIndex < num1;
+                  const isNum2Slot = slotIndex >= num1 && slotIndex < total;
+                  const isEmptySlot = slotIndex >= total;
 
-                if (isEmptySlot) {
-                  return (
-                    <div
-                      key={`slot-${slotIndex}`}
-                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
-                    />
-                  );
-                }
-
-                if (isNum1Slot) {
-                  if (slotIndex >= cyanVisible) {
+                  if (isEmptySlot) {
                     return (
                       <div
                         key={`slot-${slotIndex}`}
@@ -638,37 +978,58 @@ export function VisualMath({ problem }: VisualMathProps) {
                       />
                     );
                   }
-                  return (
-                    <div
-                      key={`slot-${slotIndex}`}
-                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs transition-opacity duration-200"
-                    />
-                  );
-                }
 
-                if (isNum2Slot) {
-                  const orangeIdx = slotIndex - num1;
-                  if (orangeIdx >= orangeVisible) {
+                  if (isNum1Slot) {
+                    if (slotIndex >= cyanVisible) {
+                      return (
+                        <div
+                          key={`slot-${slotIndex}`}
+                          className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
+                        />
+                      );
+                    }
                     return (
                       <div
                         key={`slot-${slotIndex}`}
-                        className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
+                        className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs transition-opacity duration-200"
                       />
                     );
                   }
-                  return (
-                    <div
-                      key={`slot-${slotIndex}`}
-                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-amber-400 border border-amber-500 shadow-xs transition-opacity duration-200"
-                    />
-                  );
-                }
 
-                return null;
-              })}
-            </div>
-          );
-        })}
+                  if (isNum2Slot) {
+                    const orangeIdx = slotIndex - num1;
+                    if (orangeIdx >= orangeVisible) {
+                      return (
+                        <div
+                          key={`slot-${slotIndex}`}
+                          className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
+                        />
+                      );
+                    }
+                    return (
+                      <div
+                        key={`slot-${slotIndex}`}
+                        className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-amber-400 border border-amber-500 shadow-xs transition-opacity duration-200"
+                      />
+                    );
+                  }
+
+                  return null;
+                })}
+              </div>
+            );
+          })}
+        </div>
+
+        <StepControls
+          steps={[
+            { step: 1, label: `1. Start (${num1})`, activeColor: "bg-cyan-300 text-cyan-950 border-cyan-200" },
+            { step: 2, label: `2. Add (${num2})`, activeColor: "bg-amber-400 text-amber-950 border-amber-300" },
+          ]}
+          activeStep={activeStep}
+          onStepClick={handleStepClick}
+          onReplay={replayAnimation}
+        />
       </div>
     );
   }
@@ -681,61 +1042,73 @@ export function VisualMath({ problem }: VisualMathProps) {
     const frameCount = Math.max(1, Math.ceil(total / 10));
 
     return (
-      <div className="flex flex-wrap justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        {Array.from({ length: frameCount }).map((_, fIdx) => {
-          const frameStartIndex = fIdx * 10;
-          const frameSlots = Array.from({ length: 10 }).map((_, i) => frameStartIndex + i);
+      <div className="flex flex-col items-center justify-center gap-1.5">
+        <div className="flex flex-wrap justify-center items-center gap-2 p-2 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+          {Array.from({ length: frameCount }).map((_, fIdx) => {
+            const frameStartIndex = fIdx * 10;
+            const frameSlots = Array.from({ length: 10 }).map((_, i) => frameStartIndex + i);
 
-          return (
-            <div
-              key={`tf-${fIdx}`}
-              className="grid grid-rows-2 grid-cols-5 gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs"
-            >
-              {frameSlots.map((slotIndex) => {
-                const isFilled = slotIndex < total;
-                const isRemovedSlot = slotIndex >= remaining && slotIndex < total;
+            return (
+              <div
+                key={`tf-${fIdx}`}
+                className="grid grid-rows-2 grid-cols-5 gap-1.5 p-2 rounded-xl bg-white/15 border border-white/30 backdrop-blur-xs shadow-xs"
+              >
+                {frameSlots.map((slotIndex) => {
+                  const isFilled = slotIndex < total;
+                  const isRemovedSlot = slotIndex >= remaining && slotIndex < total;
 
-                if (!isFilled) {
+                  if (!isFilled) {
+                    return (
+                      <div
+                        key={`slot-${slotIndex}`}
+                        className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
+                      />
+                    );
+                  }
+
+                  if (slotIndex >= cyanVisible) {
+                    return (
+                      <div
+                        key={`slot-${slotIndex}`}
+                        className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
+                      />
+                    );
+                  }
+
+                  const subReverseIndex = (total - 1) - slotIndex;
+
+                  if (isRemovedSlot && subReverseIndex < subtractionCount) {
+                    return (
+                      <div
+                        key={`slot-${slotIndex}`}
+                        className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-transparent text-amber-400 border border-dashed border-amber-400/80 shadow-xs flex items-center justify-center font-bold text-xs sm:text-sm transition-opacity duration-200"
+                      >
+                        <span>✕</span>
+                      </div>
+                    );
+                  }
+
                   return (
                     <div
                       key={`slot-${slotIndex}`}
-                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
+                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs transition-opacity duration-200"
                     />
                   );
-                }
+                })}
+              </div>
+            );
+          })}
+        </div>
 
-                if (slotIndex >= cyanVisible) {
-                  return (
-                    <div
-                      key={`slot-${slotIndex}`}
-                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-white/5 border border-dashed border-white/20"
-                    />
-                  );
-                }
-
-                const subReverseIndex = (total - 1) - slotIndex;
-
-                if (isRemovedSlot && subReverseIndex < subtractionCount) {
-                  return (
-                    <div
-                      key={`slot-${slotIndex}`}
-                      className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-transparent text-amber-400 border border-dashed border-amber-400/80 shadow-xs flex items-center justify-center font-bold text-xs sm:text-sm transition-opacity duration-200"
-                    >
-                      <span>✕</span>
-                    </div>
-                  );
-                }
-
-                return (
-                  <div
-                    key={`slot-${slotIndex}`}
-                    className="w-4 h-4 sm:w-5 sm:h-5 rounded-md bg-cyan-300 border border-cyan-400 shadow-xs transition-opacity duration-200"
-                  />
-                );
-              })}
-            </div>
-          );
-        })}
+        <StepControls
+          steps={[
+            { step: 1, label: `1. Start (${num1})`, activeColor: "bg-cyan-300 text-cyan-950 border-cyan-200" },
+            { step: 2, label: `2. Subtract (${num2})`, activeColor: "bg-amber-400 text-amber-950 border-amber-300" },
+          ]}
+          activeStep={activeStep}
+          onStepClick={handleStepClick}
+          onReplay={replayAnimation}
+        />
       </div>
     );
   }
@@ -761,61 +1134,73 @@ export function VisualMath({ problem }: VisualMathProps) {
     const fontSize = Math.max(7, Math.floor(blockSize * 0.52));
 
     return (
-      <div className="flex flex-col justify-center items-center p-1 sm:p-1.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
-        <div
-          className="grid p-1.5 rounded-xl bg-white/15 border border-white/30 shadow-xs"
-          style={{ gap: `${gapSize}px` }}
-        >
-          <div className="flex items-center" style={{ gap: `${gapSize}px` }}>
-            <div className="rounded-md bg-transparent shrink-0" style={{ width: `${blockSize}px`, height: `${blockSize}px` }} />
-            {Array.from({ length: xCount }).map((_, xIdx) => (
-              <div
-                key={`x-axis-${xIdx}`}
-                className="rounded-md bg-cyan-300 border border-cyan-400 shadow-xs flex items-center justify-center font-bold text-cyan-950 leading-none shrink-0"
-                style={{ width: `${blockSize}px`, height: `${blockSize}px`, fontSize: `${fontSize}px` }}
-              >
-                {xIdx + 1}
-              </div>
-            ))}
-          </div>
-
-          {Array.from({ length: yCount }).map((_, yIdx) => {
-            const rowStartIndex = yIdx * xCount;
-
-            return (
-              <div key={`y-row-${yIdx}`} className="flex items-center" style={{ gap: `${gapSize}px` }}>
+      <div className="flex flex-col items-center justify-center gap-1.5">
+        <div className="flex flex-col justify-center items-center p-1 sm:p-1.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+          <div
+            className="grid p-1.5 rounded-xl bg-white/15 border border-white/30 shadow-xs"
+            style={{ gap: `${gapSize}px` }}
+          >
+            <div className="flex items-center" style={{ gap: `${gapSize}px` }}>
+              <div className="rounded-md bg-transparent shrink-0" style={{ width: `${blockSize}px`, height: `${blockSize}px` }} />
+              {Array.from({ length: xCount }).map((_, xIdx) => (
                 <div
-                  className="rounded-md bg-amber-400 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-amber-950 leading-none shrink-0"
+                  key={`x-axis-${xIdx}`}
+                  className="rounded-md bg-cyan-300 border border-cyan-400 shadow-xs flex items-center justify-center font-bold text-cyan-950 leading-none shrink-0"
                   style={{ width: `${blockSize}px`, height: `${blockSize}px`, fontSize: `${fontSize}px` }}
                 >
-                  {yIdx + 1}
+                  {xIdx + 1}
                 </div>
+              ))}
+            </div>
 
-                {Array.from({ length: xCount }).map((_, xIdx) => {
-                  const areaIndex = rowStartIndex + xIdx;
+            {Array.from({ length: yCount }).map((_, yIdx) => {
+              const rowStartIndex = yIdx * xCount;
 
-                  if (areaIndex >= cyanVisible) {
+              return (
+                <div key={`y-row-${yIdx}`} className="flex items-center" style={{ gap: `${gapSize}px` }}>
+                  <div
+                    className="rounded-md bg-amber-400 border border-amber-500 shadow-xs flex items-center justify-center font-bold text-amber-950 leading-none shrink-0"
+                    style={{ width: `${blockSize}px`, height: `${blockSize}px`, fontSize: `${fontSize}px` }}
+                  >
+                    {yIdx + 1}
+                  </div>
+
+                  {Array.from({ length: xCount }).map((_, xIdx) => {
+                    const areaIndex = rowStartIndex + xIdx;
+
+                    if (areaIndex >= cyanVisible) {
+                      return (
+                        <div
+                          key={`area-slot-${areaIndex}`}
+                          className="rounded-md bg-white/5 border border-dashed border-white/20 shrink-0"
+                          style={{ width: `${blockSize}px`, height: `${blockSize}px` }}
+                        />
+                      );
+                    }
+
                     return (
                       <div
                         key={`area-slot-${areaIndex}`}
-                        className="rounded-md bg-white/5 border border-dashed border-white/20 shrink-0"
+                        className="rounded-md bg-white border border-white/80 shadow-xs transition-opacity duration-150 shrink-0"
                         style={{ width: `${blockSize}px`, height: `${blockSize}px` }}
                       />
                     );
-                  }
-
-                  return (
-                    <div
-                      key={`area-slot-${areaIndex}`}
-                      className="rounded-md bg-white border border-white/80 shadow-xs transition-opacity duration-150 shrink-0"
-                      style={{ width: `${blockSize}px`, height: `${blockSize}px` }}
-                    />
-                  );
-                })}
-              </div>
-            );
-          })}
+                  })}
+                </div>
+              );
+            })}
+          </div>
         </div>
+
+        <StepControls
+          steps={[
+            { step: 1, label: `1. Setup (${num1}×${num2})`, activeColor: "bg-cyan-300 text-cyan-950 border-cyan-200" },
+            { step: 2, label: `2. Grid Area (${num1 * num2})`, activeColor: "bg-white text-slate-900 border-white" },
+          ]}
+          activeStep={activeStep}
+          onStepClick={handleStepClick}
+          onReplay={replayAnimation}
+        />
       </div>
     );
   }
@@ -843,38 +1228,54 @@ export function VisualMath({ problem }: VisualMathProps) {
     const blockSize = Math.max(12, Math.min(24, rawBlockSize));
 
     return (
-      <div
-        className={cn(
-          "flex flex-wrap justify-center items-center rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs transition-all duration-500 ease-out p-1.5 sm:p-2",
-          isSeparated ? "gap-2 sm:gap-2.5" : "gap-0.5 sm:gap-1"
-        )}
-      >
-        {Array.from({ length: groupCount }).map((_, gIdx) => {
-          const groupStartIndex = gIdx * itemsPerGroup;
-          const groupSlots = Array.from({ length: itemsPerGroup }).map((_, i) => groupStartIndex + i);
+      <div className="flex flex-col items-center justify-center gap-1.5">
+        <div
+          className={cn(
+            "flex flex-wrap justify-center items-center rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs transition-all duration-500 ease-out p-1.5 sm:p-2",
+            isSeparated ? "gap-2 sm:gap-2.5" : "gap-0.5 sm:gap-1"
+          )}
+        >
+          {Array.from({ length: groupCount }).map((_, gIdx) => {
+            const groupStartIndex = gIdx * itemsPerGroup;
+            const groupSlots = Array.from({ length: itemsPerGroup }).map((_, i) => groupStartIndex + i);
 
-          return (
-            <div
-              key={`div-group-${gIdx}`}
-              className="flex items-center justify-center rounded-xl transition-all duration-500 ease-out whitespace-nowrap shrink-0 p-1 sm:p-1.5 gap-0.5 sm:gap-1"
-            >
-              {groupSlots.map((slotIndex) => {
-                if (slotIndex >= total) return null;
+            return (
+              <div
+                key={`div-group-${gIdx}`}
+                className={cn(
+                  "flex items-center justify-center rounded-xl transition-all duration-500 ease-out whitespace-nowrap shrink-0 p-1 sm:p-1.5 gap-0.5 sm:gap-1",
+                  isSeparated ? "bg-white/15 border border-white/30 shadow-xs" : "bg-transparent border border-transparent"
+                )}
+              >
+                {groupSlots.map((slotIndex) => {
+                  if (slotIndex >= total) return null;
 
-                return (
-                  <div
-                    key={`div-slot-${slotIndex}`}
-                    className="rounded-md bg-cyan-300 border border-cyan-400 shadow-xs cursor-pointer hover:scale-125 transition-all duration-500 shrink-0"
-                    style={{ width: `${blockSize}px`, height: `${blockSize}px` }}
-                  />
-                );
-              })}
-            </div>
-          );
-        })}
+                  return (
+                    <div
+                      key={`div-slot-${slotIndex}`}
+                      className="rounded-md bg-cyan-300 border border-cyan-400 shadow-xs cursor-pointer hover:scale-125 transition-all duration-500 shrink-0"
+                      style={{ width: `${blockSize}px`, height: `${blockSize}px` }}
+                    />
+                  );
+                })}
+              </div>
+            );
+          })}
+        </div>
+
+        <StepControls
+          steps={[
+            { step: 1, label: `1. Total (${num1})`, activeColor: "bg-cyan-300 text-cyan-950 border-cyan-200" },
+            { step: 2, label: `2. Groups (${groupCount}×${itemsPerGroup})`, activeColor: "bg-amber-400 text-amber-950 border-amber-300" },
+          ]}
+          activeStep={activeStep}
+          onStepClick={handleStepClick}
+          onReplay={replayAnimation}
+        />
       </div>
     );
   }
+
 
   return null;
 }
