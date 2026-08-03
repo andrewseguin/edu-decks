@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { MathOperation, MathProblem, OPERATION_COLORS } from "@/lib/types";
 import { generateMathProblem } from "@/lib/math-generator";
 import { Button } from "@/components/ui/button";
-import { Volume2, X, Sparkles, Delete, CornerDownLeft, CheckCircle2 } from "lucide-react";
+import { Volume2, X, Sparkles, Delete, CornerDownLeft } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type QuizDisplayProps = {
@@ -254,9 +254,6 @@ export function QuizDisplay({
                   <span className="font-headline font-bold text-white/80 text-3xl sm:text-5xl md:text-6xl">
                     ?
                   </span>
-                )}
-                {isCorrect === true && (
-                  <CheckCircle2 className="w-6 h-6 sm:w-8 sm:h-8 text-white ml-2 animate-in zoom-in" />
                 )}
               </div>
             </div>
