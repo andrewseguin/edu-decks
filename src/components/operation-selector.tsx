@@ -145,7 +145,7 @@ export function OperationSelector({
                   onShowFractionsChange(nextFrac);
                 }}
               >
-                Fractions 🍰
+                Fractions
               </Button>
             </div>
           </div>
