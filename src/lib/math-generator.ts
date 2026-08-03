@@ -11,6 +11,11 @@ function gcd(a: number, b: number): number {
   return b === 0 ? Math.abs(a) : gcd(b, a % b);
 }
 
+// Helper: Least Common Multiple
+function lcm(a: number, b: number): number {
+  return (a * b) / gcd(a, b);
+}
+
 // Simplify fraction
 export function simplifyFraction(n: number, d: number): Fraction {
   if (d === 0) return { n: 0, d: 1 };
@@ -144,25 +149,41 @@ function generateFractionProblem(
   operation: MathOperation,
   allowNegatives: boolean
 ): MathProblem {
-  const denominators = [2, 3, 4, 6, 8];
+  // Clean denominator pairs with LCM <= 12 (both same and different denominators)
+  const cleanPairs: [number, number][] = [
+    [2, 2], [3, 3], [4, 4], [6, 6], [8, 8],
+    [2, 4], [2, 6], [2, 8], [3, 6], [4, 8]
+  ];
 
   if (operation === '+' || operation === '-') {
-    // Pick SAME denominator for clean, intuitive pie visualizers (e.g. 1/4 + 2/4 = 3/4)
-    const d = denominators[Math.floor(Math.random() * denominators.length)];
-    let n1 = getRandomInt(1, d - 1);
-    let n2 = getRandomInt(1, d - 1);
+    const pair = cleanPairs[Math.floor(Math.random() * cleanPairs.length)];
+    const d1 = pair[0];
+    const d2 = pair[1];
 
-    if (operation === '-' && !allowNegatives && n1 < n2) {
-      const temp = n1;
+    let n1 = getRandomInt(1, d1 - 1);
+    let n2 = getRandomInt(1, d2 - 1);
+
+    const val1 = n1 / d1;
+    const val2 = n2 / d2;
+
+    if (operation === '-' && !allowNegatives && val1 < val2) {
+      const tempN = n1;
+      const tempD = d1;
       n1 = n2;
-      n2 = temp;
+      n2 = tempN;
     }
 
-    const frac1: Fraction = { n: n1, d };
-    const frac2: Fraction = { n: n2, d };
+    const frac1: Fraction = { n: n1, d: d1 };
+    const frac2: Fraction = { n: n2, d: d2 };
+
+    const commonD = lcm(d1, d2);
+    const convertedFrac1: Fraction = { n: n1 * (commonD / d1), d: commonD };
+    const convertedFrac2: Fraction = { n: n2 * (commonD / d2), d: commonD };
+    const hasConversion = d1 !== d2;
+
     const fracAnswer: Fraction = operation === '+'
-      ? simplifyFraction(n1 + n2, d)
-      : simplifyFraction(n1 - n2, d);
+      ? simplifyFraction(convertedFrac1.n + convertedFrac2.n, commonD)
+      : simplifyFraction(convertedFrac1.n - convertedFrac2.n, commonD);
 
     const text1 = formatFractionText(frac1);
     const text2 = formatFractionText(frac2);
@@ -173,10 +194,16 @@ function generateFractionProblem(
     const wordsAns = fractionToWords(fracAnswer);
 
     const opWord = operation === '+' ? "plus" : "minus";
-    const problemSpeechText = `${words1} ${opWord} ${words2}`;
-    const fullSpeechText = `${words1} ${opWord} ${words2} equals ${wordsAns}`;
-    const displayText = `${text1} ${operation} ${text2}`;
+    let problemSpeechText = `${words1} ${opWord} ${words2}`;
+    let fullSpeechText = `${words1} ${opWord} ${words2} equals ${wordsAns}`;
 
+    if (hasConversion) {
+      const cWords1 = fractionToWords(convertedFrac1);
+      const cWords2 = fractionToWords(convertedFrac2);
+      fullSpeechText = `${words1} ${opWord} ${words2} equals ${cWords1} ${opWord} ${cWords2}, which equals ${wordsAns}`;
+    }
+
+    const displayText = `${text1} ${operation} ${text2}`;
     const id = `frac-${operation}-${text1}-${text2}-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
 
     return {
@@ -194,6 +221,9 @@ function generateFractionProblem(
       frac1,
       frac2,
       fracAnswer,
+      convertedFrac1,
+      convertedFrac2,
+      hasConversion,
     };
   }
 
@@ -245,5 +275,6 @@ function generateFractionProblem(
     frac1,
     frac2,
     fracAnswer,
+    hasConversion: false,
   };
 }

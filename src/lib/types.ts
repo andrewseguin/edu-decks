@@ -22,6 +22,9 @@ export type MathProblem = {
   frac1?: Fraction;
   frac2?: Fraction;
   fracAnswer?: Fraction;
+  convertedFrac1?: Fraction;
+  convertedFrac2?: Fraction;
+  hasConversion?: boolean;
 };
 
 export type AppSettingsState = {
