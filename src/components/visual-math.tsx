@@ -434,7 +434,7 @@ export function VisualMath({ problem }: VisualMathProps) {
       );
     }
 
-    // FRACTION MULTIPLICATION (×): Dynamic Physical Splitting Animation
+    // FRACTION MULTIPLICATION (×): 100% Butter-Smooth SVG Rect Morphing (Stable React Keys)
     if (operation === '×') {
       const cols = f1.d; // d1 vertical columns
       const cyanCols = f1.n; // n1 Cyan columns
@@ -446,8 +446,6 @@ export function VisualMath({ problem }: VisualMathProps) {
       const gridW = 160;
       const gridH = 120;
       const cellW = gridW / cols;
-      const currentRows = isSubdivided ? rows : 1;
-      const cellH = gridH / currentRows;
 
       return (
         <div className="flex flex-col items-center justify-center gap-1.5">
@@ -462,16 +460,18 @@ export function VisualMath({ problem }: VisualMathProps) {
               className="fill-white/5 stroke-white/30 stroke-2"
             />
 
-            {/* Grid Cells - Morphing from 1 tall row to 'rows' rows */}
+            {/* Grid Cells - Stable React Keys for 100% Fluid SVG Rect Morphing */}
             {Array.from({ length: cols }).map((_, c) => {
               const isCyanCol = c < cyanCols;
 
-              return Array.from({ length: currentRows }).map((_, r) => {
+              return Array.from({ length: rows }).map((_, r) => {
                 const isOrangeRow = isSubdivided && r < orangeRows;
                 const isOverlap = isCyanCol && isOrangeRow;
 
+                // Morphing position calculation: Step 1 (1 tall row) -> Step 2 ('rows' rows)
+                const cellH = isSubdivided ? gridH / rows : (r === 0 ? gridH : 0);
+                const y = isSubdivided ? r * (gridH / rows) : 0;
                 const x = c * cellW;
-                const y = r * cellH;
 
                 let fillClass = "fill-transparent";
                 let strokeClass = "stroke-white/20";
@@ -483,14 +483,15 @@ export function VisualMath({ problem }: VisualMathProps) {
 
                 return (
                   <rect
-                    key={`cell-${c}-${r}-${isSubdivided}`}
+                    key={`cell-${c}-${r}`}
                     x={x + 1.5}
                     y={y + 1.5}
                     width={cellW - 3}
-                    height={cellH - 3}
+                    height={Math.max(0, cellH - 3)}
                     rx={isSubdivided ? 4 : 8}
+                    opacity={!isSubdivided && r > 0 ? 0 : 1}
                     className={cn(
-                      "transition-all duration-500 ease-out",
+                      "transition-all duration-700 ease-out",
                       fillClass,
                       strokeClass
                     )}
@@ -499,8 +500,8 @@ export function VisualMath({ problem }: VisualMathProps) {
               });
             })}
 
-            {/* Step 2: Clean Steady Orange Horizontal Cut Line (no flashing) */}
-            {isSubdivided && Array.from({ length: rows - 1 }).map((_, rIdx) => {
+            {/* Step 2: Animated Orange Horizontal Cut Line Smooth Fade & Expansion */}
+            {Array.from({ length: rows - 1 }).map((_, rIdx) => {
               const lineY = (rIdx + 1) * (gridH / rows);
               return (
                 <line
@@ -509,7 +510,10 @@ export function VisualMath({ problem }: VisualMathProps) {
                   y1={lineY}
                   x2={gridW}
                   y2={lineY}
-                  className="stroke-amber-400 stroke-3 stroke-dashed transition-all duration-500"
+                  className={cn(
+                    "stroke-amber-400 stroke-3 stroke-dashed transition-all duration-700 ease-out origin-left",
+                    isSubdivided ? "opacity-100 scale-x-100" : "opacity-0 scale-x-0"
+                  )}
                 />
               );
             })}
