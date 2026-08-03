@@ -308,7 +308,6 @@ export default function MathDeckPage() {
           minRange={minRange}
           maxRange={maxRange}
           allowNegatives={allowNegatives}
-          optionCount={quizOptionCount}
           autoPlayAudio={autoPlayAudio}
           onSpeak={(text) => speak(text, true)}
           onPlayChime={playChime}

@@ -2,9 +2,9 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { MathOperation, MathProblem, OPERATION_COLORS } from "@/lib/types";
-import { generateMathProblem, generateQuizOptions } from "@/lib/math-generator";
+import { generateMathProblem } from "@/lib/math-generator";
 import { Button } from "@/components/ui/button";
-import { Volume2, X, Sparkles, CheckCircle2 } from "lucide-react";
+import { Volume2, X, Sparkles, Delete, CornerDownLeft, CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type QuizDisplayProps = {
@@ -12,7 +12,6 @@ type QuizDisplayProps = {
   minRange: number;
   maxRange: number;
   allowNegatives: boolean;
-  optionCount: number; // 4, 6, or 8
   autoPlayAudio: boolean;
   onSpeak: (text: string) => void;
   onPlayChime: (correct: boolean) => void;
@@ -24,17 +23,15 @@ export function QuizDisplay({
   minRange,
   maxRange,
   allowNegatives,
-  optionCount,
   autoPlayAudio,
   onSpeak,
   onPlayChime,
   onExit,
 }: QuizDisplayProps) {
   const [currentProblem, setCurrentProblem] = useState<MathProblem | null>(null);
-  const [options, setOptions] = useState<number[]>([]);
+  const [inputVal, setInputVal] = useState<string>("");
   const [score, setScore] = useState(0);
   const [streak, setStreak] = useState(0);
-  const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
   const [isPlayingSound, setIsPlayingSound] = useState(false);
 
@@ -55,10 +52,8 @@ export function QuizDisplay({
       maxRange,
       allowNegatives
     );
-    const opts = generateQuizOptions(problem, optionCount, minRange, maxRange);
     setCurrentProblem(problem);
-    setOptions(opts);
-    setSelectedOption(null);
+    setInputVal("");
     setIsCorrect(null);
 
     if (autoPlayAudio) {
@@ -66,7 +61,7 @@ export function QuizDisplay({
         playAudioPrompt(problem);
       }, 400);
     }
-  }, [activeOperations, minRange, maxRange, allowNegatives, optionCount, autoPlayAudio, playAudioPrompt]);
+  }, [activeOperations, minRange, maxRange, allowNegatives, autoPlayAudio, playAudioPrompt]);
 
   useEffect(() => {
     nextQuestion();
@@ -75,12 +70,12 @@ export function QuizDisplay({
     };
   }, []);
 
-  const handleSelectOption = (option: number) => {
-    if (!currentProblem || selectedOption !== null) return;
+  const handleSubmitInput = useCallback((submittedText: string) => {
+    if (!currentProblem || isCorrect !== null || !submittedText) return;
 
-    setSelectedOption(option);
+    const userNum = parseInt(submittedText, 10);
 
-    if (option === currentProblem.answer) {
+    if (userNum === currentProblem.answer) {
       setIsCorrect(true);
       setScore((s) => s + 1);
       setStreak((s) => s + 1);
@@ -88,18 +83,64 @@ export function QuizDisplay({
 
       setTimeout(() => {
         nextQuestion();
-      }, 1000);
+      }, 800);
     } else {
       setIsCorrect(false);
       setStreak(0);
       onPlayChime(false);
 
       setTimeout(() => {
-        setSelectedOption(null);
+        setInputVal("");
         setIsCorrect(null);
-      }, 800);
+      }, 700);
     }
-  };
+  }, [currentProblem, isCorrect, nextQuestion, onPlayChime]);
+
+  const handleKeyPress = useCallback((digit: string) => {
+    if (isCorrect !== null || !currentProblem) return;
+
+    // Handle Negative sign if allowed
+    if (digit === "-") {
+      if (inputVal === "") setInputVal("-");
+      return;
+    }
+
+    // Limit input length to max 4 characters
+    if (inputVal.length >= 4) return;
+
+    const newInput = inputVal + digit;
+    setInputVal(newInput);
+
+    // Auto-submit if digit length matches expected answer length
+    const expectedStr = currentProblem.answer.toString();
+    if (newInput === expectedStr) {
+      handleSubmitInput(newInput);
+    }
+  }, [inputVal, isCorrect, currentProblem, handleSubmitInput]);
+
+  const handleDelete = useCallback(() => {
+    if (isCorrect !== null) return;
+    setInputVal((prev) => prev.slice(0, -1));
+  }, [isCorrect]);
+
+  // Physical Keyboard listener
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key >= "0" && e.key <= "9") {
+        handleKeyPress(e.key);
+      } else if (e.key === "-") {
+        handleKeyPress("-");
+      } else if (e.key === "Backspace" || e.key === "Delete") {
+        handleDelete();
+      } else if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        handleSubmitInput(inputVal);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handleKeyPress, handleDelete, handleSubmitInput, inputVal]);
 
   if (!currentProblem) return null;
 
@@ -112,7 +153,7 @@ export function QuizDisplay({
       onPointerUp={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Top Header Bar: Exit Button on left, Audio Button in center, Score/Streak on right */}
+      {/* Top Header Bar */}
       <div className="flex items-center justify-between w-full max-w-4xl mx-auto gap-2 shrink-0">
         <Button
           variant="outline"
@@ -165,10 +206,14 @@ export function QuizDisplay({
         </div>
       </div>
 
-      {/* Hero Equation Card (Prominent Center Piece) */}
-      <div className="w-full max-w-3xl mx-auto my-auto py-2 sm:py-4 shrink-0 flex justify-center">
+      {/* Hero Equation Card */}
+      <div className="w-full max-w-2xl mx-auto my-auto py-2 shrink-0 flex justify-center">
         <div
-          className="w-full rounded-3xl p-6 sm:p-8 flex items-center justify-center relative cursor-pointer shadow-xl transition-all duration-300 hover:scale-[1.01]"
+          className={cn(
+            "w-full rounded-3xl p-5 sm:p-8 flex items-center justify-center relative cursor-pointer shadow-xl transition-all duration-300",
+            isCorrect === true && "border-4 border-emerald-400 shadow-emerald-500/30 scale-[1.02]",
+            isCorrect === false && "border-4 border-destructive animate-shake"
+          )}
           style={{
             backgroundColor: opInfo.hex,
             boxShadow:
@@ -197,66 +242,117 @@ export function QuizDisplay({
               =
             </span>
 
-            {/* Obscured Question Mark Badge */}
+            {/* User Input / Question Mark Box */}
             <div className="relative inline-flex items-center justify-center px-1">
-              <div className="flex items-center justify-center bg-white/20 backdrop-blur-md rounded-2xl border-2 border-dashed border-white/40 shadow-sm px-4 py-1 sm:px-6 sm:py-2 animate-pulse">
-                <span className="font-headline font-bold text-white text-4xl sm:text-6xl md:text-7xl">
-                  ?
-                </span>
+              <div
+                className={cn(
+                  "min-w-[70px] sm:min-w-[100px] h-[60px] sm:h-[84px] px-4 flex items-center justify-center rounded-2xl border-2 transition-all duration-200",
+                  isCorrect === true
+                    ? "bg-emerald-500 border-emerald-300 text-white shadow-lg"
+                    : isCorrect === false
+                    ? "bg-destructive/30 border-destructive text-white"
+                    : inputVal
+                    ? "bg-white/30 border-white text-white shadow-md"
+                    : "bg-white/20 border-dashed border-white/40 text-white animate-pulse"
+                )}
+              >
+                {inputVal ? (
+                  <span className="font-headline font-bold leading-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] text-4xl sm:text-6xl md:text-7xl">
+                    {inputVal}
+                  </span>
+                ) : (
+                  <span className="font-headline font-bold text-white/80 text-3xl sm:text-5xl md:text-6xl">
+                    ?
+                  </span>
+                )}
+                {isCorrect === true && (
+                  <CheckCircle2 className="w-6 h-6 sm:w-8 sm:h-8 text-white ml-2 animate-in zoom-in" />
+                )}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Dynamic Options Grid */}
-      <div
-        className={cn(
-          "w-full max-w-4xl mx-auto grid shrink-0 gap-3 sm:gap-4 pb-2",
-          options.length <= 4
-            ? "grid-cols-2 max-w-2xl"
-            : options.length <= 6
-            ? "grid-cols-2 sm:grid-cols-3"
-            : "grid-cols-2 sm:grid-cols-4"
-        )}
-      >
-        {options.map((option) => {
-          const isSelected = selectedOption === option;
-          const isSelectedCorrect = isSelected && isCorrect === true;
-          const isSelectedIncorrect = isSelected && isCorrect === false;
+      {/* Numeric Keypad Grid (3x4 Layout) */}
+      <div className="w-full max-w-sm mx-auto grid grid-cols-3 gap-2.5 sm:gap-3 shrink-0 pb-2">
+        {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
+          <button
+            key={num}
+            className="h-14 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-3xl sm:text-4xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
+            style={{
+              backgroundColor: `${opInfo.hex}18`,
+              color: opInfo.hex,
+            }}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+              handleKeyPress(num);
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleKeyPress(num);
+            }}
+          >
+            {num}
+          </button>
+        ))}
 
-          return (
-            <button
-              key={option}
-              className={cn(
-                "h-20 sm:h-24 md:h-28 w-full rounded-2xl flex items-center justify-center font-headline font-bold shadow-md transition-all active:scale-95 relative overflow-hidden border-4 border-transparent outline-none select-none text-4xl sm:text-5xl md:text-6xl",
-                isSelectedCorrect &&
-                  "bg-emerald-500 text-white scale-105 border-emerald-400 z-10 shadow-xl shadow-emerald-500/30",
-                isSelectedIncorrect &&
-                  "bg-destructive/20 text-destructive border-destructive animate-shake",
-                !isSelected &&
-                  "bg-card text-card-foreground hover:border-primary/40 hover:scale-[1.02]"
-              )}
-              style={{
-                backgroundColor: !isSelected ? `${opInfo.hex}18` : undefined,
-                color: !isSelected ? opInfo.hex : undefined,
-              }}
-              onPointerDown={(e) => {
-                e.stopPropagation();
-                handleSelectOption(option);
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleSelectOption(option);
-              }}
-            >
-              <span className="select-none inline-block leading-none">{option}</span>
-              {isSelectedCorrect && (
-                <CheckCircle2 className="absolute top-2 right-2 w-6 h-6 text-white animate-in zoom-in" />
-              )}
-            </button>
-          );
-        })}
+        {/* Backspace Button */}
+        <button
+          className="h-14 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-xl sm:text-2xl shadow-md transition-all active:scale-95 bg-card text-muted-foreground border-2 border-transparent hover:border-destructive/40 hover:text-destructive hover:scale-[1.02] outline-none select-none"
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            handleDelete();
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleDelete();
+          }}
+          aria-label="Delete last digit"
+        >
+          <Delete className="w-6 h-6 sm:w-7 sm:h-7" />
+        </button>
+
+        {/* 0 Key */}
+        <button
+          className="h-14 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-3xl sm:text-4xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
+          style={{
+            backgroundColor: `${opInfo.hex}18`,
+            color: opInfo.hex,
+          }}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            handleKeyPress("0");
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleKeyPress("0");
+          }}
+        >
+          0
+        </button>
+
+        {/* Submit Key */}
+        <button
+          className={cn(
+            "h-14 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-xl sm:text-2xl shadow-md transition-all active:scale-95 text-white border-2 border-transparent outline-none select-none",
+            inputVal ? "opacity-100 hover:scale-[1.02]" : "opacity-50"
+          )}
+          style={{
+            backgroundColor: opInfo.hex,
+          }}
+          onPointerDown={(e) => {
+            e.stopPropagation();
+            handleSubmitInput(inputVal);
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            handleSubmitInput(inputVal);
+          }}
+          aria-label="Submit answer"
+        >
+          <CornerDownLeft className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
+        </button>
       </div>
     </div>
   );
