@@ -105,18 +105,15 @@ export function QuizDisplay({
 
   const opInfo = OPERATION_COLORS[currentProblem.operation];
 
-  const minCardHeight =
-    optionCount <= 4 ? "min-h-[22vh]" : optionCount <= 6 ? "min-h-[16vh]" : "min-h-[12vh]";
-
   return (
     <div
-      className="fixed inset-0 z-40 bg-background flex flex-col justify-between p-3 sm:p-6 animate-in fade-in duration-300 select-none"
+      className="fixed inset-0 z-40 bg-background flex flex-col justify-between p-3 sm:p-6 animate-in fade-in duration-300 select-none overflow-y-auto"
       onPointerDown={(e) => e.stopPropagation()}
       onPointerUp={(e) => e.stopPropagation()}
       onClick={(e) => e.stopPropagation()}
     >
-      {/* Top Controls Bar */}
-      <div className="flex items-center justify-between w-full max-w-4xl mx-auto gap-2">
+      {/* Top Header Bar: Exit Button on left, Audio Button in center, Score/Streak on right */}
+      <div className="flex items-center justify-between w-full max-w-4xl mx-auto gap-2 shrink-0">
         <Button
           variant="outline"
           size="sm"
@@ -134,15 +131,14 @@ export function QuizDisplay({
           <span className="hidden sm:inline">Exit Quiz</span>
         </Button>
 
-        {/* Center Prompt Replay Button */}
+        {/* Audio Replay Button */}
         <Button
           size="sm"
-          variant="default"
+          variant="ghost"
           className={cn(
-            "rounded-full gap-2 px-5 py-2 font-headline font-bold text-base shadow-md transition-transform active:scale-95 outline-none text-white",
-            isPlayingSound ? "animate-pulse scale-105" : "hover:opacity-90"
+            "rounded-full gap-2 px-4 py-1.5 font-headline font-bold text-sm transition-transform active:scale-95 text-muted-foreground hover:text-foreground",
+            isPlayingSound ? "animate-pulse scale-105 text-primary" : ""
           )}
-          style={{ backgroundColor: opInfo.hex }}
           onPointerDown={(e) => {
             e.stopPropagation();
             if (currentProblem) playAudioPrompt(currentProblem);
@@ -151,10 +147,10 @@ export function QuizDisplay({
             e.stopPropagation();
             if (currentProblem) playAudioPrompt(currentProblem);
           }}
-          aria-label="Replay equation"
+          aria-label="Replay equation audio"
         >
-          <Volume2 className="w-5 h-5 text-white" />
-          <span>{currentProblem.displayText} = ?</span>
+          <Volume2 className="w-4 h-4" />
+          <span>Listen</span>
         </Button>
 
         {/* Score & Streak Badge */}
@@ -169,15 +165,59 @@ export function QuizDisplay({
         </div>
       </div>
 
+      {/* Hero Equation Card (Prominent Center Piece) */}
+      <div className="w-full max-w-3xl mx-auto my-auto py-2 sm:py-4 shrink-0 flex justify-center">
+        <div
+          className="w-full rounded-3xl p-6 sm:p-8 flex items-center justify-center relative cursor-pointer shadow-xl transition-all duration-300 hover:scale-[1.01]"
+          style={{
+            backgroundColor: opInfo.hex,
+            boxShadow:
+              "0 1px 1px rgba(0,0,0,0.12), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.12), 0 8px 8px rgba(0,0,0,0.12)",
+          }}
+          onClick={() => playAudioPrompt(currentProblem)}
+        >
+          <div className="flex items-center justify-center whitespace-nowrap text-center">
+            {/* First Number (Cyan) */}
+            <span className="font-headline font-bold leading-none select-none text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-5xl sm:text-7xl md:text-8xl">
+              {currentProblem.num1}
+            </span>
+
+            {/* Operator */}
+            <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl mx-2 sm:mx-4">
+              {currentProblem.operation}
+            </span>
+
+            {/* Second Number (Orange) */}
+            <span className="font-headline font-bold leading-none select-none text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-5xl sm:text-7xl md:text-8xl">
+              {currentProblem.num2}
+            </span>
+
+            {/* Equals Symbol */}
+            <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl ml-2 sm:ml-4 mr-2 sm:mr-4">
+              =
+            </span>
+
+            {/* Obscured Question Mark Badge */}
+            <div className="relative inline-flex items-center justify-center px-1">
+              <div className="flex items-center justify-center bg-white/20 backdrop-blur-md rounded-2xl border-2 border-dashed border-white/40 shadow-sm px-4 py-1 sm:px-6 sm:py-2 animate-pulse">
+                <span className="font-headline font-bold text-white text-4xl sm:text-6xl md:text-7xl">
+                  ?
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Dynamic Options Grid */}
       <div
         className={cn(
-          "w-full mx-auto flex-1 grid my-auto p-2 min-h-0 items-center",
+          "w-full max-w-4xl mx-auto grid shrink-0 gap-3 sm:gap-4 pb-2",
           options.length <= 4
-            ? "max-w-2xl grid-cols-2 gap-3 sm:gap-6 max-h-[72vh]"
+            ? "grid-cols-2 max-w-2xl"
             : options.length <= 6
-            ? "max-w-4xl grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4 max-h-[78vh]"
-            : "max-w-5xl grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 max-h-[82vh]"
+            ? "grid-cols-2 sm:grid-cols-3"
+            : "grid-cols-2 sm:grid-cols-4"
         )}
       >
         {options.map((option) => {
@@ -189,14 +229,13 @@ export function QuizDisplay({
             <button
               key={option}
               className={cn(
-                "h-full w-full rounded-3xl flex items-center justify-center font-headline font-bold shadow-lg transition-all active:scale-95 relative overflow-hidden border-4 border-transparent p-2 outline-none select-none text-4xl sm:text-6xl md:text-7xl",
-                minCardHeight,
+                "h-20 sm:h-24 md:h-28 w-full rounded-2xl flex items-center justify-center font-headline font-bold shadow-md transition-all active:scale-95 relative overflow-hidden border-4 border-transparent outline-none select-none text-4xl sm:text-5xl md:text-6xl",
                 isSelectedCorrect &&
-                  "bg-emerald-500 text-white scale-105 border-emerald-400 z-10 shadow-2xl shadow-emerald-500/30",
+                  "bg-emerald-500 text-white scale-105 border-emerald-400 z-10 shadow-xl shadow-emerald-500/30",
                 isSelectedIncorrect &&
                   "bg-destructive/20 text-destructive border-destructive animate-shake",
                 !isSelected &&
-                  "bg-card text-card-foreground hover:border-primary/40 hover:scale-[1.01]"
+                  "bg-card text-card-foreground hover:border-primary/40 hover:scale-[1.02]"
               )}
               style={{
                 backgroundColor: !isSelected ? `${opInfo.hex}18` : undefined,
@@ -213,7 +252,7 @@ export function QuizDisplay({
             >
               <span className="select-none inline-block leading-none">{option}</span>
               {isSelectedCorrect && (
-                <CheckCircle2 className="absolute top-3 right-3 w-8 h-8 text-white animate-in zoom-in" />
+                <CheckCircle2 className="absolute top-2 right-2 w-6 h-6 text-white animate-in zoom-in" />
               )}
             </button>
           );
