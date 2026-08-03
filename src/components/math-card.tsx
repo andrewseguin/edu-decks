@@ -48,7 +48,7 @@ export function MathCard({
     <Card
       key={problem.id}
       className={cn(
-        "relative select-none [-webkit-touch-callout:none] w-[92vw] max-w-[660px] aspect-[16/10] max-h-[72vh] sm:max-h-[78vh] border-none rounded-3xl overflow-hidden cursor-pointer transition-all duration-300",
+        "relative select-none [-webkit-touch-callout:none] w-[92vw] max-w-[660px] aspect-[16/10] max-h-[75vh] sm:max-h-[82vh] border-none rounded-3xl overflow-hidden cursor-pointer transition-all duration-300",
         animClass
       )}
       style={{
@@ -60,12 +60,12 @@ export function MathCard({
       }}
       onClick={handleCardClick}
     >
-      <CardContent className="p-3 sm:p-5 h-full w-full relative flex flex-col justify-between items-center">
+      <CardContent className="p-4 sm:p-6 h-full w-full relative flex flex-col justify-between items-center">
         {/* Full Color-Coded Equation Area */}
         <div
           className={cn(
             "w-full flex items-center justify-center transition-all duration-300",
-            isFlipped ? "pt-1 sm:pt-2 shrink-0" : "my-auto"
+            isFlipped ? "pt-3 sm:pt-6 shrink-0" : "my-auto"
           )}
         >
           <div className="flex items-center justify-center whitespace-nowrap text-center">
@@ -74,7 +74,7 @@ export function MathCard({
               className={cn(
                 "font-headline font-bold leading-none select-none transition-all duration-300",
                 isFlipped
-                  ? "text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-3xl sm:text-5xl md:text-6xl"
+                  ? "text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-4xl sm:text-6xl md:text-7xl"
                   : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl"
               )}
             >
@@ -84,8 +84,8 @@ export function MathCard({
             {/* Operator (+, -, ×, ÷) */}
             <span
               className={cn(
-                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] mx-2 sm:mx-3 transition-all duration-300",
-                isFlipped ? "text-3xl sm:text-5xl md:text-6xl" : "text-5xl sm:text-7xl md:text-8xl"
+                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] mx-2 sm:mx-3.5 transition-all duration-300",
+                isFlipped ? "text-4xl sm:text-6xl md:text-7xl" : "text-5xl sm:text-7xl md:text-8xl"
               )}
             >
               {problem.operation}
@@ -96,7 +96,7 @@ export function MathCard({
               className={cn(
                 "font-headline font-bold leading-none select-none transition-all duration-300",
                 isFlipped
-                  ? "text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-3xl sm:text-5xl md:text-6xl"
+                  ? "text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-4xl sm:text-6xl md:text-7xl"
                   : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl"
               )}
             >
@@ -106,8 +106,8 @@ export function MathCard({
             {/* Equals Symbol */}
             <span
               className={cn(
-                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] ml-2 sm:ml-3 mr-2 sm:mr-3 transition-all duration-300",
-                isFlipped ? "text-3xl sm:text-5xl md:text-6xl" : "text-5xl sm:text-7xl md:text-8xl"
+                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] ml-2 sm:ml-3.5 mr-2 sm:mr-3.5 transition-all duration-300",
+                isFlipped ? "text-4xl sm:text-6xl md:text-7xl" : "text-5xl sm:text-7xl md:text-8xl"
               )}
             >
               =
@@ -119,7 +119,7 @@ export function MathCard({
                 className={cn(
                   "font-headline font-bold leading-none select-none text-white transition-all duration-300",
                   isFlipped
-                    ? "[text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] opacity-100 scale-100 text-3xl sm:text-5xl md:text-6xl"
+                    ? "[text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] opacity-100 scale-100 text-4xl sm:text-6xl md:text-7xl"
                     : "opacity-0 scale-90 text-5xl sm:text-7xl md:text-8xl"
                 )}
               >
@@ -138,9 +138,9 @@ export function MathCard({
           </div>
         </div>
 
-        {/* Visual Blocks Overlay - Dynamically Centered in Lower Half via Flexbox */}
+        {/* Visual Blocks Overlay - Centered in Lower Region */}
         {isFlipped && (
-          <div className="w-full flex-1 flex items-center justify-center min-h-0 pointer-events-none z-10 py-1 sm:py-2">
+          <div className="w-full flex-1 flex items-center justify-center min-h-0 pointer-events-none z-10 py-2 sm:py-3">
             <VisualMath problem={problem} />
           </div>
         )}
@@ -149,7 +149,7 @@ export function MathCard({
         <Button
           variant="ghost"
           size="icon"
-          className="absolute bottom-2.5 right-2.5 text-white/80 hover:text-white hover:bg-white/20 rounded-full w-8 h-8 sm:w-10 sm:h-10 transition-transform active:scale-95 outline-none pointer-events-auto z-20"
+          className="absolute bottom-3 right-3 text-white/80 hover:text-white hover:bg-white/20 rounded-full w-9 h-9 sm:w-10 sm:h-10 transition-transform active:scale-95 outline-none pointer-events-auto z-20"
           onClick={handleSpeak}
           aria-label="Listen to equation"
         >

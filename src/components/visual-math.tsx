@@ -370,7 +370,7 @@ export function VisualMath({ problem }: VisualMathProps) {
 
     const availWForBlocks = maxW - totalItemGaps - totalGroupGaps - totalGroupPadding - 16;
     const rawBlockSize = Math.floor(availWForBlocks / total);
-    const blockSize = Math.max(8, Math.min(18, rawBlockSize));
+    const blockSize = Math.max(12, Math.min(24, rawBlockSize));
 
     return (
       <div
