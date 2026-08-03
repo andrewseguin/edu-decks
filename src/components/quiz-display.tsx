@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { MathOperation, MathProblem, OPERATION_COLORS } from "@/lib/types";
+import { MathOperation, MathProblem, OPERATION_COLORS, Fraction } from "@/lib/types";
 import { generateMathProblem } from "@/lib/math-generator";
 import { FractionDisplay } from "./fraction-display";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ type QuizDisplayProps = {
   minRange: number;
   maxRange: number;
   allowNegatives: boolean;
+  showWholeNumbers?: boolean;
   showFractions?: boolean;
   autoPlayAudio: boolean;
   onSpeak: (text: string) => void;
@@ -20,11 +21,39 @@ type QuizDisplayProps = {
   onExit: () => void;
 };
 
+function parseFractionValue(str: string): number | null {
+  const parts = str.trim().split('/');
+  if (parts.length === 1) {
+    const val = parseFloat(parts[0]);
+    return isNaN(val) ? null : val;
+  }
+  if (parts.length === 2) {
+    const n = parseFloat(parts[0]);
+    const d = parseFloat(parts[1]);
+    if (isNaN(n) || isNaN(d) || d === 0) return null;
+    return n / d;
+  }
+  return null;
+}
+
+function stringToFraction(str: string): Fraction | null {
+  const parts = str.trim().split('/');
+  if (parts.length === 2) {
+    const n = parseInt(parts[0], 10);
+    const d = parseInt(parts[1], 10);
+    if (!isNaN(n) && !isNaN(d) && d > 0) {
+      return { n, d };
+    }
+  }
+  return null;
+}
+
 export function QuizDisplay({
   activeOperations,
   minRange,
   maxRange,
   allowNegatives,
+  showWholeNumbers = true,
   showFractions = false,
   autoPlayAudio,
   onSpeak,
@@ -54,6 +83,7 @@ export function QuizDisplay({
       minRange,
       maxRange,
       allowNegatives,
+      showWholeNumbers,
       showFractions
     );
     setCurrentProblem(problem);
@@ -65,7 +95,7 @@ export function QuizDisplay({
         playAudioPrompt(problem);
       }, 400);
     }
-  }, [activeOperations, minRange, maxRange, allowNegatives, showFractions, autoPlayAudio, playAudioPrompt]);
+  }, [activeOperations, minRange, maxRange, allowNegatives, showWholeNumbers, showFractions, autoPlayAudio, playAudioPrompt]);
 
   useEffect(() => {
     nextQuestion();
@@ -77,10 +107,11 @@ export function QuizDisplay({
   const handleSubmitInput = useCallback((submittedText: string) => {
     if (!currentProblem || isCorrect !== null || !submittedText) return;
 
-    // Check string match for fraction or number
-    const isAnswerCorrect =
-      submittedText.trim() === currentProblem.answerText.trim() ||
-      parseFloat(submittedText) === currentProblem.answer;
+    const parsedUserVal = parseFractionValue(submittedText);
+    const isExactStringMatch = submittedText.trim() === currentProblem.answerText.trim();
+    const isNumericMatch = parsedUserVal !== null && Math.abs(parsedUserVal - currentProblem.answer) < 0.0001;
+
+    const isAnswerCorrect = isExactStringMatch || isNumericMatch;
 
     if (isAnswerCorrect) {
       setIsCorrect(true);
@@ -160,6 +191,7 @@ export function QuizDisplay({
   if (!currentProblem) return null;
 
   const opInfo = OPERATION_COLORS[currentProblem.operation];
+  const userFraction = stringToFraction(inputVal);
 
   return (
     <div
@@ -262,7 +294,7 @@ export function QuizDisplay({
               <div className="relative inline-flex items-center justify-center px-0.5 shrink-0">
                 <div
                   className={cn(
-                    "min-w-[44px] sm:min-w-[70px] h-[40px] sm:h-[58px] px-2 flex items-center justify-center rounded-xl sm:rounded-2xl border-2 transition-all duration-200",
+                    "min-w-[44px] sm:min-w-[70px] h-[40px] sm:h-[58px] px-2.5 flex items-center justify-center rounded-xl sm:rounded-2xl border-2 transition-all duration-200",
                     isCorrect === true
                       ? "bg-emerald-500 border-emerald-300 text-white shadow-lg"
                       : isCorrect === false
@@ -273,9 +305,13 @@ export function QuizDisplay({
                   )}
                 >
                   {inputVal ? (
-                    <span className="font-headline font-bold leading-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] text-xl sm:text-3xl md:text-4xl">
-                      {inputVal}
-                    </span>
+                    userFraction ? (
+                      <FractionDisplay fraction={userFraction} colorClass="text-white" size="sm" />
+                    ) : (
+                      <span className="font-headline font-bold leading-none text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] text-xl sm:text-3xl md:text-4xl">
+                        {inputVal}
+                      </span>
+                    )
                   ) : (
                     <span className="font-headline font-bold text-white/80 text-lg sm:text-2xl md:text-3xl">
                       ?
