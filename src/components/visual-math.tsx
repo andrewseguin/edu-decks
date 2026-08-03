@@ -434,120 +434,88 @@ export function VisualMath({ problem }: VisualMathProps) {
       );
     }
 
-    // FRACTION MULTIPLICATION (×): Orange Subdivision Lines inside Cyan Region ONLY
+    // FRACTION MULTIPLICATION (×): Textbook Rectangular Area Model
     if (operation === '×') {
-      const d1 = f1.d;
-      const n1 = f1.n;
-      const d2 = f2.d;
-      const n2 = f2.n;
+      const cols = f1.d; // d1 vertical columns
+      const cyanCols = f1.n; // n1 Cyan columns
+      const rows = f2.d; // d2 horizontal rows
+      const orangeRows = f2.n; // n2 Orange rows
 
       const isSubdivided = orangeVisible > 0;
-      const radius = 58;
-      const center = 65;
 
-      const totalSlices = isSubdivided ? d1 * d2 : d1;
-      const totalCyanSubSlices = n1 * d2;
-      const totalOrangeSubSlices = n1 * n2;
+      const gridW = 160;
+      const gridH = 120;
+      const cellW = gridW / cols;
+      const cellH = gridH / rows;
 
       return (
         <div className="flex flex-col items-center justify-center gap-1.5">
-          <svg width={130} height={130} viewBox="0 0 130 130" className="drop-shadow-md">
-            {Array.from({ length: totalSlices }).map((_, i) => {
-              const startAngle = (i * 360) / totalSlices - 90;
-              const endAngle = ((i + 1) * 360) / totalSlices - 90;
+          <svg width={gridW + 12} height={gridH + 12} viewBox={`-6 -6 ${gridW + 12} ${gridH + 12}`} className="drop-shadow-md">
+            {/* Outer Grid Border */}
+            <rect
+              x={0}
+              y={0}
+              width={gridW}
+              height={gridH}
+              rx={12}
+              className="fill-white/5 stroke-white/30 stroke-2"
+            />
 
-              const startRad = (startAngle * Math.PI) / 180;
-              const endRad = (endAngle * Math.PI) / 180;
+            {/* Grid Cells */}
+            {Array.from({ length: cols }).map((_, c) => {
+              const isCyanCol = c < cyanCols;
 
-              const x1 = center + radius * Math.cos(startRad);
-              const y1 = center + radius * Math.sin(startRad);
-              const x2 = center + radius * Math.cos(endRad);
-              const y2 = center + radius * Math.sin(endRad);
+              return Array.from({ length: rows }).map((_, r) => {
+                const isOrangeRow = r < orangeRows;
+                const isOverlap = isCyanCol && isOrangeRow;
 
-              const largeArc = 360 / totalSlices > 180 ? 1 : 0;
-              const pathData =
-                totalSlices === 1
-                  ? `M ${center - radius}, ${center} a ${radius},${radius} 0 1,0 ${radius * 2},0 a ${radius},${radius} 0 1,0 -${radius * 2},0`
-                  : `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArc} 1 ${x2} ${y2} Z`;
+                const x = c * cellW;
+                const y = r * cellH;
 
-              if (!isSubdivided) {
-                // Step 1: Show d1 main slices with Cyan fill for n1 slices
-                const isCyan = i < n1;
+                let fillClass = "fill-transparent";
+                let strokeClass = "stroke-white/20";
+
+                if (isCyanCol) {
+                  fillClass = "fill-cyan-300";
+                  strokeClass = "stroke-cyan-400";
+                }
+
+                if (isSubdivided && isOverlap) {
+                  fillClass = "fill-amber-400";
+                  strokeClass = "stroke-amber-500";
+                }
+
                 return (
-                  <path
-                    key={`step1-slice-${i}`}
-                    d={pathData}
+                  <rect
+                    key={`cell-${c}-${r}`}
+                    x={x + 1.5}
+                    y={y + 1.5}
+                    width={cellW - 3}
+                    height={cellH - 3}
+                    rx={4}
                     className={cn(
-                      "transition-all duration-300",
-                      isCyan
-                        ? "fill-cyan-300 stroke-cyan-400 stroke-2"
-                        : "fill-white/10 stroke-white/30 stroke-1 stroke-dashed"
+                      "transition-all duration-500",
+                      fillClass,
+                      strokeClass
                     )}
                   />
                 );
-              }
+              });
+            })}
 
-              // Step 2: Show Orange subdivision lines & shading inside Cyan region ONLY
-              const isOrange = i < totalOrangeSubSlices;
-              const isCyan = i >= totalOrangeSubSlices && i < totalCyanSubSlices;
-              const isSubdividerLine = (i % d2) !== 0;
-
-              if (isOrange) {
-                return (
-                  <path
-                    key={`step2-slice-${i}`}
-                    d={pathData}
-                    className={cn(
-                      "fill-amber-400 stroke-2 transition-all duration-500",
-                      isSubdividerLine ? "stroke-amber-300" : "stroke-amber-500"
-                    )}
-                  />
-                );
-              }
-
-              if (isCyan) {
-                return (
-                  <path
-                    key={`step2-slice-${i}`}
-                    d={pathData}
-                    className={cn(
-                      "fill-cyan-300 stroke-2 transition-all duration-300",
-                      isSubdividerLine ? "stroke-amber-400" : "stroke-cyan-400"
-                    )}
-                  />
-                );
-              }
-
-              // Outside Cyan region: show main d1 slices only (no subdivider lines!)
-              if (i % d2 === 0) {
-                const mainIndexOutside = Math.floor(i / d2);
-                const mainStartAngle = (mainIndexOutside * 360) / d1 - 90;
-                const mainEndAngle = ((mainIndexOutside + 1) * 360) / d1 - 90;
-
-                const mStartRad = (mainStartAngle * Math.PI) / 180;
-                const mEndRad = (mainEndAngle * Math.PI) / 180;
-
-                const mx1 = center + radius * Math.cos(mStartRad);
-                const my1 = center + radius * Math.sin(mStartRad);
-                const mx2 = center + radius * Math.cos(mEndRad);
-                const my2 = center + radius * Math.sin(mEndRad);
-
-                const mLargeArc = 360 / d1 > 180 ? 1 : 0;
-                const mainPath =
-                  d1 === 1
-                    ? `M ${center - radius}, ${center} a ${radius},${radius} 0 1,0 ${radius * 2},0 a ${radius},${radius} 0 1,0 -${radius * 2},0`
-                    : `M ${center} ${center} L ${mx1} ${my1} A ${radius} ${radius} 0 ${mLargeArc} 1 ${mx2} ${my2} Z`;
-
-                return (
-                  <path
-                    key={`step2-outside-${i}`}
-                    d={mainPath}
-                    className="fill-white/10 stroke-white/30 stroke-1 stroke-dashed transition-all duration-300"
-                  />
-                );
-              }
-
-              return null;
+            {/* Step 2: Animated Horizontal Orange Cut Line */}
+            {isSubdivided && Array.from({ length: rows - 1 }).map((_, rIdx) => {
+              const lineY = (rIdx + 1) * cellH;
+              return (
+                <line
+                  key={`h-line-${rIdx}`}
+                  x1={0}
+                  y1={lineY}
+                  x2={gridW}
+                  y2={lineY}
+                  className="stroke-amber-400 stroke-3 stroke-dashed animate-fade-in"
+                />
+              );
             })}
           </svg>
         </div>
