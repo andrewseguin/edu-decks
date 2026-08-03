@@ -434,7 +434,7 @@ export function VisualMath({ problem }: VisualMathProps) {
       );
     }
 
-    // FRACTION MULTIPLICATION (×): "Fraction of a Fraction" Model
+    // FRACTION MULTIPLICATION (×): "Fraction of a Fraction" Model (Solid Contiguous Orange Block)
     if (operation === '×') {
       const d1 = f1.d;
       const n1 = f1.n;
@@ -443,6 +443,9 @@ export function VisualMath({ problem }: VisualMathProps) {
 
       const isSubdivided = orangeVisible > 0;
       const currentSliceCount = isSubdivided ? d1 * d2 : d1;
+
+      const totalCyanSubSlices = n1 * d2;
+      const totalOrangeSubSlices = n1 * n2;
 
       return (
         <div className="flex flex-col items-center justify-center gap-1.5">
@@ -485,22 +488,9 @@ export function VisualMath({ problem }: VisualMathProps) {
                 );
               }
 
-              // Step 2 (t=550ms): Subdivide into d1*d2 and shade n2 sub-slices per Cyan region in Orange
-              const mainSliceIdx = Math.floor(i / d2);
-              const subSliceIdx = i % d2;
-
-              const isMainCyan = mainSliceIdx < n1;
-              const isOrange = isMainCyan && subSliceIdx < n2;
-
-              if (!isMainCyan) {
-                return (
-                  <path
-                    key={`step2-slice-${i}`}
-                    d={pathData}
-                    className="fill-white/10 stroke-white/30 stroke-1 stroke-dashed transition-all duration-300"
-                  />
-                );
-              }
+              // Step 2 (t=550ms): Subdivide into d1*d2 and shade top totalOrangeSubSlices in Orange as a SOLID CONTIGUOUS BLOCK!
+              const isOrange = i < totalOrangeSubSlices;
+              const isCyan = i >= totalOrangeSubSlices && i < totalCyanSubSlices;
 
               if (isOrange) {
                 return (
@@ -512,11 +502,21 @@ export function VisualMath({ problem }: VisualMathProps) {
                 );
               }
 
+              if (isCyan) {
+                return (
+                  <path
+                    key={`step2-slice-${i}`}
+                    d={pathData}
+                    className="fill-cyan-300 stroke-cyan-400 stroke-2 transition-all duration-300"
+                  />
+                );
+              }
+
               return (
                 <path
                   key={`step2-slice-${i}`}
                   d={pathData}
-                  className="fill-cyan-300 stroke-cyan-400 stroke-2 transition-all duration-300"
+                  className="fill-white/10 stroke-white/30 stroke-1 stroke-dashed transition-all duration-300"
                 />
               );
             })}
