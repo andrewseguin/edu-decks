@@ -434,7 +434,7 @@ export function VisualMath({ problem }: VisualMathProps) {
       );
     }
 
-    // FRACTION MULTIPLICATION (×): 2-Step Smooth Fluid Area Model Transition
+    // FRACTION MULTIPLICATION (×): Dynamic Physical Splitting Animation (Step 1: 1-row tall Cyan bars -> Step 2: divides into rows & shades top Orange)
     if (operation === '×') {
       const cols = f1.d; // d1 vertical columns
       const cyanCols = f1.n; // n1 Cyan columns
@@ -446,11 +446,12 @@ export function VisualMath({ problem }: VisualMathProps) {
       const gridW = 160;
       const gridH = 120;
       const cellW = gridW / cols;
-      const cellH = gridH / rows;
+      const currentRows = isSubdivided ? rows : 1;
+      const cellH = gridH / currentRows;
 
       return (
         <div className="flex flex-col items-center justify-center gap-1.5">
-          <svg width={gridW + 12} height={gridH + 12} viewBox={`-6 -6 ${gridW + 12} ${gridH + 12}`} className="drop-shadow-md">
+          <svg width={gridW + 12} height={gridH + 12} viewBox={`-6 -6 ${gridW + 12} ${gridH + 12}`} className="drop-shadow-md overflow-visible">
             {/* Outer Grid Border */}
             <rect
               x={0}
@@ -461,11 +462,11 @@ export function VisualMath({ problem }: VisualMathProps) {
               className="fill-white/5 stroke-white/30 stroke-2"
             />
 
-            {/* Grid Cells - Always rendered at final grid resolution so transition is 100% fluid */}
+            {/* Grid Cells - Morphing from 1 tall row to 'rows' rows */}
             {Array.from({ length: cols }).map((_, c) => {
               const isCyanCol = c < cyanCols;
 
-              return Array.from({ length: rows }).map((_, r) => {
+              return Array.from({ length: currentRows }).map((_, r) => {
                 const isOrangeRow = isSubdivided && r < orangeRows;
                 const isOverlap = isCyanCol && isOrangeRow;
 
@@ -482,14 +483,14 @@ export function VisualMath({ problem }: VisualMathProps) {
 
                 return (
                   <rect
-                    key={`cell-${c}-${r}`}
+                    key={`cell-${c}-${r}-${isSubdivided}`}
                     x={x + 1.5}
                     y={y + 1.5}
                     width={cellW - 3}
                     height={cellH - 3}
-                    rx={4}
+                    rx={isSubdivided ? 4 : 8}
                     className={cn(
-                      "transition-colors duration-500 ease-out",
+                      "transition-all duration-500 ease-out",
                       fillClass,
                       strokeClass
                     )}
@@ -498,9 +499,9 @@ export function VisualMath({ problem }: VisualMathProps) {
               });
             })}
 
-            {/* Step 2 (t=550ms): Glowing Orange Horizontal Cut Lines smooth fade in */}
-            {Array.from({ length: rows - 1 }).map((_, rIdx) => {
-              const lineY = (rIdx + 1) * cellH;
+            {/* Step 2: Animated Orange Horizontal Splitting Laser Line */}
+            {isSubdivided && Array.from({ length: rows - 1 }).map((_, rIdx) => {
+              const lineY = (rIdx + 1) * (gridH / rows);
               return (
                 <line
                   key={`h-line-${rIdx}`}
@@ -508,10 +509,7 @@ export function VisualMath({ problem }: VisualMathProps) {
                   y1={lineY}
                   x2={gridW}
                   y2={lineY}
-                  className={cn(
-                    "stroke-amber-400 stroke-3 stroke-dashed transition-opacity duration-500 ease-out",
-                    isSubdivided ? "opacity-100" : "opacity-0"
-                  )}
+                  className="stroke-amber-400 stroke-3 stroke-dashed animate-pulse transition-all duration-500"
                 />
               );
             })}
@@ -824,12 +822,7 @@ export function VisualMath({ problem }: VisualMathProps) {
           return (
             <div
               key={`div-group-${gIdx}`}
-              className={cn(
-                "flex items-center justify-center rounded-xl transition-all duration-500 ease-out whitespace-nowrap shrink-0 p-1 sm:p-1.5 gap-0.5 sm:gap-1",
-                isSeparated
-                  ? "bg-amber-500/20 border-2 border-amber-400/80 shadow-xs"
-                  : "bg-transparent border-2 border-transparent"
-              )}
+              className="flex items-center justify-center rounded-xl transition-all duration-500 ease-out whitespace-nowrap shrink-0 p-1 sm:p-1.5 gap-0.5 sm:gap-1"
             >
               {groupSlots.map((slotIndex) => {
                 if (slotIndex >= total) return null;
