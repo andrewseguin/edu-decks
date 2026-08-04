@@ -82,15 +82,49 @@ export default function MathDeckPage() {
     }
   }, [settings.isLocked]);
 
+  // Fullscreen change listener
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isFull = Boolean(
+        document.fullscreenElement ||
+          (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement
+      );
+      setIsFullscreen(isFull);
+    };
+
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
+
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+      document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
+    };
+  }, []);
+
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
-      setIsFullscreen(true);
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
+    const isFull = Boolean(
+      document.fullscreenElement ||
+        (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement
+    );
+
+    if (!isFull) {
+      const docEl = document.documentElement as HTMLElement & {
+        webkitRequestFullscreen?: () => Promise<void>;
+      };
+      if (docEl.requestFullscreen) {
+        docEl.requestFullscreen().catch(() => {});
+      } else if (docEl.webkitRequestFullscreen) {
+        docEl.webkitRequestFullscreen();
       }
-      setIsFullscreen(false);
+    } else {
+      const doc = document as Document & {
+        webkitExitFullscreen?: () => Promise<void>;
+      };
+      if (doc.exitFullscreen) {
+        doc.exitFullscreen().catch(() => {});
+      } else if (doc.webkitExitFullscreen) {
+        doc.webkitExitFullscreen();
+      }
     }
   };
 
@@ -195,7 +229,7 @@ export default function MathDeckPage() {
       )}
 
       {/* Top Bar Controls */}
-      {!isFullscreen && !settings.isLocked && (
+      {!settings.isLocked && (
         <div
           className="absolute top-4 right-4 flex items-center gap-2 pointer-events-auto"
           onPointerDown={(e) => e.stopPropagation()}
@@ -255,7 +289,7 @@ export default function MathDeckPage() {
       )}
 
       {/* Locked Snackbar */}
-      {!isFullscreen && settings.isLocked && showLockSnackbar && (
+      {settings.isLocked && showLockSnackbar && (
         <div
           className="fixed top-6 left-1/2 -translate-x-1/2 z-50 pointer-events-auto"
           onPointerDown={(e) => e.stopPropagation()}
