@@ -209,8 +209,8 @@ export function MathCard({
           className={cn(
             "absolute inset-x-0 bottom-2 sm:bottom-3 flex items-center justify-center pointer-events-none z-10 transition-all p-1 sm:p-2",
             problem.hasConversion
-              ? "top-[52%] sm:top-[50%] [@media(max-height:640px)]:top-[54%]"
-              : "top-[44%] sm:top-[42%] [@media(max-height:640px)]:top-[46%]",
+              ? "top-[48%] sm:top-[45%] [@media(max-height:640px)]:top-[46%]"
+              : "top-[44%] sm:top-[42%] [@media(max-height:640px)]:top-[44%]",
             isFlipped
               ? "opacity-100 translate-y-0 scale-100 delay-300 duration-500 ease-out"
               : "opacity-0 translate-y-8 scale-95 delay-0 duration-300 ease-in pointer-events-none"

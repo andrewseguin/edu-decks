@@ -15,11 +15,10 @@ test.beforeEach(async ({ page }) => {
   // Inject CSS to freeze animations and hide ticking timer seconds for 100% stable snapshots
   await page.addStyleTag({
     content: `
-      *, *::before, *::after {
-        animation-duration: 0s !important;
-        animation-delay: 0s !important;
-        transition-duration: 0s !important;
-        transition-delay: 0s !important;
+      *, *::before, *::after, html, body, :root {
+        animation: none !important;
+        transition: none !important;
+        caret-color: transparent !important;
       }
       .SessionStats {
         visibility: hidden !important;
