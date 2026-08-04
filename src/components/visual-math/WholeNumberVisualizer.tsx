@@ -269,7 +269,7 @@ export function WholeNumberVisualizer({
                     className={cn(
                       "rounded-md shadow-xs flex items-center justify-center font-bold leading-none shrink-0 transition-all duration-300",
                       isYVisible
-                        ? "bg-amber-400 border border-amber-500 text-amber-950 opacity-100 scale-100"
+                        ? "bg-amber-300 border border-amber-200 text-amber-950 font-extrabold opacity-100 scale-100 shadow-sm"
                         : "bg-white/5 border border-dashed border-white/20 text-transparent opacity-30 scale-90"
                     )}
                     style={{ width: `${blockSize}px`, height: `${blockSize}px`, fontSize: `${fontSize}px` }}

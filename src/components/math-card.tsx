@@ -103,7 +103,7 @@ export function MathCard({
                 fraction={problem.frac2}
                 colorClass={cn(
                   "transition-colors duration-500",
-                  isFlipped ? "text-amber-300" : "text-white"
+                  isFlipped ? "text-yellow-200" : "text-white"
                 )}
                 size="lg"
               />
@@ -112,7 +112,7 @@ export function MathCard({
                 className={cn(
                   "font-headline font-bold leading-none select-none transition-colors duration-500 text-5xl sm:text-7xl md:text-8xl",
                   isFlipped
-                    ? "text-amber-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)]"
+                    ? "text-yellow-200 [text-shadow:0_2px_10px_rgba(0,0,0,0.45)]"
                     : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]"
                 )}
               >
