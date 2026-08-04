@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { MathOperation, MathProblem, OPERATION_COLORS, Fraction } from "@/lib/types";
-import { generateMathProblem } from "@/lib/math-generator";
+import { MathOperation, OPERATION_COLORS } from "@/lib/types";
 import { FractionDisplay } from "./fraction-display";
-import { Button } from "@/components/ui/button";
-import { Volume2, X, Sparkles, Delete } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useQuizSession, stringToFraction } from "@/hooks/use-quiz-session";
+import { QuizHeader } from "./quiz/quiz-header";
+import { QuizKeypad } from "./quiz/quiz-keypad";
 
 type QuizDisplayProps = {
   activeOperations: MathOperation[];
@@ -21,38 +20,10 @@ type QuizDisplayProps = {
   onExit: () => void;
 };
 
-function parseFractionValue(str: string): number | null {
-  const parts = str.trim().split('/');
-  if (parts.length === 1) {
-    const val = parseFloat(parts[0]);
-    return isNaN(val) ? null : val;
-  }
-  if (parts.length === 2) {
-    const n = parseFloat(parts[0]);
-    const d = parseFloat(parts[1]);
-    if (isNaN(n) || isNaN(d) || d === 0) return null;
-    return n / d;
-  }
-  return null;
-}
-
-function stringToFraction(str: string): Fraction | null {
-  const parts = str.trim().split('/');
-  if (parts.length === 2) {
-    const n = parseInt(parts[0], 10);
-    const d = parseInt(parts[1], 10);
-    if (!isNaN(n) && !isNaN(d) && d > 0) {
-      return { n, d };
-    }
-  }
-  return null;
-}
-
 export function QuizDisplay({
   activeOperations,
   minRange,
   maxRange,
-  allowNegatives,
   showWholeNumbers = true,
   showFractions = false,
   autoPlayAudio,
@@ -60,140 +31,32 @@ export function QuizDisplay({
   onPlayChime,
   onExit,
 }: QuizDisplayProps) {
-  const [currentProblem, setCurrentProblem] = useState<MathProblem | null>(null);
-  const [inputVal, setInputVal] = useState<string>("");
-  const [score, setScore] = useState(0);
-  const [streak, setStreak] = useState(0);
-  const [isCorrect, setIsCorrect] = useState<boolean | null>(null);
-  const [isPlayingSound, setIsPlayingSound] = useState(false);
-
-  const playTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-
-  const playAudioPrompt = useCallback((problem: MathProblem) => {
-    setIsPlayingSound(true);
-    onSpeak(problem.problemSpeechText);
-    setTimeout(() => setIsPlayingSound(false), 1400);
-  }, [onSpeak]);
-
-  const nextQuestion = useCallback(() => {
-    if (playTimeoutRef.current) clearTimeout(playTimeoutRef.current);
-
-    const problem = generateMathProblem(
-      activeOperations,
-      minRange,
-      maxRange,
-      showWholeNumbers,
-      showFractions
-    );
-    setCurrentProblem(problem);
-    setInputVal("");
-    setIsCorrect(null);
-
-    if (autoPlayAudio) {
-      playTimeoutRef.current = setTimeout(() => {
-        playAudioPrompt(problem);
-      }, 400);
-    }
-  }, [activeOperations, minRange, maxRange, showWholeNumbers, showFractions, autoPlayAudio, playAudioPrompt]);
-
-  useEffect(() => {
-    nextQuestion();
-    return () => {
-      if (playTimeoutRef.current) clearTimeout(playTimeoutRef.current);
-    };
-  }, []);
-
-  const handleSubmitInput = useCallback((submittedText: string) => {
-    if (!currentProblem || isCorrect !== null || !submittedText) return;
-
-    const parsedUserVal = parseFractionValue(submittedText);
-    const isExactStringMatch = submittedText.trim() === currentProblem.answerText.trim();
-    const isNumericMatch = parsedUserVal !== null && Math.abs(parsedUserVal - currentProblem.answer) < 0.0001;
-
-    const isAnswerCorrect = isExactStringMatch || isNumericMatch;
-
-    if (isAnswerCorrect) {
-      setIsCorrect(true);
-      setScore((s) => s + 1);
-      setStreak((s) => s + 1);
-      onPlayChime(true);
-
-      setTimeout(() => {
-        nextQuestion();
-      }, 800);
-    } else {
-      setIsCorrect(false);
-      setStreak(0);
-      onPlayChime(false);
-
-      setTimeout(() => {
-        setInputVal("");
-        setIsCorrect(null);
-      }, 700);
-    }
-  }, [currentProblem, isCorrect, nextQuestion, onPlayChime]);
-
-  const handleKeyPress = useCallback((digit: string) => {
-    if (isCorrect !== null || !currentProblem) return;
-
-    // Handle Negative sign if allowed
-    if (digit === "-") {
-      if (inputVal === "") setInputVal("-");
-      return;
-    }
-
-    // Handle Fraction Slash /
-    if (digit === "/") {
-      if ((showFractions || currentProblem.isFraction) && inputVal && !inputVal.includes("/")) {
-        const newInput = inputVal + "/";
-        setInputVal(newInput);
-      }
-      return;
-    }
-
-    // Limit input length to max 6 characters
-    if (inputVal.length >= 6) return;
-
-    const newInput = inputVal + digit;
-    setInputVal(newInput);
-
-    // Auto-submit if input matches exact answer text
-    if (newInput === currentProblem.answerText) {
-      handleSubmitInput(newInput);
-    }
-  }, [inputVal, isCorrect, currentProblem, showFractions, handleSubmitInput]);
-
-  const handleDelete = useCallback(() => {
-    if (isCorrect !== null) return;
-    setInputVal((prev) => prev.slice(0, -1));
-  }, [isCorrect]);
-
-  // Physical Keyboard listener
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key >= "0" && e.key <= "9") {
-        handleKeyPress(e.key);
-      } else if (e.key === "-") {
-        handleKeyPress("-");
-      } else if (e.key === "/" && (showFractions || currentProblem?.isFraction)) {
-        handleKeyPress("/");
-      } else if (e.key === "Backspace" || e.key === "Delete") {
-        handleDelete();
-      } else if (e.key === "Enter" || e.key === " ") {
-        e.preventDefault();
-        handleSubmitInput(inputVal);
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [handleKeyPress, handleDelete, handleSubmitInput, inputVal, showFractions, currentProblem?.isFraction]);
+  const {
+    currentProblem,
+    inputVal,
+    score,
+    streak,
+    isCorrect,
+    isPlayingSound,
+    playAudioPrompt,
+    handleKeyPress,
+    handleDelete,
+  } = useQuizSession({
+    activeOperations,
+    minRange,
+    maxRange,
+    showWholeNumbers,
+    showFractions,
+    autoPlayAudio,
+    onSpeak,
+    onPlayChime,
+  });
 
   if (!currentProblem) return null;
 
   const opInfo = OPERATION_COLORS[currentProblem.operation];
   const userFraction = stringToFraction(inputVal);
-  const isFractionActive = showFractions || currentProblem.isFraction;
+  const isFractionActive = Boolean(showFractions || currentProblem.isFraction);
 
   return (
     <div
@@ -201,49 +64,13 @@ export function QuizDisplay({
       onClick={(e) => e.stopPropagation()}
     >
       {/* Top Header Bar */}
-      <div className="flex items-center justify-between w-full max-w-4xl mx-auto gap-2 shrink-0 h-10">
-        <Button
-          variant="outline"
-          size="sm"
-          className="rounded-full gap-1.5 text-muted-foreground hover:text-foreground shrink-0 font-headline font-bold h-8 text-xs sm:text-sm"
-          onClick={(e) => {
-            e.stopPropagation();
-            onExit();
-          }}
-        >
-          <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-          <span className="hidden sm:inline">Exit Quiz</span>
-        </Button>
-
-        {/* Audio Replay Button */}
-        <Button
-          size="sm"
-          variant="ghost"
-          className={cn(
-            "rounded-full gap-1.5 px-3.5 py-1.5 font-headline font-bold text-xs sm:text-sm transition-transform active:scale-95 text-muted-foreground hover:text-foreground h-8",
-            isPlayingSound ? "animate-pulse scale-105 text-primary" : ""
-          )}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (currentProblem) playAudioPrompt(currentProblem);
-          }}
-          aria-label="Replay equation audio"
-        >
-          <Volume2 className="w-4 h-4" />
-          <span>Listen</span>
-        </Button>
-
-        {/* Score & Streak Badge */}
-        <div className="flex items-center gap-1.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-3.5 py-1.5 rounded-full font-bold text-xs sm:text-sm shrink-0 font-headline h-8">
-          <Sparkles className="w-4 h-4" />
-          <span>{score}</span>
-          {streak > 1 && (
-            <span className="text-[10px] sm:text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full font-black">
-              🔥 {streak}
-            </span>
-          )}
-        </div>
-      </div>
+      <QuizHeader
+        score={score}
+        streak={streak}
+        isPlayingSound={isPlayingSound}
+        onExit={onExit}
+        onAudioPrompt={() => playAudioPrompt(currentProblem)}
+      />
 
       {/* Main Content Area */}
       <div className="w-full max-w-2xl mx-auto flex-1 flex flex-col [@media(orientation:landscape)_and_(max-height:540px)]:flex-row [@media(orientation:landscape)_and_(max-height:540px)]:max-w-5xl items-center justify-center gap-4 sm:gap-6 min-h-0 py-2">
@@ -325,90 +152,14 @@ export function QuizDisplay({
           </div>
         </div>
 
-        {/* Numeric Keypad Grid (3x4 Layout) */}
-        <div className="w-full max-w-xs sm:max-w-sm grid grid-cols-3 gap-2.5 sm:gap-3 shrink-0 my-auto p-1">
-          {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
-            <button
-              key={num}
-              type="button"
-              className="h-13 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-2xl sm:text-3xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
-              style={{
-                backgroundColor: `${opInfo.hex}18`,
-                color: opInfo.hex,
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleKeyPress(num);
-              }}
-            >
-              {num}
-            </button>
-          ))}
-
-          {/* Fraction Bar Button (Only shown when fractions mode or a fraction problem is active) */}
-          {isFractionActive ? (
-            <button
-              type="button"
-              className="h-13 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-xl sm:text-2xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
-              style={{
-                backgroundColor: `${opInfo.hex}18`,
-                color: opInfo.hex,
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleKeyPress("/");
-              }}
-              aria-label="Fraction bar"
-            >
-              /
-            </button>
-          ) : (
-            <div className="h-13 sm:h-16 rounded-2xl bg-transparent pointer-events-none" />
-          )}
-
-          {/* 0 Key */}
-          <button
-            type="button"
-            className="h-13 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-2xl sm:text-3xl shadow-md transition-all active:scale-95 bg-card text-card-foreground border-2 border-transparent hover:border-primary/40 hover:scale-[1.02] outline-none select-none"
-            style={{
-              backgroundColor: `${opInfo.hex}18`,
-              color: opInfo.hex,
-            }}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleKeyPress("0");
-            }}
-          >
-            0
-          </button>
-
-          {/* Backspace Button */}
-          <button
-            type="button"
-            className="h-13 sm:h-16 rounded-2xl flex items-center justify-center font-headline font-bold text-lg sm:text-xl shadow-md transition-all active:scale-95 bg-card text-muted-foreground border-2 border-transparent hover:border-destructive/40 hover:text-destructive hover:scale-[1.02] outline-none select-none"
-            onClick={(e) => {
-              e.stopPropagation();
-              handleDelete();
-            }}
-            aria-label="Delete last digit"
-          >
-            <Delete className="w-5 h-5 sm:w-6 sm:h-6" />
-          </button>
-        </div>
+        {/* Numeric Keypad Grid */}
+        <QuizKeypad
+          hexColor={opInfo.hex}
+          isFractionActive={isFractionActive}
+          onKeyPress={handleKeyPress}
+          onDelete={handleDelete}
+        />
       </div>
     </div>
   );
-}
-
-function getOpWord(op: MathOperation): string {
-  switch (op) {
-    case '+':
-      return 'plus';
-    case '-':
-      return 'minus';
-    case '×':
-      return 'times';
-    case '÷':
-      return 'divided by';
-  }
 }

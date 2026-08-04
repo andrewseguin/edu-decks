@@ -1,11 +1,10 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
-import { MathOperation, MathProblem } from "@/lib/types";
-import { generateMathProblem } from "@/lib/math-generator";
-import { useLocalStorage } from "@/hooks/use-local-storage";
+import { useState, useEffect, useRef } from "react";
 import { useWakeLock } from "@/hooks/use-wake-lock";
 import { useAudio } from "@/hooks/use-audio";
+import { useDeckSettings } from "@/hooks/use-deck-settings";
+import { useDeckHistory } from "@/hooks/use-deck-history";
 
 import { MathCard } from "@/components/math-card";
 import { AppSettings } from "@/components/app-settings";
@@ -20,21 +19,8 @@ import { Button } from "@/components/ui/button";
 export default function MathDeckPage() {
   const [hydrated, setHydrated] = useState(false);
 
-  // Settings State with LocalStorage Persistence
-  const [activeOperations, setActiveOperations] = useLocalStorage<MathOperation[]>(
-    "math-deck-operations",
-    ["+", "-"]
-  );
-  const [minRange, setMinRange] = useLocalStorage<number>("math-deck-min-range", 1);
-  const [maxRange, setMaxRange] = useLocalStorage<number>("math-deck-max-range", 10);
-  const [showWholeNumbers, setShowWholeNumbers] = useLocalStorage<boolean>("math-deck-show-whole-numbers", true);
-  const [showFractions, setShowFractions] = useLocalStorage<boolean>("math-deck-show-fractions", false);
-  const [showCardCount, setShowCardCount] = useLocalStorage<boolean>("math-deck-show-card-count", true);
-  const [showTimer, setShowTimer] = useLocalStorage<boolean>("math-deck-show-timer", true);
-  const [autoPlayAudio, setAutoPlayAudio] = useLocalStorage<boolean>("math-deck-autoplay-audio", false);
-  const [keepScreenAwake, setKeepScreenAwake] = useLocalStorage<boolean>("math-deck-keep-awake", true);
-  const [quizOptionCount, setQuizOptionCount] = useLocalStorage<number>("math-deck-quiz-options", 4);
-  const [isLocked, setIsLocked] = useLocalStorage<boolean>("math-deck-locked", false);
+  // Settings State via Hook
+  const settings = useDeckSettings();
 
   // UI state
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -42,33 +28,50 @@ export default function MathDeckPage() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isQuizActive, setIsQuizActive] = useState(false);
   const [showLockSnackbar, setShowLockSnackbar] = useState(false);
-  const [isFlipped, setIsFlipped] = useState(false);
-  const [slideDirection, setSlideDirection] = useState<"next" | "prev">("next");
-
-  // Deck state
-  const [history, setHistory] = useState<MathProblem[]>([]);
-  const [historyIndex, setHistoryIndex] = useState(-1);
-  const [cardCount, setCardCount] = useState(0);
   const [timeElapsed, setTimeElapsed] = useState(0);
 
   const lastMenuCloseTimeRef = useRef<number>(0);
   const { speak, playChime } = useAudio();
-  useWakeLock(keepScreenAwake);
+
+  useWakeLock(settings.keepScreenAwake);
 
   useEffect(() => {
     setHydrated(true);
   }, []);
 
+  // Deck History via Hook
+  const {
+    currentProblem,
+    cardCount,
+    isFlipped,
+    slideDirection,
+    handlePrevCard,
+    handleNextCard,
+    handleCardTap,
+  } = useDeckHistory({
+    activeOperations: settings.activeOperations,
+    minRange: settings.minRange,
+    maxRange: settings.maxRange,
+    showWholeNumbers: settings.showWholeNumbers,
+    showFractions: settings.showFractions,
+    autoPlayAudio: settings.autoPlayAudio,
+    isQuizActive,
+    speak: (text) => speak(text, true),
+    hydrated,
+  });
+
+  // Timer effect
   useEffect(() => {
-    if (!showTimer || isQuizActive) return;
+    if (!settings.showTimer || isQuizActive) return;
     const interval = setInterval(() => {
       setTimeElapsed((prev) => prev + 1);
     }, 1000);
     return () => clearInterval(interval);
-  }, [showTimer, isQuizActive]);
+  }, [settings.showTimer, isQuizActive]);
 
+  // Lock Snackbar effect
   useEffect(() => {
-    if (isLocked) {
+    if (settings.isLocked) {
       setShowLockSnackbar(true);
       const timer = setTimeout(() => {
         setShowLockSnackbar(false);
@@ -77,90 +80,7 @@ export default function MathDeckPage() {
     } else {
       setShowLockSnackbar(false);
     }
-  }, [isLocked]);
-
-  const nextCard = useCallback((autoPlay: boolean = true) => {
-    setSlideDirection("next");
-    setIsFlipped(false);
-    const newProblem = generateMathProblem(
-      activeOperations,
-      minRange,
-      maxRange,
-      showWholeNumbers,
-      showFractions
-    );
-    setHistory((prev) => {
-      const nextHist = [...prev, newProblem];
-      setHistoryIndex(nextHist.length - 1);
-      return nextHist;
-    });
-    setCardCount((c) => c + 1);
-
-    if (autoPlayAudio && !isQuizActive && autoPlay) {
-      speak(newProblem.problemSpeechText);
-    }
-  }, [activeOperations, minRange, maxRange, showWholeNumbers, showFractions, autoPlayAudio, isQuizActive, speak]);
-
-  useEffect(() => {
-    if (hydrated && history.length === 0) {
-      nextCard(true);
-    }
-  }, [hydrated, history.length, nextCard]);
-
-  const handleOperationToggle = (op: MathOperation) => {
-    let nextOps: MathOperation[];
-    if (activeOperations.includes(op)) {
-      if (activeOperations.length === 1) return;
-      nextOps = activeOperations.filter((o) => o !== op);
-    } else {
-      nextOps = [...activeOperations, op];
-    }
-    setActiveOperations(nextOps);
-  };
-
-  const handleRangeChange = (min: number, max: number) => {
-    setMinRange(min);
-    setMaxRange(max);
-  };
-
-  const handlePrevCard = () => {
-    setSlideDirection("prev");
-    setIsFlipped(false);
-    if (historyIndex > 0) {
-      const prevIdx = historyIndex - 1;
-      setHistoryIndex(prevIdx);
-      if (autoPlayAudio && !isQuizActive) {
-        speak(history[prevIdx].problemSpeechText);
-      }
-    }
-  };
-
-  const handleNextCard = () => {
-    setSlideDirection("next");
-    setIsFlipped(false);
-    if (historyIndex < history.length - 1) {
-      const nextIdx = historyIndex + 1;
-      setHistoryIndex(nextIdx);
-      if (autoPlayAudio && !isQuizActive) {
-        speak(history[nextIdx].problemSpeechText);
-      }
-    } else {
-      nextCard(true);
-    }
-  };
-
-  // Main Card Tap Handler: Tap Front -> Show Answer; Tap Back -> Next Card
-  const handleCardTap = () => {
-    if (!isFlipped) {
-      setIsFlipped(true);
-      const currentProb = history[historyIndex];
-      if (autoPlayAudio && !isQuizActive && currentProb) {
-        speak(currentProb.fullSpeechText);
-      }
-    } else {
-      handleNextCard();
-    }
-  };
+  }, [settings.isLocked]);
 
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
@@ -190,7 +110,7 @@ export default function MathDeckPage() {
 
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isQuizActive, historyIndex, history.length, isFlipped, handleNextCard, handlePrevCard]);
+  }, [isQuizActive, handleCardTap, handlePrevCard]);
 
   // Touch Pointer / Swipe Gesture Handling
   const touchStartRef = useRef<{ x: number; y: number } | null>(null);
@@ -234,7 +154,7 @@ export default function MathDeckPage() {
         handleNextCard();
       }
     } else if (absDeltaX <= 12 && absDeltaY <= 12) {
-      // Tap anywhere on screen (card or negative space around card)
+      // Tap anywhere on screen
       handleCardTap();
     }
   };
@@ -257,8 +177,6 @@ export default function MathDeckPage() {
     return null;
   }
 
-  const currentProblem = history[historyIndex];
-
   return (
     <main
       className="flex h-svh w-screen items-center justify-center bg-background overflow-hidden relative focus:outline-none touch-none select-none"
@@ -277,46 +195,46 @@ export default function MathDeckPage() {
       )}
 
       {/* Top Bar Controls */}
-      {!isFullscreen && !isLocked && (
+      {!isFullscreen && !settings.isLocked && (
         <div
           className="absolute top-4 right-4 flex items-center gap-2 pointer-events-auto"
           onPointerDown={(e) => e.stopPropagation()}
         >
           <OperationSelector
-            activeOperations={activeOperations}
-            onOperationToggle={handleOperationToggle}
-            minRange={minRange}
-            maxRange={maxRange}
-            onRangeChange={handleRangeChange}
-            showWholeNumbers={showWholeNumbers}
-            onShowWholeNumbersChange={setShowWholeNumbers}
-            showFractions={showFractions}
-            onShowFractionsChange={setShowFractions}
+            activeOperations={settings.activeOperations}
+            onOperationToggle={settings.handleOperationToggle}
+            minRange={settings.minRange}
+            maxRange={settings.maxRange}
+            onRangeChange={settings.handleRangeChange}
+            showWholeNumbers={settings.showWholeNumbers}
+            onShowWholeNumbersChange={settings.setShowWholeNumbers}
+            showFractions={settings.showFractions}
+            onShowFractionsChange={settings.setShowFractions}
             open={isOperationSelectorOpen}
             onOpenChange={handleOperationSelectorOpenChange}
             onStartQuiz={() => setIsQuizActive(true)}
           />
           <AppSettings
-            activeOperations={activeOperations}
-            onOperationToggle={handleOperationToggle}
-            minRange={minRange}
-            maxRange={maxRange}
-            onRangeChange={handleRangeChange}
-            showWholeNumbers={showWholeNumbers}
-            onShowWholeNumbersChange={setShowWholeNumbers}
-            showFractions={showFractions}
-            onShowFractionsChange={setShowFractions}
-            showCardCount={showCardCount}
-            onShowCardCountChange={setShowCardCount}
-            showTimer={showTimer}
-            onShowTimerChange={setShowTimer}
-            autoPlayAudio={autoPlayAudio}
-            onAutoPlayAudioChange={setAutoPlayAudio}
-            keepScreenAwake={keepScreenAwake}
-            onKeepScreenAwakeChange={setKeepScreenAwake}
+            activeOperations={settings.activeOperations}
+            onOperationToggle={settings.handleOperationToggle}
+            minRange={settings.minRange}
+            maxRange={settings.maxRange}
+            onRangeChange={settings.handleRangeChange}
+            showWholeNumbers={settings.showWholeNumbers}
+            onShowWholeNumbersChange={settings.setShowWholeNumbers}
+            showFractions={settings.showFractions}
+            onShowFractionsChange={settings.setShowFractions}
+            showCardCount={settings.showCardCount}
+            onShowCardCountChange={settings.setShowCardCount}
+            showTimer={settings.showTimer}
+            onShowTimerChange={settings.setShowTimer}
+            autoPlayAudio={settings.autoPlayAudio}
+            onAutoPlayAudioChange={settings.setAutoPlayAudio}
+            keepScreenAwake={settings.keepScreenAwake}
+            onKeepScreenAwakeChange={settings.setKeepScreenAwake}
             open={isSettingsOpen}
             onOpenChange={handleSettingsOpenChange}
-            onLockApp={() => setIsLocked(true)}
+            onLockApp={() => settings.setIsLocked(true)}
           />
           <FullscreenToggle isFullscreen={isFullscreen} onToggle={toggleFullscreen} />
         </div>
@@ -325,11 +243,11 @@ export default function MathDeckPage() {
       {/* Quiz Display Overlay */}
       {isQuizActive && (
         <QuizDisplay
-          activeOperations={activeOperations}
-          minRange={minRange}
-          maxRange={maxRange}
-          showFractions={showFractions}
-          autoPlayAudio={autoPlayAudio}
+          activeOperations={settings.activeOperations}
+          minRange={settings.minRange}
+          maxRange={settings.maxRange}
+          showFractions={settings.showFractions}
+          autoPlayAudio={settings.autoPlayAudio}
           onSpeak={(text) => speak(text, true)}
           onPlayChime={playChime}
           onExit={() => setIsQuizActive(false)}
@@ -337,7 +255,7 @@ export default function MathDeckPage() {
       )}
 
       {/* Locked Snackbar */}
-      {!isFullscreen && isLocked && showLockSnackbar && (
+      {!isFullscreen && settings.isLocked && showLockSnackbar && (
         <div
           className="fixed top-6 left-1/2 -translate-x-1/2 z-50 pointer-events-auto"
           onPointerDown={(e) => e.stopPropagation()}
@@ -352,7 +270,7 @@ export default function MathDeckPage() {
               variant="secondary"
               className="h-7 px-3 text-xs font-semibold rounded-full bg-background/20 hover:bg-background/30 text-background border-none"
               onClick={() => {
-                setIsLocked(false);
+                settings.setIsLocked(false);
                 setShowLockSnackbar(false);
               }}
             >
@@ -363,12 +281,12 @@ export default function MathDeckPage() {
       )}
 
       {/* Session Stats Counter */}
-      {(showCardCount || showTimer) && !isQuizActive && (
+      {(settings.showCardCount || settings.showTimer) && !isQuizActive && (
         <SessionStats
           cardCount={cardCount}
           timeElapsed={timeElapsed}
-          showCardCount={showCardCount}
-          showTimer={showTimer}
+          showCardCount={settings.showCardCount}
+          showTimer={settings.showTimer}
         />
       )}
     </main>
