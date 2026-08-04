@@ -7,7 +7,7 @@ type FractionDisplayProps = {
   fraction: Fraction;
   className?: string;
   colorClass?: string;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl" | "pill";
 };
 
 export function FractionDisplay({
@@ -18,6 +18,7 @@ export function FractionDisplay({
 }: FractionDisplayProps) {
   const sizeClasses = {
     sm: "text-lg sm:text-xl",
+    pill: "text-2xl sm:text-xl [@media(max-height:640px)]:text-lg",
     md: "text-2xl sm:text-4xl",
     lg: "text-4xl sm:text-6xl md:text-7xl [@media(max-height:640px)]:text-4xl [@media(max-height:640px)]:sm:text-5xl",
     xl: "text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-5xl [@media(max-height:640px)]:sm:text-6xl",
