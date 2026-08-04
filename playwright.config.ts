@@ -11,7 +11,7 @@ export default defineConfig({
   expect: {
     toHaveScreenshot: {
       animations: "disabled",
-      threshold: 0.05,
+      threshold: 0,
     },
   },
   use: {
