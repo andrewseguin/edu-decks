@@ -24,7 +24,7 @@ export function SessionStats({
   showTimer,
 }: SessionStatsProps) {
   return (
-    <div className="absolute bottom-4 left-4 sm:left-6 z-30 flex items-center gap-3 sm:gap-4 text-foreground/60 font-headline font-semibold pointer-events-none text-xs sm:text-sm">
+    <div className="absolute top-4 left-4 sm:top-5 sm:left-6 z-30 flex items-center gap-3 sm:gap-4 text-foreground/60 font-headline font-semibold pointer-events-none text-xs sm:text-sm h-10">
       {showCardCount && (
         <div className="flex items-center gap-2">
           <Eye className="h-5 w-5" />
