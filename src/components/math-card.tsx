@@ -41,7 +41,7 @@ export function MathCard({
     <Card
       key={problem.id}
       className={cn(
-        "relative select-none [-webkit-touch-callout:none] w-[92vw] max-w-[660px] aspect-[16/10] max-h-[75vh] sm:max-h-[82vh] border-none rounded-3xl overflow-hidden cursor-pointer transition-all duration-300",
+        "relative select-none [-webkit-touch-callout:none] w-[92vw] max-w-[660px] h-[72vh] max-h-[580px] min-h-[360px] sm:h-auto sm:aspect-[16/10] sm:max-h-[82vh] border-none rounded-3xl overflow-hidden cursor-pointer transition-all duration-300",
         animClass
       )}
       style={{
@@ -58,7 +58,7 @@ export function MathCard({
           className={cn(
             "absolute inset-0 flex flex-col items-center justify-center transition-all duration-500 ease-out z-20 pointer-events-none p-4 sm:p-6",
             isFlipped
-              ? "-translate-y-[22%] sm:-translate-y-[26%]"
+              ? "-translate-y-[28%] sm:-translate-y-[26%]"
               : "translate-y-0"
           )}
         >
@@ -194,7 +194,7 @@ export function MathCard({
         {/* Visual Blocks Overlay - Lower Half when revealed */}
         <div
           className={cn(
-            "absolute inset-x-0 bottom-2 sm:bottom-3 top-[48%] flex items-center justify-center pointer-events-none z-10 transition-all duration-500 ease-out p-2 sm:p-4",
+            "absolute inset-x-0 bottom-2 sm:bottom-3 top-[36%] sm:top-[48%] flex items-center justify-center pointer-events-none z-10 transition-all duration-500 ease-out p-2 sm:p-4",
             isFlipped
               ? "opacity-100 translate-y-0 scale-100"
               : "opacity-0 translate-y-8 scale-95 pointer-events-none"

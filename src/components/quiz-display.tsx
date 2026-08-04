@@ -73,13 +73,13 @@ export function QuizDisplay({
       />
 
       {/* Main Content Area */}
-      <div className="w-full max-w-2xl mx-auto flex-1 flex flex-col [@media(orientation:landscape)_and_(max-height:540px)]:flex-row [@media(orientation:landscape)_and_(max-height:540px)]:max-w-5xl items-center justify-center gap-4 sm:gap-6 min-h-0 py-2">
+      <div className="w-full max-w-md sm:max-w-2xl md:max-w-3xl mx-auto flex-1 flex flex-col [@media(orientation:landscape)_and_(max-height:540px)]:flex-row [@media(orientation:landscape)_and_(max-height:540px)]:max-w-5xl items-center justify-between gap-4 sm:gap-6 min-h-0 py-2 sm:py-4">
         {/* Hero Equation Card */}
-        <div className="w-full flex-1 flex items-center justify-center min-h-0 min-w-0 [@media(orientation:landscape)_and_(max-height:540px)]:max-h-full">
+        <div className="w-full flex-1 flex items-center justify-center min-h-0 min-w-0 my-auto [@media(orientation:landscape)_and_(max-height:540px)]:max-h-full">
           <div
             className={cn(
-              "w-full rounded-3xl p-5 sm:p-8 flex items-center justify-center relative cursor-pointer shadow-xl transition-all duration-300",
-              "h-auto max-h-[220px] sm:max-h-[260px] [@media(orientation:landscape)_and_(max-height:540px)]:max-h-[180px]",
+              "w-full rounded-3xl p-4 sm:p-8 flex items-center justify-center relative cursor-pointer shadow-xl transition-all duration-300",
+              "h-auto min-h-[140px] max-h-[240px] sm:max-h-[280px] [@media(orientation:landscape)_and_(max-height:540px)]:max-h-[180px]",
               isCorrect === true && "border-4 border-emerald-400 shadow-emerald-500/30 scale-[1.02]",
               isCorrect === false && "border-4 border-destructive animate-shake"
             )}
