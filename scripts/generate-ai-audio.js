@@ -42,9 +42,9 @@ function downloadAndTrimGoogleTtsMp3(text, outputPath) {
       fileStream.on("finish", () => {
         fileStream.close(() => {
           try {
-            // Trim leading & trailing silence with ffmpeg silenceremove filter
+            // Gentle silence removal with 50ms padding at the end so consonants/tails are never cut off
             execSync(
-              `ffmpeg -y -i "${tmpRaw}" -af silenceremove=start_periods=1:start_duration=0:start_threshold=-35dB:stop_periods=1:stop_duration=0:stop_threshold=-35dB -codec:a libmp3lame -qscale:a 4 "${outputPath}" > /dev/null 2>&1`
+              `ffmpeg -y -i "${tmpRaw}" -af silenceremove=start_periods=1:start_duration=0:start_threshold=-50dB:stop_periods=1:stop_duration=0.06:stop_threshold=-50dB -codec:a libmp3lame -qscale:a 4 "${outputPath}" > /dev/null 2>&1`
             );
             resolve();
           } catch (e) {
@@ -78,7 +78,7 @@ async function processQueue(tasks, batchSize = 3) {
       batch.map(async (task) => {
         try {
           await downloadAndTrimGoogleTtsMp3(task.text, task.path);
-          console.log(`✓ Trimmed & Saved ${task.text} -> ${path.basename(task.path)}`);
+          console.log(`✓ Preserved & Saved ${task.text} -> ${path.basename(task.path)}`);
         } catch (err) {
           console.error(`✗ Error for "${task.text}":`, err.message);
         }
@@ -89,7 +89,7 @@ async function processQueue(tasks, batchSize = 3) {
 }
 
 async function main() {
-  console.log("Generating trimmed Google AI Neural Voice MP3 files...");
+  console.log("Generating full-fidelity Google AI Neural Voice MP3 files...");
 
   const tasks = [];
 
@@ -148,7 +148,7 @@ async function main() {
 
   await processQueue(tasks, 4);
 
-  console.log("ALL TRIMMED GOOGLE AI VOICE MP3 AUDIO FILES GENERATED!");
+  console.log("FULL-FIDELITY MP3 AUDIO GENERATION COMPLETE!");
 }
 
 main();

@@ -1,11 +1,11 @@
 "use client";
 
 // High-performance Web Audio API Player for Math Deck
-// Features: Buffer preloading, zero-latency gapless scheduling, and smooth natural pacing.
+// Features: Buffer preloading, zero-latency gapless scheduling, and natural speech pacing.
 
 let sharedAudioCtx: AudioContext | null = null;
 const audioBufferCache = new Map<string, AudioBuffer>();
-let activeSourceNodes: AudioBufferSourceNode[] = [];
+let activeSourceNodes: { source: AudioBufferSourceNode; gain: GainNode }[] = [];
 
 function getAudioContext(): AudioContext | null {
   if (typeof window === "undefined") return null;
@@ -24,10 +24,16 @@ function getAudioContext(): AudioContext | null {
 }
 
 export function stopCurrentAudio() {
-  activeSourceNodes.forEach((node) => {
+  activeSourceNodes.forEach(({ source, gain }) => {
     try {
-      node.stop();
-      node.disconnect();
+      gain.gain.linearRampToValueAtTime(0, (sharedAudioCtx?.currentTime || 0) + 0.02);
+      setTimeout(() => {
+        try {
+          source.stop();
+          source.disconnect();
+          gain.disconnect();
+        } catch (_) {}
+      }, 25);
     } catch (_) {}
   });
   activeSourceNodes = [];
@@ -37,7 +43,6 @@ export function stopCurrentAudio() {
   }
 }
 
-// Convert operation symbol to operator audio key
 const OP_AUDIO_MAP: Record<string, string> = {
   "+": "plus",
   "-": "minus",
@@ -115,10 +120,8 @@ export async function playAudioSequence(
   const ctx = getAudioContext();
   if (!ctx) return;
 
-  // Preload and decode all audio buffers in parallel
   const buffers = await Promise.all(paths.map((p) => fetchAndDecodeBuffer(p, ctx)));
 
-  // Check if any buffer failed to load
   const hasFailed = buffers.some((b) => b === null);
   if (hasFailed && fallbackText && "speechSynthesis" in window) {
     fallbackSpeechSynthesis(fallbackText);
@@ -128,21 +131,29 @@ export async function playAudioSequence(
   const validBuffers = buffers.filter((b): b is AudioBuffer => b !== null);
   if (validBuffers.length === 0) return;
 
-  let startTime = ctx.currentTime + 0.03; // Start 30ms from now
-  const interWordGap = 0.04; // Natural 40ms inter-word gap
+  let startTime = ctx.currentTime + 0.02;
+  const interWordGap = 0.08; // Natural 80ms gap between words
 
   validBuffers.forEach((buffer, idx) => {
     const source = ctx.createBufferSource();
+    const gain = ctx.createGain();
     source.buffer = buffer;
-    source.connect(ctx.destination);
+
+    // Smooth envelope (10ms fade-in, 10ms fade-out) to prevent clicks/pops
+    gain.gain.setValueAtTime(0, startTime);
+    gain.gain.linearRampToValueAtTime(1, startTime + 0.01);
+    gain.gain.setValueAtTime(1, startTime + buffer.duration - 0.01);
+    gain.gain.linearRampToValueAtTime(0, startTime + buffer.duration);
+
+    source.connect(gain);
+    gain.connect(ctx.destination);
 
     source.start(startTime);
-    activeSourceNodes.push(source);
+    activeSourceNodes.push({ source, gain });
 
-    // If last buffer, trigger onEnd callback when playback completes
     if (idx === validBuffers.length - 1) {
       source.onended = () => {
-        activeSourceNodes = activeSourceNodes.filter((n) => n !== source);
+        activeSourceNodes = activeSourceNodes.filter((n) => n.source !== source);
         onEnd?.();
       };
     }
