@@ -125,7 +125,7 @@ export function FractionVisualizer({
         <StepControls
           steps={[
             { step: 1, label: `1. Start (${f1.d === 1 ? f1.n : `${f1.n}/${f1.d}`})`, activeColor: "bg-cyan-300 text-cyan-950 border-cyan-200" },
-            { step: 2, label: `2. Add (${f2.d === 1 ? f2.n : `${f2.n}/${f2.d}`})`, activeColor: "bg-amber-400 text-amber-950 border-amber-300" },
+            { step: 2, label: `2. Add (${f2.d === 1 ? f2.n : `${f2.n}/${f2.d}`})`, activeColor: "bg-amber-300 text-amber-950 border-amber-200" },
           ]}
           activeStep={activeStep}
           onStepClick={onStepClick}
@@ -224,7 +224,7 @@ export function FractionVisualizer({
         <StepControls
           steps={[
             { step: 1, label: `1. Start (${f1.d === 1 ? f1.n : `${f1.n}/${f1.d}`})`, activeColor: "bg-cyan-300 text-cyan-950 border-cyan-200" },
-            { step: 2, label: `2. Subtract (${f2.d === 1 ? f2.n : `${f2.n}/${f2.d}`})`, activeColor: "bg-amber-400 text-amber-950 border-amber-300" },
+            { step: 2, label: `2. Subtract (${f2.d === 1 ? f2.n : `${f2.n}/${f2.d}`})`, activeColor: "bg-amber-300 text-amber-950 border-amber-200" },
           ]}
           activeStep={activeStep}
           onStepClick={onStepClick}
@@ -337,7 +337,7 @@ export function FractionVisualizer({
         <StepControls
           steps={[
             { step: 1, label: `1. Start (${f1.n}/${f1.d})`, activeColor: "bg-cyan-300 text-cyan-950 border-cyan-200" },
-            { step: 2, label: `2. Grid Cut (${f2.n}/${f2.d})`, activeColor: "bg-amber-400 text-amber-950 border-amber-300" },
+            { step: 2, label: `2. Grid Cut (${f2.n}/${f2.d})`, activeColor: "bg-amber-300 text-amber-950 border-amber-200" },
             { step: 3, label: `3. Answer (${ans ? (ans.d === 1 ? ans.n : `${ans.n}/${ans.d}`) : ''})`, activeColor: "bg-white text-slate-900 border-white" },
           ]}
           activeStep={activeStep}
@@ -488,7 +488,7 @@ export function FractionVisualizer({
         <StepControls
           steps={[
             { step: 1, label: `1. Start (${f1.d === 1 ? f1.n : `${f1.n}/${f1.d}`})`, activeColor: "bg-cyan-300 text-cyan-950 border-cyan-200" },
-            { step: 2, label: `2. Compare (${f2.d === 1 ? f2.n : `${f2.n}/${f2.d}`})`, activeColor: "bg-amber-400 text-amber-950 border-amber-300" },
+            { step: 2, label: `2. Compare (${f2.d === 1 ? f2.n : `${f2.n}/${f2.d}`})`, activeColor: "bg-amber-300 text-amber-950 border-amber-200" },
           ]}
           activeStep={activeStep}
           onStepClick={onStepClick}

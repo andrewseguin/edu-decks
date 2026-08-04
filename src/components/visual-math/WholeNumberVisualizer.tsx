@@ -101,7 +101,7 @@ export function WholeNumberVisualizer({
                     return (
                       <div
                         key={`slot-${slotIndex}`}
-                        className={cn("rounded-md bg-amber-400 border border-amber-500 shadow-xs transition-opacity duration-200", slotSize)}
+                        className={cn("rounded-md bg-amber-300 border border-amber-200 shadow-xs transition-opacity duration-200", slotSize)}
                       />
                     );
                   }
@@ -116,7 +116,7 @@ export function WholeNumberVisualizer({
         <StepControls
           steps={[
             { step: 1, label: `1. Start (${num1})`, activeColor: "bg-cyan-300 text-cyan-950 border-cyan-200" },
-            { step: 2, label: `2. Add (${num2})`, activeColor: "bg-amber-400 text-amber-950 border-amber-300" },
+            { step: 2, label: `2. Add (${num2})`, activeColor: "bg-amber-300 text-amber-950 border-amber-200" },
           ]}
           activeStep={activeStep}
           onStepClick={onStepClick}
@@ -199,7 +199,7 @@ export function WholeNumberVisualizer({
         <StepControls
           steps={[
             { step: 1, label: `1. Start (${num1})`, activeColor: "bg-cyan-300 text-cyan-950 border-cyan-200" },
-            { step: 2, label: `2. Subtract (${num2})`, activeColor: "bg-amber-400 text-amber-950 border-amber-300" },
+            { step: 2, label: `2. Subtract (${num2})`, activeColor: "bg-amber-300 text-amber-950 border-amber-200" },
           ]}
           activeStep={activeStep}
           onStepClick={onStepClick}
@@ -379,7 +379,7 @@ export function WholeNumberVisualizer({
         <StepControls
           steps={[
             { step: 1, label: `1. Total (${num1})`, activeColor: "bg-cyan-300 text-cyan-950 border-cyan-200" },
-            { step: 2, label: `2. Groups (${groupCount}×${itemsPerGroup})`, activeColor: "bg-amber-400 text-amber-950 border-amber-300" },
+            { step: 2, label: `2. Groups (${groupCount}×${itemsPerGroup})`, activeColor: "bg-amber-300 text-amber-950 border-amber-200" },
           ]}
           activeStep={activeStep}
           onStepClick={onStepClick}

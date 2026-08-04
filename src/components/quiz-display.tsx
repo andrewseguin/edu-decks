@@ -107,9 +107,9 @@ export function QuizDisplay({
 
               {/* Second Number / Fraction */}
               {currentProblem.isFraction && currentProblem.frac2 ? (
-                <FractionDisplay fraction={currentProblem.frac2} colorClass="text-yellow-200" size="lg" />
+                <FractionDisplay fraction={currentProblem.frac2} colorClass="text-amber-300" size="lg" />
               ) : (
-                <span className="font-headline font-bold leading-none select-none text-yellow-200 [text-shadow:0_2px_10px_rgba(0,0,0,0.4)] text-5xl sm:text-7xl md:text-8xl shrink-0">
+                <span className="font-headline font-bold leading-none select-none text-amber-300 [text-shadow:0_2px_10px_rgba(0,0,0,0.4)] text-5xl sm:text-7xl md:text-8xl shrink-0">
                   {currentProblem.num2}
                 </span>
               )}
