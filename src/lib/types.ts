@@ -14,7 +14,7 @@ export type MathProblem = {
   displayText: string;
   answerText: string;
   problemSpeechText: string; // e.g. "7 plus 5" or "1 half plus 1 fourth"
-  answerSpeechText: string;  // e.g. "equals 12" or "equals 1 half"
+  answerSpeechText: string;  // e.g. "12" or "1 half"
   fullSpeechText: string;    // e.g. "7 plus 5 equals 12"
   speechText: string;        // fallback alias
 
@@ -47,8 +47,8 @@ export const OPERATION_COLORS: Record<
   MathOperation,
   { name: string; bg: string; text: string; border: string; hex: string }
 > = {
-  '+': { name: 'Addition', bg: 'bg-emerald-500', text: 'text-emerald-500', border: 'border-emerald-500', hex: '#10b981' },
-  '-': { name: 'Subtraction', bg: 'bg-indigo-500', text: 'text-indigo-500', border: 'border-indigo-500', hex: '#6366f1' },
-  '×': { name: 'Multiplication', bg: 'bg-amber-500', text: 'text-amber-500', border: 'border-amber-500', hex: '#f59e0b' },
-  '÷': { name: 'Division', bg: 'bg-purple-500', text: 'text-purple-500', border: 'border-purple-500', hex: '#a855f7' },
+  '+': { name: 'Addition', bg: 'bg-emerald-600', text: 'text-emerald-400', border: 'border-emerald-600', hex: '#059669' },
+  '-': { name: 'Subtraction', bg: 'bg-indigo-600', text: 'text-indigo-400', border: 'border-indigo-600', hex: '#4f46e5' },
+  '×': { name: 'Multiplication', bg: 'bg-amber-600', text: 'text-amber-400', border: 'border-amber-600', hex: '#d97706' },
+  '÷': { name: 'Division', bg: 'bg-purple-600', text: 'text-purple-400', border: 'border-purple-600', hex: '#9333ea' },
 };
