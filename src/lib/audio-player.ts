@@ -1,7 +1,7 @@
 "use client";
 
 // High-performance Web Audio API Player for Math Deck
-// Features: Buffer preloading, zero-latency gapless scheduling, and natural speech pacing.
+// Features: Full-expression Google AI Neural Voice streaming, buffer preloading, and 100% continuous natural speech pacing.
 
 let sharedAudioCtx: AudioContext | null = null;
 const audioBufferCache = new Map<string, AudioBuffer>();
@@ -43,123 +43,68 @@ export function stopCurrentAudio() {
   }
 }
 
-const OP_AUDIO_MAP: Record<string, string> = {
-  "+": "plus",
-  "-": "minus",
-  "×": "times",
-  "÷": "divided_by",
-  "=": "equals",
-};
-
-export function getAudioPathsForSpeechText(text: string): string[] | null {
-  const clean = text
-    .replace(/equals/gi, "=")
-    .replace(/plus/gi, "+")
-    .replace(/minus/gi, "-")
-    .replace(/times/gi, "×")
-    .replace(/divided by/gi, "÷")
-    .replace(/is/gi, "=")
-    .trim();
-
-  const parts = clean.split(/\s+/);
-  const paths: string[] = [];
-
-  for (const part of parts) {
-    if (/^-?\d+$/.test(part)) {
-      const num = parseInt(part, 10);
-      if (num < 0) {
-        paths.push("/audio/numbers/negative.mp3");
-        const pos = Math.abs(num);
-        if (pos <= 144) {
-          paths.push(`/audio/numbers/${pos}.mp3`);
-        } else {
-          return null;
-        }
-      } else if (num <= 144) {
-        paths.push(`/audio/numbers/${num}.mp3`);
-      } else {
-        return null;
-      }
-    } else if (OP_AUDIO_MAP[part]) {
-      paths.push(`/audio/operators/${OP_AUDIO_MAP[part]}.mp3`);
-    } else if (/^\d+\/\d+$/.test(part)) {
-      const fracKey = part.replace("/", "_");
-      paths.push(`/audio/fractions/${fracKey}.mp3`);
-    } else {
-      return null;
-    }
-  }
-
-  return paths.length > 0 ? paths : null;
+function getGoogleTtsUrl(text: string): string {
+  return `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=en&client=tw-ob`;
 }
 
-async function fetchAndDecodeBuffer(path: string, ctx: AudioContext): Promise<AudioBuffer | null> {
-  if (audioBufferCache.has(path)) {
-    return audioBufferCache.get(path)!;
+async function fetchAndDecodeBuffer(text: string, ctx: AudioContext): Promise<AudioBuffer | null> {
+  if (audioBufferCache.has(text)) {
+    return audioBufferCache.get(text)!;
   }
   try {
-    const res = await fetch(path);
+    const url = getGoogleTtsUrl(text);
+    const res = await fetch(url);
     if (!res.ok) return null;
     const arrayBuffer = await res.arrayBuffer();
     const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-    audioBufferCache.set(path, audioBuffer);
+    audioBufferCache.set(text, audioBuffer);
     return audioBuffer;
   } catch (err) {
-    console.warn(`Failed to decode audio at ${path}:`, err);
+    console.warn(`Failed to fetch/decode audio for "${text}":`, err);
     return null;
   }
 }
 
-export async function playAudioSequence(
-  paths: string[],
-  onEnd?: () => void,
-  fallbackText?: string
-) {
+export async function playMathSpeech(text: string, enabled: boolean = true) {
+  if (!enabled || typeof window === "undefined" || !text) return;
+
   stopCurrentAudio();
 
   const ctx = getAudioContext();
-  if (!ctx) return;
-
-  const buffers = await Promise.all(paths.map((p) => fetchAndDecodeBuffer(p, ctx)));
-
-  const hasFailed = buffers.some((b) => b === null);
-  if (hasFailed && fallbackText && "speechSynthesis" in window) {
-    fallbackSpeechSynthesis(fallbackText);
+  if (!ctx) {
+    fallbackSpeechSynthesis(text);
     return;
   }
 
-  const validBuffers = buffers.filter((b): b is AudioBuffer => b !== null);
-  if (validBuffers.length === 0) return;
+  // Fetch/decode full expression as a single continuous natural AI speech stream
+  const buffer = await fetchAndDecodeBuffer(text, ctx);
 
-  let startTime = ctx.currentTime + 0.02;
-  const interWordGap = 0.08; // Natural 80ms gap between words
+  if (!buffer) {
+    fallbackSpeechSynthesis(text);
+    return;
+  }
 
-  validBuffers.forEach((buffer, idx) => {
-    const source = ctx.createBufferSource();
-    const gain = ctx.createGain();
-    source.buffer = buffer;
+  const startTime = ctx.currentTime + 0.02;
+  const source = ctx.createBufferSource();
+  const gain = ctx.createGain();
 
-    // Smooth envelope (10ms fade-in, 10ms fade-out) to prevent clicks/pops
-    gain.gain.setValueAtTime(0, startTime);
-    gain.gain.linearRampToValueAtTime(1, startTime + 0.01);
-    gain.gain.setValueAtTime(1, startTime + buffer.duration - 0.01);
-    gain.gain.linearRampToValueAtTime(0, startTime + buffer.duration);
+  source.buffer = buffer;
 
-    source.connect(gain);
-    gain.connect(ctx.destination);
+  // Smooth envelope to prevent audio pops
+  gain.gain.setValueAtTime(0, startTime);
+  gain.gain.linearRampToValueAtTime(1, startTime + 0.015);
+  gain.gain.setValueAtTime(1, startTime + buffer.duration - 0.015);
+  gain.gain.linearRampToValueAtTime(0, startTime + buffer.duration);
 
-    source.start(startTime);
-    activeSourceNodes.push({ source, gain });
+  source.connect(gain);
+  gain.connect(ctx.destination);
 
-    if (idx === validBuffers.length - 1) {
-      source.onended = () => {
-        activeSourceNodes = activeSourceNodes.filter((n) => n.source !== source);
-        onEnd?.();
-      };
-    }
+  source.start(startTime);
+  activeSourceNodes.push({ source, gain });
 
-    startTime += buffer.duration + interWordGap;
-  });
+  source.onended = () => {
+    activeSourceNodes = activeSourceNodes.filter((n) => n.source !== source);
+  };
 }
 
 function fallbackSpeechSynthesis(text: string) {
@@ -188,17 +133,5 @@ function fallbackSpeechSynthesis(text: string) {
     window.speechSynthesis.speak(utterance);
   } catch (e) {
     console.warn("TTS Error:", e);
-  }
-}
-
-export function playMathSpeech(text: string, enabled: boolean = true) {
-  if (!enabled || typeof window === "undefined") return;
-
-  const paths = getAudioPathsForSpeechText(text);
-
-  if (paths) {
-    playAudioSequence(paths, undefined, text);
-  } else {
-    fallbackSpeechSynthesis(text);
   }
 }
