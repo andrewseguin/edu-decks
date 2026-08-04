@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const https = require("https");
+const { execSync } = require("child_process");
 
 const PUBLIC_AUDIO_DIR = path.join(__dirname, "../public/audio");
 
@@ -16,10 +17,11 @@ dirs.forEach((d) => {
   }
 });
 
-function downloadGoogleTtsMp3(text, outputPath) {
+function downloadAndTrimGoogleTtsMp3(text, outputPath) {
   return new Promise((resolve, reject) => {
     const encodedText = encodeURIComponent(text);
     const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodedText}&tl=en&client=tw-ob`;
+    const tmpRaw = path.join("/tmp", `raw_${Date.now()}_${Math.floor(Math.random() * 1000000)}.mp3`);
 
     const options = {
       headers: {
@@ -34,16 +36,27 @@ function downloadGoogleTtsMp3(text, outputPath) {
         return;
       }
 
-      const fileStream = fs.createWriteStream(outputPath);
+      const fileStream = fs.createWriteStream(tmpRaw);
       res.pipe(fileStream);
 
       fileStream.on("finish", () => {
-        fileStream.close();
-        resolve();
+        fileStream.close(() => {
+          try {
+            // Trim leading & trailing silence with ffmpeg silenceremove filter
+            execSync(
+              `ffmpeg -y -i "${tmpRaw}" -af silenceremove=start_periods=1:start_duration=0:start_threshold=-35dB:stop_periods=1:stop_duration=0:stop_threshold=-35dB -codec:a libmp3lame -qscale:a 4 "${outputPath}" > /dev/null 2>&1`
+            );
+            resolve();
+          } catch (e) {
+            reject(e);
+          } finally {
+            if (fs.existsSync(tmpRaw)) fs.unlinkSync(tmpRaw);
+          }
+        });
       });
 
       fileStream.on("error", (err) => {
-        fs.unlink(outputPath, () => {});
+        if (fs.existsSync(tmpRaw)) fs.unlinkSync(tmpRaw);
         reject(err);
       });
     });
@@ -64,19 +77,19 @@ async function processQueue(tasks, batchSize = 3) {
     await Promise.all(
       batch.map(async (task) => {
         try {
-          await downloadGoogleTtsMp3(task.text, task.path);
-          console.log(`✓ Saved ${task.text} -> ${path.basename(task.path)}`);
+          await downloadAndTrimGoogleTtsMp3(task.text, task.path);
+          console.log(`✓ Trimmed & Saved ${task.text} -> ${path.basename(task.path)}`);
         } catch (err) {
           console.error(`✗ Error for "${task.text}":`, err.message);
         }
       })
     );
-    await sleep(60); // Small pause between batches
+    await sleep(50);
   }
 }
 
 async function main() {
-  console.log("Generating Google AI Neural Voice MP3 files...");
+  console.log("Generating trimmed Google AI Neural Voice MP3 files...");
 
   const tasks = [];
 
@@ -135,15 +148,7 @@ async function main() {
 
   await processQueue(tasks, 4);
 
-  // Clean up any remaining .m4a files from previous generator
-  const numFiles = fs.readdirSync(path.join(PUBLIC_AUDIO_DIR, "numbers"));
-  numFiles.forEach((f) => {
-    if (f.endsWith(".m4a")) {
-      fs.unlinkSync(path.join(PUBLIC_AUDIO_DIR, "numbers", f));
-    }
-  });
-
-  console.log("ALL GOOGLE AI VOICE MP3 AUDIO FILES SUCCESSFULLY GENERATED!");
+  console.log("ALL TRIMMED GOOGLE AI VOICE MP3 AUDIO FILES GENERATED!");
 }
 
 main();
