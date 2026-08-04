@@ -25,14 +25,6 @@ export function MathCard({
 }: MathCardProps) {
   const opInfo = OPERATION_COLORS[problem.operation];
 
-  const handleCardClick = (e: React.MouseEvent) => {
-    const target = e.target as HTMLElement;
-    if (target.closest("button")) {
-      return;
-    }
-    onCardTap();
-  };
-
   const handleSpeak = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isFlipped) {
@@ -59,7 +51,6 @@ export function MathCard({
         borderTop: "1px solid rgba(255,255,255,0.2)",
         borderLeft: "1px solid rgba(255,255,255,0.1)",
       }}
-      onClick={handleCardClick}
     >
       <CardContent className="p-4 sm:p-6 h-full w-full relative overflow-hidden">
         {/* Main Equation Container */}

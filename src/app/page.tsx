@@ -207,12 +207,24 @@ export default function MathDeckPage() {
       return;
     }
 
+    const target = e.target as HTMLElement;
+    if (
+      target.closest("button") ||
+      target.closest("[role='button']") ||
+      target.closest("[data-radix-popper-content-wrapper]")
+    ) {
+      touchStartRef.current = null;
+      return;
+    }
+
     const deltaX = e.clientX - touchStartRef.current.x;
     const deltaY = e.clientY - touchStartRef.current.y;
     const absDeltaX = Math.abs(deltaX);
     const absDeltaY = Math.abs(deltaY);
 
     touchStartRef.current = null;
+
+    if (isQuizActive) return;
 
     // Handle horizontal swipes for card navigation
     if (absDeltaX > 50 && absDeltaX > absDeltaY) {
@@ -221,6 +233,9 @@ export default function MathDeckPage() {
       } else {
         handleNextCard();
       }
+    } else if (absDeltaX <= 12 && absDeltaY <= 12) {
+      // Tap anywhere on screen (card or negative space around card)
+      handleCardTap();
     }
   };
 
