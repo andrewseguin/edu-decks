@@ -32,7 +32,8 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+  const isProd = process.env.NODE_ENV === "production";
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || (isProd ? "/math-deck" : "");
 
   return (
     <html lang="en" className={lexend.variable} suppressHydrationWarning>

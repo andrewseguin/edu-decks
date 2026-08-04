@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-static";
 
 export function GET() {
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+  const isProd = process.env.NODE_ENV === "production";
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || (isProd ? "/math-deck" : "");
 
   const manifest = {
     short_name: "Math Deck",
