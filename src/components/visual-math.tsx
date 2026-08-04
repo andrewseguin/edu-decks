@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { MathProblem, Fraction } from "@/lib/types";
 import { cn } from "@/lib/utils";
 import { RotateCcw } from "lucide-react";
@@ -193,12 +193,30 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
   const [activeStep, setActiveStep] = useState(1);
   const [replayKey, setReplayKey] = useState(0);
 
+  const stepTimersRef = useRef<{
+    t1?: ReturnType<typeof setTimeout>;
+    t2?: ReturnType<typeof setTimeout>;
+    i1?: ReturnType<typeof setInterval>;
+    i2?: ReturnType<typeof setInterval>;
+  }>({});
+
+  const clearStepTimers = () => {
+    if (stepTimersRef.current.t1) clearTimeout(stepTimersRef.current.t1);
+    if (stepTimersRef.current.t2) clearTimeout(stepTimersRef.current.t2);
+    if (stepTimersRef.current.i1) clearInterval(stepTimersRef.current.i1);
+    if (stepTimersRef.current.i2) clearInterval(stepTimersRef.current.i2);
+    stepTimersRef.current = {};
+  };
+
   const replayAnimation = () => {
+    clearStepTimers();
     setReplayKey((k) => k + 1);
   };
 
-  const handleStepClick = (step: number) => {
-    setActiveStep(step);
+  const handleStepClick = (targetStep: number) => {
+    const isForward = targetStep > activeStep;
+    clearStepTimers();
+    setActiveStep(targetStep);
 
     if (problem.isFraction && problem.frac1 && problem.frac2) {
       const f1 = problem.frac1;
@@ -208,84 +226,126 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
       const c2 = f2.n * (commonD / f2.d);
 
       if (operation === '×') {
-        if (step === 1) {
+        if (targetStep === 1) {
           setCyanVisible(f1.n);
           setOrangeVisible(0);
           setWhiteCount(0);
-        } else if (step === 2) {
+        } else if (targetStep === 2) {
           setCyanVisible(f1.n);
           setOrangeVisible(1);
           setWhiteCount(0);
-        } else if (step === 3) {
+        } else if (targetStep === 3) {
           setCyanVisible(f1.n);
           setOrangeVisible(1);
-          setWhiteCount(f1.n * f2.n);
+          if (isForward) {
+            let currentWhite = 0;
+            const totalCells = f1.n * f2.n;
+            stepTimersRef.current.i1 = setInterval(() => {
+              currentWhite++;
+              setWhiteCount(currentWhite);
+              if (currentWhite >= totalCells) clearStepTimers();
+            }, 200);
+          } else {
+            setWhiteCount(f1.n * f2.n);
+          }
         }
       } else if (operation === '+') {
-        if (step === 1) {
-          setCyanVisible(c1);
+        setCyanVisible(c1);
+        if (targetStep === 1) {
           setOrangeVisible(0);
         } else {
-          setCyanVisible(c1);
-          setOrangeVisible(c2);
+          if (isForward) {
+            let currentOrange = 0;
+            stepTimersRef.current.i1 = setInterval(() => {
+              currentOrange++;
+              setOrangeVisible(currentOrange);
+              if (currentOrange >= c2) clearStepTimers();
+            }, 100);
+          } else {
+            setOrangeVisible(c2);
+          }
         }
       } else if (operation === '-') {
-        if (step === 1) {
-          setCyanVisible(c1);
+        setCyanVisible(c1);
+        if (targetStep === 1) {
           setSubtractionCount(0);
         } else {
-          setCyanVisible(c1);
-          setSubtractionCount(c2);
+          if (isForward) {
+            let currentSub = 0;
+            stepTimersRef.current.i1 = setInterval(() => {
+              currentSub++;
+              setSubtractionCount(currentSub);
+              if (currentSub >= c2) clearStepTimers();
+            }, 140);
+          } else {
+            setSubtractionCount(c2);
+          }
         }
       } else if (operation === '÷') {
-        if (step === 1) {
-          setCyanVisible(c1);
-          setOrangeVisible(0);
-        } else {
-          setCyanVisible(c1);
-          setOrangeVisible(c2);
-        }
+        setCyanVisible(c1);
+        setOrangeVisible(targetStep === 1 ? 0 : c2);
       }
     } else {
       if (operation === '+') {
-        if (step === 1) {
-          setCyanVisible(num1);
+        setCyanVisible(num1);
+        if (targetStep === 1) {
           setOrangeVisible(0);
         } else {
-          setCyanVisible(num1);
-          setOrangeVisible(num2);
+          if (isForward) {
+            let currentOrange = 0;
+            stepTimersRef.current.i1 = setInterval(() => {
+              currentOrange++;
+              setOrangeVisible(currentOrange);
+              if (currentOrange >= num2) clearStepTimers();
+            }, 100);
+          } else {
+            setOrangeVisible(num2);
+          }
         }
       } else if (operation === '-') {
-        if (step === 1) {
-          setCyanVisible(num1);
+        setCyanVisible(num1);
+        if (targetStep === 1) {
           setSubtractionCount(0);
         } else {
-          setCyanVisible(num1);
-          setSubtractionCount(num2);
+          if (isForward) {
+            let currentSub = 0;
+            stepTimersRef.current.i1 = setInterval(() => {
+              currentSub++;
+              setSubtractionCount(currentSub);
+              if (currentSub >= num2) clearStepTimers();
+            }, 140);
+          } else {
+            setSubtractionCount(num2);
+          }
         }
       } else if (operation === '×') {
-        if (step === 1) {
-          setActiveStep(1);
-          setCyanVisible(num1);
-          setOrangeVisible(num2);
+        setCyanVisible(num1);
+        setOrangeVisible(num2);
+        if (targetStep === 1) {
           setWhiteCount(0);
         } else {
-          setActiveStep(2);
-          setCyanVisible(num1);
-          setOrangeVisible(num2);
-          setWhiteCount(num1 * num2);
+          if (isForward) {
+            let currentWhite = 0;
+            const totalCells = num1 * num2;
+            const speed = totalCells > 30 ? 25 : 55;
+            stepTimersRef.current.i1 = setInterval(() => {
+              currentWhite++;
+              setWhiteCount(currentWhite);
+              if (currentWhite >= totalCells) clearStepTimers();
+            }, speed);
+          } else {
+            setWhiteCount(num1 * num2);
+          }
         }
+      } else if (operation === '÷') {
+        setCyanVisible(num1);
+        setOrangeVisible(targetStep === 1 ? 0 : 1);
       }
     }
   };
 
   useEffect(() => {
-    let t1: ReturnType<typeof setTimeout> | null = null;
-    let t2: ReturnType<typeof setTimeout> | null = null;
-    let whiteInterval: ReturnType<typeof setInterval> | null = null;
-    let cyanInterval: ReturnType<typeof setInterval> | null = null;
-    let orangeInterval: ReturnType<typeof setInterval> | null = null;
-    let subInterval: ReturnType<typeof setInterval> | null = null;
+    clearStepTimers();
 
     // Reset state for new problem
     if (problem.isFraction && problem.frac1) {
@@ -300,12 +360,7 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
 
     if (!isFlipped) {
       return () => {
-        if (t1) clearTimeout(t1);
-        if (t2) clearTimeout(t2);
-        if (whiteInterval) clearInterval(whiteInterval);
-        if (cyanInterval) clearInterval(cyanInterval);
-        if (orangeInterval) clearInterval(orangeInterval);
-        if (subInterval) clearInterval(subInterval);
+        clearStepTimers();
       };
     }
 
@@ -318,20 +373,20 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
 
       if (operation === '+') {
         let currentCyan = 0;
-        cyanInterval = setInterval(() => {
+        stepTimersRef.current.i1 = setInterval(() => {
           currentCyan++;
           setCyanVisible(currentCyan);
           if (currentCyan >= c1) {
-            if (cyanInterval) clearInterval(cyanInterval);
+            if (stepTimersRef.current.i1) clearInterval(stepTimersRef.current.i1);
 
-            t1 = setTimeout(() => {
+            stepTimersRef.current.t1 = setTimeout(() => {
               setActiveStep(2);
               let currentOrange = 0;
-              orangeInterval = setInterval(() => {
+              stepTimersRef.current.i2 = setInterval(() => {
                 currentOrange++;
                 setOrangeVisible(currentOrange);
                 if (currentOrange >= c2) {
-                  if (orangeInterval) clearInterval(orangeInterval);
+                  if (stepTimersRef.current.i2) clearInterval(stepTimersRef.current.i2);
                 }
               }, 110);
             }, 400);
@@ -339,20 +394,20 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
         }, 90);
       } else if (operation === '-') {
         let currentCyan = 0;
-        cyanInterval = setInterval(() => {
+        stepTimersRef.current.i1 = setInterval(() => {
           currentCyan++;
           setCyanVisible(currentCyan);
           if (currentCyan >= c1) {
-            if (cyanInterval) clearInterval(cyanInterval);
+            if (stepTimersRef.current.i1) clearInterval(stepTimersRef.current.i1);
 
-            t1 = setTimeout(() => {
+            stepTimersRef.current.t1 = setTimeout(() => {
               setActiveStep(2);
               let currentSub = 0;
-              subInterval = setInterval(() => {
+              stepTimersRef.current.i2 = setInterval(() => {
                 currentSub++;
                 setSubtractionCount(currentSub);
                 if (currentSub >= c2) {
-                  if (subInterval) clearInterval(subInterval);
+                  if (stepTimersRef.current.i2) clearInterval(stepTimersRef.current.i2);
                 }
               }, 150);
             }, 650);
@@ -365,7 +420,7 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
         setWhiteCount(0);
 
         // Step 2: Orange Cut Line & Separation at t=900ms
-        t1 = setTimeout(() => {
+        stepTimersRef.current.t1 = setTimeout(() => {
           setActiveStep(2);
           setOrangeVisible(1);
 
@@ -373,13 +428,13 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
           const totalOverlapCells = f1.n * f2.n;
           let currentWhite = 0;
 
-          t2 = setTimeout(() => {
+          stepTimersRef.current.t2 = setTimeout(() => {
             setActiveStep(3);
-            whiteInterval = setInterval(() => {
+            stepTimersRef.current.i1 = setInterval(() => {
               currentWhite++;
               setWhiteCount(currentWhite);
-              if (currentWhite >= totalOverlapCells && whiteInterval) {
-                clearInterval(whiteInterval);
+              if (currentWhite >= totalOverlapCells && stepTimersRef.current.i1) {
+                clearInterval(stepTimersRef.current.i1);
               }
             }, 240);
           }, 1000);
@@ -389,7 +444,7 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
         setCyanVisible(c1);
         setOrangeVisible(0);
 
-        t1 = setTimeout(() => {
+        stepTimersRef.current.t1 = setTimeout(() => {
           setActiveStep(2);
           setOrangeVisible(c2);
         }, 900);
@@ -397,20 +452,20 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
     } else {
       if (operation === '+') {
         let currentCyan = 0;
-        cyanInterval = setInterval(() => {
+        stepTimersRef.current.i1 = setInterval(() => {
           currentCyan++;
           setCyanVisible(currentCyan);
           if (currentCyan >= num1) {
-            if (cyanInterval) clearInterval(cyanInterval);
+            if (stepTimersRef.current.i1) clearInterval(stepTimersRef.current.i1);
 
-            t1 = setTimeout(() => {
+            stepTimersRef.current.t1 = setTimeout(() => {
               setActiveStep(2);
               let currentOrange = 0;
-              orangeInterval = setInterval(() => {
+              stepTimersRef.current.i2 = setInterval(() => {
                 currentOrange++;
                 setOrangeVisible(currentOrange);
                 if (currentOrange >= num2) {
-                  if (orangeInterval) clearInterval(orangeInterval);
+                  if (stepTimersRef.current.i2) clearInterval(stepTimersRef.current.i2);
                 }
               }, 110);
             }, 400);
@@ -418,20 +473,20 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
         }, 90);
       } else if (operation === '-') {
         let currentCyan = 0;
-        cyanInterval = setInterval(() => {
+        stepTimersRef.current.i1 = setInterval(() => {
           currentCyan++;
           setCyanVisible(currentCyan);
           if (currentCyan >= num1) {
-            if (cyanInterval) clearInterval(cyanInterval);
+            if (stepTimersRef.current.i1) clearInterval(stepTimersRef.current.i1);
 
-            t1 = setTimeout(() => {
+            stepTimersRef.current.t1 = setTimeout(() => {
               setActiveStep(2);
               let currentSub = 0;
-              subInterval = setInterval(() => {
+              stepTimersRef.current.i2 = setInterval(() => {
                 currentSub++;
                 setSubtractionCount(currentSub);
                 if (currentSub >= num2) {
-                  if (subInterval) clearInterval(subInterval);
+                  if (stepTimersRef.current.i2) clearInterval(stepTimersRef.current.i2);
                 }
               }, 150);
             }, 650);
@@ -445,33 +500,33 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
 
         // Step 1a: Increment X-axis Cyan Headers
         let currentX = 0;
-        cyanInterval = setInterval(() => {
+        stepTimersRef.current.i1 = setInterval(() => {
           currentX++;
           setCyanVisible(currentX);
           if (currentX >= num1) {
-            if (cyanInterval) clearInterval(cyanInterval);
+            if (stepTimersRef.current.i1) clearInterval(stepTimersRef.current.i1);
 
             // Step 1b: Increment Y-axis Amber Headers
-            t1 = setTimeout(() => {
+            stepTimersRef.current.t1 = setTimeout(() => {
               let currentY = 0;
-              orangeInterval = setInterval(() => {
+              stepTimersRef.current.i2 = setInterval(() => {
                 currentY++;
                 setOrangeVisible(currentY);
                 if (currentY >= num2) {
-                  if (orangeInterval) clearInterval(orangeInterval);
+                  if (stepTimersRef.current.i2) clearInterval(stepTimersRef.current.i2);
 
                   // Step 2: Fill interior White Grid Cells
-                  t2 = setTimeout(() => {
+                  stepTimersRef.current.t2 = setTimeout(() => {
                     setActiveStep(2);
                     let currentWhite = 0;
                     const totalCells = num1 * num2;
                     const speed = totalCells > 30 ? 25 : 55;
 
-                    whiteInterval = setInterval(() => {
+                    stepTimersRef.current.i1 = setInterval(() => {
                       currentWhite++;
                       setWhiteCount(currentWhite);
                       if (currentWhite >= totalCells) {
-                        if (whiteInterval) clearInterval(whiteInterval);
+                        if (stepTimersRef.current.i1) clearInterval(stepTimersRef.current.i1);
                       }
                     }, speed);
                   }, 400);
@@ -482,7 +537,7 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
         }, 80);
       } else if (operation === '÷') {
         setCyanVisible(num1);
-        t1 = setTimeout(() => {
+        stepTimersRef.current.t1 = setTimeout(() => {
           setActiveStep(2);
           setOrangeVisible(1);
         }, 550);
@@ -490,12 +545,7 @@ export function VisualMath({ problem, isFlipped = true }: VisualMathProps) {
     }
 
     return () => {
-      if (t1) clearTimeout(t1);
-      if (t2) clearTimeout(t2);
-      if (whiteInterval) clearInterval(whiteInterval);
-      if (cyanInterval) clearInterval(cyanInterval);
-      if (orangeInterval) clearInterval(orangeInterval);
-      if (subInterval) clearInterval(subInterval);
+      clearStepTimers();
     };
   }, [problem.id, isFlipped, replayKey, num1, num2, operation, problem.isFraction]);
 
