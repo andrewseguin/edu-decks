@@ -231,7 +231,7 @@ export default function MathDeckPage() {
       {/* Top Bar Controls */}
       {!settings.isLocked && (
         <div
-          className="absolute top-4 right-4 flex items-center gap-2 pointer-events-auto"
+          className="absolute top-2.5 right-2.5 sm:top-4 sm:right-4 flex items-center gap-1.5 sm:gap-2 pointer-events-auto z-30"
           onPointerDown={(e) => e.stopPropagation()}
         >
           <OperationSelector

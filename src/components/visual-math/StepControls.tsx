@@ -21,7 +21,7 @@ export function StepControls({
   onReplay,
 }: StepControlsProps) {
   return (
-    <div className="flex items-center gap-1 sm:gap-1.5 mt-2 bg-black/30 backdrop-blur-md px-2.5 sm:px-3 py-1 rounded-full border border-white/20 shadow-sm pointer-events-auto z-30 select-none animate-fade-in">
+    <div className="flex items-center gap-1 sm:gap-1.5 mt-1 sm:mt-2 bg-black/30 backdrop-blur-md px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border border-white/20 shadow-sm pointer-events-auto z-30 select-none animate-fade-in [@media(max-height:640px)]:scale-90 [@media(max-height:640px)]:mt-0.5">
       {steps.map((s) => (
         <button
           key={`step-btn-${s.step}`}

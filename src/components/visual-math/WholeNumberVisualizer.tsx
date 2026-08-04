@@ -41,13 +41,13 @@ export function WholeNumberVisualizer({
     const total = num1 + num2;
     const frameCount = Math.max(1, Math.ceil(total / 10));
     const isCompact = frameCount > 4;
-    const slotSize = isCompact ? "w-3 h-3 sm:w-4 sm:h-4" : "w-4 h-4 sm:w-5 sm:h-5";
-    const framePadding = isCompact ? "p-1 sm:p-1.5" : "p-2";
-    const frameGap = isCompact ? "gap-1" : "gap-1.5";
+    const slotSize = isCompact ? "w-3 h-3 sm:w-4 sm:h-4" : "w-3.5 h-3.5 sm:w-5 sm:h-5 [@media(max-height:640px)]:w-3 [@media(max-height:640px)]:h-3";
+    const framePadding = isCompact ? "p-1 sm:p-1.5" : "p-1.5 sm:p-2";
+    const frameGap = isCompact ? "gap-0.5 sm:gap-1" : "gap-1 sm:gap-1.5";
 
     return (
-      <div className="flex flex-col items-center justify-center gap-1.5">
-        <div className="flex flex-wrap justify-center items-center gap-1.5 p-1.5 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+      <div className="flex flex-col items-center justify-center gap-1.5 [@media(max-height:640px)]:scale-85">
+        <div className="flex flex-wrap justify-center items-center gap-1.5 p-1 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
           {Array.from({ length: frameCount }).map((_, fIdx) => {
             const frameStartIndex = fIdx * 10;
             const frameSlots = Array.from({ length: 10 }).map((_, i) => frameStartIndex + i);
@@ -133,13 +133,13 @@ export function WholeNumberVisualizer({
     const remaining = Math.max(0, total - takenAway);
     const frameCount = Math.max(1, Math.ceil(total / 10));
     const isCompact = frameCount > 4;
-    const slotSize = isCompact ? "w-3 h-3 sm:w-4 sm:h-4" : "w-4 h-4 sm:w-5 sm:h-5";
-    const framePadding = isCompact ? "p-1 sm:p-1.5" : "p-2";
-    const frameGap = isCompact ? "gap-1" : "gap-1.5";
+    const slotSize = isCompact ? "w-3 h-3 sm:w-4 sm:h-4" : "w-3.5 h-3.5 sm:w-5 sm:h-5 [@media(max-height:640px)]:w-3 [@media(max-height:640px)]:h-3";
+    const framePadding = isCompact ? "p-1 sm:p-1.5" : "p-1.5 sm:p-2";
+    const frameGap = isCompact ? "gap-0.5 sm:gap-1" : "gap-1 sm:gap-1.5";
 
     return (
-      <div className="flex flex-col items-center justify-center gap-1.5">
-        <div className="flex flex-wrap justify-center items-center gap-1.5 p-1.5 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
+      <div className="flex flex-col items-center justify-center gap-1.5 [@media(max-height:640px)]:scale-85">
+        <div className="flex flex-wrap justify-center items-center gap-1.5 p-1 sm:p-2.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
           {Array.from({ length: frameCount }).map((_, fIdx) => {
             const frameStartIndex = fIdx * 10;
             const frameSlots = Array.from({ length: 10 }).map((_, i) => frameStartIndex + i);
@@ -230,7 +230,7 @@ export function WholeNumberVisualizer({
     const fontSize = Math.max(7, Math.floor(blockSize * 0.52));
 
     return (
-      <div className="flex flex-col items-center justify-center gap-1.5">
+      <div className="flex flex-col items-center justify-center gap-1.5 [@media(max-height:640px)]:scale-85">
         <div className="flex flex-col justify-center items-center p-1 sm:p-1.5 rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs">
           <div
             className="grid p-1.5 rounded-xl bg-white/15 border border-white/30 shadow-xs"
@@ -341,7 +341,7 @@ export function WholeNumberVisualizer({
     const blockSize = Math.max(12, Math.min(24, rawBlockSize));
 
     return (
-      <div className="flex flex-col items-center justify-center gap-1.5">
+      <div className="flex flex-col items-center justify-center gap-1.5 [@media(max-height:640px)]:scale-85">
         <div
           className={cn(
             "flex flex-wrap justify-center items-center rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs transition-all duration-500 ease-out p-1.5 sm:p-2",

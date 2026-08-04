@@ -19,8 +19,8 @@ export function FractionDisplay({
   const sizeClasses = {
     sm: "text-lg sm:text-xl",
     md: "text-2xl sm:text-4xl",
-    lg: "text-4xl sm:text-6xl md:text-7xl",
-    xl: "text-5xl sm:text-7xl md:text-8xl",
+    lg: "text-4xl sm:text-6xl md:text-7xl [@media(max-height:640px)]:text-4xl [@media(max-height:640px)]:sm:text-5xl",
+    xl: "text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-5xl [@media(max-height:640px)]:sm:text-6xl",
   };
 
   if (fraction.d === 1) {

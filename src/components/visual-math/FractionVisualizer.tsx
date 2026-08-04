@@ -49,7 +49,7 @@ export function FractionVisualizer({
 
             return (
               <div key={`pie-${pIdx}`} className="flex flex-col items-center justify-center">
-                <svg width={130} height={130} viewBox="0 0 130 130" className="drop-shadow-md">
+                <svg width={130} height={130} viewBox="0 0 130 130" className="drop-shadow-md w-[85px] h-[85px] sm:w-[105px] sm:h-[105px] [@media(max-height:640px)]:w-[65px] [@media(max-height:640px)]:h-[65px]">
                   {Array.from({ length: commonD }).map((_, i) => {
                     const globalSlotIndex = pieStartSlot + i;
                     const isCyanSlot = globalSlotIndex < c1;
@@ -148,7 +148,7 @@ export function FractionVisualizer({
 
             return (
               <div key={`pie-${pIdx}`} className="flex flex-col items-center justify-center">
-                <svg width={130} height={130} viewBox="0 0 130 130" className="drop-shadow-md">
+                <svg width={130} height={130} viewBox="0 0 130 130" className="drop-shadow-md w-[85px] h-[85px] sm:w-[105px] sm:h-[105px] [@media(max-height:640px)]:w-[65px] [@media(max-height:640px)]:h-[65px]">
                   {Array.from({ length: commonD }).map((_, i) => {
                     const globalSlotIndex = pieStartSlot + i;
                     const isCyanSlot = globalSlotIndex < c1;
@@ -256,7 +256,7 @@ export function FractionVisualizer({
 
     return (
       <div className="flex flex-col items-center justify-center gap-1.5">
-        <svg width={svgW} height={svgH} viewBox={`0 0 ${svgW} ${svgH}`} className="drop-shadow-md overflow-visible">
+        <svg width={svgW} height={svgH} viewBox={`0 0 ${svgW} ${svgH}`} className="drop-shadow-md overflow-visible max-h-[110px] sm:max-h-[135px] [@media(max-height:640px)]:max-h-[75px] w-auto">
           {/* Outer Backdrop */}
           <rect
             x={1}
@@ -372,7 +372,7 @@ export function FractionVisualizer({
     return (
       <div className="flex flex-col items-center justify-center gap-2">
         <div className="flex flex-col items-center justify-center gap-1">
-          <svg width={svgW} height={svgH} viewBox={`0 0 ${svgW} ${svgH}`} className="drop-shadow-md overflow-visible">
+          <svg width={svgW} height={svgH} viewBox={`0 0 ${svgW} ${svgH}`} className="drop-shadow-md overflow-visible max-h-[110px] sm:max-h-[135px] [@media(max-height:640px)]:max-h-[75px] w-auto">
             {/* Outer Container Frame */}
             <rect
               x={1}

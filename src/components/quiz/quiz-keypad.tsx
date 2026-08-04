@@ -15,7 +15,7 @@ export function QuizKeypad({
   onDelete,
 }: QuizKeypadProps) {
   const btnBaseClass =
-    "rounded-2xl sm:rounded-3xl flex items-center justify-center font-headline font-bold shadow-md transition-all active:scale-95 border border-white/15 hover:border-white/30 hover:scale-[1.02] outline-none focus:outline-none focus:ring-0 focus:border-transparent focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-transparent [-webkit-tap-highlight-color:transparent] select-none";
+    "rounded-2xl sm:rounded-3xl flex items-center justify-center font-headline font-bold shadow-md transition-all active:scale-95 bg-card text-card-foreground border border-border/60 hover:bg-accent hover:scale-[1.02] outline-none focus:outline-none focus:ring-0 focus:border-transparent focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-transparent [-webkit-tap-highlight-color:transparent] select-none";
 
   const numBtnClass = cn(
     btnBaseClass,
@@ -43,8 +43,6 @@ export function QuizKeypad({
           type="button"
           className={numBtnClass}
           style={{
-            color: "#ffffff",
-            backgroundColor: "rgba(255, 255, 255, 0.08)",
             borderBottom: `3px solid ${hexColor}`,
           }}
           onClick={(e) => {
@@ -63,8 +61,6 @@ export function QuizKeypad({
           type="button"
           className={fracBtnClass}
           style={{
-            color: "#ffffff",
-            backgroundColor: "rgba(255, 255, 255, 0.08)",
             borderBottom: `3px solid ${hexColor}`,
           }}
           onClick={(e) => {
@@ -85,8 +81,6 @@ export function QuizKeypad({
         type="button"
         className={numBtnClass}
         style={{
-          color: "#ffffff",
-          backgroundColor: "rgba(255, 255, 255, 0.08)",
           borderBottom: `3px solid ${hexColor}`,
         }}
         onClick={(e) => {
@@ -103,12 +97,11 @@ export function QuizKeypad({
         type="button"
         className={cn(
           btnBaseClass,
-          "h-14 sm:h-18 md:h-20 text-xl sm:text-2xl text-white/80 hover:text-white hover:border-destructive/50",
+          "h-14 sm:h-18 md:h-20 text-xl sm:text-2xl text-muted-foreground hover:text-destructive hover:bg-destructive/10",
           "[@media(orientation:landscape)_and_(max-height:540px)]:h-11 [@media(orientation:landscape)_and_(max-height:540px)]:text-base [@media(orientation:landscape)_and_(max-height:540px)]:rounded-2xl"
         )}
         style={{
-          backgroundColor: "rgba(255, 255, 255, 0.05)",
-          borderBottom: "3px solid rgba(255, 255, 255, 0.2)",
+          borderBottom: "3px solid var(--border)",
         }}
         onClick={(e) => {
           e.stopPropagation();
