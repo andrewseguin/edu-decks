@@ -2,6 +2,7 @@
 
 import { MathOperation, OPERATION_COLORS } from "@/lib/types";
 import { FractionDisplay } from "./fraction-display";
+import { MathSymbol } from "./math-symbol";
 import { cn } from "@/lib/utils";
 import { useQuizSession, stringToFraction } from "@/hooks/use-quiz-session";
 import { QuizHeader } from "./quiz/quiz-header";
@@ -101,9 +102,11 @@ export function QuizDisplay({
               )}
 
               {/* Operator */}
-              <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl mx-2 sm:mx-4 shrink-0">
-                {currentProblem.operation}
-              </span>
+              <MathSymbol
+                symbol={currentProblem.operation}
+                isFraction={currentProblem.isFraction}
+                className="text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl mx-2 sm:mx-4"
+              />
 
               {/* Second Number / Fraction */}
               {currentProblem.isFraction && currentProblem.frac2 ? (
@@ -115,9 +118,11 @@ export function QuizDisplay({
               )}
 
               {/* Equals Symbol */}
-              <span className="font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl ml-2 sm:ml-4 mr-2 sm:mr-4 shrink-0">
-                =
-              </span>
+              <MathSymbol
+                symbol="="
+                isFraction={currentProblem.isFraction}
+                className="text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] text-5xl sm:text-7xl md:text-8xl ml-2 sm:ml-4 mr-2 sm:mr-4"
+              />
 
               {/* User Input / Question Mark Box */}
               <div className="relative inline-flex items-center justify-center px-1 shrink-0">

@@ -3,6 +3,7 @@
 import { MathProblem, OPERATION_COLORS } from "@/lib/types";
 import { VisualMath } from "./visual-math";
 import { FractionDisplay } from "./fraction-display";
+import { MathSymbol } from "./math-symbol";
 import { Volume2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -99,14 +100,11 @@ export function MathCard({
             )}
 
             {/* Operator (+, -, ×, ÷) */}
-            <span
-              className={cn(
-                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] mx-2 sm:mx-3.5 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-4xl [@media(max-height:640px)]:sm:text-5xl",
-                problem.isFraction && "-translate-y-[12%] sm:-translate-y-[14%]"
-              )}
-            >
-              {problem.operation}
-            </span>
+            <MathSymbol
+              symbol={problem.operation}
+              isFraction={problem.isFraction}
+              className="text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] mx-2 sm:mx-3.5 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-4xl [@media(max-height:640px)]:sm:text-5xl"
+            />
 
             {/* Second Number / Fraction */}
             {problem.isFraction && problem.frac2 ? (
@@ -132,14 +130,11 @@ export function MathCard({
             )}
 
             {/* Equals Symbol */}
-            <span
-              className={cn(
-                "font-headline font-normal leading-none select-none text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] ml-2 sm:ml-3.5 mr-2 sm:mr-3.5 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-4xl [@media(max-height:640px)]:sm:text-5xl",
-                problem.isFraction && "-translate-y-[12%] sm:-translate-y-[14%]"
-              )}
-            >
-              =
-            </span>
+            <MathSymbol
+              symbol="="
+              isFraction={problem.isFraction}
+              className="text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] ml-2 sm:ml-3.5 mr-2 sm:mr-3.5 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-4xl [@media(max-height:640px)]:sm:text-5xl"
+            />
 
             {/* Answer Digit / Fraction / Frosted Question Mark Badge */}
             <div className="relative inline-flex items-center justify-center px-1">
@@ -193,9 +188,9 @@ export function MathCard({
                 )}
               >
                 <FractionDisplay fraction={problem.convertedFrac1} colorClass="text-cyan-300" size="pill" />
-                <span className="text-lg sm:text-xl font-normal mx-0.5 -translate-y-[10%]">{problem.operation}</span>
+                <MathSymbol symbol={problem.operation} isFraction={true} className="text-lg sm:text-xl font-normal mx-0.5" />
                 <FractionDisplay fraction={problem.convertedFrac2} colorClass="text-amber-300" size="pill" />
-                <span className="text-lg sm:text-xl font-normal mx-0.5 -translate-y-[10%]">=</span>
+                <MathSymbol symbol="=" isFraction={true} className="text-lg sm:text-xl font-normal mx-0.5" />
                 <FractionDisplay
                   fraction={{
                     n: problem.convertedFrac1.n + (problem.operation === '+' ? problem.convertedFrac2.n : -problem.convertedFrac2.n),
