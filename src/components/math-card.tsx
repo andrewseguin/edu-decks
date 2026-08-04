@@ -28,7 +28,7 @@ export function MathCard({
   const handleSpeak = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (isFlipped) {
-      onSpeak(problem.fullSpeechText);
+      onSpeak(problem.answerSpeechText);
     } else {
       onSpeak(problem.problemSpeechText);
     }

@@ -93,7 +93,7 @@ export function useDeckHistory({
       setIsFlipped(true);
       const currentProb = history[historyIndex];
       if (autoPlayAudio && !isQuizActive && currentProb) {
-        speak(currentProb.fullSpeechText);
+        speak(currentProb.answerSpeechText);
       }
     } else {
       handleNextCard();

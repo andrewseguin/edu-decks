@@ -1,7 +1,6 @@
 const fs = require("fs");
 const path = require("path");
 const https = require("https");
-const { execSync } = require("child_process");
 
 const PUBLIC_AUDIO_DIR = path.join(__dirname, "../public/audio");
 
@@ -17,11 +16,10 @@ dirs.forEach((d) => {
   }
 });
 
-function downloadAndTrimGoogleTtsMp3(text, outputPath) {
+function downloadGoogleTtsMp3(text, outputPath) {
   return new Promise((resolve, reject) => {
     const encodedText = encodeURIComponent(text);
     const url = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodedText}&tl=en&client=tw-ob`;
-    const tmpRaw = path.join("/tmp", `raw_${Date.now()}_${Math.floor(Math.random() * 1000000)}.mp3`);
 
     const options = {
       headers: {
@@ -36,27 +34,16 @@ function downloadAndTrimGoogleTtsMp3(text, outputPath) {
         return;
       }
 
-      const fileStream = fs.createWriteStream(tmpRaw);
+      const fileStream = fs.createWriteStream(outputPath);
       res.pipe(fileStream);
 
       fileStream.on("finish", () => {
-        fileStream.close(() => {
-          try {
-            // Gentle silence removal with 50ms padding at the end so consonants/tails are never cut off
-            execSync(
-              `ffmpeg -y -i "${tmpRaw}" -af silenceremove=start_periods=1:start_duration=0:start_threshold=-50dB:stop_periods=1:stop_duration=0.06:stop_threshold=-50dB -codec:a libmp3lame -qscale:a 4 "${outputPath}" > /dev/null 2>&1`
-            );
-            resolve();
-          } catch (e) {
-            reject(e);
-          } finally {
-            if (fs.existsSync(tmpRaw)) fs.unlinkSync(tmpRaw);
-          }
-        });
+        fileStream.close();
+        resolve();
       });
 
       fileStream.on("error", (err) => {
-        if (fs.existsSync(tmpRaw)) fs.unlinkSync(tmpRaw);
+        fs.unlink(outputPath, () => {});
         reject(err);
       });
     });
@@ -71,25 +58,25 @@ function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function processQueue(tasks, batchSize = 3) {
+async function processQueue(tasks, batchSize = 4) {
   for (let i = 0; i < tasks.length; i += batchSize) {
     const batch = tasks.slice(i, i + batchSize);
     await Promise.all(
       batch.map(async (task) => {
         try {
-          await downloadAndTrimGoogleTtsMp3(task.text, task.path);
-          console.log(`✓ Preserved & Saved ${task.text} -> ${path.basename(task.path)}`);
+          await downloadGoogleTtsMp3(task.text, task.path);
+          console.log(`✓ Preserved Untrimmed ${task.text} -> ${path.basename(task.path)}`);
         } catch (err) {
           console.error(`✗ Error for "${task.text}":`, err.message);
         }
       })
     );
-    await sleep(50);
+    await sleep(40);
   }
 }
 
 async function main() {
-  console.log("Generating full-fidelity Google AI Neural Voice MP3 files...");
+  console.log("Downloading full untrimmed Google AI Voice MP3 files...");
 
   const tasks = [];
 
@@ -146,9 +133,9 @@ async function main() {
   ];
   tasks.push(...fractions);
 
-  await processQueue(tasks, 4);
+  await processQueue(tasks, 5);
 
-  console.log("FULL-FIDELITY MP3 AUDIO GENERATION COMPLETE!");
+  console.log("FULL UNTRIMMED GOOGLE AI VOICE MP3 FILES GENERATED!");
 }
 
 main();
