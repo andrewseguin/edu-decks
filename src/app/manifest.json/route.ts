@@ -31,7 +31,7 @@ export function GET() {
     start_url: basePath ? `${basePath}/` : "/",
     scope: basePath ? `${basePath}/` : "/",
     background_color: "#09090b",
-    theme_color: "#059669",
+    theme_color: "#09090b",
     display: "standalone",
     orientation: "any",
   };
