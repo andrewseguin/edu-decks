@@ -95,7 +95,7 @@ export function QuizDisplay({
               {currentProblem.isFraction && currentProblem.frac1 ? (
                 <FractionDisplay fraction={currentProblem.frac1} colorClass="text-cyan-300" size="lg" />
               ) : (
-                <span className="font-headline font-bold leading-none select-none text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)] text-5xl sm:text-7xl md:text-8xl shrink-0">
+                <span className="font-headline font-bold leading-none select-none text-cyan-300 [text-shadow:0_2px_10px_rgba(0,0,0,0.4)] text-5xl sm:text-7xl md:text-8xl shrink-0">
                   {currentProblem.num1}
                 </span>
               )}
@@ -109,7 +109,7 @@ export function QuizDisplay({
               {currentProblem.isFraction && currentProblem.frac2 ? (
                 <FractionDisplay fraction={currentProblem.frac2} colorClass="text-yellow-200" size="lg" />
               ) : (
-                <span className="font-headline font-bold leading-none select-none text-yellow-200 [text-shadow:0_2px_10px_rgba(0,0,0,0.45)] text-5xl sm:text-7xl md:text-8xl shrink-0">
+                <span className="font-headline font-bold leading-none select-none text-yellow-200 [text-shadow:0_2px_10px_rgba(0,0,0,0.4)] text-5xl sm:text-7xl md:text-8xl shrink-0">
                   {currentProblem.num2}
                 </span>
               )}

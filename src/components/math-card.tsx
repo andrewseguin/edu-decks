@@ -84,7 +84,7 @@ export function MathCard({
                 className={cn(
                   "font-headline font-bold leading-none select-none transition-colors duration-500 text-5xl sm:text-7xl md:text-8xl",
                   isFlipped
-                    ? "text-cyan-300 [text-shadow:0_2px_8px_rgba(0,0,0,0.3)]"
+                    ? "text-cyan-300 [text-shadow:0_2px_10px_rgba(0,0,0,0.4)]"
                     : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]"
                 )}
               >
@@ -112,7 +112,7 @@ export function MathCard({
                 className={cn(
                   "font-headline font-bold leading-none select-none transition-colors duration-500 text-5xl sm:text-7xl md:text-8xl",
                   isFlipped
-                    ? "text-yellow-200 [text-shadow:0_2px_10px_rgba(0,0,0,0.45)]"
+                    ? "text-yellow-200 [text-shadow:0_2px_10px_rgba(0,0,0,0.4)]"
                     : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]"
                 )}
               >
