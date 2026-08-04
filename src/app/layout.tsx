@@ -13,6 +13,15 @@ export const metadata: Metadata = {
   title: "Math Deck - Fun Mental Math Flashcards for Kids",
   description: "A playful, distraction-free math flashcard application designed for young children learning mental math.",
   manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/logo.png", type: "image/png" },
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+    apple: [
+      { url: "/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
