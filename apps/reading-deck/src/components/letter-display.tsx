@@ -542,7 +542,7 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
           <Button
             variant="ghost"
             className={cn(
-              "absolute bottom-4 right-4 h-12 w-12 p-0 transition-all duration-300 hover:bg-white/10 hover:text-white",
+              "absolute bottom-4 right-4 h-12 w-12 p-0 transition-all duration-300 rounded-full hover:bg-white/10 hover:text-white flex items-center justify-center",
               isPlaying ? "scale-110 opacity-100 text-white" : "text-white/70",
               isTracingMode && "opacity-0 pointer-events-none"
             )}
@@ -551,7 +551,7 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
             onPointerDown={(e) => e.stopPropagation()}
           >
             <Volume2
-              className="h-12 w-12"
+              className="h-6 w-6 sm:h-7 sm:w-7"
               style={{
                 filter: isPlaying ? 'drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(0 0 12px rgba(255,255,255,0.4))' : 'none'
               }}
@@ -562,7 +562,7 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
           <Button
             variant="ghost"
             className={cn(
-              "absolute bottom-4 right-4 h-12 w-12 p-0 transition-all duration-300 hover:bg-white/10 hover:text-white",
+              "absolute bottom-4 right-4 h-12 w-12 p-0 transition-all duration-300 rounded-full hover:bg-white/10 hover:text-white flex items-center justify-center",
               isPlaying ? "scale-110 opacity-100 text-white" : "text-white/70"
             )}
             onClick={(e) => speakWord(e)}
@@ -570,7 +570,7 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
             onPointerDown={(e) => e.stopPropagation()}
           >
             <Volume2
-              className="h-12 w-12"
+              className="h-6 w-6 sm:h-7 sm:w-7"
               style={{
                 filter: isPlaying ? 'drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(0 0 12px rgba(255,255,255,0.4))' : 'none'
               }}

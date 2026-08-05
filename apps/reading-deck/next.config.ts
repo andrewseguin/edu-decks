@@ -2,10 +2,11 @@ import type { NextConfig } from 'next';
 import withPWA from 'next-pwa';
 
 const isProd = process.env.NODE_ENV === 'production';
+const isVercel = Boolean(process.env.VERCEL);
 
 const nextConfig: NextConfig = {
   transpilePackages: ['@decks/core'],
-  distDir: isProd ? '.next-prod' : '.next',
+  distDir: isVercel ? '.next' : (isProd ? '.next-prod' : '.next'),
   output: 'standalone',
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
   typescript: {

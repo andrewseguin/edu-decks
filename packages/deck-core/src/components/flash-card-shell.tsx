@@ -140,7 +140,7 @@ export function FlashCardShell({
   showSpeaker = true,
   speakerClassName,
   speakerAriaLabel = "Listen to card",
-  speakerSize = "md",
+  speakerSize = "lg",
 }: FlashCardShellProps) {
   const animClass = "animate-fade-in-zoom";
 

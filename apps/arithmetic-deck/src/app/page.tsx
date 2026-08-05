@@ -266,7 +266,7 @@ export default function MathDeckPage() {
             timeElapsed={timeElapsed}
             showCardCount={settings.showCardCount}
             showTimer={settings.showTimer}
-            position="top-left"
+            position="bottom-center"
           />
         ) : undefined
       }
