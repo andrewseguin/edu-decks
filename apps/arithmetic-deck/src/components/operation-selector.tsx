@@ -63,7 +63,7 @@ export function OperationSelector({
           className="active:scale-95 transition-transform"
           aria-label="Select operations"
         >
-          <Calculator className="h-6 w-6" />
+          <Calculator className="h-5 w-5" />
         </Button>
       </PopoverTrigger>
       <PopoverContent

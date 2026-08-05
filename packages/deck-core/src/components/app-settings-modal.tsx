@@ -35,7 +35,7 @@ export function AppSettingsModal({
           )}
           aria-label="App settings"
         >
-          <Settings className="h-6 w-6" />
+          <Settings className="h-5 w-5" />
         </button>
       </PopoverPrimitive.Trigger>
       <PopoverPrimitive.Portal>
