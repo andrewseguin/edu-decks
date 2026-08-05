@@ -1,0 +1,588 @@
+
+"use client";
+
+import { useState, useRef, useEffect } from "react";
+import { Star, Volume2, Mic, Play, Trash2, StopCircle, Paintbrush } from "lucide-react"; // Import necessary icons
+import { Button } from "@/components/ui/button"; // Import Button component
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
+import { TracingCanvas } from "./tracing-canvas";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"; // Import tooltip components
+import { splitIntoPhonicsSegments, getSoundKeyForSegment } from "@/lib/phonics";
+import { useAudioRecorder } from "@/hooks/use-audio-recorder";
+import { audioStorage } from "@/lib/audio-storage";
+import { AudioVisualizer } from "./audio-visualizer";
+
+type DisplayContent = {
+  key: string;
+  type: "letter" | "message" | "word";
+  value: string;
+  color?: string;
+  textColor?: string;
+  verticalOffset?: number;
+  isHardWord?: boolean; // New property to indicate if the word is hard
+};
+
+type LetterDisplayProps = {
+  content: DisplayContent;
+  enableRecordings: boolean;
+  enableTracing?: boolean;
+  letterCase?: "lower" | "upper" | "mixed";
+  autoPlaySound?: boolean;
+};
+
+import { useAudio } from "@/components/AudioProvider";
+
+export function LetterDisplay({ content, enableRecordings, enableTracing = true, letterCase = 'lower', autoPlaySound = false }: LetterDisplayProps) {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isTracingMode, setIsTracingMode] = useState(false);
+  const audioData = useAudio();
+  const audioContext = audioData?.audioContext;
+  const buffers = audioData?.buffers;
+
+  const [highlightedIndex, setHighlightedIndex] = useState<number | null>(null);
+  const [localAudioUrl, setLocalAudioUrl] = useState<string | null>(null);
+  const currentSourceRef = useRef<AudioBufferSourceNode | null>(null);
+  const currentUtteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
+  const currentAudioRef = useRef<HTMLAudioElement | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const autoPlayTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const recordingValueRef = useRef<string | null>(null);
+  const { isRecording, stream, startRecording, stopRecording } = useAudioRecorder();
+
+  useEffect(() => {
+    setIsTracingMode(false);
+  }, [content.key, enableTracing]);
+
+  const stopPlayback = () => {
+    if (autoPlayTimeoutRef.current) {
+      clearTimeout(autoPlayTimeoutRef.current);
+      autoPlayTimeoutRef.current = null;
+    }
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    if (currentAudioRef.current) {
+      currentAudioRef.current.onended = null;
+      currentAudioRef.current.onerror = null;
+      currentAudioRef.current.pause();
+      currentAudioRef.current = null;
+    }
+    if (currentSourceRef.current) {
+      currentSourceRef.current.onended = null;
+      try { currentSourceRef.current.stop(); } catch (e) { }
+      currentSourceRef.current.disconnect();
+      currentSourceRef.current = null;
+    }
+    if (window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+    }
+    if (currentUtteranceRef.current) {
+      currentUtteranceRef.current = null;
+    }
+    setIsPlaying(false);
+    setHighlightedIndex(null);
+  };
+
+  useEffect(() => {
+    let isMounted = true;
+
+    const update = async () => {
+      // 1. Clear current state and stop playback
+      setLocalAudioUrl(null);
+      stopPlayback();
+
+      // 2. If we were recording, stop and save it to the PREVIOUS card
+      if (isRecording && recordingValueRef.current) {
+        const targetValue = recordingValueRef.current;
+        recordingValueRef.current = null; // Clear it so we don't save twice
+
+        try {
+          const blob = await stopRecording();
+          if (blob && blob.size > 0) {
+            await audioStorage.saveRecording(targetValue, blob);
+          }
+        } catch (e) {
+          console.error("Error stopping recording on navigation:", e);
+        }
+      }
+
+      // 3. Load the recording for the NEW card & auto-play if enabled
+      if (isMounted) {
+        const blob = await audioStorage.getRecording(content.value);
+        let recordingUrl: string | null = null;
+        if (blob) {
+          recordingUrl = URL.createObjectURL(blob);
+          setLocalAudioUrl(recordingUrl);
+        }
+
+        if (autoPlaySound) {
+          autoPlayTimeoutRef.current = setTimeout(() => {
+            if (isMounted) {
+              if (content.type === "letter") {
+                speakLetter(undefined, recordingUrl);
+              } else {
+                speakWord(undefined, recordingUrl);
+              }
+            }
+          }, 500);
+        }
+      }
+    };
+
+    update();
+
+    return () => {
+      isMounted = false;
+      stopPlayback();
+      if (localAudioUrl) URL.revokeObjectURL(localAudioUrl);
+    };
+  }, [content.key, autoPlaySound]);
+
+  const loadLocalRecording = async () => {
+    const blob = await audioStorage.getRecording(content.value);
+    if (blob) {
+      const url = URL.createObjectURL(blob);
+      setLocalAudioUrl(url);
+    } else {
+      setLocalAudioUrl(null);
+    }
+  };
+
+  const handleToggleRecording = async () => {
+    if (isRecording) {
+      const targetValue = recordingValueRef.current;
+      const blob = await stopRecording();
+      recordingValueRef.current = null;
+
+      if (blob && blob.size > 0 && targetValue) {
+        await audioStorage.saveRecording(targetValue, blob);
+        // Only update local URL if we're still on the same card
+        if (targetValue === content.value) {
+          const url = URL.createObjectURL(blob);
+          if (localAudioUrl) URL.revokeObjectURL(localAudioUrl);
+          setLocalAudioUrl(url);
+        }
+      }
+    } else {
+      stopPlayback();
+      recordingValueRef.current = content.value;
+      await startRecording();
+    }
+  };
+
+  useEffect(() => {
+    if (!isRecording) return;
+
+    const handleGlobalInteraction = async (e: Event) => {
+      // We catch this in the capture phase to intercept before menus or navigation triggers
+
+      // If the click is on the recording button itself, we let it through so handleToggleRecording can handle it normally
+      const target = e.target as HTMLElement;
+      if (target.closest('[data-recording-button="true"]')) {
+        return;
+      }
+
+      // For anything else, we stop the event immediately and stop recording
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+
+      await handleToggleRecording();
+    };
+
+    // Use capturing phase to intercept events before they reach other handlers
+    window.addEventListener("pointerdown", handleGlobalInteraction, true);
+    window.addEventListener("click", handleGlobalInteraction, true);
+
+    return () => {
+      window.removeEventListener("pointerdown", handleGlobalInteraction, true);
+      window.removeEventListener("click", handleGlobalInteraction, true);
+    };
+  }, [isRecording, handleToggleRecording]);
+
+  const handleDeleteRecording = async () => {
+    await audioStorage.deleteRecording(content.value);
+    if (localAudioUrl) URL.revokeObjectURL(localAudioUrl);
+    setLocalAudioUrl(null);
+  };
+
+  const playLocalRecording = async (overrideUrl?: string | null) => {
+    const targetUrl = overrideUrl !== undefined ? overrideUrl : localAudioUrl;
+    if (targetUrl && audioContext) {
+      stopPlayback();
+      setIsPlaying(true);
+      try {
+        const response = await fetch(targetUrl);
+        const arrayBuffer = await response.arrayBuffer();
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
+        if (audioContext.state === 'suspended') {
+          await audioContext.resume();
+        }
+
+        const source = audioContext.createBufferSource();
+        source.buffer = audioBuffer;
+        source.connect(audioContext.destination);
+        currentSourceRef.current = source;
+
+        source.onended = () => {
+          setIsPlaying(false);
+          currentSourceRef.current = null;
+        };
+        source.start(0);
+      } catch (e) {
+        console.error("Error decoding local recording:", e);
+        setIsPlaying(false);
+      }
+    }
+  };
+
+  async function speakLetter(event?: React.MouseEvent, overrideUrl?: string | null) {
+    event?.stopPropagation();
+    if (isRecording) {
+      await handleToggleRecording();
+    }
+    if (isPlaying) {
+      stopPlayback();
+      return;
+    }
+
+    const audioUrl = overrideUrl !== undefined ? overrideUrl : localAudioUrl;
+
+    // Try playing local recording first
+    if (audioUrl && enableRecordings) {
+      playLocalRecording(audioUrl);
+      return;
+    }
+
+    if (buffers && audioContext) {
+      const soundKey = getSoundKeyForSegment(content.value);
+      const buffer = buffers[soundKey];
+      if (buffer) {
+        setIsPlaying(true);
+
+        if (audioContext.state === 'suspended') {
+          await audioContext.resume();
+        }
+
+        const source = audioContext.createBufferSource();
+        source.buffer = buffer;
+        source.connect(audioContext.destination);
+        currentSourceRef.current = source;
+
+        source.onended = () => {
+          setIsPlaying(false);
+          currentSourceRef.current = null;
+        };
+        source.start(0);
+      }
+    }
+  }
+
+  async function speakWord(event?: React.MouseEvent, overrideUrl?: string | null) {
+    event?.stopPropagation();
+    if (isRecording) {
+      await handleToggleRecording();
+    }
+    if (isPlaying) {
+      stopPlayback();
+      return;
+    }
+
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+    const signal = abortController.signal;
+
+    const audioUrl = overrideUrl !== undefined ? overrideUrl : localAudioUrl;
+
+    if (audioUrl && enableRecordings) {
+      playLocalRecording(audioUrl);
+      return;
+    }
+
+    if (content.isHardWord) return;
+
+    setIsPlaying(true);
+    setHighlightedIndex(null);
+
+    // Directly play the high-clarity word MP3 voice sound
+    const basePath = process.env.NODE_ENV === 'production' ? '/first-read' : '';
+    const mp3Url = `${basePath}/sounds/words/${content.value.toLowerCase()}.mp3`;
+    const audio = new Audio(mp3Url);
+    currentAudioRef.current = audio;
+
+    const fallbackToSpeechSynthesis = () => {
+      if (signal.aborted) return;
+      const utterance = new SpeechSynthesisUtterance(content.value);
+      const voices = window.speechSynthesis.getVoices();
+      const googleVoice = voices.find(v => v.name === 'Google US English');
+      if (googleVoice) {
+        utterance.voice = googleVoice;
+      }
+      utterance.rate = 0.9;
+      
+      currentUtteranceRef.current = utterance;
+
+      utterance.onend = () => {
+        if (signal.aborted) return;
+        setIsPlaying(false);
+        currentUtteranceRef.current = null;
+      };
+      
+      utterance.onerror = () => {
+        if (signal.aborted) return;
+        setIsPlaying(false);
+        currentUtteranceRef.current = null;
+      };
+
+      window.speechSynthesis.speak(utterance);
+    };
+
+    audio.onended = () => {
+      if (signal.aborted) return;
+      setIsPlaying(false);
+      currentAudioRef.current = null;
+    };
+
+    audio.onerror = () => {
+      currentAudioRef.current = null;
+      fallbackToSpeechSynthesis();
+    };
+
+    audio.play().catch(() => {
+      currentAudioRef.current = null;
+      fallbackToSpeechSynthesis();
+    });
+
+    if (abortControllerRef.current === abortController) {
+      abortControllerRef.current = null;
+    }
+  }
+
+  if (content.type === "message") {
+    return (
+      <div
+        key={content.key}
+        className="max-w-xl font-body text-3xl sm:text-4xl md:text-5xl font-semibold text-foreground/70 px-8 text-center select-none animate-in fade-in duration-500"
+      >
+        {content.value}
+      </div>
+    );
+  }
+
+  const isWord = content.type === "word";
+
+  return (
+    <Card
+      key={content.key}
+      className="relative select-none [-webkit-touch-callout:none] animate-fade-in-zoom w-[90vw] h-[45vw] max-w-[700px] max-h-[min(350px,55svh)] border-none" // Responsive card size
+      style={{
+        backgroundColor: content.color,
+        boxShadow: "0 1px 1px rgba(0,0,0,0.12), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.12), 0 8px 8px rgba(0,0,0,0.12), 0 16px 16px rgba(0,0,0,0.12)",
+        borderTop: "1px solid rgba(255,255,255,0.2)",
+        borderLeft: "1px solid rgba(255,255,255,0.1)",
+      }}
+    >
+      {enableTracing && content.type === "letter" && (
+        <>
+          <Button
+            variant="ghost"
+            size="icon"
+            className={cn(
+              "absolute top-4 left-4 z-40 text-white/50 hover:text-white hover:bg-white/10 transition-all duration-300",
+              isTracingMode && "bg-white/20 text-white scale-110 shadow-lg"
+            )}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsTracingMode(!isTracingMode);
+            }}
+            onPointerDown={(e) => e.stopPropagation()}
+            title={isTracingMode ? "Exit Tracing Mode" : "Trace Letters"}
+          >
+            <Paintbrush className="h-6 w-6" />
+          </Button>
+
+          {isTracingMode && <TracingCanvas contentKey={content.key} />}
+        </>
+      )}
+
+      {content.type === "word" && content.isHardWord && (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="absolute top-4 right-4 text-white/50">
+                <Star className="h-6 w-6" />
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>Hard Word</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      )}
+      <CardContent className="p-0 h-full flex items-center justify-center">
+        {isWord ? (
+          <div className={cn(
+            "font-headline font-normal leading-none",
+            "select-none [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]",
+            "text-6xl sm:text-8xl md:text-[10rem]"
+          )} style={{
+            color: content.textColor || 'white',
+            transform: `translateY(${letterCase === 'lower' ? (content.verticalOffset || 0) : 0}em)`,
+            transition: 'transform 0.2s ease-out'
+          }}>
+            {splitIntoPhonicsSegments(content.value).map((segment, index) => {
+              const displaySegment = segment.toLowerCase();
+
+              return (
+                <span key={index} className={cn(
+                  "inline-block transition-all duration-300 ease-in-out",
+                  highlightedIndex !== null && highlightedIndex !== index && "opacity-60",
+                  highlightedIndex === index && "scale-110 brightness-110 [text-shadow:0_0_10px_rgba(255,255,255,0.4)]",
+                  highlightedIndex === null && "opacity-100 scale-100 transition-opacity duration-300"
+                )}>
+                  {displaySegment}
+                </span>
+              );
+            })}
+          </div>
+        ) : (() => {
+          let displayText = content.value;
+          const isDigraph = content.value.length > 1;
+          const upperText = isDigraph 
+            ? content.value.charAt(0).toUpperCase() + content.value.slice(1).toLowerCase() 
+            : content.value.toUpperCase();
+
+          if (letterCase === 'upper') {
+            displayText = upperText;
+          } else if (letterCase === 'mixed') {
+            displayText = isDigraph 
+              ? `${upperText} ${content.value.toLowerCase()}` 
+              : upperText + content.value.toLowerCase();
+          } else {
+            displayText = content.value.toLowerCase();
+          }
+
+          return (
+            <span
+              className={cn(
+                "font-headline font-normal leading-none flex items-baseline justify-center gap-0",
+                "select-none [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] transition-opacity duration-300",
+                letterCase === 'mixed'
+                  ? "text-8xl sm:text-[11rem] md:text-[14rem]"
+                  : "text-9xl sm:text-[14rem] md:text-[17.5rem]",
+                isTracingMode && "opacity-40"
+              )}
+              style={{
+                color: content.textColor || 'white',
+                transform: `translateY(${letterCase === 'lower' ? (content.verticalOffset || 0) : 0}em)`,
+                transition: 'transform 0.2s ease-out'
+              }}
+            >
+              {displayText}
+            </span>
+          );
+        })()}
+        <div className={cn(
+          "absolute bottom-4 left-4 flex items-center gap-1 transition-opacity duration-300",
+          isTracingMode && "opacity-0 pointer-events-none"
+        )}>
+          {enableRecordings && (localAudioUrl ? (
+            <Button
+              variant="ghost"
+              className={cn(
+                "h-12 w-12 p-0 text-white/50 hover:text-white hover:bg-white/10 transition-all duration-300"
+              )}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleDeleteRecording();
+              }}
+              onPointerDown={(e) => e.stopPropagation()}
+              title="Delete recording"
+            >
+              <Trash2 className="h-5 w-5" />
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              className={cn(
+                "h-12 w-12 p-0 transition-all duration-300 rounded-full hover:text-white hover:bg-white/10",
+                isRecording
+                  ? "bg-red-600 text-white scale-110 animate-pulse hover:bg-red-700 shadow-lg"
+                  : "text-white/50"
+              )}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleToggleRecording();
+              }}
+              onPointerDown={(e) => e.stopPropagation()}
+              title={isRecording ? "Stop Recording" : "Record your own voice"}
+              data-recording-button="true"
+            >
+              {isRecording ? <StopCircle className="h-6 w-6 fill-current" /> : <Mic className="h-6 w-6" />}
+            </Button>
+          ))}
+        </div>
+
+        {content.type === "letter" && (content.value.length === 1 || !!buffers?.[getSoundKeyForSegment(content.value)] || (localAudioUrl && enableRecordings)) && (
+          <Button
+            variant="ghost"
+            className={cn(
+              "absolute bottom-4 right-4 h-12 w-12 p-0 transition-all duration-300 hover:bg-white/10 hover:text-white",
+              isPlaying ? "scale-110 opacity-100 text-white" : "text-white/70",
+              isTracingMode && "opacity-0 pointer-events-none"
+            )}
+            onClick={(e) => speakLetter(e)}
+            onPointerUp={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <Volume2
+              className="h-12 w-12"
+              style={{
+                filter: isPlaying ? 'drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(0 0 12px rgba(255,255,255,0.4))' : 'none'
+              }}
+            />
+          </Button>
+        )}
+        {content.type === "word" && (content.isHardWord ? (localAudioUrl && enableRecordings) : true) && (
+          <Button
+            variant="ghost"
+            className={cn(
+              "absolute bottom-4 right-4 h-12 w-12 p-0 transition-all duration-300 hover:bg-white/10 hover:text-white",
+              isPlaying ? "scale-110 opacity-100 text-white" : "text-white/70"
+            )}
+            onClick={(e) => speakWord(e)}
+            onPointerUp={(e) => e.stopPropagation()}
+            onPointerDown={(e) => e.stopPropagation()}
+          >
+            <Volume2
+              className="h-12 w-12"
+              style={{
+                filter: isPlaying ? 'drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(0 0 12px rgba(255,255,255,0.4))' : 'none'
+              }}
+            />
+          </Button>
+        )}
+        {isRecording && <AudioVisualizer stream={stream} />}
+      </CardContent>
+    </Card>
+  );
+}
+
