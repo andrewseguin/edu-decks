@@ -87,7 +87,7 @@ export function LetterSelector({
           className="active:scale-95 transition-transform"
           aria-label="Select letters"
         >
-          <GraduationCap className="h-5 w-5" />
+          <GraduationCap className="h-6 w-6" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
