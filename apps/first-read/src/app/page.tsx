@@ -3,18 +3,16 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import useLocalStorage from "@/hooks/use-local-storage";
-import { useWakeLock } from "@/hooks/use-wake-lock";
+import { useWakeLock, FullscreenToggle, LockSnackbar } from "@decks/core";
 import { DEFAULT_LETTERS, getLetterInfo, LETTER_LEVELS } from "@/lib/letters";
 import { EASY_WORDS, HARD_WORDS } from "@/lib/words";
 import { splitIntoPhonicsSegments } from "@/lib/phonics";
 import { LetterSelector } from "@/components/letter-selector";
 import { LetterDisplay } from "@/components/letter-display";
-import { FullscreenToggle } from "@/components/fullscreen-toggle";
 import { AppSettings } from "@/components/app-settings";
 import { SessionStats } from "@/components/session-stats";
 import { RecordingsModal } from "@/components/recordings-modal";
 import { QuizDisplay } from "@/components/quiz-display";
-import { Lock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -151,7 +149,6 @@ export default function Home() {
   const [isLocked, setIsLocked] = useLocalStorage<boolean>("first-read-app-locked", false);
   const [enableTracing, setEnableTracing] = useLocalStorage<boolean>("first-read-enable-tracing", true);
   const [autoPlaySound, setAutoPlaySound] = useLocalStorage<boolean>("first-read-auto-play-sound", false);
-  const [showLockSnackbar, setShowLockSnackbar] = useState(false);
   const [isQuizActive, setIsQuizActive] = useState(false);
   const [keepScreenAwake, setKeepScreenAwake] = useLocalStorage<boolean>(
     "first-read-keep-awake",
@@ -163,16 +160,6 @@ export default function Home() {
   useEffect(() => {
     setHydrated(true);
   }, []);
-
-  useEffect(() => {
-    if (hydrated && isLocked) {
-      setShowLockSnackbar(true);
-      const timer = setTimeout(() => {
-        setShowLockSnackbar(false);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [hydrated, isLocked]);
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -740,27 +727,11 @@ export default function Home() {
         />
       )}
 
-      {!isFullscreen && isLocked && showLockSnackbar && (
-        <div
-          className="fixed top-6 left-1/2 -translate-x-1/2 z-50 pointer-events-auto"
-          onPointerDown={(e) => e.stopPropagation()}
-        >
-          <div className="animate-in fade-in slide-in-from-top-4 duration-300 bg-foreground/90 text-background px-5 py-2.5 rounded-full shadow-lg flex items-center gap-3.5 text-sm font-medium whitespace-nowrap w-max">
-            <div className="flex items-center gap-1.5">
-              <Lock className="w-4 h-4 text-background" />
-              <span>Settings Locked</span>
-            </div>
-            <Button
-              size="sm"
-              variant="secondary"
-              className="h-7 px-3 text-xs font-semibold rounded-full bg-background/20 hover:bg-background/30 text-background border-none"
-              onClick={handleUnlockApp}
-            >
-              Unlock
-            </Button>
-          </div>
-        </div>
-      )}
+      <LockSnackbar
+        isLocked={!isFullscreen && isLocked}
+        onUnlock={handleUnlockApp}
+        autoHideDuration={3000}
+      />
       {(showCardCount || showTimer) && (
         <SessionStats
           cardCount={cardCount}

@@ -17,6 +17,9 @@ importers:
 
   apps/first-read:
     dependencies:
+      '@decks/core':
+        specifier: workspace:*
+        version: link:../../packages/deck-core
       '@hookform/resolvers':
         specifier: ^4.1.3
         version: 4.1.3(react-hook-form@7.84.0(react@19.2.8))

@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { TracingCanvas } from "./tracing-canvas";
-import { Card, CardContent } from "@/components/ui/card";
+import { FlashCardShell } from "@decks/core";
 import {
   Tooltip,
   TooltipContent,
@@ -390,17 +390,15 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
   const isWord = content.type === "word";
 
   return (
-    <Card
+    <FlashCardShell
       key={content.key}
-      className="relative select-none [-webkit-touch-callout:none] animate-fade-in-zoom w-[90vw] h-[45vw] max-w-[700px] max-h-[min(350px,55svh)] border-none" // Responsive card size
-      style={{
-        backgroundColor: content.color,
-        boxShadow: "0 1px 1px rgba(0,0,0,0.12), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.12), 0 8px 8px rgba(0,0,0,0.12), 0 16px 16px rgba(0,0,0,0.12)",
-        borderTop: "1px solid rgba(255,255,255,0.2)",
-        borderLeft: "1px solid rgba(255,255,255,0.1)",
-      }}
-    >
-      {enableTracing && content.type === "letter" && (
+      backgroundColor={content.color}
+      className="animate-fade-in-zoom w-[90vw] h-[45vw] max-w-[700px] max-h-[min(350px,55svh)] border-none" // Responsive card size
+      contentClassName="p-0 h-full flex items-center justify-center"
+      showSpeaker={false}
+      frontContent={
+        <>
+          {enableTracing && content.type === "letter" && (
         <>
           <Button
             variant="ghost"
@@ -437,7 +435,6 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
           </Tooltip>
         </TooltipProvider>
       )}
-      <CardContent className="p-0 h-full flex items-center justify-center">
         {isWord ? (
           <div className={cn(
             "font-headline font-normal leading-none",
@@ -581,8 +578,9 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
           </Button>
         )}
         {isRecording && <AudioVisualizer stream={stream} />}
-      </CardContent>
-    </Card>
+        </>
+      }
+    />
   );
 }
 
