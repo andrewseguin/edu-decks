@@ -5,7 +5,7 @@ import { FractionDisplay } from "./fraction-display";
 import { MathSymbol } from "./math-symbol";
 import { cn } from "@/lib/utils";
 import { useQuizSession, stringToFraction } from "@/hooks/use-quiz-session";
-import { QuizHeader } from "./quiz/quiz-header";
+import { QuizOverlayShell } from "@decks/core";
 import { QuizKeypad } from "./quiz/quiz-keypad";
 
 type QuizDisplayProps = {
@@ -60,21 +60,14 @@ export function QuizDisplay({
   const isFractionActive = Boolean(showFractions || currentProblem.isFraction);
 
   return (
-    <div
-      className="fixed inset-0 z-40 bg-background flex flex-col justify-between p-3 sm:p-6 select-none overflow-hidden"
-      onClick={(e) => e.stopPropagation()}
+    <QuizOverlayShell
+      score={score}
+      streak={streak}
+      onExit={onExit}
+      onReplayAudio={() => playAudioPrompt(currentProblem)}
+      isPlayingSound={isPlayingSound}
+      contentClassName="[@media(orientation:landscape)_and_(max-height:540px)]:flex-row [@media(orientation:landscape)_and_(max-height:540px)]:max-w-5xl items-center justify-between gap-4 sm:gap-6 min-h-0 py-2 sm:py-4"
     >
-      {/* Top Header Bar */}
-      <QuizHeader
-        score={score}
-        streak={streak}
-        isPlayingSound={isPlayingSound}
-        onExit={onExit}
-        onAudioPrompt={() => playAudioPrompt(currentProblem)}
-      />
-
-      {/* Main Content Area */}
-      <div className="w-full max-w-md sm:max-w-2xl md:max-w-3xl mx-auto flex-1 flex flex-col [@media(orientation:landscape)_and_(max-height:540px)]:flex-row [@media(orientation:landscape)_and_(max-height:540px)]:max-w-5xl items-center justify-between gap-4 sm:gap-6 min-h-0 py-2 sm:py-4">
         {/* Hero Equation Card */}
         <div className="w-full flex-1 flex items-center justify-center min-h-0 min-w-0 my-auto [@media(orientation:landscape)_and_(max-height:540px)]:max-h-full">
           <div
@@ -164,7 +157,6 @@ export function QuizDisplay({
           onKeyPress={handleKeyPress}
           onDelete={handleDelete}
         />
-      </div>
-    </div>
+    </QuizOverlayShell>
   );
 }

@@ -3,14 +3,19 @@
 
 import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import useLocalStorage from "@/hooks/use-local-storage";
-import { useWakeLock, FullscreenToggle, LockSnackbar } from "@decks/core";
+import {
+  useWakeLock,
+  FullscreenToggle,
+  LockSnackbar,
+  SessionStats,
+  DeckControlBar,
+} from "@decks/core";
 import { DEFAULT_LETTERS, getLetterInfo, LETTER_LEVELS } from "@/lib/letters";
 import { EASY_WORDS, HARD_WORDS } from "@/lib/words";
 import { splitIntoPhonicsSegments } from "@/lib/phonics";
 import { LetterSelector } from "@/components/letter-selector";
 import { LetterDisplay } from "@/components/letter-display";
 import { AppSettings } from "@/components/app-settings";
-import { SessionStats } from "@/components/session-stats";
 import { RecordingsModal } from "@/components/recordings-modal";
 import { QuizDisplay } from "@/components/quiz-display";
 import { useToast } from "@/hooks/use-toast";
@@ -668,7 +673,10 @@ export default function Home() {
     >
       <LetterDisplay content={displayContent} enableRecordings={enableRecordings} enableTracing={enableTracing} letterCase={letterCase} autoPlaySound={isQuizActive ? false : autoPlaySound} />
       {!isFullscreen && !isLocked && (
-        <div className="absolute top-4 right-4 flex items-center gap-2" onPointerDown={(e) => e.stopPropagation()}>
+        <DeckControlBar
+          isFullscreen={isFullscreen}
+          onFullscreenToggle={toggleFullscreen}
+        >
           <LetterSelector
             open={isMenuOpen}
             selectedLetters={selectedLetters}
@@ -710,8 +718,7 @@ export default function Home() {
             onOpenRecordings={() => setIsRecordingsModalOpen(true)}
             onLockApp={() => setIsLocked(true)}
           />
-          <FullscreenToggle isFullscreen={isFullscreen} onToggle={toggleFullscreen} />
-        </div>
+        </DeckControlBar>
       )}
 
       {isQuizActive && (
@@ -737,6 +744,7 @@ export default function Home() {
           timeElapsed={timeElapsed}
           showCardCount={showCardCount}
           showTimer={showTimer}
+          position="bottom-center"
         />
       )}
       <RecordingsModal

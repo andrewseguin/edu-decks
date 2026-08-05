@@ -4,10 +4,83 @@ import * as React from "react";
 import { Volume2 } from "lucide-react";
 import { cn } from "../lib/utils";
 
+export type CardCornerButtonProps = {
+  position?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
+  size?: "md" | "lg";
+  className?: string;
+  children?: React.ReactNode;
+  icon?: React.ReactNode;
+  onClick?: (e: React.MouseEvent) => void;
+  onPointerDown?: (e: React.PointerEvent) => void;
+  onPointerUp?: (e: React.PointerEvent) => void;
+  ariaLabel?: string;
+  title?: string;
+  isActive?: boolean;
+};
+
+export function CardCornerButton({
+  position = "top-left",
+  size = "lg",
+  className,
+  children,
+  icon,
+  onClick,
+  onPointerDown,
+  onPointerUp,
+  ariaLabel,
+  title,
+  isActive = false,
+}: CardCornerButtonProps) {
+  const positionClasses = {
+    "top-left": "absolute top-3 left-3 sm:top-4 sm:left-4 z-40",
+    "top-right": "absolute top-3 right-3 sm:top-4 sm:right-4 z-40",
+    "bottom-left": "absolute bottom-3 left-3 sm:bottom-4 sm:left-4 z-40",
+    "bottom-right": "absolute bottom-3 right-3 sm:bottom-4 sm:right-4 z-40",
+  }[position];
+
+  const sizeClasses = {
+    md: "h-8 w-8 sm:h-10 sm:w-10 text-sm",
+    lg: "h-10 w-10 sm:h-12 sm:w-12 text-base",
+  }[size];
+
+  return (
+    <button
+      type="button"
+      className={cn(
+        positionClasses,
+        sizeClasses,
+        "inline-flex items-center justify-center rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-all active:scale-95 outline-none pointer-events-auto",
+        isActive && "bg-white/20 text-white scale-110 shadow-lg",
+        className
+      )}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.(e);
+      }}
+      onPointerDown={(e) => {
+        e.stopPropagation();
+        onPointerDown?.(e);
+      }}
+      onPointerUp={(e) => {
+        e.stopPropagation();
+        onPointerUp?.(e);
+      }}
+      aria-label={ariaLabel}
+      title={title}
+    >
+      {icon || children}
+    </button>
+  );
+}
+
 export type FlashCardShellProps = {
   children?: React.ReactNode;
   frontContent?: React.ReactNode;
   backContent?: React.ReactNode;
+  topLeft?: React.ReactNode;
+  topRight?: React.ReactNode;
+  bottomLeft?: React.ReactNode;
+  bottomRight?: React.ReactNode;
   isFlipped?: boolean;
   slideDirection?: "next" | "prev";
   backgroundColor?: string;
@@ -19,6 +92,7 @@ export type FlashCardShellProps = {
   showSpeaker?: boolean;
   speakerClassName?: string;
   speakerAriaLabel?: string;
+  speakerSize?: "md" | "lg";
 };
 
 export function FrostedBadge({
@@ -51,6 +125,10 @@ export function FlashCardShell({
   children,
   frontContent,
   backContent,
+  topLeft,
+  topRight,
+  bottomLeft,
+  bottomRight,
   isFlipped = false,
   slideDirection,
   backgroundColor,
@@ -62,6 +140,7 @@ export function FlashCardShell({
   showSpeaker = true,
   speakerClassName,
   speakerAriaLabel = "Listen to card",
+  speakerSize = "md",
 }: FlashCardShellProps) {
   const animClass =
     slideDirection === "next"
@@ -95,21 +174,26 @@ export function FlashCardShell({
       onClick={onCardTap}
     >
       <div className={cn("p-3 sm:p-5 md:p-6 h-full w-full relative overflow-hidden", contentClassName)}>
+        {topLeft}
+        {topRight}
+        {bottomLeft}
         {frontContent || children}
         {backContent}
-        {showSpeaker && onSpeak && (
-          <button
-            type="button"
-            className={cn(
-              "absolute bottom-2.5 right-2.5 sm:bottom-3 sm:right-3 inline-flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 rounded-full w-8 h-8 sm:w-10 sm:h-10 transition-transform active:scale-95 outline-none pointer-events-auto z-30",
-              speakerClassName
-            )}
-            onClick={handleSpeak}
-            aria-label={speakerAriaLabel}
-          >
-            <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
-          </button>
-        )}
+        {bottomRight ||
+          (showSpeaker && onSpeak && (
+            <button
+              type="button"
+              className={cn(
+                "absolute bottom-2.5 right-2.5 sm:bottom-3 sm:right-3 inline-flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-transform active:scale-95 outline-none pointer-events-auto z-30",
+                speakerSize === "lg" ? "w-10 h-10 sm:w-12 sm:h-12" : "w-8 h-8 sm:w-10 sm:h-10",
+                speakerClassName
+              )}
+              onClick={handleSpeak}
+              aria-label={speakerAriaLabel}
+            >
+              <Volume2 className={cn(speakerSize === "lg" ? "w-5 h-5 sm:w-6 sm:h-6" : "w-4 h-4 sm:w-5 sm:h-5")} />
+            </button>
+          ))}
       </div>
     </div>
   );

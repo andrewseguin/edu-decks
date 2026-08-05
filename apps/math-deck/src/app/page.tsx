@@ -1,7 +1,15 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useWakeLock, useAudio, useDeckHistory, FullscreenToggle, LockSnackbar } from "@decks/core";
+import {
+  useWakeLock,
+  useAudio,
+  useDeckHistory,
+  FullscreenToggle,
+  LockSnackbar,
+  SessionStats,
+  DeckControlBar,
+} from "@decks/core";
 import { useDeckSettings } from "@/hooks/use-deck-settings";
 import { generateMathProblem } from "@/lib/math-generator";
 import { MathProblem } from "@/lib/types";
@@ -10,7 +18,6 @@ import { playMathSpeech } from "@/lib/audio-player";
 import { MathCard } from "@/components/math-card";
 import { AppSettings } from "@/components/app-settings";
 import { OperationSelector } from "@/components/operation-selector";
-import { SessionStats } from "@/components/session-stats";
 import { QuizDisplay } from "@/components/quiz-display";
 
 export default function MathDeckPage() {
@@ -222,9 +229,9 @@ export default function MathDeckPage() {
 
       {/* Top Bar Controls */}
       {!settings.isLocked && (
-        <div
-          className="absolute top-2.5 right-2.5 sm:top-4 sm:right-4 flex items-center gap-1.5 sm:gap-2 pointer-events-auto z-30"
-          onPointerDown={(e) => e.stopPropagation()}
+        <DeckControlBar
+          isFullscreen={isFullscreen}
+          onFullscreenToggle={toggleFullscreen}
         >
           <OperationSelector
             activeOperations={settings.activeOperations}
@@ -262,8 +269,7 @@ export default function MathDeckPage() {
             onOpenChange={handleSettingsOpenChange}
             onLockApp={() => settings.setIsLocked(true)}
           />
-          <FullscreenToggle isFullscreen={isFullscreen} onToggle={toggleFullscreen} />
-        </div>
+        </DeckControlBar>
       )}
 
       {/* Quiz Display Overlay */}
@@ -293,6 +299,7 @@ export default function MathDeckPage() {
           timeElapsed={timeElapsed}
           showCardCount={settings.showCardCount}
           showTimer={settings.showTimer}
+          position="top-left"
         />
       )}
     </main>

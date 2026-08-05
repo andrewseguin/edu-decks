@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Volume2, X, Sparkles, CheckCircle2 } from "lucide-react";
+import { QuizOverlayShell } from "@decks/core";
 import { Button } from "@/components/ui/button";
 import { getLetterInfo, ALL_LETTERS } from "@/lib/letters";
 import { EASY_WORDS, HARD_WORDS } from "@/lib/words";
@@ -321,63 +322,16 @@ export function QuizDisplay({
   };
 
   return (
-    <div
-      className="fixed inset-0 z-40 bg-background flex flex-col justify-between p-3 sm:p-6 animate-in fade-in duration-300 select-none"
-      onPointerDown={(e) => e.stopPropagation()}
-      onPointerUp={(e) => e.stopPropagation()}
-      onClick={(e) => e.stopPropagation()}
+    <QuizOverlayShell
+      score={score}
+      streak={streak}
+      onExit={onExit}
+      onReplayAudio={() => {
+        if (targetItem) playAudio(targetItem);
+      }}
+      isPlayingSound={isPlayingSound}
+      replayLabel="Replay Sound"
     >
-      {/* Top Controls Bar */}
-      <div className="flex items-center justify-between w-full max-w-4xl mx-auto gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          className="rounded-full gap-1.5 text-muted-foreground hover:text-foreground shrink-0"
-          onPointerDown={(e) => {
-            e.stopPropagation();
-            onExit();
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            onExit();
-          }}
-        >
-          <X className="w-4 h-4" />
-          <span className="hidden sm:inline">Exit Quiz</span>
-        </Button>
-
-        {/* Compact Center Replay Button */}
-        <Button
-          size="sm"
-          variant="default"
-          className={cn(
-            "rounded-full gap-2 px-4 py-1.5 font-headline font-bold text-sm shadow-md transition-transform active:scale-95 outline-none focus:outline-none focus-visible:outline-none focus:ring-0 focus-visible:ring-0",
-            isPlayingSound ? "animate-pulse bg-primary scale-105" : "bg-primary hover:bg-primary/90"
-          )}
-          onPointerDown={(e) => {
-            e.stopPropagation();
-            if (targetItem) playAudio(targetItem);
-          }}
-          onClick={(e) => {
-            e.stopPropagation();
-            if (targetItem) playAudio(targetItem);
-          }}
-          aria-label="Replay sound"
-        >
-          <Volume2 className="w-4 h-4 text-primary-foreground" />
-          <span>Replay Sound</span>
-        </Button>
-
-        <div className="flex items-center gap-2 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-3 py-1.5 rounded-full font-bold text-sm shrink-0">
-          <Sparkles className="w-4 h-4" />
-          <span>{score}</span>
-          {streak > 1 && (
-            <span className="text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full">
-              🔥 {streak}
-            </span>
-          )}
-        </div>
-      </div>
 
       {/* Dynamic Options Grid - 4, 6, or 8 options layout */}
       <div
@@ -449,6 +403,6 @@ export function QuizDisplay({
           );
         })}
       </div>
-    </div>
+    </QuizOverlayShell>
   );
 }
