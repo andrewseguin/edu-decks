@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: ["@decks/core"],
   distDir: process.env.NODE_ENV === "production" ? ".next-prod" : ".next",
   images: {
     unoptimized: true,
