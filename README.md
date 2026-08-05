@@ -54,6 +54,9 @@ pnpm --filter reading-deck dev
 
 ## 🧪 Verification & Testing
 
+> [!CAUTION]
+> **DO NOT KILL LOCAL DEV SERVERS**: Never run `kill`, `pkill`, or terminate processes listening on ports `9002` or `9003`. Playwright is configured with `reuseExistingServer: true` and will automatically reuse running development servers.
+
 Our suite enforces **zero regressions** across layout, audio, animations, and responsive viewports.
 
 ### Workspace Typechecking & Build
