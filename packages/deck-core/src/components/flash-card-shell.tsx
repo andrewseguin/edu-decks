@@ -142,12 +142,7 @@ export function FlashCardShell({
   speakerAriaLabel = "Listen to card",
   speakerSize = "md",
 }: FlashCardShellProps) {
-  const animClass =
-    slideDirection === "next"
-      ? "animate-slide-in-right"
-      : slideDirection === "prev"
-      ? "animate-slide-in-left"
-      : "";
+  const animClass = "animate-fade-in-zoom";
 
   const defaultStyle: React.CSSProperties = {
     backgroundColor: backgroundColor || "#000000",
