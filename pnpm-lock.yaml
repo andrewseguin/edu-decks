@@ -165,6 +165,9 @@ importers:
 
   apps/math-deck:
     dependencies:
+      '@decks/core':
+        specifier: workspace:*
+        version: link:../../packages/deck-core
       '@radix-ui/react-label':
         specifier: ^2.1.2
         version: 2.1.15(@types/react-dom@19.2.4(@types/react@19.2.18))(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)

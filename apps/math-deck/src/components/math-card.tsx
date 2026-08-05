@@ -4,9 +4,7 @@ import { MathProblem, OPERATION_COLORS } from "@/lib/types";
 import { VisualMath } from "./visual-math";
 import { FractionDisplay } from "./fraction-display";
 import { MathSymbol } from "./math-symbol";
-import { Volume2 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { FlashCardShell, FrostedBadge } from "@decks/core";
 import { cn } from "@/lib/utils";
 
 type MathCardProps = {
@@ -35,26 +33,17 @@ export function MathCard({
     }
   };
 
-  const animClass =
-    slideDirection === "next" ? "animate-slide-in-right" : "animate-slide-in-left";
-
   return (
-    <Card
+    <FlashCardShell
       key={problem.id}
-      className={cn(
-        "relative select-none [-webkit-touch-callout:none] w-[92vw] max-w-[660px] h-[72vh] max-h-[580px] min-h-[340px] sm:h-auto sm:aspect-[16/10] sm:max-h-[80vh] [@media(orientation:landscape)_and_(max-height:640px)]:min-h-[250px] [@media(orientation:landscape)_and_(max-height:640px)]:h-[78vh] [@media(orientation:landscape)_and_(max-height:640px)]:max-h-[78vh] [@media(orientation:landscape)_and_(max-height:640px)]:mt-4 [@media(orientation:landscape)_and_(max-height:640px)]:aspect-auto border-none rounded-3xl overflow-hidden cursor-pointer transition-all duration-300",
-        animClass
-      )}
-      style={{
-        backgroundColor: opInfo.hex,
-        boxShadow:
-          "0 1px 1px rgba(0,0,0,0.12), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.12), 0 8px 8px rgba(0,0,0,0.12), 0 16px 16px rgba(0,0,0,0.12)",
-        borderTop: "1px solid rgba(255,255,255,0.2)",
-        borderLeft: "1px solid rgba(255,255,255,0.1)",
-      }}
-    >
-      <CardContent className="p-3 sm:p-5 md:p-6 h-full w-full relative overflow-hidden">
-        {/* Main Equation & Conversion Badge Container (Top Section) */}
+      isFlipped={isFlipped}
+      slideDirection={slideDirection}
+      backgroundColor={opInfo.hex}
+      className="w-[92vw] max-w-[660px] h-[72vh] max-h-[580px] min-h-[340px] sm:h-auto sm:aspect-[16/10] sm:max-h-[80vh] [@media(orientation:landscape)_and_(max-height:640px)]:min-h-[250px] [@media(orientation:landscape)_and_(max-height:640px)]:h-[78vh] [@media(orientation:landscape)_and_(max-height:640px)]:max-h-[78vh] [@media(orientation:landscape)_and_(max-height:640px)]:mt-4 [@media(orientation:landscape)_and_(max-height:640px)]:aspect-auto"
+      onCardTap={onCardTap}
+      onSpeak={handleSpeak}
+      speakerAriaLabel="Listen to equation"
+      frontContent={
         <div
           className={cn(
             "absolute inset-0 flex flex-col items-center justify-center transition-transform duration-700 ease-in-out z-20 pointer-events-none p-2 sm:p-4",
@@ -165,16 +154,7 @@ export function MathCard({
               )}
 
               {/* Obscuring Frosted Glass Pill Badge when Unrevealed */}
-              <div
-                className={cn(
-                  "absolute inset-y-[-4px] inset-x-[-6px] flex items-center justify-center bg-white/20 backdrop-blur-md rounded-2xl border-2 border-dashed border-white/40 shadow-sm transition-all",
-                  isFlipped ? "opacity-0 scale-75 delay-0 duration-300 ease-in pointer-events-none" : "opacity-100 scale-100 delay-0 duration-300 ease-out"
-                )}
-              >
-                <span className="font-headline font-bold text-white text-3xl sm:text-5xl md:text-6xl [@media(max-height:640px)]:text-3xl">
-                  ?
-                </span>
-              </div>
+              <FrostedBadge isFlipped={isFlipped} />
             </div>
 
             {/* Subtitle Conversion Pill Badge - Absolute Overlay Never Affecting Layout */}
@@ -203,8 +183,8 @@ export function MathCard({
             )}
           </div>
         </div>
-
-        {/* Visual Blocks Overlay - Lower Section when revealed */}
+      }
+      backContent={
         <div
           className={cn(
             "absolute inset-x-0 bottom-2 sm:bottom-3 flex items-center justify-center pointer-events-none z-10 transition-all p-1 sm:p-2",
@@ -218,18 +198,7 @@ export function MathCard({
         >
           <VisualMath problem={problem} isFlipped={isFlipped} />
         </div>
-
-        {/* Speaker Button in Bottom Right */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="absolute bottom-2.5 right-2.5 sm:bottom-3 sm:right-3 text-white/80 hover:text-white hover:bg-white/20 rounded-full w-8 h-8 sm:w-10 sm:h-10 transition-transform active:scale-95 outline-none pointer-events-auto z-30"
-          onClick={handleSpeak}
-          aria-label="Listen to equation"
-        >
-          <Volume2 className="w-4 h-4 sm:w-5 sm:h-5" />
-        </Button>
-      </CardContent>
-    </Card>
+      }
+    />
   );
 }
