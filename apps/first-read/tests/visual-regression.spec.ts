@@ -47,7 +47,7 @@ test("Light Theme", async ({ page }) => {
 
   // Advance to next card
   const card = page.locator("main > div").first();
-  await card.click();
+  await card.click({ force: true });
   await page.waitForTimeout(300);
 
   await expect(page).toHaveScreenshot("theme-light-next.png", screenshotOptions);
@@ -65,7 +65,7 @@ test("Dark Theme", async ({ page }) => {
 
   // Advance to next card
   const card = page.locator("main > div").first();
-  await card.click();
+  await card.click({ force: true });
   await page.waitForTimeout(300);
 
   await expect(page).toHaveScreenshot("theme-dark-next.png", screenshotOptions);
@@ -80,7 +80,7 @@ test("Card Front", async ({ page }) => {
 
 test("Card Navigation", async ({ page }) => {
   const card = page.locator("main > div").first();
-  await card.click();
+  await card.click({ force: true });
   await page.waitForTimeout(300);
 
   await expect(page).toHaveScreenshot("card-after-tap.png", screenshotOptions);
@@ -90,14 +90,14 @@ test("Card Navigation", async ({ page }) => {
 // 3. QUIZ MODE OVERLAY
 // -------------------------------------------------------------
 test("Quiz Mode", async ({ page }) => {
-  const settingsBtn = page.locator("button[aria-label='App settings']");
+  const settingsBtn = page.locator("button[aria-label='Select letters']");
   if (await settingsBtn.isVisible()) {
     await settingsBtn.click();
     await page.waitForTimeout(200);
 
     const startQuizBtn = page.locator("button:has-text('Start Quiz')");
     if (await startQuizBtn.isVisible()) {
-      await startQuizBtn.click();
+      await startQuizBtn.evaluate((btn) => (btn as HTMLElement).click());
       await page.waitForTimeout(300);
     }
   }

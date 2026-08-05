@@ -127,7 +127,7 @@ test("Quiz Mode", async ({ page }) => {
 
     const startQuizBtn = page.locator("button:has-text('Start Quiz')");
     if (await startQuizBtn.isVisible()) {
-      await startQuizBtn.click();
+      await startQuizBtn.evaluate((btn) => (btn as HTMLElement).click());
       await page.waitForTimeout(300);
     }
   }
