@@ -1,10 +1,10 @@
 # `edu-decks` 🎴✨
 
-An interactive, distraction-free educational flashcard suite built with **Next.js 15**, **React 19**, **Tailwind CSS**, and **Turborepo** + **pnpm workspaces**. Designed for early learners to practice mental arithmetic, phonics, reading fluency, and spatial reasoning with visual animations, speech audio, and interactive practice quizzes.
+An interactive, distraction-free educational flashcard suite built with **Next.js 15**, **React 19**, **Tailwind CSS**, and **pnpm workspaces**. Designed for early learners to practice mental arithmetic, phonics, and reading fluency with visual animations, speech audio, and interactive practice quizzes.
 
 ---
 
-## 📦 Monorepo Architecture
+## 📦 Workspace Overview
 
 ```
 edu-decks/
@@ -13,15 +13,9 @@ edu-decks/
 │   └── reading-deck/      # Alphabet phonics, 1,000+ sight words, letter tracing, & reading fluency
 ├── packages/
 │   └── deck-core/         # Shared UI shells, toolbars, quiz overlays, badges, audio & wake-lock hooks
-├── pnpm-workspace.yaml    # Worksace configuration
-└── turbo.json             # Turborepo task runner rules
+├── pnpm-workspace.yaml    # Workspace configuration
+└── turbo.json             # Workspace task runner rules
 ```
-
-### Why a Monorepo?
-By centralizing shared UI primitives and ergonomics in `@decks/core`, every deck in the `edu-decks` suite inherits:
-- **Unified Visual Layout**: Consistently styled top control bars (`DeckControlBar`), score/timer counters (`SessionStats`), and full-screen quiz overlays (`QuizOverlayShell`).
-- **Child-Friendly Controls**: Accessible corner buttons (`CardCornerButton`), frosted help badges (`FrostedBadge`), and 3-second parental settings locks (`LockSnackbar`).
-- **Shared Browser APIs**: Screen wake-lock persistence (`useWakeLock`), audio speech synthesis & sound effects (`useAudio`), and deck session history (`useDeckHistory`).
 
 ---
 
@@ -29,7 +23,7 @@ By centralizing shared UI primitives and ergonomics in `@decks/core`, every deck
 
 ### 1. Prerequisites
 - **Node.js** `>= 20.0.0`
-- **pnpm** `>= 10.0.0` (Install via `npm install -g pnpm`)
+- **pnpm** `>= 10.0.0` (`npm install -g pnpm`)
 
 ### 2. Install Workspace Dependencies
 ```bash
@@ -37,7 +31,7 @@ pnpm install
 ```
 
 ### 3. Start Development Servers
-Run all applications concurrently with Turborepo:
+Run both applications concurrently:
 ```bash
 pnpm dev
 ```
@@ -57,19 +51,14 @@ pnpm --filter reading-deck dev
 > [!CAUTION]
 > **DO NOT KILL LOCAL DEV SERVERS**: Never run `kill`, `pkill`, or terminate processes listening on ports `9002` or `9003`. Playwright is configured with `reuseExistingServer: true` and will automatically reuse running development servers.
 
-Our suite enforces **zero regressions** across layout, audio, animations, and responsive viewports.
-
 ### Workspace Typechecking & Build
 ```bash
-# Typecheck all packages and applications
 pnpm -r typecheck
-
-# Build production static exports across the monorepo
 pnpm -r build
 ```
 
-### Playwright Visual Regression Testing
-Both applications feature automated visual regression screenshot testing across 4 viewports (`Desktop Landscape`, `Tablet Landscape`, `Mobile Landscape`, `Mobile Portrait`) and Light/Dark themes:
+### Automated Visual Regression Testing
+We use **Playwright** for automated screenshot diffing across 4 viewports (`Desktop Landscape`, `Tablet Landscape`, `Mobile Landscape`, `Mobile Portrait`) and Light/Dark themes:
 ```bash
 # Run automated screenshot comparison tests
 pnpm -r test:visual
@@ -77,20 +66,6 @@ pnpm -r test:visual
 # Update baseline snapshots after UI changes
 pnpm -r test:visual:update
 ```
-
----
-
-## 🌐 Deployment Guide
-
-### Option 1: Vercel (Recommended)
-Vercel automatically detects Turborepo workspaces and shares build caches across projects:
-1. In Vercel, import the `andrewseguin/edu-decks` repository.
-2. For **Site 1 (`arithmetic-deck`)**: Set **Root Directory** to `apps/arithmetic-deck`.
-3. For **Site 2 (`reading-deck`)**: Import the same repo again and set **Root Directory** to `apps/reading-deck`.
-
-### Option 2: Cloudflare Pages / GitHub Pages
-Both applications produce static HTML/JS exports via Next.js:
-- Set Build Command to `npx pnpm@10.14.0 run build` and Output Directory to `out` (or `.next` for hybrid rendering).
 
 ---
 
