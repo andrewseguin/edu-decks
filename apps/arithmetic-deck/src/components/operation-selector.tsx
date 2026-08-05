@@ -58,9 +58,9 @@ export function OperationSelector({
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         <Button
-          variant="ghost"
+          variant="default"
           size="icon"
-          className="text-foreground/50 hover:text-foreground active:scale-95 transition-transform"
+          className="active:scale-95 transition-transform"
           aria-label="Select operations"
         >
           <Calculator className="h-6 w-6" />
