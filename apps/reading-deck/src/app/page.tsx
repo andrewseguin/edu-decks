@@ -9,6 +9,7 @@ import {
   LockSnackbar,
   SessionStats,
   DeckControlBar,
+  DeckAppShell,
 } from "@decks/core";
 import { DEFAULT_LETTERS, getLetterInfo, LETTER_LEVELS } from "@/lib/letters";
 import { EASY_WORDS, HARD_WORDS } from "@/lib/words";
@@ -665,18 +666,16 @@ export default function Home() {
   }
 
   return (
-    <main
-      className="flex h-svh w-screen cursor-pointer items-center justify-center bg-background overflow-hidden relative focus:outline-none touch-none"
+    <DeckAppShell
+      className="cursor-pointer"
+      isLocked={!isFullscreen && isLocked}
+      onUnlock={handleUnlockApp}
+      isFullscreen={isFullscreen}
+      onFullscreenToggle={toggleFullscreen}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
-      tabIndex={-1}
-    >
-      <LetterDisplay content={displayContent} enableRecordings={enableRecordings} enableTracing={enableTracing} letterCase={letterCase} autoPlaySound={isQuizActive ? false : autoPlaySound} />
-      {!isFullscreen && !isLocked && (
-        <DeckControlBar
-          isFullscreen={isFullscreen}
-          onFullscreenToggle={toggleFullscreen}
-        >
+      topRightControls={
+        <>
           <LetterSelector
             open={isMenuOpen}
             selectedLetters={selectedLetters}
@@ -718,39 +717,44 @@ export default function Home() {
             onOpenRecordings={() => setIsRecordingsModalOpen(true)}
             onLockApp={() => setIsLocked(true)}
           />
-        </DeckControlBar>
-      )}
-
-      {isQuizActive && (
-        <QuizDisplay
-          gameMode={gameMode}
-          selectedLetters={selectedLetters}
-          selectedWordLengths={selectedWordLengths}
-          wordDifficulty={wordDifficulty}
-          letterCase={letterCase}
-          optionCount={quizOptionCount}
-          onExit={() => setIsQuizActive(false)}
-        />
-      )}
-
-      <LockSnackbar
-        isLocked={!isFullscreen && isLocked}
-        onUnlock={handleUnlockApp}
-        autoHideDuration={3000}
+        </>
+      }
+      bottomStats={
+        showCardCount || showTimer ? (
+          <SessionStats
+            cardCount={cardCount}
+            timeElapsed={timeElapsed}
+            showCardCount={showCardCount}
+            showTimer={showTimer}
+            position="bottom-center"
+          />
+        ) : undefined
+      }
+      quizOverlay={
+        isQuizActive ? (
+          <QuizDisplay
+            gameMode={gameMode}
+            selectedLetters={selectedLetters}
+            selectedWordLengths={selectedWordLengths}
+            wordDifficulty={wordDifficulty}
+            letterCase={letterCase}
+            optionCount={quizOptionCount}
+            onExit={() => setIsQuizActive(false)}
+          />
+        ) : undefined
+      }
+    >
+      <LetterDisplay
+        content={displayContent}
+        enableRecordings={enableRecordings}
+        enableTracing={enableTracing}
+        letterCase={letterCase}
+        autoPlaySound={isQuizActive ? false : autoPlaySound}
       />
-      {(showCardCount || showTimer) && (
-        <SessionStats
-          cardCount={cardCount}
-          timeElapsed={timeElapsed}
-          showCardCount={showCardCount}
-          showTimer={showTimer}
-          position="bottom-center"
-        />
-      )}
       <RecordingsModal
         open={isRecordingsModalOpen}
         onOpenChange={setIsRecordingsModalOpen}
       />
-    </main>
+    </DeckAppShell>
   );
 }

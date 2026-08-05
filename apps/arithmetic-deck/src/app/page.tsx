@@ -9,6 +9,7 @@ import {
   LockSnackbar,
   SessionStats,
   DeckControlBar,
+  DeckAppShell,
 } from "@decks/core";
 import { useDeckSettings } from "@/hooks/use-deck-settings";
 import { generateMathProblem } from "@/lib/math-generator";
@@ -211,28 +212,15 @@ export default function MathDeckPage() {
   }
 
   return (
-    <main
-      className="flex h-svh w-screen items-center justify-center bg-background overflow-hidden relative focus:outline-none touch-none select-none"
+    <DeckAppShell
+      isLocked={settings.isLocked}
+      onUnlock={() => settings.setIsLocked(false)}
+      isFullscreen={isFullscreen}
+      onFullscreenToggle={toggleFullscreen}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
-      tabIndex={-1}
-    >
-      {currentProblem && (
-        <MathCard
-          problem={currentProblem}
-          isFlipped={isFlipped}
-          slideDirection={slideDirection}
-          onCardTap={handleCardTap}
-          onSpeak={(text) => speak(text, true)}
-        />
-      )}
-
-      {/* Top Bar Controls */}
-      {!settings.isLocked && (
-        <DeckControlBar
-          isFullscreen={isFullscreen}
-          onFullscreenToggle={toggleFullscreen}
-        >
+      topRightControls={
+        <>
           <OperationSelector
             activeOperations={settings.activeOperations}
             onOperationToggle={settings.handleOperationToggle}
@@ -269,39 +257,43 @@ export default function MathDeckPage() {
             onOpenChange={handleSettingsOpenChange}
             onLockApp={() => settings.setIsLocked(true)}
           />
-        </DeckControlBar>
-      )}
-
-      {/* Quiz Display Overlay */}
-      {isQuizActive && (
-        <QuizDisplay
-          activeOperations={settings.activeOperations}
-          minRange={settings.minRange}
-          maxRange={settings.maxRange}
-          showFractions={settings.showFractions}
-          autoPlayAudio={settings.autoPlayAudio}
+        </>
+      }
+      bottomStats={
+        (settings.showCardCount || settings.showTimer) && !isQuizActive ? (
+          <SessionStats
+            cardCount={cardCount}
+            timeElapsed={timeElapsed}
+            showCardCount={settings.showCardCount}
+            showTimer={settings.showTimer}
+            position="top-left"
+          />
+        ) : undefined
+      }
+      quizOverlay={
+        isQuizActive ? (
+          <QuizDisplay
+            activeOperations={settings.activeOperations}
+            minRange={settings.minRange}
+            maxRange={settings.maxRange}
+            showFractions={settings.showFractions}
+            autoPlayAudio={settings.autoPlayAudio}
+            onSpeak={(text) => speak(text, true)}
+            onPlayChime={playChime}
+            onExit={() => setIsQuizActive(false)}
+          />
+        ) : undefined
+      }
+    >
+      {currentProblem && (
+        <MathCard
+          problem={currentProblem}
+          isFlipped={isFlipped}
+          slideDirection={slideDirection}
+          onCardTap={handleCardTap}
           onSpeak={(text) => speak(text, true)}
-          onPlayChime={playChime}
-          onExit={() => setIsQuizActive(false)}
         />
       )}
-
-      {/* Locked Snackbar */}
-      <LockSnackbar
-        isLocked={settings.isLocked}
-        onUnlock={() => settings.setIsLocked(false)}
-      />
-
-      {/* Session Stats Counter */}
-      {(settings.showCardCount || settings.showTimer) && !isQuizActive && (
-        <SessionStats
-          cardCount={cardCount}
-          timeElapsed={timeElapsed}
-          showCardCount={settings.showCardCount}
-          showTimer={settings.showTimer}
-          position="top-left"
-        />
-      )}
-    </main>
+    </DeckAppShell>
   );
 }

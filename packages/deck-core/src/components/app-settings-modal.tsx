@@ -137,3 +137,75 @@ export function LockSnackbar({
     </div>
   );
 }
+
+export type SettingsSectionProps = {
+  title: string;
+  children: React.ReactNode;
+  className?: string;
+};
+
+export function SettingsSection({
+  title,
+  children,
+  className,
+}: SettingsSectionProps) {
+  return (
+    <div className={cn("space-y-4", className)}>
+      <h4 className="font-medium leading-none font-headline text-lg">
+        {title}
+      </h4>
+      {children}
+    </div>
+  );
+}
+
+export type SettingsToggleProps = {
+  id?: string;
+  label: React.ReactNode;
+  checked: boolean;
+  onCheckedChange: (checked: boolean) => void;
+  className?: string;
+  disabled?: boolean;
+};
+
+export function SettingsToggle({
+  id,
+  label,
+  checked,
+  onCheckedChange,
+  className,
+  disabled = false,
+}: SettingsToggleProps) {
+  return (
+    <div className={cn("flex items-center justify-between", className)}>
+      <label
+        htmlFor={id}
+        className={cn(
+          "text-base font-normal select-none",
+          disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+        )}
+      >
+        {label}
+      </label>
+      <button
+        type="button"
+        id={id}
+        role="switch"
+        aria-checked={checked}
+        disabled={disabled}
+        onClick={() => !disabled && onCheckedChange(!checked)}
+        className={cn(
+          "inline-flex h-6 w-11 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
+          checked ? "bg-primary" : "bg-input"
+        )}
+      >
+        <span
+          className={cn(
+            "pointer-events-none block h-5 w-5 rounded-full bg-background shadow-lg ring-0 transition-transform",
+            checked ? "translate-x-5" : "translate-x-0"
+          )}
+        />
+      </button>
+    </div>
+  );
+}

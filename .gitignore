@@ -9,3 +9,4 @@ dist
 .pnpm-store
 playwright-report/
 test-results/
+*.tsbuildinfo
