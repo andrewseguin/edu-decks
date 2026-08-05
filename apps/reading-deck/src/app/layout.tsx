@@ -15,7 +15,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const basePath = process.env.NODE_ENV === 'production' ? '/reading-deck' : '';
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
   return (
     <html lang="en" suppressHydrationWarning>
       <head>

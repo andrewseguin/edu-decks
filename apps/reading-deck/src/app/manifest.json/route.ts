@@ -3,15 +3,14 @@ import { NextResponse } from 'next/server';
 export const dynamic = "force-static";
 
 export function GET() {
-  const isProd = process.env.NODE_ENV === 'production';
-  const basePath = isProd ? '/reading-deck' : '';
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
 
   const manifest = {
     "theme_color": "#09090b",
     "background_color": "#09090b",
     "display": "standalone",
-    "scope": isProd ? "/reading-deck/" : "/",
-    "start_url": isProd ? "/reading-deck/" : "/",
+    "scope": basePath ? `${basePath}/` : "/",
+    "start_url": basePath ? `${basePath}/` : "/",
     "name": "Reading Deck",
     "short_name": "Reading Deck",
     "description": "Reading Deck - Phonics, Letters & Reading Fluency",

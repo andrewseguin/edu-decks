@@ -323,7 +323,7 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
     setHighlightedIndex(null);
 
     // Directly play the high-clarity word MP3 voice sound
-    const basePath = process.env.NODE_ENV === 'production' ? '/reading-deck' : '';
+    const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
     const mp3Url = `${basePath}/sounds/words/${content.value.toLowerCase()}.mp3`;
     const audio = new Audio(mp3Url);
     currentAudioRef.current = audio;

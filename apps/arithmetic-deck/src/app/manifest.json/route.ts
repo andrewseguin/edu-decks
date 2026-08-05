@@ -3,8 +3,7 @@ import { NextResponse } from "next/server";
 export const dynamic = "force-static";
 
 export function GET() {
-  const isProd = process.env.NODE_ENV === "production";
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || (isProd ? "/arithmetic-deck" : "");
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
 
   const manifest = {
     short_name: "Arithmetic Deck",
