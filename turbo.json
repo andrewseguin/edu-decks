@@ -14,6 +14,13 @@
     },
     "typecheck": {
       "dependsOn": ["^typecheck"]
+    },
+    "test:visual": {
+      "dependsOn": ["^build"],
+      "outputs": ["tests/screenshots/**"]
+    },
+    "test:visual:update": {
+      "cache": false
     }
   }
 }
