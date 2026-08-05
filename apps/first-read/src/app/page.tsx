@@ -552,7 +552,6 @@ export default function Home() {
 
   const handleUnlockApp = () => {
     setIsLocked(false);
-    setShowLockSnackbar(false);
     toast({
       description: "App Unlocked. Settings restored.",
     });
