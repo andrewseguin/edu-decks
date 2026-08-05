@@ -21,7 +21,7 @@ export function FullscreenToggle({ isFullscreen, onToggle, className }: Fullscre
       onClick={onToggle}
       aria-label={isFullscreen ? "Exit fullscreen" : "Enter fullscreen"}
     >
-      {isFullscreen ? <Minimize className="h-[22px] w-[22px]" /> : <Maximize className="h-[22px] w-[22px]" />}
+      {isFullscreen ? <Minimize className="h-6 w-6" /> : <Maximize className="h-6 w-6" />}
     </button>
   );
 }
