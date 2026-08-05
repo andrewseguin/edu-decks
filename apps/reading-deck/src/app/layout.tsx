@@ -6,8 +6,8 @@ import Script from 'next/script';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'FirstRead',
-  description: 'A fun way for kids to learn their letters.',
+  title: 'Reading Deck - Phonics, Letters & Reading Fluency',
+  description: 'A playful, distraction-free flashcard application for learning phonics, letters, and sight words.',
 };
 
 export default function RootLayout({
@@ -15,7 +15,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const basePath = process.env.NODE_ENV === 'production' ? '/first-read' : '';
+  const basePath = process.env.NODE_ENV === 'production' ? '/reading-deck' : '';
   return (
     <html lang="en" suppressHydrationWarning>
       <head>

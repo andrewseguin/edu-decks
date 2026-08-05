@@ -1,6 +1,6 @@
-# Math Deck 🎴✨
+# Arithmetic Deck 🎴✨
 
-A fun, responsive, and kid-friendly interactive visual math application built with **Next.js 15**, **React 19**, and **Tailwind CSS**. Designed for visual learning with stacked fraction displays, pie chart visualizations, 10-frame blocks, array grids, and quiz mode.
+A fun, responsive interactive arithmetic application built with **Next.js 15**, **React 19**, and **Tailwind CSS**. Designed for visual learning with stacked fraction displays, pie chart visualizations, 10-frame blocks, array grids, and quiz mode.
 
 ---
 

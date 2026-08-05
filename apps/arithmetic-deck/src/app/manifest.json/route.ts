@@ -4,12 +4,12 @@ export const dynamic = "force-static";
 
 export function GET() {
   const isProd = process.env.NODE_ENV === "production";
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || (isProd ? "/math-deck" : "");
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || (isProd ? "/arithmetic-deck" : "");
 
   const manifest = {
-    short_name: "Math Deck",
-    name: "Math Deck - Mental Math Flashcards",
-    description: "Fun mental math flashcards for kids",
+    short_name: "Arithmetic Deck",
+    name: "Arithmetic Deck - Mental Arithmetic & Number Sense",
+    description: "Mental arithmetic and number sense flashcards",
     icons: [
       {
         src: `${basePath}/icon-192.png`,

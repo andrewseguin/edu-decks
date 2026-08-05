@@ -38,7 +38,7 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     const newBuffers: Record<string, AudioBuffer> = {};
 
     const loadAudio = async () => {
-      const basePath = process.env.NODE_ENV === 'production' ? '/first-read' : '';
+      const basePath = process.env.NODE_ENV === 'production' ? '/reading-deck' : '';
       let loadedCount = 0;
 
       await Promise.all(

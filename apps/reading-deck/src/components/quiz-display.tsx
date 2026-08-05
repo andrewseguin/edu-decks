@@ -180,7 +180,7 @@ export function QuizDisplay({
         }
       } else {
         // Words mode: Speak full word cleanly for Quiz prompt
-        const basePath = process.env.NODE_ENV === "production" ? "/first-read" : "";
+        const basePath = process.env.NODE_ENV === "production" ? "/reading-deck" : "";
         const mp3Url = `${basePath}/sounds/words/${item.value.toLowerCase()}.mp3`;
         const audio = new Audio(mp3Url);
 

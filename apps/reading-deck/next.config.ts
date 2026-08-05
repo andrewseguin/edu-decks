@@ -39,5 +39,5 @@ const nextConfig: NextConfig = {
 
 export default withPWA({
   dest: 'public',
-  scope: isProd ? '/first-read/' : '/',
+  scope: isProd ? '/reading-deck/' : '/',
 })(nextConfig as any);

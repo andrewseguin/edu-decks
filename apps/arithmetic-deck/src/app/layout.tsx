@@ -10,12 +10,12 @@ const lexend = Lexend({
 });
 
 export const metadata: Metadata = {
-  title: "Math Deck - Fun Mental Math Flashcards for Kids",
-  description: "A playful, distraction-free math flashcard application designed for young children learning mental math.",
+  title: "Arithmetic Deck - Mental Arithmetic & Number Sense",
+  description: "A playful, distraction-free flashcard application designed for learning mental arithmetic and operations.",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Math Deck",
+    title: "Arithmetic Deck",
   },
 };
 
@@ -33,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   const isProd = process.env.NODE_ENV === "production";
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || (isProd ? "/math-deck" : "");
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || (isProd ? "/arithmetic-deck" : "");
 
   return (
     <html lang="en" className={lexend.variable} suppressHydrationWarning>

@@ -1,8 +1,6 @@
-# First Read
+# Reading Deck
 
-Welcome to **First Read**! First Read is an interactive, playful web application designed to help young children learn their letters, practice phonics, and begin their reading journey.
-
-Check out the live application on GitHub Pages: [https://andrewseguin.github.io/first-read/](https://andrewseguin.github.io/first-read/)
+Welcome to **Reading Deck**! Reading Deck is an interactive, playful web application designed to help children learn phonics, sight words, and reading fluency.
 
 ---
 

@@ -4,17 +4,17 @@ export const dynamic = "force-static";
 
 export function GET() {
   const isProd = process.env.NODE_ENV === 'production';
-  const basePath = isProd ? '/first-read' : '';
+  const basePath = isProd ? '/reading-deck' : '';
 
   const manifest = {
     "theme_color": "#09090b",
     "background_color": "#09090b",
     "display": "standalone",
-    "scope": isProd ? "/first-read/" : "/",
-    "start_url": isProd ? "/first-read/" : "/",
-    "name": "First Read",
-    "short_name": "First Read",
-    "description": "First Read App",
+    "scope": isProd ? "/reading-deck/" : "/",
+    "start_url": isProd ? "/reading-deck/" : "/",
+    "name": "Reading Deck",
+    "short_name": "Reading Deck",
+    "description": "Reading Deck - Phonics, Letters & Reading Fluency",
     "icons": [
       {
         "src": `${basePath}/icon-192.png`,
