@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Edu-Decks App Icon Generator</title>
+  <style>
+    :root {
+      --bg: #09090b;
+      --card-radius: 56px;
+      --card-border: rgba(255, 255, 255, 0.16);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: #121215;
+      color: #fafafa;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      padding: 40px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+    }
+
+    h1 {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .gallery {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 40px;
+      justify-content: center;
+    }
+
+    .icon-card {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .label {
+      font-size: 16px;
+      font-weight: 600;
+      color: #a1a1aa;
+    }
+
+    /* 512x512 master container - Warm Cream / App Canvas Background */
+    .icon-container {
+      width: 512px;
+      height: 512px;
+      position: relative;
+      background: #fbf7ee; /* Warm cream matching app background */
+      border-radius: 115px; /* iOS standard squircle mask preview */
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Deck Layout System - Scaled Up to fill more of the 512 canvas */
+    .deck-stage {
+      position: relative;
+      width: 500px;
+      height: 360px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      position: absolute;
+      width: 360px;
+      height: 245px;
+      border-radius: var(--card-radius);
+      border: 2px solid rgba(255, 255, 255, 0.25);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0, 0, 0, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform-origin: center center;
+    }
+
+    /* Standard Card Colors */
+    .c-purple  { background: #8b5cf6; }
+    .c-amber   { background: #f59e0b; }
+    .c-blue    { background: #3b82f6; }
+    .c-emerald { background: #10b981; }
+    .c-rose    { background: #f43f5e; }
+    .c-cyan    { background: #06b6d4; }
+
+    /* Fan stack positioning - Tighter & Larger */
+    .card-1 {
+      transform: rotate(-18deg) translate(-68px, 20px);
+      z-index: 1;
+      opacity: 0.96;
+    }
+    .card-2 {
+      transform: rotate(-9deg) translate(-34px, 8px);
+      z-index: 2;
+      opacity: 0.98;
+    }
+    .card-3 {
+      transform: rotate(0deg) translate(0px, 0px);
+      z-index: 3;
+    }
+    .card-4 {
+      transform: rotate(9deg) translate(34px, 6px);
+      z-index: 4;
+      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.24), 0 8px 16px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Front Card Content Styling */
+    .glyph-container {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Arithmetic 2x2 Operations Grid (+, -, ×, ÷) */
+    .math-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 1fr 1fr;
+      width: 78%;
+      height: 75%;
+      place-items: center;
+      gap: 0px;
+    }
+
+    .math-op {
+      color: #ffffff;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 88px;
+      font-weight: 900;
+      line-height: 1;
+      text-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Reading 3-letter ABC - Unified clean white typography */
+    .abc-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-size: 100px;
+      font-weight: 900;
+      color: #ffffff;
+      line-height: 1;
+      text-shadow: 0 4px 14px rgba(0, 0, 0, 0.25);
+      letter-spacing: -1px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🎨 Edu-Decks Unified Icon Design System</h1>
+
+  <div class="gallery">
+    <!-- Arithmetic Deck (Warm Cream) -->
+    <div class="icon-card">
+      <div class="label">Arithmetic Deck (Warm Cream)</div>
+      <div class="icon-container" id="icon-arithmetic">
+        <div class="deck-stage">
+          <div class="card card-1 c-purple"></div>
+          <div class="card card-2 c-amber"></div>
+          <div class="card card-3 c-blue"></div>
+          <div class="card card-4 c-emerald">
+            <div class="glyph-container">
+              <div class="math-grid">
+                <div class="math-op">+</div>
+                <div class="math-op">−</div>
+                <div class="math-op">×</div>
+                <div class="math-op">÷</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reading Deck (Warm Cream) -->
+    <div class="icon-card">
+      <div class="label">Reading Deck (Warm Cream)</div>
+      <div class="icon-container" id="icon-reading">
+        <div class="deck-stage">
+          <div class="card card-1 c-purple"></div>
+          <div class="card card-2 c-amber"></div>
+          <div class="card card-3 c-blue"></div>
+          <div class="card card-4 c-emerald">
+            <div class="glyph-container">
+              <div class="abc-row">abc</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Arithmetic Deck (Soft Blue Gradient) -->
+    <div class="icon-card">
+      <div class="label">Arithmetic Deck (Soft Sky)</div>
+      <div class="icon-container" id="icon-arithmetic-sky" style="background: linear-gradient(135deg, #e0f2fe, #bae6fd);">
+        <div class="deck-stage">
+          <div class="card card-1 c-purple"></div>
+          <div class="card card-2 c-amber"></div>
+          <div class="card card-3 c-blue"></div>
+          <div class="card card-4 c-emerald">
+            <div class="glyph-container">
+              <div class="math-grid">
+                <div class="math-op">+</div>
+                <div class="math-op">−</div>
+                <div class="math-op">×</div>
+                <div class="math-op">÷</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reading Deck (Soft Sky) -->
+    <div class="icon-card">
+      <div class="label">Reading Deck (Soft Sky)</div>
+      <div class="icon-container" id="icon-reading-sky" style="background: linear-gradient(135deg, #e0f2fe, #bae6fd);">
+        <div class="deck-stage">
+          <div class="card card-1 c-purple"></div>
+          <div class="card card-2 c-amber"></div>
+          <div class="card card-3 c-blue"></div>
+          <div class="card card-4 c-emerald">
+            <div class="glyph-container">
+              <div class="abc-row">
+                <span class="letter-a">a</span>
+                <span class="letter-b">b</span>
+                <span class="letter-c">c</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
