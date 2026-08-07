@@ -6,7 +6,7 @@
   "scripts": {
     "build": "pnpm -r build",
     "dev": "pnpm -r --parallel dev",
-    "lint": "pnpm -r lint",
+    "lint": "pnpm -r typecheck",
     "typecheck": "pnpm -r typecheck",
     "test:visual": "pnpm -r test:visual",
     "test:visual:update": "pnpm -r test:visual:update"
