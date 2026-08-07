@@ -66,11 +66,13 @@ export function QuizOverlayShell({
           <button
             type="button"
             className={cn(
-              "inline-flex items-center justify-center rounded-full gap-1.5 px-4 py-1.5 font-headline font-bold text-xs sm:text-sm transition-transform active:scale-95 border border-input bg-background hover:bg-accent hover:text-accent-foreground text-muted-foreground hover:text-foreground h-8 outline-none cursor-pointer",
+              "inline-flex items-center justify-center rounded-full gap-1.5 px-4 py-1.5 font-headline font-bold text-xs sm:text-sm transition-transform active:scale-95 border border-input bg-background hover:bg-accent hover:text-accent-foreground text-muted-foreground hover:text-foreground h-8 outline-none cursor-pointer disabled:pointer-events-none disabled:opacity-60 disabled:cursor-not-allowed",
               isPlayingSound ? "animate-pulse scale-105 text-primary border-primary" : ""
             )}
+            disabled={isPlayingSound}
             onClick={(e) => {
               e.stopPropagation();
+              if (isPlayingSound) return;
               onReplayAudio();
             }}
             aria-label="Replay sound"
@@ -101,6 +103,12 @@ export function QuizOverlayShell({
       >
         {children}
       </div>
+
+      {/* Bottom spacer to balance top header for vertical centering */}
+      <div
+        className="w-full max-w-4xl mx-auto h-10 shrink-0 pointer-events-none hidden sm:block [@media(max-height:540px)]:hidden"
+        aria-hidden="true"
+      />
     </div>
   );
 }

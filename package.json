@@ -5,13 +5,17 @@
   "packageManager": "pnpm@10.14.0",
   "scripts": {
     "build": "pnpm -r build",
+    "build:mobile": "pnpm -r build:mobile",
+    "cap:sync": "pnpm -r cap:sync",
     "dev": "pnpm -r --parallel dev",
     "lint": "pnpm -r typecheck",
     "typecheck": "pnpm -r typecheck",
     "test:visual": "pnpm -r test:visual",
-    "test:visual:update": "pnpm -r test:visual:update"
+    "test:visual:update": "pnpm -r test:visual:update",
+    "screenshots:store": "tsx scripts/capture-store-screenshots.ts"
   },
   "devDependencies": {
+    "tsx": "^4.23.11",
     "turbo": "^2.4.4",
     "typescript": "^5.7.3"
   }

@@ -13,10 +13,13 @@ export type DeckAppShellProps = {
   onFullscreenToggle?: () => void;
   topRightControls?: React.ReactNode;
   bottomStats?: React.ReactNode;
+  stats?: React.ReactNode;
   quizOverlay?: React.ReactNode;
   onPointerDown?: (e: React.PointerEvent) => void;
   onPointerUp?: (e: React.PointerEvent) => void;
   className?: string;
+  headerClassName?: string;
+  contentClassName?: string;
 };
 
 export function DeckAppShell({
@@ -27,33 +30,60 @@ export function DeckAppShell({
   onFullscreenToggle,
   topRightControls,
   bottomStats,
+  stats,
   quizOverlay,
   onPointerDown,
   onPointerUp,
   className,
+  headerClassName,
+  contentClassName,
 }: DeckAppShellProps) {
+  const activeStats = stats || bottomStats;
+
   return (
     <main
       className={cn(
-        "flex h-svh w-screen items-center justify-center bg-background overflow-hidden relative focus:outline-none touch-none select-none",
+        "flex flex-col h-svh w-screen bg-background overflow-hidden relative focus:outline-none touch-none select-none",
         className
       )}
       onPointerDown={onPointerDown}
       onPointerUp={onPointerUp}
       tabIndex={-1}
     >
-      {children}
+      {/* Flow-based Header */}
+      <header
+        className={cn(
+          "w-full px-3 sm:px-6 pt-2 sm:pt-4 pb-1 shrink-0 flex items-center justify-between pointer-events-none z-30 min-h-[44px] sm:min-h-[52px]",
+          headerClassName
+        )}
+      >
+        {/* Left Side: Stats Counter / Timer */}
+        <div className="flex items-center gap-3 sm:gap-4 pointer-events-auto">
+          {activeStats}
+        </div>
 
-      {!isLocked && (topRightControls || (isFullscreen !== undefined && onFullscreenToggle)) && (
-        <DeckControlBar
-          isFullscreen={isFullscreen}
-          onFullscreenToggle={onFullscreenToggle}
-        >
-          {topRightControls}
-        </DeckControlBar>
-      )}
+        {/* Right Side: Header Controls */}
+        {!isLocked && (topRightControls || (isFullscreen !== undefined && onFullscreenToggle)) ? (
+          <DeckControlBar
+            isFullscreen={isFullscreen}
+            onFullscreenToggle={onFullscreenToggle}
+          >
+            {topRightControls}
+          </DeckControlBar>
+        ) : (
+          <div />
+        )}
+      </header>
 
-      {bottomStats}
+      {/* Main Flashcard Playground */}
+      <div
+        className={cn(
+          "flex-1 min-h-0 min-w-0 w-full flex items-center justify-center p-2 sm:p-4 overflow-hidden relative",
+          contentClassName
+        )}
+      >
+        {children}
+      </div>
 
       {onUnlock && (
         <LockSnackbar

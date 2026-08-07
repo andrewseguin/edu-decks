@@ -36,12 +36,14 @@ export function QuizHeader({
       <Button
         size="sm"
         variant="ghost"
+        disabled={isPlayingSound}
         className={cn(
-          "rounded-full gap-1.5 px-3.5 py-1.5 font-headline font-bold text-xs sm:text-sm transition-transform active:scale-95 text-muted-foreground hover:text-foreground h-8",
+          "rounded-full gap-1.5 px-3.5 py-1.5 font-headline font-bold text-xs sm:text-sm transition-transform active:scale-95 text-muted-foreground hover:text-foreground h-8 disabled:pointer-events-none disabled:opacity-60 disabled:cursor-not-allowed",
           isPlayingSound ? "animate-pulse scale-105 text-primary" : ""
         )}
         onClick={(e) => {
           e.stopPropagation();
+          if (isPlayingSound) return;
           onAudioPrompt();
         }}
         aria-label="Replay equation audio"

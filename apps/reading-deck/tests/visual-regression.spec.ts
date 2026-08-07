@@ -23,6 +23,10 @@ test.beforeEach(async ({ page }) => {
       .SessionStats {
         visibility: hidden !important;
       }
+      nextjs-portal, [data-nextjs-toast], [data-nextjs-dev-tools-button], #__next-build-watcher, [data-next-badge] {
+        display: none !important;
+        visibility: hidden !important;
+      }
     `,
   });
 });

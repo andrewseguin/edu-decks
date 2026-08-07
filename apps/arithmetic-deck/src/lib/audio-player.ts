@@ -164,8 +164,11 @@ export async function playAudioSequence(
   });
 }
 
-function fallbackSpeechSynthesis(text: string) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+function fallbackSpeechSynthesis(text: string, onEnd?: () => void) {
+  if (typeof window === "undefined" || !("speechSynthesis" in window)) {
+    onEnd?.();
+    return;
+  }
   try {
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
@@ -187,20 +190,35 @@ function fallbackSpeechSynthesis(text: string) {
       utterance.voice = naturalVoice;
     }
 
+    utterance.onend = () => {
+      onEnd?.();
+    };
+    utterance.onerror = () => {
+      onEnd?.();
+    };
+
     window.speechSynthesis.speak(utterance);
   } catch (e) {
     console.warn("TTS Error:", e);
+    onEnd?.();
   }
 }
 
-export function playMathSpeech(text: string, enabled: boolean = true) {
-  if (!enabled || typeof window === "undefined") return;
+export function playMathSpeech(
+  text: string,
+  enabled: boolean = true,
+  onEnd?: () => void
+) {
+  if (!enabled || typeof window === "undefined") {
+    onEnd?.();
+    return;
+  }
 
   const paths = getAudioPathsForSpeechText(text);
 
   if (paths) {
-    playAudioSequence(paths, undefined, text);
+    playAudioSequence(paths, onEnd, text);
   } else {
-    fallbackSpeechSynthesis(text);
+    fallbackSpeechSynthesis(text, onEnd);
   }
 }

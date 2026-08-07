@@ -9,7 +9,7 @@ export type SessionStatsProps = {
   timeElapsed: number; // in seconds
   showCardCount?: boolean;
   showTimer?: boolean;
-  position?: "top-left" | "bottom-center" | "top-right";
+  position?: "top-left" | "bottom-center" | "top-right" | "flow";
   className?: string;
 };
 
@@ -26,7 +26,7 @@ export function SessionStats({
   timeElapsed,
   showCardCount = true,
   showTimer = true,
-  position = "top-left",
+  position = "flow",
   className,
 }: SessionStatsProps) {
   if (!showCardCount && !showTimer) return null;
@@ -35,22 +35,24 @@ export function SessionStats({
     "top-left":
       "absolute top-2.5 left-2.5 sm:top-5 sm:left-6 z-30 flex items-center gap-2.5 sm:gap-4 text-foreground/60 font-headline font-semibold pointer-events-none text-xs sm:text-sm h-8 sm:h-10",
     "bottom-center":
-      "absolute bottom-4 left-1/2 -translate-x-1/2 z-30 flex items-center gap-4 text-foreground/50 font-headline font-semibold pointer-events-none text-xs sm:text-sm",
+      "flex items-center gap-2.5 sm:gap-4 text-foreground/60 font-headline font-semibold text-xs sm:text-sm h-8 sm:h-9",
     "top-right":
       "absolute top-2.5 right-2.5 sm:top-5 sm:right-6 z-30 flex items-center gap-2.5 sm:gap-4 text-foreground/60 font-headline font-semibold pointer-events-none text-xs sm:text-sm h-8 sm:h-10",
+    "flow":
+      "flex items-center gap-2.5 sm:gap-4 text-foreground/60 font-headline font-semibold text-xs sm:text-sm h-8 sm:h-9",
   }[position];
 
   return (
     <div className={cn(positionClasses, className)}>
       {showCardCount && (
-        <div className="flex items-center gap-2">
-          <Eye className="h-5 w-5" />
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <Eye className="h-4 w-4 sm:h-5 sm:w-5" />
           <span>{cardCount}</span>
         </div>
       )}
       {showTimer && (
-        <div className="flex items-center gap-2">
-          <Clock className="h-5 w-5" />
+        <div className="flex items-center gap-1.5 sm:gap-2">
+          <Clock className="h-4 w-4 sm:h-5 sm:w-5" />
           <span>{formatTime(timeElapsed)}</span>
         </div>
       )}

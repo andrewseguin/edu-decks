@@ -3,21 +3,27 @@
 import { useCallback } from "react";
 
 export type UseAudioOptions = {
-  customSpeak?: (text: string, enabled?: boolean) => void;
+  customSpeak?: (text: string, enabled?: boolean, onEnd?: () => void) => void;
 };
 
-export function useAudio(options?: UseAudioOptions | ((text: string, enabled?: boolean) => void)) {
+export function useAudio(options?: UseAudioOptions | ((text: string, enabled?: boolean, onEnd?: () => void) => void)) {
   const customSpeak =
     typeof options === "function" ? options : options?.customSpeak;
 
   const speak = useCallback(
-    (text: string, enabled: boolean = true) => {
-      if (!enabled || typeof window === "undefined") return;
-      if (customSpeak) {
-        customSpeak(text, enabled);
+    (text: string, enabled: boolean = true, onEnd?: () => void) => {
+      if (!enabled || typeof window === "undefined") {
+        onEnd?.();
         return;
       }
-      if (!("speechSynthesis" in window)) return;
+      if (customSpeak) {
+        customSpeak(text, enabled, onEnd);
+        return;
+      }
+      if (!("speechSynthesis" in window)) {
+        onEnd?.();
+        return;
+      }
       try {
         window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(text);
@@ -39,9 +45,17 @@ export function useAudio(options?: UseAudioOptions | ((text: string, enabled?: b
           utterance.voice = naturalVoice;
         }
 
+        utterance.onend = () => {
+          onEnd?.();
+        };
+        utterance.onerror = () => {
+          onEnd?.();
+        };
+
         window.speechSynthesis.speak(utterance);
       } catch (e) {
         console.warn("TTS Error:", e);
+        onEnd?.();
       }
     },
     [customSpeak]

@@ -8,6 +8,7 @@ export * from "./components/deck-quiz-manager";
 export * from "./components/deck-app-shell";
 export * from "./components/deck-selector-modal";
 export * from "./components/deck-standard-settings";
+export * from "./components/privacy-policy-view";
 export * from "./components/theme-provider";
 export * from "./components/theme-toggle-group";
 export * from "./hooks/use-audio";

@@ -235,7 +235,7 @@ export default function MathDeckPage() {
             showWholeNumbers={settings.showWholeNumbers}
             showFractions={settings.showFractions}
             autoPlayAudio={settings.autoPlayAudio}
-            onSpeak={(text) => speak(text, true)}
+            onSpeak={(text, onEnd) => speak(text, true, onEnd)}
             onPlayChime={playChime}
             onExit={() => setIsQuizActive(false)}
           />

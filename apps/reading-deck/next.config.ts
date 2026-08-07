@@ -4,11 +4,13 @@ import withPWA from 'next-pwa';
 const isProd = process.env.NODE_ENV === 'production';
 const isVercel = Boolean(process.env.VERCEL);
 
+const isMobile = Boolean(process.env.MOBILE_BUILD);
+
 const nextConfig: NextConfig = {
   transpilePackages: ['@decks/core'],
-  distDir: isVercel ? '.next' : (isProd ? '.next-prod' : '.next'),
-  output: 'standalone',
-  basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
+  distDir: isMobile ? undefined : (isVercel ? '.next' : (isProd ? '.next-prod' : '.next')),
+  output: isMobile ? 'export' : 'standalone',
+  basePath: isMobile ? '' : (process.env.NEXT_PUBLIC_BASE_PATH || ''),
   typescript: {
     ignoreBuildErrors: true,
   },

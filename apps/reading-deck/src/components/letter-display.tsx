@@ -393,7 +393,7 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
     <FlashCardShell
       key={content.key}
       backgroundColor={content.color}
-      className="animate-fade-in-zoom w-[90vw] h-[45vw] max-w-[700px] max-h-[min(350px,55svh)] border-none" // Responsive card size
+      className="animate-fade-in-zoom w-[90vw] max-w-[700px] h-[55vw] max-h-[min(420px,68svh)] [@media(orientation:landscape)_and_(max-height:500px)]:h-[72vh] [@media(orientation:landscape)_and_(max-height:500px)]:max-h-[72vh] border-none" // Responsive card size
       contentClassName="p-0 h-full flex items-center justify-center"
       showSpeaker={false}
       frontContent={
@@ -439,7 +439,7 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
           <div className={cn(
             "font-headline font-normal leading-none",
             "select-none [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]",
-            "text-6xl sm:text-8xl md:text-[10rem]"
+            "text-6xl sm:text-8xl md:text-[10rem] [@media(max-height:500px)]:text-5xl [@media(max-height:500px)]:sm:text-7xl"
           )} style={{
             color: content.textColor || 'white',
             transform: `translateY(${letterCase === 'lower' ? (content.verticalOffset || 0) : 0}em)`,
@@ -483,8 +483,8 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
                 "font-headline font-normal leading-none flex items-baseline justify-center gap-0",
                 "select-none [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] transition-opacity duration-300",
                 letterCase === 'mixed'
-                  ? "text-8xl sm:text-[11rem] md:text-[14rem]"
-                  : "text-9xl sm:text-[14rem] md:text-[17.5rem]",
+                  ? "text-8xl sm:text-[11rem] md:text-[14rem] [@media(max-height:500px)]:text-7xl [@media(max-height:500px)]:sm:text-8xl"
+                  : "text-9xl sm:text-[14rem] md:text-[17.5rem] [@media(max-height:500px)]:text-[8.5rem] [@media(max-height:500px)]:sm:text-[10rem]",
                 isTracingMode && "opacity-40"
               )}
               style={{

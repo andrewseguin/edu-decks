@@ -119,7 +119,7 @@ export function FrostedBadge({
       <span
         className={cn(
           "font-headline font-bold text-white leading-none select-none flex items-center justify-center",
-          textClassName || "text-3xl sm:text-5xl md:text-6xl [@media(max-height:640px)]:text-3xl"
+          textClassName || "text-3xl sm:text-5xl md:text-6xl [@media(max-height:640px)]:text-3xl [@media(orientation:landscape)_and_(max-height:640px)]:text-4xl"
         )}
       >
         {children}

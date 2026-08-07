@@ -36,8 +36,9 @@ type UseQuizSessionOptions = {
   showWholeNumbers?: boolean;
   showFractions?: boolean;
   autoPlayAudio: boolean;
-  onSpeak: (text: string) => void;
+  onSpeak: (text: string, onEnd?: () => void) => void;
   onPlayChime: (correct: boolean) => void;
+  onExit?: () => void;
 };
 
 export function useQuizSession({
@@ -61,12 +62,24 @@ export function useQuizSession({
   const submitTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const soundTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
+  const isPlayingSoundRef = useRef(false);
+  isPlayingSoundRef.current = isPlayingSound;
+
   const playAudioPrompt = useCallback(
     (problem: MathProblem) => {
+      if (isPlayingSoundRef.current) return;
       setIsPlayingSound(true);
-      onSpeak(problem.problemSpeechText);
       if (soundTimeoutRef.current) clearTimeout(soundTimeoutRef.current);
-      soundTimeoutRef.current = setTimeout(() => setIsPlayingSound(false), 1400);
+
+      // Fallback timer in case speech engine doesn't fire onEnd
+      soundTimeoutRef.current = setTimeout(() => {
+        setIsPlayingSound(false);
+      }, 4000);
+
+      onSpeak(problem.problemSpeechText, () => {
+        if (soundTimeoutRef.current) clearTimeout(soundTimeoutRef.current);
+        setIsPlayingSound(false);
+      });
     },
     [onSpeak]
   );

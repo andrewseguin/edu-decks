@@ -5,6 +5,10 @@
   "scripts": {
     "dev": "next dev --turbopack -p 9002",
     "build": "NODE_ENV=production next build",
+    "build:mobile": "MOBILE_BUILD=true next build",
+    "cap:sync": "MOBILE_BUILD=true next build && cap sync",
+    "cap:open:android": "cap open android",
+    "cap:open:ios": "cap open ios",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
@@ -12,6 +16,7 @@
     "test:visual:update": "playwright test --update-snapshots"
   },
   "dependencies": {
+    "@capacitor/core": "^8.5.0",
     "@decks/core": "workspace:*",
     "@hookform/resolvers": "^4.1.3",
     "@radix-ui/react-accordion": "^1.2.3",
@@ -55,6 +60,9 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/ios": "^8.5.0",
     "@playwright/test": "^1.62.1",
     "@types/next-pwa": "^5.6.9",
     "@types/node": "^20",

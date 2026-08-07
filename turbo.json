@@ -5,6 +5,10 @@
       "dependsOn": ["^build"],
       "outputs": [".next/**", ".next-prod/**", "!.next/cache/**", "!.next-prod/cache/**", "dist/**"]
     },
+    "build:mobile": {
+      "dependsOn": ["^build"],
+      "outputs": ["out/**"]
+    },
     "dev": {
       "cache": false,
       "persistent": true

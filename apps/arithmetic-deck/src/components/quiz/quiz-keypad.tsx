@@ -20,12 +20,14 @@ export function QuizKeypad({
   const numBtnClass = cn(
     btnBaseClass,
     "h-14 sm:h-18 md:h-20 text-3xl sm:text-4xl md:text-5xl",
+    "landscape:h-12 sm:landscape:h-16 md:landscape:h-18 lg:landscape:h-20 landscape:text-2xl sm:landscape:text-3xl md:landscape:text-4xl lg:landscape:text-5xl landscape:rounded-2xl sm:landscape:rounded-3xl",
     "[@media(orientation:landscape)_and_(max-height:540px)]:h-11 [@media(orientation:landscape)_and_(max-height:540px)]:text-xl [@media(orientation:landscape)_and_(max-height:540px)]:rounded-2xl"
   );
 
   const fracBtnClass = cn(
     btnBaseClass,
     "h-14 sm:h-18 md:h-20 text-2xl sm:text-3xl md:text-4xl",
+    "landscape:h-12 sm:landscape:h-16 md:landscape:h-18 lg:landscape:h-20 landscape:text-xl sm:landscape:text-2xl md:landscape:text-3xl lg:landscape:text-4xl landscape:rounded-2xl sm:landscape:rounded-3xl",
     "[@media(orientation:landscape)_and_(max-height:540px)]:h-11 [@media(orientation:landscape)_and_(max-height:540px)]:text-lg [@media(orientation:landscape)_and_(max-height:540px)]:rounded-2xl"
   );
 
@@ -34,7 +36,8 @@ export function QuizKeypad({
       className={cn(
         "w-full grid grid-cols-3 shrink-0 mx-auto p-1 transition-all duration-200",
         "max-w-md sm:max-w-lg md:max-w-xl gap-2.5 sm:gap-4 md:gap-5",
-        "[@media(orientation:landscape)_and_(max-height:540px)]:max-w-[280px] [@media(orientation:landscape)_and_(max-height:540px)]:gap-2"
+        "landscape:max-w-none landscape:gap-2 sm:landscape:gap-3.5 md:landscape:gap-4",
+        "[@media(orientation:landscape)_and_(max-height:540px)]:gap-1.5"
       )}
     >
       {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((num) => (
@@ -73,7 +76,7 @@ export function QuizKeypad({
           /
         </button>
       ) : (
-        <div className="h-14 sm:h-18 md:h-20 [@media(orientation:landscape)_and_(max-height:540px)]:h-11 rounded-2xl bg-transparent pointer-events-none" />
+        <div className="h-14 sm:h-18 md:h-20 landscape:h-12 sm:landscape:h-16 md:landscape:h-18 lg:landscape:h-20 [@media(orientation:landscape)_and_(max-height:540px)]:h-11 rounded-2xl sm:landscape:rounded-3xl bg-transparent pointer-events-none" />
       )}
 
       {/* 0 Key */}
@@ -98,6 +101,7 @@ export function QuizKeypad({
         className={cn(
           btnBaseClass,
           "h-14 sm:h-18 md:h-20 text-xl sm:text-2xl text-muted-foreground hover:text-destructive hover:bg-destructive/10",
+          "landscape:h-12 sm:landscape:h-16 md:landscape:h-18 lg:landscape:h-20 landscape:rounded-2xl sm:landscape:rounded-3xl",
           "[@media(orientation:landscape)_and_(max-height:540px)]:h-11 [@media(orientation:landscape)_and_(max-height:540px)]:text-base [@media(orientation:landscape)_and_(max-height:540px)]:rounded-2xl"
         )}
         style={{
@@ -110,7 +114,7 @@ export function QuizKeypad({
         }}
         aria-label="Delete last digit"
       >
-        <Delete className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 [@media(orientation:landscape)_and_(max-height:540px)]:w-5 [@media(orientation:landscape)_and_(max-height:540px)]:h-5" />
+        <Delete className="w-6 h-6 sm:w-8 sm:h-8 md:w-9 md:h-9 landscape:w-5 sm:landscape:w-7 md:landscape:w-8 lg:landscape:w-9 landscape:h-5 sm:landscape:h-7 md:landscape:h-8 lg:landscape:h-9 [@media(orientation:landscape)_and_(max-height:540px)]:w-5 [@media(orientation:landscape)_and_(max-height:540px)]:h-5" />
       </button>
     </div>
   );

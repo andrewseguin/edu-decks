@@ -45,7 +45,7 @@ export function MathCard({
       isFlipped={isFlipped}
       slideDirection={slideDirection}
       backgroundColor={opInfo.hex}
-      className="w-[92vw] max-w-[660px] h-[72vh] max-h-[580px] min-h-[340px] sm:h-auto sm:aspect-[16/10] sm:max-h-[80vh] [@media(orientation:landscape)_and_(max-height:640px)]:min-h-[250px] [@media(orientation:landscape)_and_(max-height:640px)]:h-[78vh] [@media(orientation:landscape)_and_(max-height:640px)]:max-h-[78vh] [@media(orientation:landscape)_and_(max-height:640px)]:mt-4 [@media(orientation:landscape)_and_(max-height:640px)]:aspect-auto"
+      className="w-full max-w-[660px] h-full max-h-[560px] min-h-[220px] aspect-[16/10] [@media(max-height:540px)]:aspect-auto"
       onCardTap={onCardTap}
       onSpeak={handleSpeak}
       speakerAriaLabel="Listen to equation"
@@ -68,7 +68,7 @@ export function MathCard({
             isDiagramVisible
               ? problem.hasConversion
                 ? "-translate-y-[22%] sm:-translate-y-[27%] [@media(max-height:640px)]:-translate-y-[24%]"
-                : "-translate-y-[24%] sm:-translate-y-[23%] [@media(max-height:640px)]:-translate-y-[20%]"
+                : "-translate-y-[24%] sm:-translate-y-[23%] [@media(max-height:640px)]:-translate-y-[22%]"
               : "translate-y-0"
           )}
         >
@@ -78,8 +78,8 @@ export function MathCard({
               "relative flex items-center justify-center whitespace-nowrap text-center transition-all duration-700 ease-in-out origin-center",
               isDiagramVisible
                 ? problem.isFraction
-                  ? "scale-[0.92] sm:scale-[0.78] [@media(max-height:640px)]:scale-[0.64]"
-                  : "scale-100 sm:scale-[0.85] [@media(max-height:640px)]:scale-[0.70]"
+                  ? "scale-[0.92] sm:scale-[0.85] [@media(max-height:640px)]:scale-[0.82] [@media(orientation:landscape)_and_(max-height:640px)]:scale-[0.92]"
+                  : "scale-100 sm:scale-[0.92] [@media(max-height:640px)]:scale-[0.88] [@media(orientation:landscape)_and_(max-height:640px)]:scale-100"
                 : "scale-100"
             )}
           >
@@ -96,7 +96,7 @@ export function MathCard({
             ) : (
               <span
                 className={cn(
-                  "font-headline font-bold leading-none select-none transition-colors duration-500 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-4xl [@media(max-height:640px)]:sm:text-5xl",
+                  "font-headline font-bold leading-none select-none transition-colors duration-500 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-5xl sm:[@media(max-height:640px)]:text-6xl [@media(orientation:landscape)_and_(max-height:640px)]:text-6xl",
                   isFlipped
                     ? "text-cyan-300 [text-shadow:0_2px_10px_rgba(0,0,0,0.4)]"
                     : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]"
@@ -110,7 +110,7 @@ export function MathCard({
             <MathSymbol
               symbol={problem.operation}
               isFraction={problem.isFraction}
-              className="text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] mx-2 sm:mx-3.5 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-4xl [@media(max-height:640px)]:sm:text-5xl"
+              className="text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] mx-2 sm:mx-3.5 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-5xl sm:[@media(max-height:640px)]:text-6xl [@media(orientation:landscape)_and_(max-height:640px)]:text-6xl"
             />
 
             {/* Second Number / Fraction */}
@@ -126,7 +126,7 @@ export function MathCard({
             ) : (
               <span
                 className={cn(
-                  "font-headline font-bold leading-none select-none transition-colors duration-500 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-4xl [@media(max-height:640px)]:sm:text-5xl",
+                  "font-headline font-bold leading-none select-none transition-colors duration-500 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-5xl sm:[@media(max-height:640px)]:text-6xl [@media(orientation:landscape)_and_(max-height:640px)]:text-6xl",
                   isFlipped
                     ? "text-amber-300 [text-shadow:0_2px_10px_rgba(0,0,0,0.4)]"
                     : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]"
@@ -140,7 +140,7 @@ export function MathCard({
             <MathSymbol
               symbol="="
               isFraction={problem.isFraction}
-              className="text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] ml-2 sm:ml-3.5 mr-2 sm:mr-3.5 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-4xl [@media(max-height:640px)]:sm:text-5xl"
+              className="text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] ml-2 sm:ml-3.5 mr-2 sm:mr-3.5 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-5xl sm:[@media(max-height:640px)]:text-6xl [@media(orientation:landscape)_and_(max-height:640px)]:text-6xl"
             />
 
             {/* Answer Digit / Fraction / Frosted Question Mark Badge */}
@@ -161,7 +161,7 @@ export function MathCard({
               ) : (
                 <span
                   className={cn(
-                    "font-headline font-bold leading-none select-none text-white transition-all text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-4xl [@media(max-height:640px)]:sm:text-5xl",
+                    "font-headline font-bold leading-none select-none text-white transition-all text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-5xl sm:[@media(max-height:640px)]:text-6xl [@media(orientation:landscape)_and_(max-height:640px)]:text-6xl",
                     isFlipped
                       ? "[text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] opacity-100 scale-100 delay-200 duration-500 ease-out"
                       : "opacity-0 scale-75 delay-0 duration-300 ease-in"
