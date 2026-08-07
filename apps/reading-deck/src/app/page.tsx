@@ -10,6 +10,7 @@ import {
   SessionStats,
   DeckControlBar,
   DeckAppShell,
+  useDeckGestures,
 } from "@decks/core";
 import { DEFAULT_LETTERS, getLetterInfo, LETTER_LEVELS } from "@/lib/letters";
 import { EASY_WORDS, HARD_WORDS } from "@/lib/words";
@@ -122,14 +123,6 @@ export default function Home() {
     "first-read-enable-recordings",
     true
   );
-  const [enableUppercase, setEnableUppercase] = useLocalStorage<boolean>(
-    "first-read-enable-uppercase",
-    true
-  );
-  const [enableWords, setEnableWords] = useLocalStorage<boolean>(
-    "first-read-enable-words",
-    true
-  );
   const [quizOptionCount, setQuizOptionCount] = useLocalStorage<number>(
     "first-read-quiz-option-count",
     4
@@ -178,18 +171,6 @@ export default function Home() {
   useEffect(() => {
     isMenuOpenRef.current = isMenuOpen || isSettingsOpen || isRecordingsModalOpen;
   }, [isMenuOpen, isSettingsOpen, isRecordingsModalOpen]);
-
-  useEffect(() => {
-    if (!enableUppercase && (letterCase === 'upper' || letterCase === 'mixed')) {
-      setLetterCase('lower');
-    }
-  }, [enableUppercase, letterCase, setLetterCase]);
-
-  useEffect(() => {
-    if (!enableWords && gameMode === 'words') {
-      setGameMode('letters');
-    }
-  }, [enableWords, gameMode, setGameMode]);
 
   const availableLetters = useMemo(() => {
     return selectedLetters.length > 0 ? selectedLetters : [];
@@ -563,107 +544,37 @@ export default function Home() {
     });
   };
 
-  const handlePointerDown = (e: React.PointerEvent) => {
-    // If a menu was just closed, ignore this interaction
-    if (Date.now() - lastMenuCloseTimeRef.current < 300) return;
-    touchStartRef.current = { x: e.clientX, y: e.clientY };
-  };
-
-  const handlePointerUp = (e: React.PointerEvent) => {
-    if (!touchStartRef.current) return;
-
-    // If a menu was just closed, ignore this interaction
-    if (Date.now() - lastMenuCloseTimeRef.current < 300) {
-      touchStartRef.current = null;
-      return;
-    }
-
-    // If a menu was just closed, ignore this interaction
-    if (Date.now() - lastMenuCloseTimeRef.current < 300) {
-      touchStartRef.current = null;
-      return;
-    }
-
-    const deltaX = e.clientX - touchStartRef.current.x;
-    const deltaY = e.clientY - touchStartRef.current.y;
-    const absDeltaX = Math.abs(deltaX);
-    const absDeltaY = Math.abs(deltaY);
-
-    touchStartRef.current = null;
-
-    // Check if it's a tap (minimal movement)
-    if (absDeltaX < 10 && absDeltaY < 10) {
-      if (Date.now() - lastMenuCloseTimeRef.current < 300) return;
-      showNextContent(false, true);
-      return;
-    }
-
-    // Check if it's a swipe (significant horizontal movement, more than vertical)
-    if (absDeltaX > 50 && absDeltaX > absDeltaY) {
-      if (deltaX > 0) {
-        // Swipe Right -> Previous (like ArrowLeft)
-        if (historyIndex > 0) {
-          setHistoryIndex((prev) => prev - 1);
-        }
+  // Gesture Handling via Shared Hook
+  const { handlePointerDown, handlePointerUp, notifyMenuClosed } = useDeckGestures({
+    onNext: () => {
+      if (historyIndex < history.length - 1) {
+        setHistoryIndex((prev) => prev + 1);
       } else {
-        // Swipe Left -> Next (like ArrowRight)
-        if (historyIndex < history.length - 1) {
-          setHistoryIndex((prev) => prev + 1);
-        } else {
-          // If at the end of history, generate new content
-          showNextContent(false, true);
-        }
-      }
-    }
-  };
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (
-        event.code === "Space" ||
-        event.code === "ArrowDown"
-      ) {
-        event.preventDefault();
         showNextContent(false, true);
-      } else if (event.code === "ArrowLeft") {
-        event.preventDefault();
-        if (historyIndex > 0) {
-          setHistoryIndex((prev) => prev - 1);
-        }
-      } else if (event.code === "ArrowRight") {
-        event.preventDefault();
-        if (historyIndex < history.length - 1) {
-          setHistoryIndex((prev) => prev + 1);
-        } else {
-          // If at the end of history, generate new content
-          showNextContent(false, true);
-        }
       }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [showNextContent, historyIndex, history.length, setHistoryIndex]);
-
-  if (!hydrated) {
-    return null;
-  }
+    },
+    onPrev: () => {
+      if (historyIndex > 0) {
+        setHistoryIndex((prev) => prev - 1);
+      }
+    },
+    onTap: () => showNextContent(false, true),
+    isMenuOpen: isQuizActive || isMenuOpen || isSettingsOpen || isRecordingsModalOpen,
+  });
 
   const handleMenuOpenChange = (open: boolean) => {
     if (!open) {
-      lastMenuCloseTimeRef.current = Date.now();
+      notifyMenuClosed();
     }
     setIsMenuOpen(open);
-  }
+  };
 
   const handleSettingsOpenChange = (open: boolean) => {
     if (!open) {
-      lastMenuCloseTimeRef.current = Date.now();
+      notifyMenuClosed();
     }
     setIsSettingsOpen(open);
-  }
+  };
 
   return (
     <DeckAppShell
@@ -689,8 +600,8 @@ export default function Home() {
             onSelectedWordLengthsChange={setSelectedWordLengths}
             letterCase={letterCase}
             onLetterCaseChange={setLetterCase}
-            enableUppercase={enableUppercase}
-            enableWords={enableWords}
+            quizOptionCount={quizOptionCount}
+            onQuizOptionCountChange={setQuizOptionCount}
             onStartQuiz={() => setIsQuizActive(true)}
           />
           <AppSettings
@@ -704,12 +615,6 @@ export default function Home() {
             onEnableTracingChange={setEnableTracing}
             autoPlaySound={autoPlaySound}
             onAutoPlaySoundChange={setAutoPlaySound}
-            enableUppercase={enableUppercase}
-            onEnableUppercaseChange={setEnableUppercase}
-            enableWords={enableWords}
-            onEnableWordsChange={setEnableWords}
-            quizOptionCount={quizOptionCount}
-            onQuizOptionCountChange={setQuizOptionCount}
             keepScreenAwake={keepScreenAwake}
             onKeepScreenAwakeChange={setKeepScreenAwake}
             open={isSettingsOpen}

@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Toaster } from "@/components/ui/toaster";
 import { AudioProvider } from "@/components/AudioProvider";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@decks/core";
 import Script from 'next/script';
 import './globals.css';
 

@@ -1,4 +1,3 @@
-
 import { GraduationCap, Sparkles, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -10,6 +9,8 @@ import {
 import { LETTER_LEVELS, LetterInfo } from "@/lib/letters";
 import type { Dispatch, SetStateAction } from "react";
 import { GameModeToggle } from "./game-mode-toggle";
+import { WordDifficultyToggle } from "./word-difficulty-toggle";
+import { WordLengthSelector } from "./word-length-selector";
 
 type LetterSelectorProps = {
   open: boolean;
@@ -24,13 +25,10 @@ type LetterSelectorProps = {
   onSelectedWordLengthsChange: (lengths: number[]) => void;
   letterCase: "lower" | "upper" | "mixed";
   onLetterCaseChange: (casing: "lower" | "upper" | "mixed") => void;
-  enableUppercase: boolean;
-  enableWords: boolean;
+  quizOptionCount: number;
+  onQuizOptionCountChange: (count: number) => void;
   onStartQuiz?: () => void;
 };
-
-import { WordDifficultyToggle } from "./word-difficulty-toggle";
-import { WordLengthSelector } from "./word-length-selector";
 
 export function LetterSelector({
   open,
@@ -45,8 +43,8 @@ export function LetterSelector({
   onSelectedWordLengthsChange,
   letterCase,
   onLetterCaseChange,
-  enableUppercase,
-  enableWords,
+  quizOptionCount,
+  onQuizOptionCountChange,
   onStartQuiz,
 }: LetterSelectorProps) {
   const handleLetterChange = (letter: string, checked: boolean) => {
@@ -60,12 +58,8 @@ export function LetterSelector({
 
   const handleSelectAll = (levelLetters: LetterInfo[]) => {
     setSelectedLetters((prev) => {
-      const newSelection = [...prev];
-      for (const letter of levelLetters) {
-        if (!newSelection.includes(letter.char)) {
-          newSelection.push(letter.char);
-        }
-      }
+      const levelChars = levelLetters.map((l) => l.char);
+      const newSelection = Array.from(new Set([...prev, ...levelChars]));
       return newSelection.sort((a, b) => a.localeCompare(b));
     });
   };
@@ -91,9 +85,9 @@ export function LetterSelector({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="mobile-fullscreen [@media(max-width:640px)]:!z-50 [@media(max-width:640px)]:!w-screen [@media(max-width:640px)]:!h-[100dvh] [@media(max-width:640px)]:!max-w-none [@media(max-width:640px)]:!m-0 [@media(max-width:640px)]:!rounded-none [@media(max-width:640px)]:!border-none sm:w-[400px] sm:h-auto sm:max-h-[90vh] sm:rounded-md sm:border bg-background p-0 flex flex-col"
+        className="mobile-fullscreen [@media(max-width:640px)]:!z-50 [@media(max-width:640px)]:!w-screen [@media(max-width:640px)]:!h-[100dvh] [@media(max-width:640px)]:!max-w-none [@media(max-width:640px)]:!m-0 [@media(max-width:640px)]:!rounded-none [@media(max-width:640px)]:!border-none sm:w-[400px] sm:h-auto sm:max-h-[90vh] sm:rounded-2xl sm:border bg-background p-0 flex flex-col"
         align="end"
-        sideOffset={0}
+        sideOffset={8}
         onPointerDown={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-end p-4 border-b sm:hidden sticky top-0 bg-background z-10">
@@ -113,53 +107,54 @@ export function LetterSelector({
         <div className="flex-1 overflow-y-auto p-4">
           <div className="grid gap-4 sm:mt-0">
             <div>
-              {enableWords && (
-                <>
-                  <h4 className="font-medium leading-none font-headline text-lg mb-4">
-                    Game Mode
-                  </h4>
-                  <GameModeToggle
-                    value={gameMode}
-                    onValueChange={onGameModeChange}
-                    className="w-full mb-8"
-                    enableWords={enableWords}
-                  />
-                </>
-              )}
-              {enableUppercase && gameMode === 'letters' && (
+              {/* Game Mode */}
+              <h4 className="font-medium leading-none font-headline text-lg mb-4">
+                Game Mode
+              </h4>
+              <GameModeToggle
+                value={gameMode}
+                onValueChange={onGameModeChange}
+                className="w-full mb-8"
+                enableWords={true}
+              />
+
+              {/* Letter Casing (when in letters mode) */}
+              {gameMode === "letters" && (
                 <div className="mb-8">
                   <h4 className="font-medium leading-none font-headline text-lg mb-4">
                     Letter Casing
                   </h4>
                   <div className="flex bg-muted p-1 rounded-xl gap-1">
                     <Button
-                      variant={letterCase === 'lower' ? "default" : "ghost"}
+                      variant={letterCase === "lower" ? "default" : "ghost"}
                       size="sm"
-                      className="flex-1 text-lg py-6"
-                      onClick={() => onLetterCaseChange('lower')}
+                      className="flex-1 text-lg py-6 font-headline font-bold"
+                      onClick={() => onLetterCaseChange("lower")}
                     >
                       a
                     </Button>
                     <Button
-                      variant={letterCase === 'upper' ? "default" : "ghost"}
+                      variant={letterCase === "upper" ? "default" : "ghost"}
                       size="sm"
-                      className="flex-1 text-lg py-6"
-                      onClick={() => onLetterCaseChange('upper')}
+                      className="flex-1 text-lg py-6 font-headline font-bold"
+                      onClick={() => onLetterCaseChange("upper")}
                     >
                       A
                     </Button>
                     <Button
-                      variant={letterCase === 'mixed' ? "default" : "ghost"}
+                      variant={letterCase === "mixed" ? "default" : "ghost"}
                       size="sm"
-                      className="flex-1 text-lg py-6"
-                      onClick={() => onLetterCaseChange('mixed')}
+                      className="flex-1 text-lg py-6 font-headline font-bold"
+                      onClick={() => onLetterCaseChange("mixed")}
                     >
                       Aa
                     </Button>
                   </div>
                 </div>
               )}
-              {gameMode === 'words' && (
+
+              {/* Word Mode Options */}
+              {gameMode === "words" && (
                 <>
                   <div className="mb-8">
                     <h4 className="font-medium leading-none font-headline text-lg mb-4">
@@ -170,7 +165,7 @@ export function LetterSelector({
                       onValueChange={onWordDifficultyChange}
                       className="w-full"
                     />
-                    <p className="text-sm text-muted-foreground mt-2">
+                    <p className="text-sm text-muted-foreground mt-2 font-body">
                       Hard mode: includes words where vowels sound long or irregular. Cards will display a star.
                     </p>
                   </div>
@@ -185,6 +180,8 @@ export function LetterSelector({
                   </div>
                 </>
               )}
+
+              {/* Letters Grid */}
               <h4 className="font-medium leading-none font-headline text-lg">
                 Letters
               </h4>
@@ -242,7 +239,27 @@ export function LetterSelector({
                 </div>
               ))}
 
-              <div className="pt-4 pb-20 sm:pb-4 border-t mt-6">
+              {/* Quiz Launch & Option Density */}
+              <div className="pt-6 pb-20 sm:pb-4 border-t mt-6">
+                <div className="mb-6">
+                  <h4 className="font-medium leading-none font-headline text-lg mb-4">
+                    Quiz Cards
+                  </h4>
+                  <div className="flex items-center gap-1.5 rounded-full p-1 bg-muted">
+                    {[4, 6, 8].map((count) => (
+                      <Button
+                        key={count}
+                        type="button"
+                        variant={quizOptionCount === count ? "default" : "ghost"}
+                        className="rounded-full w-full font-headline font-bold text-sm h-10"
+                        onClick={() => onQuizOptionCountChange(count)}
+                      >
+                        {count} cards
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
                 <Button
                   variant="default"
                   className="w-full h-14 rounded-2xl text-lg font-bold font-headline gap-2 bg-amber-500 hover:bg-amber-600 text-white shadow-md active:scale-95 transition-transform"

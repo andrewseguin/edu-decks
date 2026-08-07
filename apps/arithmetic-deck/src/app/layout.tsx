@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Lexend } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@decks/core";
 
 const lexend = Lexend({
   subsets: ["latin"],

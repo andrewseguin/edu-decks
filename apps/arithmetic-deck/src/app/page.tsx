@@ -10,6 +10,7 @@ import {
   SessionStats,
   DeckControlBar,
   DeckAppShell,
+  useDeckGestures,
 } from "@decks/core";
 import { useDeckSettings } from "@/hooks/use-deck-settings";
 import { generateMathProblem } from "@/lib/math-generator";
@@ -148,63 +149,24 @@ export default function MathDeckPage() {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [isQuizActive, handleCardTap, handlePrevCard]);
 
-  // Touch Pointer / Swipe Gesture Handling
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
-
-  const handlePointerDown = (e: React.PointerEvent) => {
-    if (Date.now() - lastMenuCloseTimeRef.current < 300) return;
-    touchStartRef.current = { x: e.clientX, y: e.clientY };
-  };
-
-  const handlePointerUp = (e: React.PointerEvent) => {
-    if (!touchStartRef.current) return;
-    if (Date.now() - lastMenuCloseTimeRef.current < 300) {
-      touchStartRef.current = null;
-      return;
-    }
-
-    const target = e.target as HTMLElement;
-    if (
-      target.closest("button") ||
-      target.closest("[role='button']") ||
-      target.closest("[data-radix-popper-content-wrapper]")
-    ) {
-      touchStartRef.current = null;
-      return;
-    }
-
-    const deltaX = e.clientX - touchStartRef.current.x;
-    const deltaY = e.clientY - touchStartRef.current.y;
-    const absDeltaX = Math.abs(deltaX);
-    const absDeltaY = Math.abs(deltaY);
-
-    touchStartRef.current = null;
-
-    if (isQuizActive) return;
-
-    // Handle horizontal swipes for card navigation
-    if (absDeltaX > 50 && absDeltaX > absDeltaY) {
-      if (deltaX > 0) {
-        handlePrevCard();
-      } else {
-        handleNextCard();
-      }
-    } else if (absDeltaX <= 12 && absDeltaY <= 12) {
-      // Tap anywhere on screen
-      handleCardTap();
-    }
-  };
+  // Gesture Handling via Shared Hook
+  const { handlePointerDown, handlePointerUp, notifyMenuClosed } = useDeckGestures({
+    onNext: handleNextCard,
+    onPrev: handlePrevCard,
+    onTap: handleCardTap,
+    isMenuOpen: isQuizActive || isSettingsOpen || isOperationSelectorOpen,
+  });
 
   const handleOperationSelectorOpenChange = (open: boolean) => {
     if (!open) {
-      lastMenuCloseTimeRef.current = Date.now();
+      notifyMenuClosed();
     }
     setIsOperationSelectorOpen(open);
   };
 
   const handleSettingsOpenChange = (open: boolean) => {
     if (!open) {
-      lastMenuCloseTimeRef.current = Date.now();
+      notifyMenuClosed();
     }
     setIsSettingsOpen(open);
   };

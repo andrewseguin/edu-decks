@@ -201,7 +201,7 @@ export function SettingsToggle({
       <label
         htmlFor={id}
         className={cn(
-          "text-base font-normal select-none",
+          "text-base font-body font-normal select-none leading-none",
           disabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
         )}
       >
