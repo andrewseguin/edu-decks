@@ -66,6 +66,49 @@ pnpm -r test:visual:update
 
 ---
 
+## 📱 Mobile Native Apps (iOS & Android)
+
+Both applications are configured with **Capacitor 8** for native iOS and Android packaging.
+
+### 1. Sync Native Projects
+Whenever web code, assets, or icons are updated:
+```bash
+pnpm cap:sync
+```
+
+### 2. Build & Publish iOS (App Store & TestFlight)
+Open the native iOS project in Xcode:
+```bash
+# Arithmetic Deck
+pnpm -F arithmetic-deck cap:open:ios
+
+# Reading Deck
+pnpm -F reading-deck cap:open:ios
+```
+- In Xcode: Select your Apple Team under **Signing & Capabilities**.
+- Build / Distribute: Go to **Product > Archive > Distribute App** to upload directly to App Store Connect / TestFlight.
+
+### 3. Build & Publish Android (Google Play Store)
+Open the native Android project in Android Studio:
+```bash
+# Arithmetic Deck
+pnpm -F arithmetic-deck cap:open:android
+
+# Reading Deck
+pnpm -F reading-deck cap:open:android
+```
+- In Android Studio: Select **Build > Generate Signed Bundle / APK...**
+- Choose **Android App Bundle (`.aab`)** and upload the release bundle to Google Play Console.
+
+### 4. Unified Icon & Asset Generator
+The monorepo includes a visual HTML template for scalable, consistent app icons across future deck apps:
+```bash
+# Edit icon templates or preview in browser
+open scripts/icon-generator.html
+```
+
+---
+
 ## 📚 Documentation
 - [`packages/deck-core/README.md`](./packages/deck-core/README.md) — Shared core component & hook API reference.
 - [`apps/arithmetic-deck/README.md`](./apps/arithmetic-deck/README.md) — Arithmetic Deck features & math generator details.
