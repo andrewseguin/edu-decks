@@ -98,7 +98,7 @@ export function LetterSelector({
       >
         <div className="flex items-center justify-end p-4 border-b sm:hidden sticky top-0 bg-background z-10">
           <h4 className="font-medium font-headline text-lg mr-auto">
-            Settings
+            Reading Deck
           </h4>
           <Button
             variant="ghost"

@@ -239,15 +239,6 @@ export default function MathDeckPage() {
             onStartQuiz={() => setIsQuizActive(true)}
           />
           <AppSettings
-            activeOperations={settings.activeOperations}
-            onOperationToggle={settings.handleOperationToggle}
-            minRange={settings.minRange}
-            maxRange={settings.maxRange}
-            onRangeChange={settings.handleRangeChange}
-            showWholeNumbers={settings.showWholeNumbers}
-            onShowWholeNumbersChange={settings.setShowWholeNumbers}
-            showFractions={settings.showFractions}
-            onShowFractionsChange={settings.setShowFractions}
             showCardCount={settings.showCardCount}
             onShowCardCountChange={settings.setShowCardCount}
             showTimer={settings.showTimer}

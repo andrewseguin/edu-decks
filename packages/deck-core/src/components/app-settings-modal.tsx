@@ -8,6 +8,7 @@ import { cn } from "../lib/utils";
 export type AppSettingsModalProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  title?: string;
   children: React.ReactNode;
   onLockApp?: () => void;
   triggerClassName?: string;
@@ -18,6 +19,7 @@ export type AppSettingsModalProps = {
 export function AppSettingsModal({
   open,
   onOpenChange,
+  title = "Settings",
   children,
   onLockApp,
   triggerClassName,
@@ -41,33 +43,51 @@ export function AppSettingsModal({
       <PopoverPrimitive.Portal>
         <PopoverPrimitive.Content
           className={cn(
-            "z-50 rounded-md border bg-popover p-4 text-popover-foreground shadow-md outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 w-[90vw] sm:w-[320px]",
+            "z-50 border bg-popover text-popover-foreground shadow-md outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
+            "mobile-fullscreen [@media(max-width:640px)]:!z-50 [@media(max-width:640px)]:!w-screen [@media(max-width:640px)]:!h-[100dvh] [@media(max-width:640px)]:!max-w-none [@media(max-width:640px)]:!m-0 [@media(max-width:640px)]:!rounded-none [@media(max-width:640px)]:!border-none sm:w-[320px] sm:h-auto sm:max-h-[90vh] sm:rounded-2xl sm:border p-0 flex flex-col",
             contentClassName
           )}
-          align="center"
+          align="end"
           sideOffset={8}
           collisionPadding={16}
           onPointerDown={(e) => e.stopPropagation()}
         >
-          <div className="grid gap-6">
-            {children}
-            {onLockApp && (
-              <div>
-                <button
-                  type="button"
-                  className="w-full inline-flex items-center justify-start gap-2 h-12 px-4 rounded-xl text-sm font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
-                  onClick={() => {
-                    onOpenChange(false);
-                    onLockApp();
-                  }}
-                >
-                  <div className="p-1.5 rounded-md bg-white/20">
-                    <Lock className="h-4 w-4 text-white" />
-                  </div>
-                  {lockButtonLabel}
-                </button>
-              </div>
-            )}
+          {/* Mobile Fullscreen Header with Close Button */}
+          <div className="flex items-center justify-end p-4 border-b sm:hidden sticky top-0 bg-background z-10">
+            <h4 className="font-medium font-headline text-lg mr-auto">
+              {title}
+            </h4>
+            <button
+              type="button"
+              className="inline-flex items-center justify-center rounded-md h-9 w-9 text-muted-foreground hover:text-foreground hover:bg-accent"
+              onClick={() => onOpenChange(false)}
+              aria-label="Close settings"
+            >
+              <span className="text-xl font-bold leading-none">✕</span>
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-5">
+            <div className="grid gap-6">
+              {children}
+              {onLockApp && (
+                <div>
+                  <button
+                    type="button"
+                    className="w-full inline-flex items-center justify-start gap-2 h-12 px-4 rounded-xl text-sm font-medium bg-destructive text-destructive-foreground hover:bg-destructive/90 transition-colors"
+                    onClick={() => {
+                      onOpenChange(false);
+                      onLockApp();
+                    }}
+                  >
+                    <div className="p-1.5 rounded-md bg-white/20">
+                      <Lock className="h-4 w-4 text-white" />
+                    </div>
+                    {lockButtonLabel}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </PopoverPrimitive.Content>
       </PopoverPrimitive.Portal>

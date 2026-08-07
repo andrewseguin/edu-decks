@@ -1,29 +1,7 @@
-"use client";
-
-import { Settings } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { Switch } from "@/components/ui/switch";
 import { ThemeToggleGroup } from "./theme-toggle-group";
-import { MathOperation } from "@/lib/types";
+import { AppSettingsModal, SettingsSection, SettingsToggle } from "@decks/core";
 
 type AppSettingsProps = {
-  activeOperations: MathOperation[];
-  onOperationToggle: (op: MathOperation) => void;
-  minRange: number;
-  maxRange: number;
-  onRangeChange: (min: number, max: number) => void;
-  allowNegatives?: boolean;
-  onAllowNegativesChange?: (allow: boolean) => void;
-  showWholeNumbers: boolean;
-  onShowWholeNumbersChange: (show: boolean) => void;
-  showFractions: boolean;
-  onShowFractionsChange: (show: boolean) => void;
   showCardCount: boolean;
   onShowCardCountChange: (show: boolean) => void;
   showTimer: boolean;
@@ -38,92 +16,60 @@ type AppSettingsProps = {
 };
 
 export function AppSettings({
-  showWholeNumbers,
-  onShowWholeNumbersChange,
-  showFractions,
-  onShowFractionsChange,
   showCardCount,
   onShowCardCountChange,
   showTimer,
   onShowTimerChange,
   autoPlayAudio,
   onAutoPlayAudioChange,
+  keepScreenAwake,
+  onKeepScreenAwakeChange,
   open,
   onOpenChange,
+  onLockApp,
 }: AppSettingsProps) {
   return (
-    <Popover open={open} onOpenChange={onOpenChange}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-foreground/50 hover:text-foreground active:scale-95 transition-transform"
-          aria-label="App settings"
-        >
-          <Settings className="h-6 w-6" />
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        className="w-[90vw] sm:w-[320px]"
-        align="center"
-        sideOffset={8}
-        collisionPadding={16}
-        onPointerDown={(e) => e.stopPropagation()}
-      >
-        <div className="grid gap-6">
-          {/* Theme */}
-          <div className="space-y-4">
-            <h4 className="font-medium leading-none font-headline text-lg">
-              Theme
-            </h4>
-            <ThemeToggleGroup />
-          </div>
+    <AppSettingsModal
+      open={open}
+      onOpenChange={onOpenChange}
+      onLockApp={onLockApp}
+    >
+      {/* Theme */}
+      <SettingsSection title="Theme">
+        <ThemeToggleGroup />
+      </SettingsSection>
 
-          {/* Counters & Rules */}
-          <div className="space-y-4">
-            <h4 className="font-medium leading-none font-headline text-lg">
-              Card Rules & Counters
-            </h4>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="card-count-toggle" className="text-base font-normal">
-                Show Card Count
-              </Label>
-              <Switch
-                id="card-count-toggle"
-                checked={showCardCount}
-                onCheckedChange={onShowCardCountChange}
-              />
-            </div>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="timer-toggle" className="text-base font-normal">
-                Show Timer
-              </Label>
-              <Switch
-                id="timer-toggle"
-                checked={showTimer}
-                onCheckedChange={onShowTimerChange}
-              />
-            </div>
-          </div>
+      {/* Counters & Rules */}
+      <SettingsSection title="Card Rules & Counters">
+        <SettingsToggle
+          id="card-count-toggle"
+          label="Show Card Count"
+          checked={showCardCount}
+          onCheckedChange={onShowCardCountChange}
+        />
+        <SettingsToggle
+          id="timer-toggle"
+          label="Show Timer"
+          checked={showTimer}
+          onCheckedChange={onShowTimerChange}
+        />
+      </SettingsSection>
 
-          {/* Audio */}
-          <div className="space-y-4">
-            <h4 className="font-medium leading-none font-headline text-lg">
-              Audio Controls
-            </h4>
-            <div className="flex items-center justify-between">
-              <Label htmlFor="autoplay-toggle" className="text-base font-normal">
-                Auto Play Sound
-              </Label>
-              <Switch
-                id="autoplay-toggle"
-                checked={autoPlayAudio}
-                onCheckedChange={onAutoPlayAudioChange}
-              />
-            </div>
-          </div>
-        </div>
-      </PopoverContent>
-    </Popover>
+      {/* Audio & Screen */}
+      <SettingsSection title="Audio Controls">
+        <SettingsToggle
+          id="autoplay-toggle"
+          label="Auto Play Sound"
+          checked={autoPlayAudio}
+          onCheckedChange={onAutoPlayAudioChange}
+        />
+        <SettingsToggle
+          id="screen-awake-toggle"
+          label="Keep Screen Awake"
+          checked={keepScreenAwake}
+          onCheckedChange={onKeepScreenAwakeChange}
+        />
+      </SettingsSection>
+    </AppSettingsModal>
   );
 }
