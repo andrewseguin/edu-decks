@@ -54,6 +54,11 @@ jobs:
       - name: Install Playwright Browsers
         run: pnpm --filter reading-deck exec playwright install --with-deps chromium
 
+      - name: Start Next.js Development Servers
+        run: |
+          pnpm dev &
+          npx wait-on http-get://127.0.0.1:9002 http-get://127.0.0.1:9003 --timeout 120000
+
       - name: Run Visual Regression Tests
         run: pnpm -r test:visual
 
