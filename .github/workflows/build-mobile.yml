@@ -28,17 +28,22 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      - name: Setup Java JDK 21
+      - name: Setup Java JDK 17
         uses: actions/setup-java@v4
         with:
           distribution: 'zulu'
-          java-version: '21'
+          java-version: '17'
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
       - name: Sync Capacitor Android
         run: pnpm cap:sync
+
+      - name: Make Gradle Wrapper Executable
+        run: |
+          chmod +x apps/arithmetic-deck/android/gradlew
+          chmod +x apps/reading-deck/android/gradlew
 
       - name: Build Arithmetic Deck Android
         working-directory: apps/arithmetic-deck/android
@@ -90,7 +95,29 @@ jobs:
         run: pnpm cap:sync
 
       - name: Verify Arithmetic Deck iOS Project
-        run: xcodebuild -project apps/arithmetic-deck/ios/App/App.xcodeproj -scheme App -destination 'generic/platform=iOS' clean build CODE_SIGNING_ALLOWED=NO
+        run: |
+          xcodebuild -project apps/arithmetic-deck/ios/App/App.xcodeproj \
+            -scheme App \
+            -destination 'generic/platform=iOS' \
+            -resolvePackageDependencies
+          xcodebuild -project apps/arithmetic-deck/ios/App/App.xcodeproj \
+            -scheme App \
+            -destination 'generic/platform=iOS' \
+            clean build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO
 
       - name: Verify Reading Deck iOS Project
-        run: xcodebuild -project apps/reading-deck/ios/App/App.xcodeproj -scheme App -destination 'generic/platform=iOS' clean build CODE_SIGNING_ALLOWED=NO
+        run: |
+          xcodebuild -project apps/reading-deck/ios/App/App.xcodeproj \
+            -scheme App \
+            -destination 'generic/platform=iOS' \
+            -resolvePackageDependencies
+          xcodebuild -project apps/reading-deck/ios/App/App.xcodeproj \
+            -scheme App \
+            -destination 'generic/platform=iOS' \
+            clean build \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGNING_REQUIRED=NO
