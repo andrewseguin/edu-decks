@@ -15,6 +15,7 @@
     "screenshots:store": "tsx scripts/capture-store-screenshots.ts"
   },
   "devDependencies": {
+    "@capacitor/assets": "^3.0.5",
     "tsx": "^4.23.11",
     "turbo": "^2.4.4",
     "typescript": "^5.7.3"
