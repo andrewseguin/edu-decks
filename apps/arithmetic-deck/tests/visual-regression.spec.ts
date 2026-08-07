@@ -89,8 +89,7 @@ test("Card Back", async ({ page }) => {
 test("Fraction Card Back", async ({ page }) => {
   // Set local storage to fractions only and reload for deterministic fraction problem generation
   await page.evaluate(() => {
-    localStorage.setItem("math-deck-show-fractions", "true");
-    localStorage.setItem("math-deck-show-whole-numbers", "false");
+    localStorage.setItem("math-deck-number-type", "fractions");
   });
   await page.reload();
   await page.waitForSelector("main");

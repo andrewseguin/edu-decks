@@ -28,7 +28,7 @@ export function FractionDisplay({
     return (
       <span
         className={cn(
-          "font-headline font-bold leading-none inline-block select-none",
+          "font-headline font-bold leading-none inline-block select-none [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]",
           colorClass,
           sizeClasses[size],
           className
@@ -42,7 +42,7 @@ export function FractionDisplay({
   return (
     <div
       className={cn(
-        "inline-flex flex-col items-center justify-center font-headline font-bold leading-none align-middle px-1 select-none",
+        "inline-flex flex-col items-center justify-center font-headline font-bold leading-none align-middle px-1 select-none [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] drop-shadow-[0_2px_4px_rgba(0,0,0,0.2)]",
         colorClass,
         sizeClasses[size],
         className

@@ -21,12 +21,14 @@ export function useDeckHistory<TItem>({
   const [historyIndex, setHistoryIndex] = useState(-1);
   const [cardCount, setCardCount] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
+  const [showHint, setShowHint] = useState(false);
   const [slideDirection, setSlideDirection] = useState<"next" | "prev">("next");
 
   const nextCard = useCallback(
     (autoPlay: boolean = true) => {
       setSlideDirection("next");
       setIsFlipped(false);
+      setShowHint(false);
       const newItem = generateNext();
       setHistory((prev) => {
         const nextHist = [...prev, newItem];
@@ -51,6 +53,7 @@ export function useDeckHistory<TItem>({
   const handlePrevCard = useCallback(() => {
     setSlideDirection("prev");
     setIsFlipped(false);
+    setShowHint(false);
     if (historyIndex > 0) {
       const prevIdx = historyIndex - 1;
       setHistoryIndex(prevIdx);
@@ -64,6 +67,7 @@ export function useDeckHistory<TItem>({
   const handleNextCard = useCallback(() => {
     setSlideDirection("next");
     setIsFlipped(false);
+    setShowHint(false);
     if (historyIndex < history.length - 1) {
       const nextIdx = historyIndex + 1;
       setHistoryIndex(nextIdx);
@@ -97,6 +101,8 @@ export function useDeckHistory<TItem>({
     currentProblem: currentItem,
     cardCount,
     isFlipped,
+    showHint,
+    setShowHint,
     slideDirection,
     handlePrevCard,
     handleNextCard,

@@ -8,13 +8,35 @@ export function useDeckSettings() {
   );
   const [minRange, setMinRange] = useLocalStorage<number>("math-deck-min-range", 1);
   const [maxRange, setMaxRange] = useLocalStorage<number>("math-deck-max-range", 10);
-  const [showWholeNumbers, setShowWholeNumbers] = useLocalStorage<boolean>("math-deck-show-whole-numbers", true);
-  const [showFractions, setShowFractions] = useLocalStorage<boolean>("math-deck-show-fractions", false);
+  const [numberType, setNumberType] = useLocalStorage<"whole" | "fractions">(
+    "math-deck-number-type",
+    () => {
+      if (typeof window !== "undefined") {
+        const legacyFrac = window.localStorage.getItem("math-deck-show-fractions");
+        const legacyWhole = window.localStorage.getItem("math-deck-show-whole-numbers");
+        if (legacyFrac === "true" && legacyWhole === "false") {
+          return "fractions";
+        }
+      }
+      return "whole";
+    }
+  );
   const [showCardCount, setShowCardCount] = useLocalStorage<boolean>("math-deck-show-card-count", true);
   const [showTimer, setShowTimer] = useLocalStorage<boolean>("math-deck-show-timer", true);
   const [autoPlayAudio, setAutoPlayAudio] = useLocalStorage<boolean>("math-deck-autoplay-audio", false);
   const [keepScreenAwake, setKeepScreenAwake] = useLocalStorage<boolean>("math-deck-keep-awake", true);
   const [isLocked, setIsLocked] = useLocalStorage<boolean>("math-deck-locked", false);
+
+  const showWholeNumbers = numberType === "whole";
+  const showFractions = numberType === "fractions";
+
+  const setShowWholeNumbers = (show: boolean) => {
+    setNumberType(show ? "whole" : "fractions");
+  };
+
+  const setShowFractions = (show: boolean) => {
+    setNumberType(show ? "fractions" : "whole");
+  };
 
   const handleOperationToggle = (op: MathOperation) => {
     if (activeOperations.includes(op)) {
@@ -37,6 +59,8 @@ export function useDeckSettings() {
     setMinRange,
     maxRange,
     setMaxRange,
+    numberType,
+    setNumberType,
     showWholeNumbers,
     setShowWholeNumbers,
     showFractions,

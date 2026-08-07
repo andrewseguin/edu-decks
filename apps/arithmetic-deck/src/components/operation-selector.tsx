@@ -125,19 +125,19 @@ export function OperationSelector({
           {/* Number Types Selection */}
           <div>
             <h4 className="font-medium leading-none font-headline text-lg mb-3">
-              Number Types
+              Number Type
             </h4>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="flex items-center gap-2 rounded-2xl p-1 bg-muted">
               <Button
                 type="button"
-                variant={showWholeNumbers ? "default" : "outline"}
-                className="rounded-xl font-headline font-bold h-10 text-xs"
+                variant={showWholeNumbers ? "default" : "ghost"}
+                className={cn(
+                  "rounded-xl font-headline font-bold h-10 text-xs w-full transition-all",
+                  showWholeNumbers ? "shadow-sm" : "text-muted-foreground"
+                )}
                 onClick={() => {
-                  const nextWhole = !showWholeNumbers;
-                  if (!nextWhole && !showFractions) {
-                    onShowFractionsChange(true);
-                  }
-                  onShowWholeNumbersChange(nextWhole);
+                  onShowWholeNumbersChange(true);
+                  onShowFractionsChange(false);
                 }}
               >
                 Whole Numbers
@@ -145,14 +145,14 @@ export function OperationSelector({
 
               <Button
                 type="button"
-                variant={showFractions ? "default" : "outline"}
-                className="rounded-xl font-headline font-bold h-10 text-xs"
+                variant={showFractions ? "default" : "ghost"}
+                className={cn(
+                  "rounded-xl font-headline font-bold h-10 text-xs w-full transition-all",
+                  showFractions ? "shadow-sm" : "text-muted-foreground"
+                )}
                 onClick={() => {
-                  const nextFrac = !showFractions;
-                  if (!nextFrac && !showWholeNumbers) {
-                    onShowWholeNumbersChange(true);
-                  }
-                  onShowFractionsChange(nextFrac);
+                  onShowWholeNumbersChange(false);
+                  onShowFractionsChange(true);
                 }}
               >
                 Fractions

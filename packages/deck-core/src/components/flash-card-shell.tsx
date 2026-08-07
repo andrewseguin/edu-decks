@@ -98,10 +98,12 @@ export type FlashCardShellProps = {
 export function FrostedBadge({
   isFlipped = false,
   className,
+  textClassName,
   children = "?",
 }: {
   isFlipped?: boolean;
   className?: string;
+  textClassName?: string;
   children?: React.ReactNode;
 }) {
   return (
@@ -114,7 +116,12 @@ export function FrostedBadge({
         className
       )}
     >
-      <span className="font-headline font-bold text-white text-3xl sm:text-5xl md:text-6xl [@media(max-height:640px)]:text-3xl">
+      <span
+        className={cn(
+          "font-headline font-bold text-white leading-none select-none flex items-center justify-center",
+          textClassName || "text-3xl sm:text-5xl md:text-6xl [@media(max-height:640px)]:text-3xl"
+        )}
+      >
         {children}
       </span>
     </div>

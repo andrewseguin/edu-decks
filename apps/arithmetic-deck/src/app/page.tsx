@@ -48,6 +48,8 @@ export default function MathDeckPage() {
     currentProblem,
     cardCount,
     isFlipped,
+    showHint,
+    setShowHint,
     slideDirection,
     handlePrevCard,
     handleNextCard,
@@ -276,6 +278,7 @@ export default function MathDeckPage() {
             activeOperations={settings.activeOperations}
             minRange={settings.minRange}
             maxRange={settings.maxRange}
+            showWholeNumbers={settings.showWholeNumbers}
             showFractions={settings.showFractions}
             autoPlayAudio={settings.autoPlayAudio}
             onSpeak={(text) => speak(text, true)}
@@ -289,8 +292,9 @@ export default function MathDeckPage() {
         <MathCard
           problem={currentProblem}
           isFlipped={isFlipped}
+          showHint={showHint}
+          onToggleHint={() => setShowHint((h) => !h)}
           slideDirection={slideDirection}
-          onCardTap={handleCardTap}
           onSpeak={(text) => speak(text, true)}
         />
       )}

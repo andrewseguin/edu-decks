@@ -4,25 +4,31 @@ import { MathProblem, OPERATION_COLORS } from "@/lib/types";
 import { VisualMath } from "./visual-math";
 import { FractionDisplay } from "./fraction-display";
 import { MathSymbol } from "./math-symbol";
-import { FlashCardShell, FrostedBadge } from "@decks/core";
+import { FlashCardShell, FrostedBadge, CardCornerButton } from "@decks/core";
+import { Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type MathCardProps = {
   problem: MathProblem;
   isFlipped: boolean;
+  showHint?: boolean;
+  onToggleHint?: () => void;
   slideDirection: "next" | "prev";
-  onCardTap: () => void;
+  onCardTap?: () => void;
   onSpeak: (text: string) => void;
 };
 
 export function MathCard({
   problem,
   isFlipped,
+  showHint = false,
+  onToggleHint,
   slideDirection,
   onCardTap,
   onSpeak,
 }: MathCardProps) {
   const opInfo = OPERATION_COLORS[problem.operation];
+  const isDiagramVisible = isFlipped || showHint;
 
   const handleSpeak = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -43,11 +49,23 @@ export function MathCard({
       onCardTap={onCardTap}
       onSpeak={handleSpeak}
       speakerAriaLabel="Listen to equation"
+      topLeft={
+        !isFlipped && onToggleHint ? (
+          <CardCornerButton
+            position="top-left"
+            onClick={onToggleHint}
+            isActive={showHint}
+            ariaLabel={showHint ? "Hide hint diagram" : "Show hint diagram"}
+            title={showHint ? "Hide hint diagram" : "Show hint diagram"}
+            icon={<Lightbulb className="w-5 h-5 sm:w-6 sm:h-6" />}
+          />
+        ) : undefined
+      }
       frontContent={
         <div
           className={cn(
             "absolute inset-0 flex flex-col items-center justify-center transition-transform duration-700 ease-in-out z-20 pointer-events-none p-2 sm:p-4",
-            isFlipped
+            isDiagramVisible
               ? problem.hasConversion
                 ? "-translate-y-[22%] sm:-translate-y-[27%] [@media(max-height:640px)]:-translate-y-[24%]"
                 : "-translate-y-[24%] sm:-translate-y-[23%] [@media(max-height:640px)]:-translate-y-[20%]"
@@ -58,7 +76,7 @@ export function MathCard({
           <div
             className={cn(
               "relative flex items-center justify-center whitespace-nowrap text-center transition-all duration-700 ease-in-out origin-center",
-              isFlipped
+              isDiagramVisible
                 ? problem.isFraction
                   ? "scale-[0.92] sm:scale-[0.78] [@media(max-height:640px)]:scale-[0.64]"
                   : "scale-100 sm:scale-[0.85] [@media(max-height:640px)]:scale-[0.70]"
@@ -162,7 +180,7 @@ export function MathCard({
               <div
                 className={cn(
                   "absolute top-full left-1/2 -translate-x-1/2 mt-2 sm:mt-2.5 [@media(max-height:640px)]:mt-1.5 px-3 sm:px-4 py-1 sm:py-1 rounded-full bg-black/25 border border-white/20 backdrop-blur-xs flex items-center justify-center gap-1.5 sm:gap-2 text-white/90 font-headline font-bold shadow-sm transition-all pointer-events-none shrink-0",
-                  isFlipped
+                  isDiagramVisible
                     ? "opacity-100 translate-y-0 scale-100 delay-200 duration-500 ease-out"
                     : "opacity-0 -translate-y-2 scale-75 delay-0 duration-300 ease-in"
                 )}
@@ -171,14 +189,32 @@ export function MathCard({
                 <MathSymbol symbol={problem.operation} isFraction={true} className="text-lg sm:text-xl font-normal mx-0.5" />
                 <FractionDisplay fraction={problem.convertedFrac2} colorClass="text-amber-300" size="pill" />
                 <MathSymbol symbol="=" isFraction={true} className="text-lg sm:text-xl font-normal mx-0.5" />
-                <FractionDisplay
-                  fraction={{
-                    n: problem.convertedFrac1.n + (problem.operation === '+' ? problem.convertedFrac2.n : -problem.convertedFrac2.n),
-                    d: problem.convertedFrac1.d,
-                  }}
-                  colorClass="text-white"
-                  size="pill"
-                />
+                <div className="relative inline-flex items-center justify-center min-w-[1.2rem] h-[1.6rem] px-0.5">
+                  <div
+                    className={cn(
+                      "transition-all flex items-center justify-center",
+                      isFlipped
+                        ? "opacity-100 scale-100 delay-200 duration-500 ease-out"
+                        : "opacity-0 scale-75 delay-0 duration-300 ease-in"
+                    )}
+                  >
+                    <FractionDisplay
+                      fraction={{
+                        n: problem.convertedFrac1.n + (problem.operation === '+' ? problem.convertedFrac2.n : -problem.convertedFrac2.n),
+                        d: problem.convertedFrac1.d,
+                      }}
+                      colorClass="text-white"
+                      size="pill"
+                    />
+                  </div>
+                  <FrostedBadge
+                    isFlipped={isFlipped}
+                    className="inset-0 rounded-md border border-white/40 p-0"
+                    textClassName="text-sm font-bold leading-none"
+                  >
+                    ?
+                  </FrostedBadge>
+                </div>
               </div>
             )}
           </div>
@@ -191,12 +227,12 @@ export function MathCard({
             problem.hasConversion
               ? "top-[48%] sm:top-[45%] [@media(max-height:640px)]:top-[46%]"
               : "top-[44%] sm:top-[42%] [@media(max-height:640px)]:top-[44%]",
-            isFlipped
-              ? "opacity-100 translate-y-0 scale-100 delay-300 duration-500 ease-out"
+            isDiagramVisible
+              ? "opacity-100 translate-y-0 scale-100 delay-300 duration-500 ease-out pointer-events-auto"
               : "opacity-0 translate-y-8 scale-95 delay-0 duration-300 ease-in pointer-events-none"
           )}
         >
-          <VisualMath problem={problem} isFlipped={isFlipped} />
+          <VisualMath problem={problem} isFlipped={isDiagramVisible} />
         </div>
       }
     />

@@ -28,11 +28,14 @@ export type MathProblem = {
   hasConversion?: boolean;
 };
 
+export type NumberType = 'whole' | 'fractions';
+
 export type AppSettingsState = {
   activeOperations: MathOperation[];
   minRange: number;
   maxRange: number;
   allowNegatives: boolean;
+  numberType: NumberType;
   showWholeNumbers: boolean;
   showFractions: boolean;
   autoPlayAudio: boolean;

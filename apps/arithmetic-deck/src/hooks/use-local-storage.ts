@@ -2,19 +2,21 @@
 
 import { useState, useEffect, useCallback } from "react";
 
-export function useLocalStorage<T>(key: string, initialValue: T): [T, (value: T | ((val: T) => T)) => void] {
-  const [value, setValue] = useState<T>(initialValue);
-
-  useEffect(() => {
+export function useLocalStorage<T>(key: string, initialValue: T | (() => T)): [T, (value: T | ((val: T) => T)) => void] {
+  const [value, setValue] = useState<T>(() => {
+    if (typeof window === "undefined") {
+      return typeof initialValue === "function" ? (initialValue as () => T)() : initialValue;
+    }
     try {
       const item = window.localStorage.getItem(key);
-      if (item) {
-        setValue(JSON.parse(item));
+      if (item !== null) {
+        return JSON.parse(item);
       }
     } catch (error) {
       console.warn(`Error reading localStorage key "${key}":`, error);
     }
-  }, [key]);
+    return typeof initialValue === "function" ? (initialValue as () => T)() : initialValue;
+  });
 
   const setLocalStorageValue = useCallback(
     (newValue: T | ((val: T) => T)) => {
