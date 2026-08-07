@@ -5,12 +5,13 @@ import { MathOperation, OPERATION_COLORS } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
-import { Calculator, Sparkles, X } from "lucide-react";
+import { Calculator, Check, Sparkles, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type OperationSelectorProps = {
   activeOperations: MathOperation[];
   onOperationToggle: (op: MathOperation) => void;
+  onOperationSelectExclusive?: (op: MathOperation) => void;
   minRange: number;
   maxRange: number;
   onRangeChange: (min: number, max: number) => void;
@@ -26,6 +27,7 @@ type OperationSelectorProps = {
 export function OperationSelector({
   activeOperations,
   onOperationToggle,
+  onOperationSelectExclusive,
   minRange,
   maxRange,
   onRangeChange,
@@ -67,7 +69,7 @@ export function OperationSelector({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="mobile-fullscreen [@media(max-width:640px)]:!z-50 [@media(max-width:640px)]:!w-screen [@media(max-width:640px)]:!h-[100dvh] [@media(max-width:640px)]:!max-w-none [@media(max-width:640px)]:!m-0 [@media(max-width:640px)]:!rounded-none [@media(max-width:640px)]:!border-none sm:w-[380px] sm:h-auto sm:max-h-[90vh] sm:rounded-2xl sm:border bg-background p-0 flex flex-col"
+        className="mobile-fullscreen [@media(max-width:640px)]:!z-50 [@media(max-width:640px)]:!w-screen [@media(max-width:640px)]:!h-[100dvh] [@media(max-width:640px)]:!max-w-none [@media(max-width:640px)]:!m-0 [@media(max-width:640px)]:!rounded-none [@media(max-width:640px)]:!border-none sm:w-[410px] sm:h-auto sm:max-h-[90vh] sm:rounded-2xl sm:border bg-background p-0 flex flex-col"
         align="end"
         sideOffset={8}
         onPointerDown={(e) => e.stopPropagation()}
@@ -96,27 +98,68 @@ export function OperationSelector({
               {operations.map((op) => {
                 const isActive = activeOperations.includes(op);
                 const info = OPERATION_COLORS[op];
+
                 return (
-                  <Button
+                  <div
                     key={op}
-                    type="button"
-                    variant={isActive ? "default" : "outline"}
                     className={cn(
-                      "h-12 rounded-xl justify-start gap-2.5 px-3 font-headline font-bold transition-all text-sm",
+                      "h-12 rounded-xl flex items-center justify-between gap-2 pl-2.5 pr-2 transition-all select-none border group cursor-pointer",
                       isActive
-                        ? "text-white shadow-sm"
-                        : "text-muted-foreground border-border"
+                        ? "text-white shadow-sm border-transparent"
+                        : "text-muted-foreground border-border bg-card hover:bg-accent hover:text-accent-foreground"
                     )}
                     style={{
                       backgroundColor: isActive ? info.hex : undefined,
                     }}
-                    onClick={() => onOperationToggle(op)}
+                    onClick={() => {
+                      if (onOperationSelectExclusive) {
+                        onOperationSelectExclusive(op);
+                      } else {
+                        onOperationToggle(op);
+                      }
+                    }}
+                    role="button"
+                    tabIndex={0}
+                    title={`Select only ${info.name}`}
                   >
-                    <span className="w-6 h-6 rounded-lg bg-white/20 text-white font-black flex items-center justify-center text-sm">
+                    {/* Inline Checkbox Target: Multi-select Toggle (Left) */}
+                    <button
+                      type="button"
+                      className={cn(
+                        "w-5 h-5 rounded-md border flex items-center justify-center transition-all shrink-0 outline-none",
+                        isActive
+                          ? "bg-white text-black border-white shadow-xs"
+                          : "border-muted-foreground/40 hover:border-foreground/80 bg-background/50"
+                      )}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onOperationToggle(op);
+                      }}
+                      aria-label={`${isActive ? 'Deselect' : 'Select'} ${info.name}`}
+                      title={isActive ? `Remove ${info.name}` : `Add ${info.name}`}
+                    >
+                      {isActive && <Check className="w-3.5 h-3.5 text-black stroke-[3]" />}
+                    </button>
+
+                    {/* Main Label: Exclusive Select (Middle) */}
+                    <div className="flex-1 min-w-0 py-1">
+                      <span className="font-headline font-bold text-xs sm:text-sm truncate block">
+                        {info.name}
+                      </span>
+                    </div>
+
+                    {/* Operator Icon Badge (Right) */}
+                    <span
+                      className={cn(
+                        "w-6 h-6 rounded-lg font-black flex items-center justify-center text-sm shrink-0 transition-colors",
+                        isActive
+                          ? "bg-white/25 text-white"
+                          : "bg-muted text-foreground/80 group-hover:bg-accent-foreground/10 group-hover:text-accent-foreground"
+                      )}
+                    >
                       {op}
                     </span>
-                    <span>{info.name}</span>
-                  </Button>
+                  </div>
                 );
               })}
             </div>

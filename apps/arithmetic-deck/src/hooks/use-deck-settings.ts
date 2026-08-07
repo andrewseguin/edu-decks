@@ -47,6 +47,10 @@ export function useDeckSettings() {
     }
   };
 
+  const handleOperationSelectExclusive = (op: MathOperation) => {
+    setActiveOperations([op]);
+  };
+
   const handleRangeChange = (min: number, max: number) => {
     setMinRange(min);
     setMaxRange(max);
@@ -76,6 +80,7 @@ export function useDeckSettings() {
     isLocked,
     setIsLocked,
     handleOperationToggle,
+    handleOperationSelectExclusive,
     handleRangeChange,
   };
 }

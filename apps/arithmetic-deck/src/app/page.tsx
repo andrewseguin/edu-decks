@@ -226,6 +226,7 @@ export default function MathDeckPage() {
           <OperationSelector
             activeOperations={settings.activeOperations}
             onOperationToggle={settings.handleOperationToggle}
+            onOperationSelectExclusive={settings.handleOperationSelectExclusive}
             minRange={settings.minRange}
             maxRange={settings.maxRange}
             onRangeChange={settings.handleRangeChange}
