@@ -106,12 +106,14 @@
     @apply bg-background text-foreground;
   }
 
-  button:focus, button:focus-visible, *:focus, *:focus-visible {
-    outline: none !important;
-    box-shadow: none !important;
-    --tw-ring-shadow: none !important;
-    --tw-ring-color: transparent !important;
-    --tw-ring-offset-shadow: none !important;
+  button:focus, *:focus {
+    outline: none;
+    box-shadow: none;
+  }
+
+  button:focus-visible, *:focus-visible {
+    outline: 2px solid hsl(var(--primary)) !important;
+    outline-offset: 2px !important;
   }
 }
 
