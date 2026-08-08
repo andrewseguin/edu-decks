@@ -12,7 +12,7 @@ concurrency:
 
 jobs:
   validate:
-    name: Typecheck, Build & Visual Tests
+    name: Typecheck, Unit Tests, Build & Visual Tests
     runs-on: macos-latest
     steps:
       - name: Checkout repository
@@ -47,6 +47,9 @@ jobs:
 
       - name: Typecheck
         run: pnpm -r typecheck
+
+      - name: Run Unit & Integration Tests
+        run: pnpm test
 
       - name: Build
         run: pnpm -r build

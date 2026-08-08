@@ -11,6 +11,8 @@
     "dev": "pnpm -r --parallel dev",
     "lint": "pnpm -r typecheck",
     "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test",
+    "test:watch": "pnpm -r test:watch",
     "test:visual": "pnpm -r test:visual",
     "test:visual:update": "pnpm -r test:visual:update",
     "screenshots:store": "tsx scripts/generate-all-store-assets.ts",
@@ -18,11 +20,17 @@
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
+    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.3",
+    "@vitejs/plugin-react": "^6.0.5",
     "googleapis": "^174.0.1",
+    "jsdom": "^30.0.1",
     "playwright": "^1.62.1",
     "sharp": "^0.35.3",
     "tsx": "^4.23.11",
     "turbo": "^2.4.4",
-    "typescript": "^5.7.3"
+    "typescript": "^5.7.3",
+    "vitest": "^4.1.10"
   }
 }

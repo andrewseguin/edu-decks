@@ -1,0 +1,40 @@
+import { describe, it, expect, vi } from "vitest";
+import { render, screen, fireEvent } from "@testing-library/react";
+import HomePage from "./page";
+
+vi.mock("next-themes", () => ({
+  useTheme: () => ({
+    resolvedTheme: "dark",
+    setTheme: vi.fn(),
+  }),
+}));
+
+describe("landing-page: HomePage", () => {
+  it("renders portal header, headline, trust badges, and app showcases", () => {
+    render(<HomePage />);
+
+    expect(screen.getByText("EduDecks")).toBeInTheDocument();
+    expect(
+      screen.getByText("Simple, ad-free learning cards.")
+    ).toBeInTheDocument();
+
+    // Trust badges
+    expect(screen.getByText("100% Free")).toBeInTheDocument();
+    expect(screen.getByText("Zero Ads or Trackers")).toBeInTheDocument();
+    expect(screen.getByText("No Account Required")).toBeInTheDocument();
+    expect(screen.getByText("Works Offline (PWA)")).toBeInTheDocument();
+
+    // Showcase cards
+    expect(screen.getByText("Arithmetic Deck")).toBeInTheDocument();
+    expect(screen.getByText("Reading Deck")).toBeInTheDocument();
+  });
+
+  it("handles screenshot tab switching on showcase cards", () => {
+    render(<HomePage />);
+
+    const quizTabs = screen.getAllByRole("button", { name: "Quiz Mode" });
+    expect(quizTabs.length).toBeGreaterThan(0);
+
+    fireEvent.click(quizTabs[0]);
+  });
+});

@@ -100,7 +100,11 @@ export function useDeckGestures({
       const actsLikeTap = isRight || isDown || isSpace || isEnter;
 
       // If user is focused on an interactive button and presses Space/Enter, let native click handler work
-      if ((isSpace || isEnter) && (e.target as HTMLElement)?.closest("button")) {
+      if (
+        (isSpace || isEnter) &&
+        typeof (e.target as HTMLElement)?.closest === "function" &&
+        (e.target as HTMLElement).closest("button")
+      ) {
         return;
       }
 

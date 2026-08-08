@@ -19,6 +19,9 @@
     "typecheck": {
       "dependsOn": ["^typecheck"]
     },
+    "test": {
+      "dependsOn": ["^build"]
+    },
     "test:visual": {
       "dependsOn": ["^build"],
       "outputs": ["tests/screenshots/**"]
