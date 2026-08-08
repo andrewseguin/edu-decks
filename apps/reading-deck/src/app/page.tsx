@@ -1,159 +1,49 @@
-
 "use client";
 
-import { useState, useEffect, useCallback, useMemo, useRef } from "react";
-import useLocalStorage from "@/hooks/use-local-storage";
-import {
-  useWakeLock,
-  LockSnackbar,
-  SessionStats,
-  DeckControlBar,
-  DeckAppShell,
-  useDeckGestures,
-} from "@decks/core";
-import { DEFAULT_LETTERS, getLetterInfo, LETTER_LEVELS } from "@/lib/letters";
-import { EASY_WORDS, HARD_WORDS } from "@/lib/words";
-import { splitIntoPhonicsSegments } from "@/lib/phonics";
+import { useState, useEffect } from "react";
+import { useWakeLock, SessionStats, DeckAppShell, useDeckGestures } from "@decks/core";
+import { useToast } from "@/hooks/use-toast";
+import { useReadingSettings } from "@/hooks/use-reading-settings";
+import { useReadingDeck } from "@/hooks/use-reading-deck";
 import { LetterSelector } from "@/components/letter-selector";
 import { LetterDisplay } from "@/components/letter-display";
 import { AppSettings } from "@/components/app-settings";
 import { RecordingsModal } from "@/components/recordings-modal";
 import { QuizDisplay } from "@/components/quiz-display";
-import { useToast } from "@/hooks/use-toast";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-
-const shuffle = (array: string[]) => {
-  let currentIndex = array.length,
-    randomIndex;
-  while (currentIndex !== 0) {
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-    [array[currentIndex], array[randomIndex]] = [
-      array[randomIndex],
-      array[currentIndex],
-    ];
-  }
-  return array;
-};
-
-const getHighestLevelInfoForWord = (word: string) => {
-  let highestLevel = -1;
-  let color = "#000000"; // Default color
-  let textColor = "#FFFFFF"; // Default text color
-
-  const segments = splitIntoPhonicsSegments(word);
-  
-  // Check individual chars
-  for (const char of word) {
-    const letterInfo = getLetterInfo(char);
-    if (letterInfo) {
-      const level = LETTER_LEVELS.findIndex(lvl => lvl.letters.some(l => l.char === char));
-      if (level > highestLevel) {
-        highestLevel = level;
-        color = letterInfo.color || color;
-        textColor = letterInfo.textColor || textColor;
-      }
-    }
-  }
-
-  // Check segments
-  for (const segment of segments) {
-    if (segment.length > 1) { // Only check actual segments
-      const letterInfo = getLetterInfo(segment);
-      if (letterInfo) {
-        const level = LETTER_LEVELS.findIndex(lvl => lvl.letters.some(l => l.char === segment));
-        if (level > highestLevel) {
-          highestLevel = level;
-          color = letterInfo.color || color;
-          textColor = letterInfo.textColor || textColor;
-        }
-      }
-    }
-  }
-  return { color, textColor };
-};
-
-type DisplayContent = {
-  key: string;
-  type: "letter" | "message" | "word";
-  value: string;
-  color?: string;
-  textColor?: string;
-  verticalOffset?: number;
-  isHardWord?: boolean; // New property to indicate if the word is hard
-};
 
 export default function Home() {
   const { toast } = useToast();
   const [hydrated, setHydrated] = useState(false);
-  const [letterCase, setLetterCase] = useLocalStorage<"lower" | "upper" | "mixed">(
-    "first-read-letter-case",
-    "lower"
-  );
-  const [selectedLetters, setSelectedLetters] = useLocalStorage<string[]>(
-    "first-read-selection",
-    DEFAULT_LETTERS
-  );
-
-  const [gameMode, setGameMode] = useLocalStorage<string>(
-    "first-read-gamemode",
-    "letters"
-  );
-
-  const [wordDifficulty, setWordDifficulty] = useLocalStorage<string>(
-    "first-read-word-difficulty",
-    "easy"
-  );
-
-  const [selectedWordLengths, setSelectedWordLengths] = useLocalStorage<
-    number[]
-  >("first-read-word-lengths", [3, 4, 5]);
-
-  const [showCardCount, setShowCardCount] = useLocalStorage<boolean>(
-    "first-read-show-count",
-    true
-  );
-  const [showTimer, setShowTimer] = useLocalStorage<boolean>(
-    "first-read-show-timer",
-    true
-  );
-  const [enableRecordings, setEnableRecordings] = useLocalStorage<boolean>(
-    "first-read-enable-recordings",
-    true
-  );
-  const [quizOptionCount, setQuizOptionCount] = useLocalStorage<number>(
-    "first-read-quiz-option-count",
-    4
-  );
-
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isRecordingsModalOpen, setIsRecordingsModalOpen] = useState(false);
-  const lastMenuCloseTimeRef = useRef(0);
-  const [lettersInCycle, setLettersInCycle] = useLocalStorage<string[]>(
-    "first-read-cycle",
-    []
-  );
-  const [wordsInCycle, setWordsInCycle] = useLocalStorage<string[]>(
-    "first-read-word-cycle",
-    []
-  );
-  const lastChangeTimeRef = useRef(0);
-  const isMenuOpenRef = useRef(false);
-
-  const [cardCount, setCardCount] = useState(0);
-  const [timeElapsed, setTimeElapsed] = useState(0);
-  const [isLocked, setIsLocked] = useLocalStorage<boolean>("first-read-app-locked", false);
-  const [enableTracing, setEnableTracing] = useLocalStorage<boolean>("first-read-enable-tracing", true);
-  const [autoPlaySound, setAutoPlaySound] = useLocalStorage<boolean>("first-read-auto-play-sound", false);
   const [isQuizActive, setIsQuizActive] = useState(false);
-  const [keepScreenAwake, setKeepScreenAwake] = useLocalStorage<boolean>(
-    "first-read-keep-awake",
-    true
-  );
+  const [timeElapsed, setTimeElapsed] = useState(0);
 
-  useWakeLock(keepScreenAwake);
+  const settings = useReadingSettings();
+  useWakeLock(settings.keepScreenAwake);
+
+  const isAnyModalOpen =
+    isQuizActive || isMenuOpen || isSettingsOpen || isRecordingsModalOpen;
+
+  const {
+    displayContent,
+    cardCount,
+    handleNextCard,
+    handlePrevCard,
+    handleTap,
+  } = useReadingDeck({
+    settings,
+    isMenuOpen: isAnyModalOpen,
+  });
+
+  const { handlePointerDown, handlePointerUp, notifyMenuClosed } =
+    useDeckGestures({
+      onNext: handleNextCard,
+      onPrev: handlePrevCard,
+      onTap: handleTap,
+      isMenuOpen: isAnyModalOpen,
+    });
 
   useEffect(() => {
     setHydrated(true);
@@ -166,385 +56,12 @@ export default function Home() {
     return () => clearInterval(timer);
   }, []);
 
-  // Update ref when state changes
-  useEffect(() => {
-    isMenuOpenRef.current = isMenuOpen || isSettingsOpen || isRecordingsModalOpen;
-  }, [isMenuOpen, isSettingsOpen, isRecordingsModalOpen]);
-
-  const availableLetters = useMemo(() => {
-    return selectedLetters.length > 0 ? selectedLetters : [];
-  }, [selectedLetters]);
-
-  const getInitialLetter = () => {
-    const letter = availableLetters.length > 0 ? availableLetters[0] : 'a';
-    const data = getLetterInfo(letter);
-    return {
-      key: "initial",
-      type: "letter" as const,
-      value: letter,
-      color: data?.color,
-      textColor: data?.textColor,
-      verticalOffset: data?.verticalOffset,
-    }
-  }
-
-  const [history, setHistory] = useLocalStorage<DisplayContent[]>(
-    "first-read-history",
-    [getInitialLetter()]
-  );
-  const [historyIndex, setHistoryIndex] = useState(history.length - 1);
-  const displayContent = history[historyIndex];
-  const displayContentRef = useRef<DisplayContent>(getInitialLetter());
-
-  useEffect(() => {
-    displayContentRef.current = displayContent;
-  }, [displayContent]);
-
-
-
-  useEffect(() => {
-    setLettersInCycle([]);
-  }, [availableLetters, setLettersInCycle]);
-
-  useEffect(() => {
-    setWordsInCycle([]);
-  }, [availableLetters, wordDifficulty, setWordsInCycle]);
-
-  const showNextContent = useCallback((force = false, isInteraction = false, resetHistory = false) => {
-    if (isMenuOpenRef.current && !force) return;
-
-    const now = Date.now();
-    if (now - lastChangeTimeRef.current < 100) {
-      return;
-    }
-    lastChangeTimeRef.current = now;
-
-
-
-    if (availableLetters.length === 0) {
-      return; // If no letters, do nothing on interaction. useEffect handles the message.
-    }
-
-    if (gameMode === "words") {
-      const wordPool =
-        wordDifficulty === "easy"
-          ? EASY_WORDS
-          : [...EASY_WORDS, ...HARD_WORDS];
-      const possibleWords = wordPool.filter((word) => {
-        if (!selectedWordLengths.includes(word.length)) {
-          return false;
-        }
-        
-        const segments = splitIntoPhonicsSegments(word);
-        
-        // A word can be formed if every character is available,
-        // OR if every phonics segment is available
-        const allCharsAvailable = word.split("").every((char) => availableLetters.includes(char));
-        const allSegmentsAvailable = segments.every((segment) => {
-             // For a segment like 'ch', it MUST be explicitly in availableLetters 
-             // IF we assume words only show up if you select 'ch'
-             // BUT wait, it's actually easier:
-             // To form a word, EVERY letter/segment must be checkable.
-             // Usually, phonics mode means we match exactly what they selected.
-             // The old logic was simply char by char.
-             // If they selected c, h, a, t -> chat is allowed.
-             // If we add 'ch', do they HAVE to select 'ch'? 
-             // Let's allow the word if:
-             // 1) all single chars are in availableLetters OR
-             // 2) all phonics segments are in availableLetters (where 'ch' covers c and h).
-             
-             // A better rule: A word is allowed if it can be completely formed by the selected pool.
-             // If they selection pool has [c, h, a, t], they can form 'chat'.
-             // If they selection pool has [ch, a, t], they can form 'chat'.
-             // So we should check if we can build the word from availableLetters.
-             return true; 
-        });
-
-        // Actually let's implement the logic exactly:
-        // Attempt to cover the word left-to-right using longest available matches first.
-        let i = 0;
-        while (i < word.length) {
-           let matched = false;
-           // Try 2-letter segment
-           if (i + 1 < word.length) {
-              const pair = word.substring(i, i + 2);
-              if (availableLetters.includes(pair)) {
-                 matched = true;
-                 i += 2;
-                 continue;
-              }
-           }
-           // Try 1-letter segment
-           if (availableLetters.includes(word[i])) {
-               matched = true;
-               i += 1;
-               continue;
-           }
-           if (!matched) return false;
-        }
-        return true;
-      });
-
-      if (possibleWords.length === 0) {
-        const newContent: DisplayContent = {
-          key: "no-words-msg",
-          type: "message",
-          value: "No words can be formed with these letters.",
-        };
-        if (resetHistory) {
-          setHistory([newContent]);
-          setHistoryIndex(0);
-        } else {
-          const newHistory = history.slice(0, historyIndex + 1);
-          setHistory([...newHistory, newContent]);
-          setHistoryIndex(newHistory.length);
-        }
-        return;
-      }
-      if (isInteraction) {
-        setCardCount((prev) => prev + 1);
-      }
-
-      let currentCycle = wordsInCycle.filter(w => selectedWordLengths.includes(w.length));
-
-      // Filter out hard words if in easy mode
-      if (wordDifficulty === 'easy') {
-        currentCycle = currentCycle.filter(w => !HARD_WORDS.includes(w));
-      }
-
-      if (currentCycle.length === 0) {
-        currentCycle = shuffle([...possibleWords]);
-        if (
-          possibleWords.length > 1 &&
-          currentCycle[0] === displayContentRef.current.value
-        ) {
-          const randomIndex = 1 + Math.floor(Math.random() * (currentCycle.length - 1));
-          [currentCycle[0], currentCycle[randomIndex]] = [
-            currentCycle[randomIndex],
-            currentCycle[0],
-          ];
-        }
-      }
-
-      const newWord = currentCycle[0];
-      const newCycle = currentCycle.slice(1);
-      setWordsInCycle(newCycle);
-
-      const { color, textColor } = getHighestLevelInfoForWord(newWord);
-      const isHard = HARD_WORDS.includes(newWord);
-
-      const newContent = {
-        key: Date.now().toString(),
-        type: "word" as const,
-        value: newWord,
-        color: color,
-        textColor: textColor,
-        isHardWord: isHard,
-      };
-      if (resetHistory) {
-        setHistory([newContent]);
-        setHistoryIndex(0);
-      } else {
-        const newHistory = history.slice(0, historyIndex + 1);
-        setHistory([...newHistory, newContent]);
-        setHistoryIndex(newHistory.length);
-      }
-      return;
-    }
-
-    if (isInteraction) {
-      setCardCount((prev) => prev + 1);
-    }
-    let currentCycle = lettersInCycle;
-    if (currentCycle.length === 0) {
-      currentCycle = shuffle([...availableLetters]);
-      if (
-        availableLetters.length > 1 &&
-        currentCycle[0] === displayContentRef.current.value
-      ) {
-        const randomIndex = 1 + Math.floor(Math.random() * (currentCycle.length - 1));
-        [currentCycle[0], currentCycle[randomIndex]] = [
-          currentCycle[randomIndex],
-          currentCycle[0],
-        ];
-      }
-    }
-
-    const newLetter = currentCycle[0];
-    const newCycle = currentCycle.slice(1);
-    setLettersInCycle(newCycle);
-
-    const letterData = getLetterInfo(newLetter);
-
-    const newContent = {
-      key: Date.now().toString(),
-      type: "letter" as const,
-      value: newLetter,
-      color: letterData?.color,
-      textColor: letterData?.textColor,
-      verticalOffset: letterData?.verticalOffset,
-    };
-    if (resetHistory) {
-      setHistory([newContent]);
-      setHistoryIndex(0);
-    } else {
-      const newHistory = history.slice(0, historyIndex + 1);
-      setHistory([...newHistory, newContent]);
-      setHistoryIndex(newHistory.length);
-    }
-  }, [availableLetters, lettersInCycle, setLettersInCycle, gameMode, wordDifficulty, history, historyIndex, setHistory, setHistoryIndex, wordsInCycle, setWordsInCycle, selectedWordLengths]);
-
-  const prevSelectedLettersRef = useRef<string[]>(selectedLetters);
-
-  useEffect(() => {
-    if (gameMode === 'words' && prevSelectedLettersRef.current.join() !== selectedLetters.join()) {
-      showNextContent(true, false, true); // `true` to force it even if menu is open, `true` to reset history
-      prevSelectedLettersRef.current = selectedLetters;
-    }
-  }, [gameMode, selectedLetters, showNextContent]);
-
-  useEffect(() => {
-    if (gameMode === 'letters') {
-      // If selectedLetters is empty, always show the message.
-      if (selectedLetters.length === 0) {
-        // Check if we already have the message displayed to avoid infinite loop
-        if (
-          history.length === 1 &&
-          history[0].type === "message" &&
-          history[0].key === "no-letters"
-        ) {
-          prevSelectedLettersRef.current = selectedLetters;
-          return;
-        }
-
-        const newContent: DisplayContent = {
-          key: "no-letters",
-          type: "message",
-          value: "Choose some letters in the menu!",
-        };
-        setHistory([newContent]);
-        setHistoryIndex(0);
-        prevSelectedLettersRef.current = selectedLetters;
-        return;
-      }
-
-      // A brand new first letter was added (or hydrating from empty). Show it immediately.
-      if (prevSelectedLettersRef.current.length === 0 && selectedLetters.length > 0) {
-        const newLetter = selectedLetters[0];
-        const data = getLetterInfo(newLetter);
-        const newContent: DisplayContent = {
-          key: "new-letter-added",
-          type: "letter",
-          value: newLetter,
-          color: data?.color,
-          textColor: data?.textColor,
-          verticalOffset: data?.verticalOffset,
-        };
-        setHistory([newContent]);
-        setHistoryIndex(0);
-        prevSelectedLettersRef.current = selectedLetters;
-        return;
-      }
-
-      // Handle state corrections
-      const newContent = (prevDisplayContent: DisplayContent): DisplayContent => {
-        // Hydration fix: Display is a message, but we have letters now.
-        if (prevDisplayContent.type === 'message') {
-          const firstLetter = selectedLetters[0];
-          const data = getLetterInfo(firstLetter);
-          return {
-            key: "hydration-fix",
-            type: "letter",
-            value: firstLetter,
-            color: data?.color,
-            textColor: data?.textColor,
-            verticalOffset: data?.verticalOffset,
-          };
-        }
-
-        // Deselection fix: Displayed letter is no longer in the set.
-        if (prevDisplayContent.type === 'letter' && !selectedLetters.includes(prevDisplayContent.value)) {
-          const firstLetter = selectedLetters[0];
-          const data = getLetterInfo(firstLetter);
-          return {
-            key: "update-from-selection",
-            type: "letter",
-            value: firstLetter,
-            color: data?.color,
-            textColor: data?.textColor,
-            verticalOffset: data?.verticalOffset,
-          };
-        }
-
-        // All other cases: The display is a letter that's still valid. Do nothing.
-        return prevDisplayContent;
-      };
-
-      // Only update history if the content actually changes
-      const updatedContent = newContent(displayContent);
-      const lettersChanged = prevSelectedLettersRef.current.length > 0 && prevSelectedLettersRef.current.join() !== selectedLetters.join();
-
-      if (updatedContent !== displayContent || lettersChanged) {
-        setHistory([updatedContent]);
-        setHistoryIndex(0);
-      }
-
-      prevSelectedLettersRef.current = selectedLetters;
-    }
-  }, [gameMode, selectedLetters, history, historyIndex, displayContent]);
-
-  const prevGameModeRef = useRef(gameMode);
-  useEffect(() => {
-    if (prevGameModeRef.current !== gameMode) {
-      showNextContent(true, false, true);
-      prevGameModeRef.current = gameMode;
-    }
-  }, [gameMode, showNextContent]);
-
-  const prevWordSettingsRef = useRef({ length: selectedWordLengths.join(), diff: wordDifficulty });
-  useEffect(() => {
-    const prev = prevWordSettingsRef.current;
-    const curr = { length: selectedWordLengths.join(), diff: wordDifficulty };
-    if (prev.length !== curr.length || prev.diff !== curr.diff) {
-      if (gameMode === 'words') {
-        showNextContent(true, false, true);
-      }
-      prevWordSettingsRef.current = curr;
-    }
-  }, [selectedWordLengths, wordDifficulty, gameMode, showNextContent]);
-
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
-
   const handleUnlockApp = () => {
-    setIsLocked(false);
+    settings.setIsLocked(false);
     toast({
       description: "App Unlocked. Settings restored.",
     });
   };
-
-  // Gesture Handling via Shared Hook
-  const { handlePointerDown, handlePointerUp, notifyMenuClosed } = useDeckGestures({
-    onNext: () => {
-      if (historyIndex < history.length - 1) {
-        setHistoryIndex((prev) => prev + 1);
-      } else {
-        showNextContent(false, true);
-      }
-    },
-    onPrev: () => {
-      if (historyIndex > 0) {
-        setHistoryIndex((prev) => prev - 1);
-      }
-    },
-    onTap: () => {
-      if (historyIndex < history.length - 1) {
-        setHistoryIndex((prev) => prev + 1);
-      } else {
-        showNextContent(false, true);
-      }
-    },
-    isMenuOpen: isQuizActive || isMenuOpen || isSettingsOpen || isRecordingsModalOpen,
-  });
 
   const handleMenuOpenChange = (open: boolean) => {
     if (!open) {
@@ -560,10 +77,14 @@ export default function Home() {
     setIsSettingsOpen(open);
   };
 
+  if (!hydrated) {
+    return null;
+  }
+
   return (
     <DeckAppShell
       className="cursor-pointer"
-      isLocked={isLocked}
+      isLocked={settings.isLocked}
       onUnlock={handleUnlockApp}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
@@ -571,48 +92,48 @@ export default function Home() {
         <>
           <LetterSelector
             open={isMenuOpen}
-            selectedLetters={selectedLetters}
-            setSelectedLetters={setSelectedLetters}
+            selectedLetters={settings.selectedLetters}
+            setSelectedLetters={settings.setSelectedLetters}
             onOpenChange={handleMenuOpenChange}
-            gameMode={gameMode}
-            onGameModeChange={setGameMode}
-            wordDifficulty={wordDifficulty}
-            onWordDifficultyChange={setWordDifficulty}
-            selectedWordLengths={selectedWordLengths}
-            onSelectedWordLengthsChange={setSelectedWordLengths}
-            letterCase={letterCase}
-            onLetterCaseChange={setLetterCase}
-            quizOptionCount={quizOptionCount}
-            onQuizOptionCountChange={setQuizOptionCount}
+            gameMode={settings.gameMode}
+            onGameModeChange={settings.setGameMode}
+            wordDifficulty={settings.wordDifficulty}
+            onWordDifficultyChange={settings.setWordDifficulty}
+            selectedWordLengths={settings.selectedWordLengths}
+            onSelectedWordLengthsChange={settings.setSelectedWordLengths}
+            letterCase={settings.letterCase}
+            onLetterCaseChange={settings.setLetterCase}
+            quizOptionCount={settings.quizOptionCount}
+            onQuizOptionCountChange={settings.setQuizOptionCount}
             onStartQuiz={() => setIsQuizActive(true)}
           />
           <AppSettings
-            showCardCount={showCardCount}
-            onShowCardCountChange={setShowCardCount}
-            showTimer={showTimer}
-            onShowTimerChange={setShowTimer}
-            enableRecordings={enableRecordings}
-            onEnableRecordingsChange={setEnableRecordings}
-            enableTracing={enableTracing}
-            onEnableTracingChange={setEnableTracing}
-            autoPlaySound={autoPlaySound}
-            onAutoPlaySoundChange={setAutoPlaySound}
-            keepScreenAwake={keepScreenAwake}
-            onKeepScreenAwakeChange={setKeepScreenAwake}
+            showCardCount={settings.showCardCount}
+            onShowCardCountChange={settings.setShowCardCount}
+            showTimer={settings.showTimer}
+            onShowTimerChange={settings.setShowTimer}
+            enableRecordings={settings.enableRecordings}
+            onEnableRecordingsChange={settings.setEnableRecordings}
+            enableTracing={settings.enableTracing}
+            onEnableTracingChange={settings.setEnableTracing}
+            autoPlaySound={settings.autoPlaySound}
+            onAutoPlaySoundChange={settings.setAutoPlaySound}
+            keepScreenAwake={settings.keepScreenAwake}
+            onKeepScreenAwakeChange={settings.setKeepScreenAwake}
             open={isSettingsOpen}
             onOpenChange={handleSettingsOpenChange}
             onOpenRecordings={() => setIsRecordingsModalOpen(true)}
-            onLockApp={() => setIsLocked(true)}
+            onLockApp={() => settings.setIsLocked(true)}
           />
         </>
       }
       bottomStats={
-        showCardCount || showTimer ? (
+        settings.showCardCount || settings.showTimer ? (
           <SessionStats
             cardCount={cardCount}
             timeElapsed={timeElapsed}
-            showCardCount={showCardCount}
-            showTimer={showTimer}
+            showCardCount={settings.showCardCount}
+            showTimer={settings.showTimer}
             position="bottom-center"
           />
         ) : undefined
@@ -620,12 +141,12 @@ export default function Home() {
       quizOverlay={
         isQuizActive ? (
           <QuizDisplay
-            gameMode={gameMode}
-            selectedLetters={selectedLetters}
-            selectedWordLengths={selectedWordLengths}
-            wordDifficulty={wordDifficulty}
-            letterCase={letterCase}
-            optionCount={quizOptionCount}
+            gameMode={settings.gameMode}
+            selectedLetters={settings.selectedLetters}
+            selectedWordLengths={settings.selectedWordLengths}
+            wordDifficulty={settings.wordDifficulty}
+            letterCase={settings.letterCase}
+            optionCount={settings.quizOptionCount}
             onExit={() => setIsQuizActive(false)}
           />
         ) : undefined
@@ -633,10 +154,10 @@ export default function Home() {
     >
       <LetterDisplay
         content={displayContent}
-        enableRecordings={enableRecordings}
-        enableTracing={enableTracing}
-        letterCase={letterCase}
-        autoPlaySound={isQuizActive ? false : autoPlaySound}
+        enableRecordings={settings.enableRecordings}
+        enableTracing={settings.enableTracing}
+        letterCase={settings.letterCase}
+        autoPlaySound={isQuizActive ? false : settings.autoPlaySound}
       />
       <RecordingsModal
         open={isRecordingsModalOpen}

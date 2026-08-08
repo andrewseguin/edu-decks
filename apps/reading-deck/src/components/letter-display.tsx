@@ -27,15 +27,7 @@ import { useAudioRecorder } from "@/hooks/use-audio-recorder";
 import { audioStorage } from "@/lib/audio-storage";
 import { AudioVisualizer } from "./audio-visualizer";
 
-type DisplayContent = {
-  key: string;
-  type: "letter" | "message" | "word";
-  value: string;
-  color?: string;
-  textColor?: string;
-  verticalOffset?: number;
-  isHardWord?: boolean; // New property to indicate if the word is hard
-};
+import { DisplayContent } from "@/lib/types";
 
 type LetterDisplayProps = {
   content: DisplayContent;
