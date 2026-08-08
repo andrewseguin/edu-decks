@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Edu-Decks App Icon Generator</title>
+  <title>EduDecks Unified Icon Design System</title>
   <style>
     :root {
       --bg: #09090b;
       --card-radius: 56px;
-      --card-border: rgba(255, 255, 255, 0.16);
+      --card-border: rgba(255, 255, 255, 0.25);
     }
 
     * {
@@ -67,6 +67,17 @@
       justify-content: center;
     }
 
+    .icon-container.transparent {
+      background: transparent;
+      box-shadow: none;
+      border: 2px dashed rgba(255, 255, 255, 0.2);
+    }
+
+    .icon-container.dark-mode {
+      background: #1c1917;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
     /* Deck Layout System - Scaled Up to fill more of the 512 canvas */
     .deck-stage {
       position: relative;
@@ -82,7 +93,7 @@
       width: 360px;
       height: 245px;
       border-radius: var(--card-radius);
-      border: 2px solid rgba(255, 255, 255, 0.25);
+      border: 2px solid var(--card-border);
       box-shadow: 0 16px 36px rgba(0, 0, 0, 0.18), 0 4px 12px rgba(0, 0, 0, 0.12);
       display: flex;
       align-items: center;
@@ -128,6 +139,11 @@
       justify-content: center;
     }
 
+    /* Graduation Hat Icon Styling */
+    .grad-hat {
+      filter: drop-shadow(0 4px 14px rgba(0, 0, 0, 0.25));
+    }
+
     /* Arithmetic 2x2 Operations Grid (+, -, ×, ÷) */
     .math-grid {
       display: grid;
@@ -169,10 +185,79 @@
 </head>
 <body>
 
-  <h1>🎨 Edu-Decks Unified Icon Design System</h1>
+  <h1>🎨 EduDecks Unified Icon Design System</h1>
 
   <div class="gallery">
-    <!-- Arithmetic Deck (Warm Cream) -->
+    <!-- 1. EduDecks Brand Icon (Warm Cream) -->
+    <div class="icon-card">
+      <div class="label">EduDecks Brand (Warm Cream)</div>
+      <div class="icon-container" id="icon-edudecks">
+        <div class="deck-stage">
+          <div class="card card-1 c-purple"></div>
+          <div class="card card-2 c-amber"></div>
+          <div class="card card-3 c-blue"></div>
+          <div class="card card-4 c-emerald">
+            <div class="glyph-container">
+              <svg class="grad-hat" width="190" height="190" viewBox="0 0 100 100" fill="none">
+                <path d="M50 20 L94 39 L50 58 L6 39 Z" fill="#ffffff" stroke="#ffffff" stroke-width="4" stroke-linejoin="round"/>
+                <path d="M23 48 V66 C23 78 35 85 50 85 C65 85 77 78 77 66 V48" fill="#ffffff"/>
+                <circle cx="50" cy="39" r="4.5" fill="#ffffff"/>
+                <path d="M50 39 Q78 45 90 56 L90 75" stroke="#ffffff" stroke-width="5" stroke-linecap="round" fill="none"/>
+                <circle cx="90" cy="77" r="4.5" fill="#ffffff"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 2. EduDecks Brand Icon (Dark Mode Preview) -->
+    <div class="icon-card">
+      <div class="label">EduDecks Brand (Dark Mode Preview)</div>
+      <div class="icon-container dark-mode" id="icon-edudecks-dark">
+        <div class="deck-stage">
+          <div class="card card-1 c-purple"></div>
+          <div class="card card-2 c-amber"></div>
+          <div class="card card-3 c-blue"></div>
+          <div class="card card-4 c-emerald">
+            <div class="glyph-container">
+              <svg class="grad-hat" width="190" height="190" viewBox="0 0 100 100" fill="none">
+                <path d="M50 20 L94 39 L50 58 L6 39 Z" fill="#ffffff" stroke="#ffffff" stroke-width="4" stroke-linejoin="round"/>
+                <path d="M23 48 V66 C23 78 35 85 50 85 C65 85 77 78 77 66 V48" fill="#ffffff"/>
+                <circle cx="50" cy="39" r="4.5" fill="#ffffff"/>
+                <path d="M50 39 Q78 45 90 56 L90 75" stroke="#ffffff" stroke-width="5" stroke-linecap="round" fill="none"/>
+                <circle cx="90" cy="77" r="4.5" fill="#ffffff"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 3. EduDecks Brand Icon (Transparent for Web) -->
+    <div class="icon-card">
+      <div class="label">EduDecks Brand (Transparent Web)</div>
+      <div class="icon-container transparent" id="icon-edudecks-transparent">
+        <div class="deck-stage">
+          <div class="card card-1 c-purple"></div>
+          <div class="card card-2 c-amber"></div>
+          <div class="card card-3 c-blue"></div>
+          <div class="card card-4 c-emerald">
+            <div class="glyph-container">
+              <svg class="grad-hat" width="190" height="190" viewBox="0 0 100 100" fill="none">
+                <path d="M50 20 L94 39 L50 58 L6 39 Z" fill="#ffffff" stroke="#ffffff" stroke-width="4" stroke-linejoin="round"/>
+                <path d="M23 48 V66 C23 78 35 85 50 85 C65 85 77 78 77 66 V48" fill="#ffffff"/>
+                <circle cx="50" cy="39" r="4.5" fill="#ffffff"/>
+                <path d="M50 39 Q78 45 90 56 L90 75" stroke="#ffffff" stroke-width="5" stroke-linecap="round" fill="none"/>
+                <circle cx="90" cy="77" r="4.5" fill="#ffffff"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 4. Arithmetic Deck (Warm Cream) -->
     <div class="icon-card">
       <div class="label">Arithmetic Deck (Warm Cream)</div>
       <div class="icon-container" id="icon-arithmetic">
@@ -194,27 +279,10 @@
       </div>
     </div>
 
-    <!-- Reading Deck (Warm Cream) -->
+    <!-- 5. Arithmetic Deck (Transparent) -->
     <div class="icon-card">
-      <div class="label">Reading Deck (Warm Cream)</div>
-      <div class="icon-container" id="icon-reading">
-        <div class="deck-stage">
-          <div class="card card-1 c-purple"></div>
-          <div class="card card-2 c-amber"></div>
-          <div class="card card-3 c-blue"></div>
-          <div class="card card-4 c-emerald">
-            <div class="glyph-container">
-              <div class="abc-row">abc</div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Arithmetic Deck (Soft Blue Gradient) -->
-    <div class="icon-card">
-      <div class="label">Arithmetic Deck (Soft Sky)</div>
-      <div class="icon-container" id="icon-arithmetic-sky" style="background: linear-gradient(135deg, #e0f2fe, #bae6fd);">
+      <div class="label">Arithmetic Deck (Transparent Web)</div>
+      <div class="icon-container transparent" id="icon-arithmetic-transparent">
         <div class="deck-stage">
           <div class="card card-1 c-purple"></div>
           <div class="card card-2 c-amber"></div>
@@ -233,21 +301,34 @@
       </div>
     </div>
 
-    <!-- Reading Deck (Soft Sky) -->
+    <!-- 6. Reading Deck (Warm Cream) -->
     <div class="icon-card">
-      <div class="label">Reading Deck (Soft Sky)</div>
-      <div class="icon-container" id="icon-reading-sky" style="background: linear-gradient(135deg, #e0f2fe, #bae6fd);">
+      <div class="label">Reading Deck (Warm Cream)</div>
+      <div class="icon-container" id="icon-reading">
         <div class="deck-stage">
           <div class="card card-1 c-purple"></div>
           <div class="card card-2 c-amber"></div>
           <div class="card card-3 c-blue"></div>
           <div class="card card-4 c-emerald">
             <div class="glyph-container">
-              <div class="abc-row">
-                <span class="letter-a">a</span>
-                <span class="letter-b">b</span>
-                <span class="letter-c">c</span>
-              </div>
+              <div class="abc-row">abc</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 7. Reading Deck (Transparent) -->
+    <div class="icon-card">
+      <div class="label">Reading Deck (Transparent Web)</div>
+      <div class="icon-container transparent" id="icon-reading-transparent">
+        <div class="deck-stage">
+          <div class="card card-1 c-purple"></div>
+          <div class="card card-2 c-amber"></div>
+          <div class="card card-3 c-blue"></div>
+          <div class="card card-4 c-emerald">
+            <div class="glyph-container">
+              <div class="abc-row">abc</div>
             </div>
           </div>
         </div>

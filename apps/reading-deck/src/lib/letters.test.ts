@@ -1,4 +1,5 @@
 import { describe, it, expect } from "vitest";
+import { DECK_COLORS } from "@decks/core";
 import {
   LETTER_LEVELS,
   ALL_LETTERS,
@@ -24,12 +25,12 @@ describe("reading-deck: letters", () => {
     const sInfo = getLetterInfo("s");
     expect(sInfo).toBeDefined();
     expect(sInfo?.char).toBe("s");
-    expect(sInfo?.color).toBe("#00A651");
+    expect(sInfo?.color).toBe(DECK_COLORS.emerald.hex);
 
     const shInfo = getLetterInfo("sh");
     expect(shInfo).toBeDefined();
     expect(shInfo?.char).toBe("sh");
-    expect(shInfo?.color).toBe("#F97316");
+    expect(shInfo?.color).toBe(DECK_COLORS.orange.hex);
 
     expect(getLetterInfo("nonexistent")).toBeUndefined();
   });

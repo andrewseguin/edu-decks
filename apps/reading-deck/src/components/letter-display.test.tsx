@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
+import { DECK_COLORS } from "@decks/core";
 import { LetterDisplay } from "./letter-display";
 import { DisplayContent } from "@/lib/types";
 
@@ -27,7 +28,7 @@ describe("reading-deck: LetterDisplay", () => {
       key: "letter-s",
       type: "letter",
       value: "s",
-      color: "#00A651",
+      color: DECK_COLORS.emerald.hex,
       textColor: "#FFFFFF",
     };
 
@@ -60,7 +61,7 @@ describe("reading-deck: LetterDisplay", () => {
       key: "letter-a",
       type: "letter",
       value: "a",
-      color: "#00A651",
+      color: DECK_COLORS.emerald.hex,
       textColor: "#FFFFFF",
     };
 

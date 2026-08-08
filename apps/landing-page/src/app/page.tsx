@@ -4,6 +4,7 @@ import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ExternalLink, CheckCircle2 } from "lucide-react";
+import { DECK_COLORS } from "@decks/core";
 import { ThemeToggle } from "../components/theme-toggle";
 
 const TRUST_BADGES = [
@@ -24,8 +25,8 @@ const APPS = [
     webUrl: "https://arithmetic.edudecks.org",
     playStoreUrl:
       "https://play.google.com/store/apps/details?id=org.edudecks.arithmetic",
-    primaryButtonClass: "bg-emerald-600 hover:bg-emerald-500 text-white",
-    ageBadgeClass: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20",
+    primaryButtonClass: DECK_COLORS.emerald.btn,
+    ageBadgeClass: `${DECK_COLORS.emerald.badgeBg} ${DECK_COLORS.emerald.badgeText} ${DECK_COLORS.emerald.badgeBorder}`,
     screenshots: [
       {
         label: "Card Front",
@@ -51,8 +52,8 @@ const APPS = [
     webUrl: "https://reading.edudecks.org",
     playStoreUrl:
       "https://play.google.com/store/apps/details?id=org.edudecks.reading",
-    primaryButtonClass: "bg-amber-600 hover:bg-amber-500 text-white",
-    ageBadgeClass: "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20",
+    primaryButtonClass: DECK_COLORS.emerald.btn,
+    ageBadgeClass: `${DECK_COLORS.emerald.badgeBg} ${DECK_COLORS.emerald.badgeText} ${DECK_COLORS.emerald.badgeBorder}`,
     screenshots: [
       {
         label: "Phonics Card",
@@ -87,17 +88,16 @@ export default function HomePage() {
       {/* Header */}
       <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/85 backdrop-blur-md">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl overflow-hidden border border-border bg-card shadow-xs flex items-center justify-center">
-              <Image
-                src="/logo.png"
-                alt="EduDecks"
-                width={32}
-                height={32}
-                className="object-cover"
-              />
-            </div>
-            <span className="font-headline font-bold text-lg tracking-tight text-foreground">
+          <div className="flex items-center gap-3">
+            <Image
+              src="/logo.png"
+              alt="EduDecks"
+              width={48}
+              height={48}
+              className="w-10 h-10 sm:w-11 sm:h-11 object-contain select-none shrink-0"
+              priority
+            />
+            <span className="font-headline font-bold text-xl sm:text-2xl tracking-tight text-foreground">
               EduDecks
             </span>
           </div>

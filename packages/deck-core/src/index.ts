@@ -20,3 +20,4 @@ export * from "./hooks/use-deck-controller";
 export * from "./hooks/use-deck-gestures";
 export * from "./lib/utils";
 export * from "./lib/types";
+export * from "./lib/colors";

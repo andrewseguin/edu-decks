@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Volume2, X, Sparkles, CheckCircle2 } from "lucide-react";
-import { DeckQuizManager } from "@decks/core";
+import { DeckQuizManager, DECK_COLORS } from "@decks/core";
 import { Button } from "@/components/ui/button";
 import { getLetterInfo, ALL_LETTERS } from "@/lib/letters";
 import { EASY_WORDS, HARD_WORDS } from "@/lib/words";
@@ -112,7 +112,7 @@ export function QuizDisplay({
           value: w,
           displayValue: formatText(w),
           isHardWord: isHard,
-          color: isHard ? "#8B5CF6" : "#059669",
+          color: isHard ? DECK_COLORS.purple.hex : DECK_COLORS.emerald.hex,
           textColor: "#FFFFFF",
         };
       });
@@ -125,7 +125,7 @@ export function QuizDisplay({
       return {
         value: char,
         displayValue: formatText(char),
-        color: data?.color || "#F9991F",
+        color: data?.color || DECK_COLORS.amber.hex,
         textColor: data?.textColor || "#FFFFFF",
       };
     });
@@ -237,7 +237,7 @@ export function QuizDisplay({
               value: w,
               displayValue: formatText(w),
               isHardWord: isHard,
-              color: isHard ? "#8B5CF6" : "#059669",
+              color: isHard ? DECK_COLORS.purple.hex : DECK_COLORS.emerald.hex,
               textColor: "#FFFFFF",
             };
           });
@@ -253,7 +253,7 @@ export function QuizDisplay({
             return {
               value: char,
               displayValue: formatText(char),
-              color: info?.color || "#F9991F",
+              color: info?.color || DECK_COLORS.amber.hex,
               textColor: info?.textColor || "#FFFFFF",
             };
           });

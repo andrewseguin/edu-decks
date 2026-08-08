@@ -1,3 +1,5 @@
+import { DECK_COLORS } from "@decks/core";
+
 export type MathOperation = '+' | '-' | '×' | '÷';
 
 export type Fraction = {
@@ -50,8 +52,8 @@ export const OPERATION_COLORS: Record<
   MathOperation,
   { name: string; bg: string; text: string; border: string; hex: string }
 > = {
-  '+': { name: 'Addition', bg: 'bg-emerald-600', text: 'text-emerald-400', border: 'border-emerald-600', hex: '#059669' },
-  '-': { name: 'Subtraction', bg: 'bg-indigo-600', text: 'text-indigo-400', border: 'border-indigo-600', hex: '#4f46e5' },
-  '×': { name: 'Multiplication', bg: 'bg-amber-600', text: 'text-amber-400', border: 'border-amber-600', hex: '#d97706' },
-  '÷': { name: 'Division', bg: 'bg-purple-600', text: 'text-purple-400', border: 'border-purple-600', hex: '#9333ea' },
+  '+': { name: 'Addition', bg: DECK_COLORS.emerald.bg, text: DECK_COLORS.emerald.text, border: DECK_COLORS.emerald.border, hex: DECK_COLORS.emerald.hex },
+  '-': { name: 'Subtraction', bg: DECK_COLORS.indigo.bg, text: DECK_COLORS.indigo.text, border: DECK_COLORS.indigo.border, hex: DECK_COLORS.indigo.hex },
+  '×': { name: 'Multiplication', bg: DECK_COLORS.amber.bg, text: DECK_COLORS.amber.text, border: DECK_COLORS.amber.border, hex: DECK_COLORS.amber.hex },
+  '÷': { name: 'Division', bg: DECK_COLORS.purple.bg, text: DECK_COLORS.purple.text, border: DECK_COLORS.purple.border, hex: DECK_COLORS.purple.hex },
 };
