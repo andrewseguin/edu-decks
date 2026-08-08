@@ -2,20 +2,15 @@
 
 import * as React from "react";
 import { cn } from "../lib/utils";
-import { FullscreenToggle } from "./fullscreen-toggle";
 
 export type DeckControlBarProps = {
   children?: React.ReactNode;
-  isFullscreen?: boolean;
-  onFullscreenToggle?: () => void;
   className?: string;
   position?: "top-right" | "top-left" | "flow";
 };
 
 export function DeckControlBar({
   children,
-  isFullscreen,
-  onFullscreenToggle,
   className,
   position = "flow",
 }: DeckControlBarProps) {
@@ -36,9 +31,6 @@ export function DeckControlBar({
       onPointerDown={(e) => e.stopPropagation()}
     >
       {children}
-      {isFullscreen !== undefined && onFullscreenToggle && (
-        <FullscreenToggle isFullscreen={isFullscreen} onToggle={onFullscreenToggle} />
-      )}
     </div>
   );
 }

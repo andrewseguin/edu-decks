@@ -5,7 +5,6 @@ import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import useLocalStorage from "@/hooks/use-local-storage";
 import {
   useWakeLock,
-  FullscreenToggle,
   LockSnackbar,
   SessionStats,
   DeckControlBar,
@@ -201,28 +200,7 @@ export default function Home() {
     displayContentRef.current = displayContent;
   }, [displayContent]);
 
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
-
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    return () => {
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-    };
-  }, []);
-
-  const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen();
-    } else {
-      if (document.exitFullscreen) {
-        document.exitFullscreen();
-      }
-    }
-  };
 
   useEffect(() => {
     setLettersInCycle([]);
@@ -579,10 +557,8 @@ export default function Home() {
   return (
     <DeckAppShell
       className="cursor-pointer"
-      isLocked={!isFullscreen && isLocked}
+      isLocked={isLocked}
       onUnlock={handleUnlockApp}
-      isFullscreen={isFullscreen}
-      onFullscreenToggle={toggleFullscreen}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       topRightControls={

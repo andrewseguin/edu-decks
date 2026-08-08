@@ -5,7 +5,6 @@ import {
   useWakeLock,
   useAudio,
   useDeckHistory,
-  FullscreenToggle,
   LockSnackbar,
   SessionStats,
   DeckControlBar,
@@ -31,7 +30,6 @@ export default function MathDeckPage() {
   // UI state
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isOperationSelectorOpen, setIsOperationSelectorOpen] = useState(false);
-  const [isFullscreen, setIsFullscreen] = useState(false);
   const [isQuizActive, setIsQuizActive] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState(0);
 
@@ -85,52 +83,6 @@ export default function MathDeckPage() {
     return () => clearInterval(interval);
   }, [settings.showTimer, isQuizActive]);
 
-  // Fullscreen change listener
-  useEffect(() => {
-    const handleFullscreenChange = () => {
-      const isFull = Boolean(
-        document.fullscreenElement ||
-          (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement
-      );
-      setIsFullscreen(isFull);
-    };
-
-    document.addEventListener("fullscreenchange", handleFullscreenChange);
-    document.addEventListener("webkitfullscreenchange", handleFullscreenChange);
-
-    return () => {
-      document.removeEventListener("fullscreenchange", handleFullscreenChange);
-      document.removeEventListener("webkitfullscreenchange", handleFullscreenChange);
-    };
-  }, []);
-
-  const toggleFullscreen = () => {
-    const isFull = Boolean(
-      document.fullscreenElement ||
-        (document as unknown as { webkitFullscreenElement?: Element }).webkitFullscreenElement
-    );
-
-    if (!isFull) {
-      const docEl = document.documentElement as HTMLElement & {
-        webkitRequestFullscreen?: () => Promise<void>;
-      };
-      if (docEl.requestFullscreen) {
-        docEl.requestFullscreen().catch(() => {});
-      } else if (docEl.webkitRequestFullscreen) {
-        docEl.webkitRequestFullscreen();
-      }
-    } else {
-      const doc = document as Document & {
-        webkitExitFullscreen?: () => Promise<void>;
-      };
-      if (doc.exitFullscreen) {
-        doc.exitFullscreen().catch(() => {});
-      } else if (doc.webkitExitFullscreen) {
-        doc.webkitExitFullscreen();
-      }
-    }
-  };
-
   // Keyboard Navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -179,8 +131,6 @@ export default function MathDeckPage() {
     <DeckAppShell
       isLocked={settings.isLocked}
       onUnlock={() => settings.setIsLocked(false)}
-      isFullscreen={isFullscreen}
-      onFullscreenToggle={toggleFullscreen}
       onPointerDown={handlePointerDown}
       onPointerUp={handlePointerUp}
       topRightControls={

@@ -9,8 +9,6 @@ export type DeckAppShellProps = {
   children: React.ReactNode;
   isLocked?: boolean;
   onUnlock?: () => void;
-  isFullscreen?: boolean;
-  onFullscreenToggle?: () => void;
   topRightControls?: React.ReactNode;
   bottomStats?: React.ReactNode;
   stats?: React.ReactNode;
@@ -26,8 +24,6 @@ export function DeckAppShell({
   children,
   isLocked = false,
   onUnlock,
-  isFullscreen,
-  onFullscreenToggle,
   topRightControls,
   bottomStats,
   stats,
@@ -63,11 +59,8 @@ export function DeckAppShell({
         </div>
 
         {/* Right Side: Header Controls */}
-        {!isLocked && (topRightControls || (isFullscreen !== undefined && onFullscreenToggle)) ? (
-          <DeckControlBar
-            isFullscreen={isFullscreen}
-            onFullscreenToggle={onFullscreenToggle}
-          >
+        {!isLocked && topRightControls ? (
+          <DeckControlBar>
             {topRightControls}
           </DeckControlBar>
         ) : (

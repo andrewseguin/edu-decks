@@ -23,7 +23,6 @@ By importing from `@decks/core`, applications ensure 100% consistent layouts, to
 - **`CardCornerButton`**: Accessible, touch-friendly circular action button for card corners (`top-left`, `top-right`, `bottom-left`, `bottom-right`) with size variants (`md`, `lg`).
 - **`SessionStats`**: Shared card counter and timer pill supporting flexible layouts (`top-left`, `bottom-center`, `top-right`).
 - **`FrostedBadge`**: Translucent frosted glass icon badge used for visual hints and card states.
-- **`FullscreenToggle`**: Toggle button for browser full-screen presentation mode.
 
 ### Parental Controls & Settings
 - **`AppSettingsModal`**: Accessible settings modal shell with tabs for theme switching, counters, and application lock mode.
