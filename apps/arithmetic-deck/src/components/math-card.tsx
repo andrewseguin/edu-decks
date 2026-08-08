@@ -57,7 +57,7 @@ export function MathCard({
             isActive={showHint}
             ariaLabel={showHint ? "Hide hint diagram" : "Show hint diagram"}
             title={showHint ? "Hide hint diagram" : "Show hint diagram"}
-            icon={<Lightbulb className="w-5 h-5 sm:w-6 sm:h-6" />}
+            icon={<Lightbulb className="w-5 h-5 sm:w-6 sm:h-6 stroke-[2.5]" />}
           />
         ) : undefined
       }
