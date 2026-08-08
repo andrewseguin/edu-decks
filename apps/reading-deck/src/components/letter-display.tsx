@@ -3,7 +3,6 @@
 
 import { useState, useRef, useEffect } from "react";
 import { Star, Volume2, Mic, Play, Trash2, StopCircle, Paintbrush } from "lucide-react"; // Import necessary icons
-import { Button } from "@/components/ui/button"; // Import Button component
 import {
   AlertDialog,
   AlertDialogAction,
@@ -16,7 +15,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { cn } from "@/lib/utils";
 import { TracingCanvas } from "./tracing-canvas";
-import { FlashCardShell } from "@decks/core";
+import { FlashCardShell, CardCornerButton } from "@decks/core";
 import {
   Tooltip,
   TooltipContent,
@@ -399,185 +398,163 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
       frontContent={
         <>
           {enableTracing && content.type === "letter" && (
-        <>
-          <Button
-            variant="ghost"
-            size="icon"
-            className={cn(
-              "absolute top-4 left-4 z-40 text-white opacity-70 hover:opacity-100 hover:bg-white/10 transition-all duration-300",
-              isTracingMode && "bg-white/20 text-white opacity-100 scale-110 shadow-lg"
-            )}
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsTracingMode(!isTracingMode);
-            }}
-            onPointerDown={(e) => e.stopPropagation()}
-            title={isTracingMode ? "Exit Tracing Mode" : "Trace Letters"}
-          >
-            <Paintbrush className="h-6 w-6" />
-          </Button>
+            <>
+              <CardCornerButton
+                position="top-left"
+                isActive={isTracingMode}
+                onClick={() => setIsTracingMode(!isTracingMode)}
+                title={isTracingMode ? "Exit Tracing Mode" : "Trace Letters"}
+                ariaLabel={isTracingMode ? "Exit Tracing Mode" : "Trace Letters"}
+                icon={<Paintbrush className="h-5 w-5 sm:h-6 sm:w-6" />}
+              />
+              {isTracingMode && <TracingCanvas contentKey={content.key} />}
+            </>
+          )}
 
-          {isTracingMode && <TracingCanvas contentKey={content.key} />}
-        </>
-      )}
+          {content.type === "word" && content.isHardWord && (
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-40 text-white opacity-70">
+                    <Star className="h-6 w-6" />
+                  </div>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Hard Word</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          )}
+          {isWord ? (
+            <div className={cn(
+              "font-headline font-normal leading-none",
+              "select-none [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]",
+              "text-6xl sm:text-8xl md:text-[10rem] [@media(max-height:500px)]:text-5xl [@media(max-height:500px)]:sm:text-7xl"
+            )} style={{
+              color: content.textColor || 'white',
+              transform: `translateY(${letterCase === 'lower' ? (content.verticalOffset || 0) : 0}em)`,
+              transition: 'transform 0.2s ease-out'
+            }}>
+              {splitIntoPhonicsSegments(content.value).map((segment, index) => {
+                const displaySegment = segment.toLowerCase();
 
-      {content.type === "word" && content.isHardWord && (
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <div className="absolute top-4 right-4 text-white opacity-70">
-                <Star className="h-6 w-6" />
-              </div>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Hard Word</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      )}
-        {isWord ? (
+                return (
+                  <span key={index} className={cn(
+                    "inline-block transition-all duration-300 ease-in-out",
+                    highlightedIndex !== null && highlightedIndex !== index && "opacity-60",
+                    highlightedIndex === index && "scale-110 brightness-110 [text-shadow:0_0_10px_rgba(255,255,255,0.4)]",
+                    highlightedIndex === null && "opacity-100 scale-100 transition-opacity duration-300"
+                  )}>
+                    {displaySegment}
+                  </span>
+                );
+              })}
+            </div>
+          ) : (() => {
+            let displayText = content.value;
+            const isDigraph = content.value.length > 1;
+            const upperText = isDigraph 
+              ? content.value.charAt(0).toUpperCase() + content.value.slice(1).toLowerCase() 
+              : content.value.toUpperCase();
+
+            if (letterCase === 'upper') {
+              displayText = upperText;
+            } else if (letterCase === 'mixed') {
+              displayText = isDigraph 
+                ? `${upperText} ${content.value.toLowerCase()}` 
+                : upperText + content.value.toLowerCase();
+            } else {
+              displayText = content.value.toLowerCase();
+            }
+
+            return (
+              <span
+                className={cn(
+                  "font-headline font-normal leading-none flex items-baseline justify-center gap-0",
+                  "select-none [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] transition-opacity duration-300",
+                  letterCase === 'mixed'
+                    ? "text-8xl sm:text-[11rem] md:text-[14rem] [@media(max-height:500px)]:text-7xl [@media(max-height:500px)]:sm:text-8xl"
+                    : "text-9xl sm:text-[14rem] md:text-[17.5rem] [@media(max-height:500px)]:text-[8.5rem] [@media(max-height:500px)]:sm:text-[10rem]",
+                  isTracingMode && "opacity-40"
+                )}
+                style={{
+                  color: content.textColor || 'white',
+                  transform: `translateY(${letterCase === 'lower' ? (content.verticalOffset || 0) : 0}em)`,
+                  transition: 'transform 0.2s ease-out'
+                }}
+              >
+                {displayText}
+              </span>
+            );
+          })()}
           <div className={cn(
-            "font-headline font-normal leading-none",
-            "select-none [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]",
-            "text-6xl sm:text-8xl md:text-[10rem] [@media(max-height:500px)]:text-5xl [@media(max-height:500px)]:sm:text-7xl"
-          )} style={{
-            color: content.textColor || 'white',
-            transform: `translateY(${letterCase === 'lower' ? (content.verticalOffset || 0) : 0}em)`,
-            transition: 'transform 0.2s ease-out'
-          }}>
-            {splitIntoPhonicsSegments(content.value).map((segment, index) => {
-              const displaySegment = segment.toLowerCase();
-
-              return (
-                <span key={index} className={cn(
-                  "inline-block transition-all duration-300 ease-in-out",
-                  highlightedIndex !== null && highlightedIndex !== index && "opacity-60",
-                  highlightedIndex === index && "scale-110 brightness-110 [text-shadow:0_0_10px_rgba(255,255,255,0.4)]",
-                  highlightedIndex === null && "opacity-100 scale-100 transition-opacity duration-300"
-                )}>
-                  {displaySegment}
-                </span>
-              );
-            })}
+            "transition-opacity duration-300",
+            isTracingMode && "opacity-0 pointer-events-none"
+          )}>
+            {enableRecordings && (localAudioUrl ? (
+              <CardCornerButton
+                position="bottom-left"
+                onClick={handleDeleteRecording}
+                title="Delete recording"
+                ariaLabel="Delete recording"
+                icon={<Trash2 className="h-5 w-5 sm:h-6 sm:w-6" />}
+              />
+            ) : (
+              <CardCornerButton
+                position="bottom-left"
+                className={cn(
+                  isRecording && "bg-red-600 text-white opacity-100 scale-110 animate-pulse hover:bg-red-700 shadow-lg"
+                )}
+                onClick={handleToggleRecording}
+                title={isRecording ? "Stop Recording" : "Record your own voice"}
+                ariaLabel={isRecording ? "Stop Recording" : "Record your own voice"}
+                data-recording-button="true"
+                icon={isRecording ? <StopCircle className="h-5 w-5 sm:h-6 sm:w-6 fill-current" /> : <Mic className="h-5 w-5 sm:h-6 sm:w-6" />}
+              />
+            ))}
           </div>
-        ) : (() => {
-          let displayText = content.value;
-          const isDigraph = content.value.length > 1;
-          const upperText = isDigraph 
-            ? content.value.charAt(0).toUpperCase() + content.value.slice(1).toLowerCase() 
-            : content.value.toUpperCase();
 
-          if (letterCase === 'upper') {
-            displayText = upperText;
-          } else if (letterCase === 'mixed') {
-            displayText = isDigraph 
-              ? `${upperText} ${content.value.toLowerCase()}` 
-              : upperText + content.value.toLowerCase();
-          } else {
-            displayText = content.value.toLowerCase();
-          }
-
-          return (
-            <span
+          {content.type === "letter" && (content.value.length === 1 || !!buffers?.[getSoundKeyForSegment(content.value)] || (localAudioUrl && enableRecordings)) && (
+            <CardCornerButton
+              position="bottom-right"
               className={cn(
-                "font-headline font-normal leading-none flex items-baseline justify-center gap-0",
-                "select-none [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] transition-opacity duration-300",
-                letterCase === 'mixed'
-                  ? "text-8xl sm:text-[11rem] md:text-[14rem] [@media(max-height:500px)]:text-7xl [@media(max-height:500px)]:sm:text-8xl"
-                  : "text-9xl sm:text-[14rem] md:text-[17.5rem] [@media(max-height:500px)]:text-[8.5rem] [@media(max-height:500px)]:sm:text-[10rem]",
-                isTracingMode && "opacity-40"
+                isPlaying ? "scale-110 opacity-100 text-white" : "text-white opacity-75 hover:opacity-100",
+                isTracingMode && "opacity-0 pointer-events-none"
               )}
-              style={{
-                color: content.textColor || 'white',
-                transform: `translateY(${letterCase === 'lower' ? (content.verticalOffset || 0) : 0}em)`,
-                transition: 'transform 0.2s ease-out'
-              }}
-            >
-              {displayText}
-            </span>
-          );
-        })()}
-        <div className={cn(
-          "absolute bottom-4 left-4 flex items-center gap-1 transition-opacity duration-300",
-          isTracingMode && "opacity-0 pointer-events-none"
-        )}>
-          {enableRecordings && (localAudioUrl ? (
-            <Button
-              variant="ghost"
-              className={cn(
-                "h-12 w-12 p-0 text-white opacity-70 hover:opacity-100 hover:bg-white/10 transition-all duration-300"
-              )}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleDeleteRecording();
-              }}
-              onPointerDown={(e) => e.stopPropagation()}
-              title="Delete recording"
-            >
-              <Trash2 className="h-5 w-5" />
-            </Button>
-          ) : (
-            <Button
-              variant="ghost"
-              className={cn(
-                "h-12 w-12 p-0 transition-all duration-300 rounded-full hover:bg-white/10",
-                isRecording
-                  ? "bg-red-600 text-white opacity-100 scale-110 animate-pulse hover:bg-red-700 shadow-lg"
-                  : "text-white opacity-70 hover:opacity-100"
-              )}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleToggleRecording();
-              }}
-              onPointerDown={(e) => e.stopPropagation()}
-              title={isRecording ? "Stop Recording" : "Record your own voice"}
-              data-recording-button="true"
-            >
-              {isRecording ? <StopCircle className="h-6 w-6 fill-current" /> : <Mic className="h-6 w-6" />}
-            </Button>
-          ))}
-        </div>
-
-        {content.type === "letter" && (content.value.length === 1 || !!buffers?.[getSoundKeyForSegment(content.value)] || (localAudioUrl && enableRecordings)) && (
-          <Button
-            variant="ghost"
-            className={cn(
-              "absolute bottom-4 right-4 h-12 w-12 p-0 transition-all duration-300 rounded-full hover:bg-white/10 flex items-center justify-center",
-              isPlaying ? "scale-110 opacity-100 text-white" : "text-white opacity-75 hover:opacity-100",
-              isTracingMode && "opacity-0 pointer-events-none"
-            )}
-            onClick={(e) => speakLetter(e)}
-            onPointerUp={(e) => e.stopPropagation()}
-            onPointerDown={(e) => e.stopPropagation()}
-          >
-            <Volume2
-              className="h-6 w-6 sm:h-7 sm:w-7"
-              style={{
-                filter: isPlaying ? 'drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(0 0 12px rgba(255,255,255,0.4))' : 'none'
-              }}
+              onClick={(e) => speakLetter(e)}
+              title="Listen to sound"
+              ariaLabel="Listen to sound"
+              icon={
+                <Volume2
+                  className="h-5 w-5 sm:h-7 sm:w-7"
+                  style={{
+                    filter: isPlaying ? 'drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(0 0 12px rgba(255,255,255,0.4))' : 'none'
+                  }}
+                />
+              }
             />
-          </Button>
-        )}
-        {content.type === "word" && (content.isHardWord ? (localAudioUrl && enableRecordings) : true) && (
-          <Button
-            variant="ghost"
-            className={cn(
-              "absolute bottom-4 right-4 h-12 w-12 p-0 transition-all duration-300 rounded-full hover:bg-white/10 flex items-center justify-center",
-              isPlaying ? "scale-110 opacity-100 text-white" : "text-white opacity-75 hover:opacity-100"
-            )}
-            onClick={(e) => speakWord(e)}
-            onPointerUp={(e) => e.stopPropagation()}
-            onPointerDown={(e) => e.stopPropagation()}
-          >
-            <Volume2
-              className="h-6 w-6 sm:h-7 sm:w-7"
-              style={{
-                filter: isPlaying ? 'drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(0 0 12px rgba(255,255,255,0.4))' : 'none'
-              }}
+          )}
+          {content.type === "word" && (content.isHardWord ? (localAudioUrl && enableRecordings) : true) && (
+            <CardCornerButton
+              position="bottom-right"
+              className={cn(
+                isPlaying ? "scale-110 opacity-100 text-white" : "text-white opacity-75 hover:opacity-100",
+                isTracingMode && "opacity-0 pointer-events-none"
+              )}
+              onClick={(e) => speakWord(e)}
+              title="Listen to word"
+              ariaLabel="Listen to word"
+              icon={
+                <Volume2
+                  className="h-5 w-5 sm:h-7 sm:w-7"
+                  style={{
+                    filter: isPlaying ? 'drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(0 0 12px rgba(255,255,255,0.4))' : 'none'
+                  }}
+                />
+              }
             />
-          </Button>
-        )}
-        {isRecording && <AudioVisualizer stream={stream} />}
+          )}
+          {isRecording && <AudioVisualizer stream={stream} />}
         </>
       }
     />

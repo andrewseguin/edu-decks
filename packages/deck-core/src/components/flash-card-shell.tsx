@@ -4,19 +4,20 @@ import * as React from "react";
 import { Volume2 } from "lucide-react";
 import { cn } from "../lib/utils";
 
-export type CardCornerButtonProps = {
+export interface CardCornerButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   position?: "top-left" | "top-right" | "bottom-left" | "bottom-right";
   size?: "md" | "lg";
   className?: string;
   children?: React.ReactNode;
   icon?: React.ReactNode;
-  onClick?: (e: React.MouseEvent) => void;
-  onPointerDown?: (e: React.PointerEvent) => void;
-  onPointerUp?: (e: React.PointerEvent) => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
+  onPointerDown?: (e: React.PointerEvent<HTMLButtonElement>) => void;
+  onPointerUp?: (e: React.PointerEvent<HTMLButtonElement>) => void;
   ariaLabel?: string;
   title?: string;
   isActive?: boolean;
-};
+}
 
 export function CardCornerButton({
   position = "top-left",
@@ -30,6 +31,7 @@ export function CardCornerButton({
   ariaLabel,
   title,
   isActive = false,
+  ...props
 }: CardCornerButtonProps) {
   const positionClasses = {
     "top-left": "absolute top-3 left-3 sm:top-4 sm:left-4 z-40",
@@ -65,8 +67,9 @@ export function CardCornerButton({
         e.stopPropagation();
         onPointerUp?.(e);
       }}
-      aria-label={ariaLabel}
+      aria-label={ariaLabel || props["aria-label"]}
       title={title}
+      {...props}
     >
       {icon || children}
     </button>
