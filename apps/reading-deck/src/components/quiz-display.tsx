@@ -378,7 +378,7 @@ export function QuizDisplay({
                   !isSingleChar && wordFontSizeClass,
                   isSelectedCorrect && "bg-emerald-500 text-white scale-105 border-emerald-400 z-10 shadow-2xl shadow-emerald-500/30",
                   isSelectedIncorrect && "bg-destructive/20 text-destructive border-destructive",
-                  !isSelected && "bg-card text-card-foreground hover:border-primary/40 hover:scale-[1.01]"
+                  !isSelected && "bg-card text-card-foreground hover:bg-accent/30 hover:scale-[1.01]"
                 )}
                 style={{
                   fontSize: isSingleChar ? fontSizeClamp : undefined,

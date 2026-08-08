@@ -24,6 +24,9 @@ async function advanceToLastAnimationStep(page: Page) {
  * Helper to remove focus rings / blur active element before screenshot capture.
  */
 async function clearFocus(page: Page) {
+  try {
+    await page.mouse.move(0, 0);
+  } catch (e) {}
   await page.evaluate(() => {
     if (document.activeElement && 'blur' in document.activeElement) {
       (document.activeElement as HTMLElement).blur();
