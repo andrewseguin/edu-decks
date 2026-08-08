@@ -26,7 +26,7 @@ const APPS = [
     playStoreUrl:
       "https://play.google.com/store/apps/details?id=org.edudecks.arithmetic",
     primaryButtonClass: DECK_COLORS.emerald.btn,
-    ageBadgeClass: `${DECK_COLORS.emerald.badgeBg} ${DECK_COLORS.emerald.badgeText} ${DECK_COLORS.emerald.badgeBorder}`,
+    ageBadgeClass: "bg-muted/60 text-muted-foreground border-border/70",
     screenshots: [
       {
         label: "Card Front",
@@ -53,7 +53,7 @@ const APPS = [
     playStoreUrl:
       "https://play.google.com/store/apps/details?id=org.edudecks.reading",
     primaryButtonClass: DECK_COLORS.emerald.btn,
-    ageBadgeClass: `${DECK_COLORS.emerald.badgeBg} ${DECK_COLORS.emerald.badgeText} ${DECK_COLORS.emerald.badgeBorder}`,
+    ageBadgeClass: "bg-muted/60 text-muted-foreground border-border/70",
     screenshots: [
       {
         label: "Phonics Card",
@@ -124,14 +124,14 @@ export default function HomePage() {
             Simple, ad-free learning cards.
           </h1>
 
-          {/* Unified Neutral Trust Badge Strip */}
+          {/* Clean Neutral Trust Badge Strip */}
           <div className="flex flex-wrap items-center justify-center gap-2 mt-4 sm:mt-5">
             {TRUST_BADGES.map((badge) => (
               <span
                 key={badge}
                 className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium bg-muted/60 text-muted-foreground border border-border/70"
               >
-                <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-muted-foreground" />
                 {badge}
               </span>
             ))}
