@@ -45,7 +45,14 @@ export function MathCard({
       isFlipped={isFlipped}
       slideDirection={slideDirection}
       backgroundColor={opInfo.hex}
-      className="w-full max-w-[660px] h-full max-h-[560px] min-h-[220px] aspect-[16/10] [@media(max-height:540px)]:aspect-auto"
+      className={cn(
+        "w-[90vw] max-w-[700px] border-none transition-all duration-500 ease-in-out",
+        isDiagramVisible
+          ? problem.hasConversion
+            ? "h-[62vw] max-h-[min(490px,80svh)] [@media(orientation:landscape)_and_(max-height:500px)]:h-[80vh] [@media(orientation:landscape)_and_(max-height:500px)]:max-h-[80vh]"
+            : "h-[58vw] max-h-[min(450px,74svh)] [@media(orientation:landscape)_and_(max-height:500px)]:h-[80vh] [@media(orientation:landscape)_and_(max-height:500px)]:max-h-[80vh]"
+          : "h-[55vw] max-h-[min(420px,68svh)] [@media(orientation:landscape)_and_(max-height:500px)]:h-[72vh] [@media(orientation:landscape)_and_(max-height:500px)]:max-h-[72vh]"
+      )}
       onCardTap={onCardTap}
       onSpeak={handleSpeak}
       speakerAriaLabel="Listen to equation"
