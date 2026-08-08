@@ -77,9 +77,8 @@ chmod 600 ~/keystores/edudecks-release.p12 ~/keystores/release-env.sh ~/keystore
    npx fastlane supply --aab apps/arithmetic-deck/android/app/build/outputs/bundle/release/app-release.aab --package_name org.edudecks.arithmetic --track internal --json_key ~/keystores/google-play-api-key.json
    npx fastlane supply --aab apps/reading-deck/android/app/build/outputs/bundle/release/app-release.aab --package_name org.edudecks.reading --track internal --json_key ~/keystores/google-play-api-key.json
 
-   # Upload Screenshots & Store Listing graphics
-   npx fastlane supply --package_name org.edudecks.arithmetic --metadata_path store-assets/arithmetic-deck --json_key ~/keystores/google-play-api-key.json --skip_upload_apk true --skip_upload_aab true
-   npx fastlane supply --package_name org.edudecks.reading --metadata_path store-assets/reading-deck --json_key ~/keystores/google-play-api-key.json --skip_upload_apk true --skip_upload_aab true
+   # Upload Screenshots & Store Listing graphics via CLI
+   pnpm screenshots:upload
    ```
 
 ---
