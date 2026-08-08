@@ -404,8 +404,8 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
             variant="ghost"
             size="icon"
             className={cn(
-              "absolute top-4 left-4 z-40 text-white/85 hover:text-white hover:bg-white/20 transition-all duration-300 drop-shadow-sm",
-              isTracingMode && "bg-white/25 text-white scale-110 shadow-lg"
+              "absolute top-4 left-4 z-40 text-white/50 hover:text-white hover:bg-white/10 transition-all duration-300",
+              isTracingMode && "bg-white/20 text-white scale-110 shadow-lg"
             )}
             onClick={(e) => {
               e.stopPropagation();
@@ -414,7 +414,7 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
             onPointerDown={(e) => e.stopPropagation()}
             title={isTracingMode ? "Exit Tracing Mode" : "Trace Letters"}
           >
-            <Paintbrush className="h-6 w-6 stroke-[2.5]" />
+            <Paintbrush className="h-6 w-6" />
           </Button>
 
           {isTracingMode && <TracingCanvas contentKey={content.key} />}
@@ -425,8 +425,8 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="absolute top-4 right-4 text-white/85 drop-shadow-sm">
-                <Star className="h-6 w-6 stroke-[2.5]" />
+              <div className="absolute top-4 right-4 text-white/50">
+                <Star className="h-6 w-6" />
               </div>
             </TooltipTrigger>
             <TooltipContent>
@@ -505,7 +505,7 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
             <Button
               variant="ghost"
               className={cn(
-                "h-12 w-12 p-0 text-white/85 hover:text-white hover:bg-white/20 transition-all duration-300 drop-shadow-sm"
+                "h-12 w-12 p-0 text-white/50 hover:text-white hover:bg-white/10 transition-all duration-300"
               )}
               onClick={(e) => {
                 e.stopPropagation();
@@ -514,16 +514,16 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
               onPointerDown={(e) => e.stopPropagation()}
               title="Delete recording"
             >
-              <Trash2 className="h-5 w-5 stroke-[2.5]" />
+              <Trash2 className="h-5 w-5" />
             </Button>
           ) : (
             <Button
               variant="ghost"
               className={cn(
-                "h-12 w-12 p-0 transition-all duration-300 rounded-full hover:text-white hover:bg-white/20 drop-shadow-sm",
+                "h-12 w-12 p-0 transition-all duration-300 rounded-full hover:text-white hover:bg-white/10",
                 isRecording
                   ? "bg-red-600 text-white scale-110 animate-pulse hover:bg-red-700 shadow-lg"
-                  : "text-white/85"
+                  : "text-white/50"
               )}
               onClick={(e) => {
                 e.stopPropagation();
@@ -533,7 +533,7 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
               title={isRecording ? "Stop Recording" : "Record your own voice"}
               data-recording-button="true"
             >
-              {isRecording ? <StopCircle className="h-6 w-6 fill-current" /> : <Mic className="h-6 w-6 stroke-[2.5]" />}
+              {isRecording ? <StopCircle className="h-6 w-6 fill-current" /> : <Mic className="h-6 w-6" />}
             </Button>
           ))}
         </div>
@@ -542,8 +542,8 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
           <Button
             variant="ghost"
             className={cn(
-              "absolute bottom-4 right-4 h-12 w-12 p-0 transition-all duration-300 rounded-full hover:bg-white/20 hover:text-white flex items-center justify-center drop-shadow-sm",
-              isPlaying ? "scale-110 opacity-100 text-white" : "text-white/85",
+              "absolute bottom-4 right-4 h-12 w-12 p-0 transition-all duration-300 rounded-full hover:bg-white/10 hover:text-white flex items-center justify-center",
+              isPlaying ? "scale-110 opacity-100 text-white" : "text-white/70",
               isTracingMode && "opacity-0 pointer-events-none"
             )}
             onClick={(e) => speakLetter(e)}
@@ -551,7 +551,7 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
             onPointerDown={(e) => e.stopPropagation()}
           >
             <Volume2
-              className="h-6 w-6 sm:h-7 sm:w-7 stroke-[2.5]"
+              className="h-6 w-6 sm:h-7 sm:w-7"
               style={{
                 filter: isPlaying ? 'drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(0 0 12px rgba(255,255,255,0.4))' : 'none'
               }}
@@ -562,15 +562,15 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
           <Button
             variant="ghost"
             className={cn(
-              "absolute bottom-4 right-4 h-12 w-12 p-0 transition-all duration-300 rounded-full hover:bg-white/20 hover:text-white flex items-center justify-center drop-shadow-sm",
-              isPlaying ? "scale-110 opacity-100 text-white" : "text-white/85"
+              "absolute bottom-4 right-4 h-12 w-12 p-0 transition-all duration-300 rounded-full hover:bg-white/10 hover:text-white flex items-center justify-center",
+              isPlaying ? "scale-110 opacity-100 text-white" : "text-white/70"
             )}
             onClick={(e) => speakWord(e)}
             onPointerUp={(e) => e.stopPropagation()}
             onPointerDown={(e) => e.stopPropagation()}
           >
             <Volume2
-              className="h-6 w-6 sm:h-7 sm:w-7 stroke-[2.5]"
+              className="h-6 w-6 sm:h-7 sm:w-7"
               style={{
                 filter: isPlaying ? 'drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(0 0 12px rgba(255,255,255,0.4))' : 'none'
               }}
