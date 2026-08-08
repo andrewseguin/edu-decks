@@ -34,8 +34,8 @@ async function generateLandingScreenshots() {
   const browser = await chromium.launch({ headless: true });
   const root = process.cwd();
 
-  const arithmeticDir = path.join(root, 'apps/edudecks-org/public/screenshots/arithmetic');
-  const readingDir = path.join(root, 'apps/edudecks-org/public/screenshots/reading');
+  const arithmeticDir = path.join(root, 'apps/landing-page/public/screenshots/arithmetic');
+  const readingDir = path.join(root, 'apps/landing-page/public/screenshots/reading');
 
   fs.mkdirSync(arithmeticDir, { recursive: true });
   fs.mkdirSync(readingDir, { recursive: true });

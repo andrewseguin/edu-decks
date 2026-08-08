@@ -9,7 +9,7 @@ An interactive, distraction-free educational flashcard suite built with **Next.j
 ```
 edu-decks/
 ├── apps/
-│   ├── edudecks-org/      # edudecks.org landing portal & deck apps showcase
+│   ├── landing-page/      # EduDecks landing portal & deck apps showcase
 │   ├── arithmetic-deck/   # Numbers, operations (+, -, ×, ÷), fraction pie charts, & 10-frames
 │   └── reading-deck/      # Alphabet phonics, 1,000+ sight words, letter tracing, & reading fluency
 ├── packages/
@@ -36,13 +36,13 @@ Run applications concurrently:
 ```bash
 pnpm dev
 ```
-- **EduDecks Portal (edudecks.org)**: [http://localhost:9000](http://localhost:9000)
+- **EduDecks Portal (landing-page)**: [http://localhost:9000](http://localhost:9000)
 - **Arithmetic Deck**: [http://localhost:9003](http://localhost:9003)
 - **Reading Deck**: [http://localhost:9002](http://localhost:9002)
 
 To run a single application:
 ```bash
-pnpm --filter edudecks-org dev
+pnpm --filter landing-page dev
 pnpm --filter arithmetic-deck dev
 pnpm --filter reading-deck dev
 ```
