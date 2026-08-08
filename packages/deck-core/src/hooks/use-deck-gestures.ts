@@ -92,17 +92,18 @@ export function useDeckGestures({
         return;
       }
 
-      if (e.code === "ArrowRight") {
-        e.preventDefault();
-        if (onNext) onNext();
-        else if (onTap) onTap();
-      } else if (e.code === "ArrowLeft") {
-        e.preventDefault();
-        onPrev?.();
-      } else if (e.code === "Space" || e.code === "ArrowDown" || e.code === "Enter") {
+      if (
+        e.code === "ArrowRight" ||
+        e.code === "Space" ||
+        e.code === "ArrowDown" ||
+        e.code === "Enter"
+      ) {
         e.preventDefault();
         if (onTap) onTap();
         else if (onNext) onNext();
+      } else if (e.code === "ArrowLeft") {
+        e.preventDefault();
+        onPrev?.();
       }
     };
 
