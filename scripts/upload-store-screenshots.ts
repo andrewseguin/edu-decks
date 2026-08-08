@@ -4,10 +4,12 @@ import * as fs from 'fs';
 
 async function uploadPlayStoreScreenshots() {
   const root = process.cwd();
-  const keyPath = process.env.GOOGLE_PLAY_KEY_PATH || path.join(root, 'studio-7470092926-a6975-d98191f94c93.json');
+  const homeKeyPath = path.join(process.env.HOME || '', 'keystores/google-play-api-key.json');
+  const localKeyPath = path.join(root, 'studio-7470092926-a6975-d98191f94c93.json');
+  const keyPath = process.env.GOOGLE_PLAY_KEY_PATH || (fs.existsSync(localKeyPath) ? localKeyPath : homeKeyPath);
 
   if (!fs.existsSync(keyPath)) {
-    console.error(`❌ Key file not found at ${keyPath}`);
+    console.error(`❌ Key file not found at ${keyPath} or ${homeKeyPath}`);
     process.exit(1);
   }
 
