@@ -8,8 +8,7 @@ const isMobile = Boolean(process.env.MOBILE_BUILD);
 
 const nextConfig: NextConfig = {
   transpilePackages: ['@decks/core'],
-  distDir: isMobile ? undefined : (isVercel ? '.next' : (isProd ? '.next-prod' : '.next')),
-  output: isMobile ? 'export' : 'standalone',
+  output: isMobile ? 'export' : undefined,
   basePath: isMobile ? '' : (process.env.NEXT_PUBLIC_BASE_PATH || ''),
   typescript: {
     ignoreBuildErrors: true,

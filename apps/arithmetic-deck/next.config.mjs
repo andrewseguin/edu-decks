@@ -6,7 +6,6 @@ const isMobile = Boolean(process.env.MOBILE_BUILD);
 
 const nextConfig = {
   transpilePackages: ["@decks/core"],
-  distDir: isMobile ? undefined : (isVercel ? ".next" : (isProd ? ".next-prod" : ".next")),
   output: isMobile ? "export" : undefined,
   images: {
     unoptimized: true,

@@ -12,7 +12,7 @@
     "typecheck": "pnpm -r typecheck",
     "test:visual": "pnpm -r test:visual",
     "test:visual:update": "pnpm -r test:visual:update",
-    "screenshots:store": "tsx scripts/capture-store-screenshots.ts"
+    "screenshots:store": "tsx scripts/generate-all-store-assets.ts"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
