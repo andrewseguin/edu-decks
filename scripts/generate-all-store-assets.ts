@@ -21,6 +21,18 @@ async function advanceToLastAnimationStep(page: Page) {
 }
 
 /**
+ * Helper to remove focus rings / blur active element before screenshot capture.
+ */
+async function clearFocus(page: Page) {
+  await page.evaluate(() => {
+    if (document.activeElement && 'blur' in document.activeElement) {
+      (document.activeElement as HTMLElement).blur();
+    }
+  });
+  await page.waitForTimeout(200);
+}
+
+/**
  * Helper to open the selector and click Start Quiz to launch active Quiz Mode.
  */
 async function launchActiveQuizMode(page: Page) {
@@ -34,6 +46,7 @@ async function launchActiveQuizMode(page: Page) {
       if (await startQuizBtn.isVisible()) {
         await startQuizBtn.click();
         await page.waitForTimeout(800);
+        await clearFocus(page);
         return true;
       }
     }
@@ -85,6 +98,7 @@ async function generateAllStoreAssets() {
       });
       await page.reload({ waitUntil: 'networkidle' });
       await page.waitForTimeout(500);
+      await clearFocus(page);
       await page.screenshot({ path: path.join(storeDir, 'screenshot-1-card-front.png') });
 
       // Screenshot 2: Multiplication Card with Final Visual Diagram
@@ -100,6 +114,7 @@ async function generateAllStoreAssets() {
       if (await card2.isVisible()) {
         await card2.click();
         await advanceToLastAnimationStep(page);
+        await clearFocus(page);
         await page.screenshot({ path: path.join(storeDir, 'screenshot-2-card-back.png') });
       }
 
@@ -115,6 +130,7 @@ async function generateAllStoreAssets() {
       if (await card3.isVisible()) {
         await card3.click();
         await advanceToLastAnimationStep(page);
+        await clearFocus(page);
         await page.screenshot({ path: path.join(storeDir, 'screenshot-3-card-next.png') });
       }
 
@@ -128,6 +144,7 @@ async function generateAllStoreAssets() {
 
       const quizStarted = await launchActiveQuizMode(page);
       if (quizStarted) {
+        await clearFocus(page);
         await page.screenshot({ path: path.join(storeDir, 'screenshot-4-quiz-mode.png') });
       }
     } catch (e) {
@@ -153,6 +170,7 @@ async function generateAllStoreAssets() {
       });
       await fgPage.reload({ waitUntil: 'networkidle' });
       await fgPage.waitForTimeout(600);
+      await clearFocus(fgPage);
       await fgPage.screenshot({ path: path.join(storeDir, 'feature-graphic-1024x500.png') });
     } finally {
       await fgContext.close();
@@ -163,6 +181,7 @@ async function generateAllStoreAssets() {
     const tab7Page = await tab7Context.newPage();
     try {
       await tab7Page.goto(baseUrl, { waitUntil: 'networkidle' });
+      await clearFocus(tab7Page);
       await tab7Page.screenshot({ path: path.join(tablet7Dir, 'tablet-screenshot-1-card-front.png') });
     } finally {
       await tab7Context.close();
@@ -172,6 +191,7 @@ async function generateAllStoreAssets() {
     const tab10Page = await tab10Context.newPage();
     try {
       await tab10Page.goto(baseUrl, { waitUntil: 'networkidle' });
+      await clearFocus(tab10Page);
       await tab10Page.screenshot({ path: path.join(tablet10Dir, 'tablet-10in-screenshot-1-card-front.png') });
     } finally {
       await tab10Context.close();
@@ -215,6 +235,7 @@ async function generateAllStoreAssets() {
       });
       await page.reload({ waitUntil: 'networkidle' });
       await page.waitForTimeout(500);
+      await clearFocus(page);
       await page.screenshot({ path: path.join(storeDir, 'screenshot-1-card-front.png') });
 
       // Screenshot 2: Full Words Mode (e.g. CVC / Sight Words)
@@ -224,6 +245,7 @@ async function generateAllStoreAssets() {
       });
       await page.reload({ waitUntil: 'networkidle' });
       await page.waitForTimeout(600);
+      await clearFocus(page);
       await page.screenshot({ path: path.join(storeDir, 'screenshot-2-card-back.png') });
 
       // Screenshot 3: Interactive Word Card (Tapped / Phonics Breakdown)
@@ -231,6 +253,7 @@ async function generateAllStoreAssets() {
       if (await card.isVisible()) {
         await card.click();
         await page.waitForTimeout(500);
+        await clearFocus(page);
         await page.screenshot({ path: path.join(storeDir, 'screenshot-3-card-next.png') });
       }
 
@@ -243,6 +266,7 @@ async function generateAllStoreAssets() {
 
       const quizStarted = await launchActiveQuizMode(page);
       if (quizStarted) {
+        await clearFocus(page);
         await page.screenshot({ path: path.join(storeDir, 'screenshot-4-quiz-mode.png') });
       }
     } catch (e) {
@@ -268,6 +292,7 @@ async function generateAllStoreAssets() {
       });
       await fgPage.reload({ waitUntil: 'networkidle' });
       await fgPage.waitForTimeout(600);
+      await clearFocus(fgPage);
       await fgPage.screenshot({ path: path.join(storeDir, 'feature-graphic-1024x500.png') });
     } finally {
       await fgContext.close();
@@ -278,6 +303,7 @@ async function generateAllStoreAssets() {
     const tab7Page = await tab7Context.newPage();
     try {
       await tab7Page.goto(baseUrl, { waitUntil: 'networkidle' });
+      await clearFocus(tab7Page);
       await tab7Page.screenshot({ path: path.join(tablet7Dir, 'tablet-screenshot-1-card-front.png') });
     } finally {
       await tab7Context.close();
@@ -287,6 +313,7 @@ async function generateAllStoreAssets() {
     const tab10Page = await tab10Context.newPage();
     try {
       await tab10Page.goto(baseUrl, { waitUntil: 'networkidle' });
+      await clearFocus(tab10Page);
       await tab10Page.screenshot({ path: path.join(tablet10Dir, 'tablet-10in-screenshot-1-card-front.png') });
     } finally {
       await tab10Context.close();
@@ -294,7 +321,7 @@ async function generateAllStoreAssets() {
   }
 
   await browser.close();
-  console.log('\n✨ All store assets generated with active Quiz Mode overlays!');
+  console.log('\n✨ All store assets generated cleanly without focus rings!');
 }
 
 generateAllStoreAssets().catch(console.error);
