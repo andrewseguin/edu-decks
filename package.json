@@ -2,6 +2,7 @@
   "name": "edu-decks",
   "version": "0.0.0",
   "private": true,
+  "license": "MIT",
   "packageManager": "pnpm@10.14.0",
   "scripts": {
     "build": "pnpm -r build",
