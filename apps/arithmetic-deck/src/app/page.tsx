@@ -83,25 +83,7 @@ export default function MathDeckPage() {
     return () => clearInterval(interval);
   }, [settings.showTimer, isQuizActive]);
 
-  // Keyboard Navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isQuizActive) return;
-
-      if (e.code === "Space" || e.code === "ArrowRight" || e.code === "ArrowDown") {
-        e.preventDefault();
-        handleCardTap();
-      } else if (e.code === "ArrowLeft") {
-        e.preventDefault();
-        handlePrevCard();
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isQuizActive, handleCardTap, handlePrevCard]);
-
-  // Gesture Handling via Shared Hook
+  // Gesture & Keyboard Handling via Shared Hook
   const { handlePointerDown, handlePointerUp, notifyMenuClosed } = useDeckGestures({
     onNext: handleNextCard,
     onPrev: handlePrevCard,

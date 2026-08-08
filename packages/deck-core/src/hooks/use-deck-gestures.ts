@@ -10,6 +10,7 @@ export type UseDeckGesturesOptions = {
   swipeThreshold?: number;
   tapThreshold?: number;
   menuCloseCooldownMs?: number;
+  enableKeyboard?: boolean;
 };
 
 export function useDeckGestures({
@@ -20,6 +21,7 @@ export function useDeckGestures({
   swipeThreshold = 50,
   tapThreshold = 12,
   menuCloseCooldownMs = 300,
+  enableKeyboard = true,
 }: UseDeckGesturesOptions) {
   const touchStartRef = React.useRef<{ x: number; y: number } | null>(null);
   const lastMenuCloseTimeRef = React.useRef<number>(0);
@@ -76,6 +78,37 @@ export function useDeckGestures({
     },
     [isMenuOpen, menuCloseCooldownMs, swipeThreshold, tapThreshold, onNext, onPrev, onTap]
   );
+
+  React.useEffect(() => {
+    if (!enableKeyboard) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isMenuOpen) return;
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        (e.target as HTMLElement)?.isContentEditable
+      ) {
+        return;
+      }
+
+      if (e.code === "ArrowRight") {
+        e.preventDefault();
+        if (onNext) onNext();
+        else if (onTap) onTap();
+      } else if (e.code === "ArrowLeft") {
+        e.preventDefault();
+        onPrev?.();
+      } else if (e.code === "Space" || e.code === "ArrowDown" || e.code === "Enter") {
+        e.preventDefault();
+        if (onTap) onTap();
+        else if (onNext) onNext();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isMenuOpen, enableKeyboard, onNext, onPrev, onTap]);
 
   return {
     handlePointerDown,
