@@ -11,3 +11,7 @@ playwright-report/
 test-results/
 *.tsbuildinfo
 out/
+*.json.key
+studio-*.json
+*-key.json
+

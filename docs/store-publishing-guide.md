@@ -33,22 +33,30 @@ pnpm -F arithmetic-deck build:android:bundle && pnpm -F reading-deck build:andro
 
 ---
 
-## 🔑 2. Keystore Backup & Multi-Computer Sync
+## 🔑 2. Keystore & API Credentials Sync (Google Cloud Secret Manager)
 
-Your release keystore (`~/keystores/edudecks-release.p12`) and environment script (`~/keystores/release-env.sh`) are backed up in **Google Cloud Secret Manager**.
+Your release keystore (`~/keystores/edudecks-release.p12`), environment script (`~/keystores/release-env.sh`), and Google Play Developer API key (`~/keystores/google-play-api-key.json`) are backed up in **Google Cloud Secret Manager**.
 
-### Restore on any new computer (100% CLI):
+### Backup new Service Account JSON Key (One-time CLI setup):
+```bash
+gcloud config set project studio-7470092926-a6975
+gcloud secrets create edudecks-play-api-key --data-file=studio-7470092926-a6975-d98191f94c93.json || \
+gcloud secrets versions add edudecks-play-api-key --data-file=studio-7470092926-a6975-d98191f94c93.json
+```
+
+### Restore credentials on any computer (100% CLI):
 
 ```bash
 # 1. Login to Google Cloud CLI (if new machine)
 gcloud auth login
 gcloud config set project studio-7470092926-a6975
 
-# 2. Restore keystore & environment script
+# 2. Restore keystores & Play API key
 mkdir -p ~/keystores
 gcloud secrets versions access latest --secret=edudecks-release-keystore > ~/keystores/edudecks-release.p12
 gcloud secrets versions access latest --secret=edudecks-release-env > ~/keystores/release-env.sh
-chmod 600 ~/keystores/edudecks-release.p12 ~/keystores/release-env.sh
+gcloud secrets versions access latest --secret=edudecks-play-api-key > ~/keystores/google-play-api-key.json
+chmod 600 ~/keystores/edudecks-release.p12 ~/keystores/release-env.sh ~/keystores/google-play-api-key.json
 ```
 
 *(Backup secrets are stored in GCP project **"EduDecks"** `studio-7470092926-a6975`)*.
@@ -61,11 +69,17 @@ chmod 600 ~/keystores/edudecks-release.p12 ~/keystores/release-env.sh
 1. **First-Time Release (Google Play Console):**
    - Go to [play.google.com/console](https://play.google.com/console/) $\rightarrow$ create App entry.
    - Fill out legal questionnaires (**Data Safety**, **Target Audience / COPPA**, **Content Rating**).
-   - Under **Production > Releases** (or **Internal Testing**), upload `app-release.aab`.
-2. **Automated CLI Uploads (Subsequent Releases):**
+   - Under **Users & permissions**, invite `play-store-cli@studio-7470092926-a6975.iam.gserviceaccount.com` with listing & release permissions.
+   - Under **Production > Releases** (or **Internal Testing**), upload initial `app-release.aab`.
+2. **Automated CLI Uploads (Subsequent Releases & Screenshots):**
    ```bash
+   # Upload AAB release bundles
    npx fastlane supply --aab apps/arithmetic-deck/android/app/build/outputs/bundle/release/app-release.aab --package_name org.edudecks.arithmetic --track internal --json_key ~/keystores/google-play-api-key.json
    npx fastlane supply --aab apps/reading-deck/android/app/build/outputs/bundle/release/app-release.aab --package_name org.edudecks.reading --track internal --json_key ~/keystores/google-play-api-key.json
+
+   # Upload Screenshots & Store Listing graphics
+   npx fastlane supply --package_name org.edudecks.arithmetic --metadata_path store-assets/arithmetic-deck --json_key ~/keystores/google-play-api-key.json --skip_upload_apk true --skip_upload_aab true
+   npx fastlane supply --package_name org.edudecks.reading --metadata_path store-assets/reading-deck --json_key ~/keystores/google-play-api-key.json --skip_upload_apk true --skip_upload_aab true
    ```
 
 ---
