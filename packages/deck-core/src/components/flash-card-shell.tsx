@@ -49,8 +49,8 @@ export function CardCornerButton({
       className={cn(
         positionClasses,
         sizeClasses,
-        "inline-flex items-center justify-center rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-all active:scale-95 outline-none pointer-events-auto",
-        isActive && "bg-white/20 text-white scale-110 shadow-lg",
+        "inline-flex items-center justify-center rounded-full text-white opacity-80 hover:opacity-100 hover:bg-white/20 transition-all active:scale-95 outline-none pointer-events-auto",
+        isActive && "bg-white/20 text-white opacity-100 scale-110 shadow-lg",
         className
       )}
       onClick={(e) => {
