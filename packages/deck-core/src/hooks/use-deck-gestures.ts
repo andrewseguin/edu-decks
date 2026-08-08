@@ -92,16 +92,26 @@ export function useDeckGestures({
         return;
       }
 
-      if (
-        e.code === "ArrowRight" ||
-        e.code === "Space" ||
-        e.code === "ArrowDown" ||
-        e.code === "Enter"
-      ) {
+      const isRight = e.key === "ArrowRight" || e.code === "ArrowRight";
+      const isLeft = e.key === "ArrowLeft" || e.code === "ArrowLeft";
+      const isDown = e.key === "ArrowDown" || e.code === "ArrowDown";
+      const isSpace = e.key === " " || e.code === "Space" || e.key === "Spacebar";
+      const isEnter = e.key === "Enter" || e.code === "Enter";
+      const actsLikeTap = isRight || isDown || isSpace || isEnter;
+
+      // If user is focused on an interactive button and presses Space/Enter, let native click handler work
+      if ((isSpace || isEnter) && (e.target as HTMLElement)?.closest("button")) {
+        return;
+      }
+
+      if (actsLikeTap) {
         e.preventDefault();
-        if (onTap) onTap();
-        else if (onNext) onNext();
-      } else if (e.code === "ArrowLeft") {
+        if (onTap) {
+          onTap();
+        } else if (onNext) {
+          onNext();
+        }
+      } else if (isLeft) {
         e.preventDefault();
         onPrev?.();
       }

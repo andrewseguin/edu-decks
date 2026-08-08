@@ -536,7 +536,13 @@ export default function Home() {
         setHistoryIndex((prev) => prev - 1);
       }
     },
-    onTap: () => showNextContent(false, true),
+    onTap: () => {
+      if (historyIndex < history.length - 1) {
+        setHistoryIndex((prev) => prev + 1);
+      } else {
+        showNextContent(false, true);
+      }
+    },
     isMenuOpen: isQuizActive || isMenuOpen || isSettingsOpen || isRecordingsModalOpen,
   });
 
