@@ -28,6 +28,7 @@ This file defines mandatory behavioral constraints and operational workflows for
 ---
 
 ## 📦 Workspace Overview
+- `apps/edudecks-org` (Port `9000`) — EduDecks Portal & Landing Showcase
 - `apps/arithmetic-deck` (Port `9003`) — Mental Arithmetic & Number Sense
 - `apps/reading-deck` (Port `9002`) — Phonics, Letters, & Reading Fluency
 - `packages/deck-core` — Shared UI shells, toolbars, quiz overlays, badges, audio & wake-lock hooks

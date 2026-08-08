@@ -121,6 +121,61 @@ importers:
         specifier: ^5
         version: 5.9.3
 
+  apps/edudecks-org:
+    dependencies:
+      '@decks/core':
+        specifier: workspace:*
+        version: link:../../packages/deck-core
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
+      clsx:
+        specifier: ^2.1.1
+        version: 2.1.1
+      lucide-react:
+        specifier: ^0.475.0
+        version: 0.475.0(react@19.2.8)
+      next:
+        specifier: 15.5.9
+        version: 15.5.9(@babel/core@7.29.7)(@playwright/test@1.62.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      next-themes:
+        specifier: ^0.4.6
+        version: 0.4.6(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      react:
+        specifier: ^19.0.0
+        version: 19.2.8
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.8(react@19.2.8)
+      tailwind-merge:
+        specifier: ^3.0.1
+        version: 3.6.0
+      tailwindcss-animate:
+        specifier: ^1.0.7
+        version: 1.0.7(tailwindcss@3.4.19(tsx@4.23.11)(yaml@2.9.0))
+    devDependencies:
+      '@types/node':
+        specifier: ^20
+        version: 20.19.43
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.2.18
+      '@types/react-dom':
+        specifier: ^19.0.0
+        version: 19.2.4(@types/react@19.2.18)
+      autoprefixer:
+        specifier: ^10.4.20
+        version: 10.5.4(postcss@8.5.25)
+      postcss:
+        specifier: ^8
+        version: 8.5.25
+      tailwindcss:
+        specifier: ^3.4.1
+        version: 3.4.19(tsx@4.23.11)(yaml@2.9.0)
+      typescript:
+        specifier: ^5
+        version: 5.9.3
+
   apps/reading-deck:
     dependencies:
       '@capacitor/core':
