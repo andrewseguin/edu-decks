@@ -93,6 +93,7 @@ export type FlashCardShellProps = {
   onCardTap?: () => void;
   onSpeak?: (e: React.MouseEvent) => void;
   showSpeaker?: boolean;
+  speakerPosition?: "top-right" | "bottom-right";
   speakerClassName?: string;
   speakerAriaLabel?: string;
   speakerSize?: "md" | "lg";
@@ -148,6 +149,7 @@ export function FlashCardShell({
   onCardTap,
   onSpeak,
   showSpeaker = true,
+  speakerPosition = "top-right",
   speakerClassName,
   speakerAriaLabel = "Listen to card",
   speakerSize = "lg",
@@ -168,6 +170,25 @@ export function FlashCardShell({
     onSpeak?.(e);
   };
 
+  const speakerButton =
+    showSpeaker && onSpeak ? (
+      <button
+        type="button"
+        className={cn(
+          "absolute z-40 inline-flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-all active:scale-95 outline-none pointer-events-auto",
+          speakerPosition === "top-right"
+            ? "top-3 right-3 sm:top-4 sm:right-4"
+            : "bottom-2.5 right-2.5 sm:bottom-3 sm:right-3",
+          speakerSize === "lg" ? "w-10 h-10 sm:w-12 sm:h-12" : "w-8 h-8 sm:w-10 sm:h-10",
+          speakerClassName
+        )}
+        onClick={handleSpeak}
+        aria-label={speakerAriaLabel}
+      >
+        <Volume2 className={cn(speakerSize === "lg" ? "w-5 h-5 sm:w-6 sm:h-6" : "w-4 h-4 sm:w-5 sm:h-5")} />
+      </button>
+    ) : null;
+
   return (
     <div
       className={cn(
@@ -180,25 +201,11 @@ export function FlashCardShell({
     >
       <div className={cn("p-3 sm:p-5 md:p-6 h-full w-full relative overflow-hidden", contentClassName)}>
         {topLeft}
-        {topRight}
+        {topRight || (speakerPosition === "top-right" ? speakerButton : null)}
         {bottomLeft}
         {frontContent || children}
         {backContent}
-        {bottomRight ||
-          (showSpeaker && onSpeak && (
-            <button
-              type="button"
-              className={cn(
-                "absolute bottom-2.5 right-2.5 sm:bottom-3 sm:right-3 inline-flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-transform active:scale-95 outline-none pointer-events-auto z-30",
-                speakerSize === "lg" ? "w-10 h-10 sm:w-12 sm:h-12" : "w-8 h-8 sm:w-10 sm:h-10",
-                speakerClassName
-              )}
-              onClick={handleSpeak}
-              aria-label={speakerAriaLabel}
-            >
-              <Volume2 className={cn(speakerSize === "lg" ? "w-5 h-5 sm:w-6 sm:h-6" : "w-4 h-4 sm:w-5 sm:h-5")} />
-            </button>
-          ))}
+        {bottomRight || (speakerPosition === "bottom-right" ? speakerButton : null)}
       </div>
     </div>
   );
