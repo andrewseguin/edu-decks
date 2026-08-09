@@ -9,6 +9,7 @@ export function parseFractionValue(str: string): number | null {
     return isNaN(val) ? null : val;
   }
   if (parts.length === 2) {
+    if (!parts[0] || !parts[1]) return null;
     const n = parseFloat(parts[0]);
     const d = parseFloat(parts[1]);
     if (isNaN(n) || isNaN(d) || d === 0) return null;
@@ -160,34 +161,61 @@ export function useQuizSession({
       if (isCorrect !== null || !currentProblem) return;
 
       if (digit === "-") {
-        if (inputVal === "") setInputVal("-");
+        setInputVal((prev) => (prev === "" ? "-" : prev));
         return;
       }
 
       if (digit === "/") {
-        if ((showFractions || currentProblem.isFraction) && inputVal && !inputVal.includes("/")) {
-          const newInput = inputVal + "/";
-          setInputVal(newInput);
+        if (showFractions || currentProblem.isFraction) {
+          setInputVal((prev) => {
+            if (!prev.includes("/")) {
+              return (prev || "") + "/";
+            }
+            return prev;
+          });
         }
         return;
       }
 
-      if (inputVal.length >= 6) return;
+      setInputVal((prev) => {
+        if (prev.length >= 10) return prev;
+        const newInput = prev + digit;
 
-      const newInput = inputVal + digit;
-      setInputVal(newInput);
+        const parsedVal = parseFractionValue(newInput);
+        const isExactMatch = newInput.trim() === currentProblem.answerText.trim();
+        const isNumericMatch =
+          parsedVal !== null &&
+          Math.abs(parsedVal - currentProblem.answer) < 0.0001 &&
+          (!currentProblem.isFraction || newInput.includes("/") || currentProblem.answerText === newInput);
 
-      if (newInput === currentProblem.answerText) {
-        handleSubmitInput(newInput);
-      }
+        if (isExactMatch || isNumericMatch) {
+          handleSubmitInput(newInput);
+        }
+
+        return newInput;
+      });
     },
-    [inputVal, isCorrect, currentProblem, showFractions, handleSubmitInput]
+    [isCorrect, currentProblem, showFractions, handleSubmitInput]
   );
 
   const handleDelete = useCallback(() => {
     if (isCorrect !== null) return;
     setInputVal((prev) => prev.slice(0, -1));
   }, [isCorrect]);
+
+  const onSelectNumerator = useCallback(() => {
+    if (isCorrect !== null) return;
+    if (inputVal.includes("/")) {
+      setInputVal(inputVal.split("/")[0] || "");
+    }
+  }, [inputVal, isCorrect]);
+
+  const onSelectDenominator = useCallback(() => {
+    if (isCorrect !== null) return;
+    if (!inputVal.includes("/")) {
+      setInputVal((inputVal || "") + "/");
+    }
+  }, [inputVal, isCorrect]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -220,5 +248,7 @@ export function useQuizSession({
     handleKeyPress,
     handleDelete,
     handleSubmitInput,
+    onSelectNumerator,
+    onSelectDenominator,
   };
 }

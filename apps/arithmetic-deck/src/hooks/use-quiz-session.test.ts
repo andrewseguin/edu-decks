@@ -119,5 +119,69 @@ describe("arithmetic-deck: useQuizSession", () => {
 
       expect(result.current.inputVal).toBe("");
     });
+
+    it("accepts unsimplified equivalent fractions via handleKeyPress", () => {
+      const { result } = renderHook(() =>
+        useQuizSession({
+          activeOperations: ["+"],
+          minRange: 1,
+          maxRange: 5,
+          showWholeNumbers: false,
+          showFractions: true,
+          autoPlayAudio: false,
+          onSpeak,
+          onPlayChime,
+        })
+      );
+
+      // Force a known fraction problem: 4/3
+      const prob = result.current.currentProblem!;
+      prob.answer = 4 / 3;
+      prob.answerText = "4/3";
+      prob.isFraction = true;
+
+      // Type unsimplified equivalent "32/24"
+      act(() => {
+        result.current.handleKeyPress("3");
+        result.current.handleKeyPress("2");
+        result.current.handleKeyPress("/");
+        result.current.handleKeyPress("2");
+        result.current.handleKeyPress("4");
+      });
+
+      expect(result.current.isCorrect).toBe(true);
+      expect(result.current.score).toBe(1);
+      expect(onPlayChime).toHaveBeenCalledWith(true);
+    });
+
+    it("supports switching focus with onSelectNumerator and onSelectDenominator", () => {
+      const { result } = renderHook(() =>
+        useQuizSession({
+          activeOperations: ["+"],
+          minRange: 10,
+          maxRange: 50,
+          showWholeNumbers: false,
+          showFractions: true,
+          autoPlayAudio: false,
+          onSpeak,
+          onPlayChime,
+        })
+      );
+
+      act(() => {
+        result.current.handleKeyPress("5");
+      });
+      expect(result.current.inputVal).toBe("5");
+
+      act(() => {
+        result.current.onSelectDenominator();
+      });
+      expect(result.current.inputVal).toBe("5/");
+
+      act(() => {
+        result.current.onSelectNumerator();
+      });
+      expect(result.current.inputVal).toBe("5");
+    });
   });
 });
