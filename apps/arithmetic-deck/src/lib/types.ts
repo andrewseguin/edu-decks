@@ -32,6 +32,9 @@ export type MathProblem = {
 
 export type NumberType = 'whole' | 'fractions';
 
+export type FractionDenominatorMode = 'same' | 'different' | 'all';
+export type FractionMaxDenominator = 4 | 8 | 12;
+
 export type AppSettingsState = {
   activeOperations: MathOperation[];
   minRange: number;
@@ -40,6 +43,8 @@ export type AppSettingsState = {
   numberType: NumberType;
   showWholeNumbers: boolean;
   showFractions: boolean;
+  fractionDenominatorMode: FractionDenominatorMode;
+  fractionMaxDenominator: FractionMaxDenominator;
   autoPlayAudio: boolean;
   showCardCount: boolean;
   showTimer: boolean;

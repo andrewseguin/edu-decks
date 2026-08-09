@@ -1,6 +1,6 @@
 "use client";
 
-import { MathOperation, OPERATION_COLORS } from "@/lib/types";
+import { FractionDenominatorMode, FractionMaxDenominator, MathOperation, OPERATION_COLORS } from "@/lib/types";
 import { FractionDisplay } from "./fraction-display";
 import { MathSymbol } from "./math-symbol";
 import { cn } from "@/lib/utils";
@@ -15,6 +15,8 @@ type QuizDisplayProps = {
   allowNegatives?: boolean;
   showWholeNumbers?: boolean;
   showFractions?: boolean;
+  fractionDenominatorMode?: FractionDenominatorMode;
+  fractionMaxDenominator?: FractionMaxDenominator;
   autoPlayAudio: boolean;
   onSpeak: (text: string, onEnd?: () => void) => void;
   onPlayChime: (correct: boolean) => void;
@@ -27,6 +29,8 @@ export function QuizDisplay({
   maxRange,
   showWholeNumbers = true,
   showFractions = false,
+  fractionDenominatorMode = 'all',
+  fractionMaxDenominator = 8,
   autoPlayAudio,
   onSpeak,
   onPlayChime,
@@ -48,6 +52,8 @@ export function QuizDisplay({
     maxRange,
     showWholeNumbers,
     showFractions,
+    fractionDenominatorMode,
+    fractionMaxDenominator,
     autoPlayAudio,
     onSpeak,
     onPlayChime,

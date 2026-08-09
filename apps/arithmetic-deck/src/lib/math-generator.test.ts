@@ -47,6 +47,8 @@ describe("arithmetic-deck: math-generator", () => {
       expect(fractionToWords({ n: 3, d: 4 })).toBe("three fourths");
       expect(fractionToWords({ n: 5, d: 8 })).toBe("five eighths");
       expect(fractionToWords({ n: 7, d: 10 })).toBe("seven tenths");
+      expect(fractionToWords({ n: 1, d: 11 })).toBe("one eleventh");
+      expect(fractionToWords({ n: 5, d: 12 })).toBe("five twelfths");
     });
 
     it("handles whole number fractions (d = 1)", () => {
@@ -124,6 +126,33 @@ describe("arithmetic-deck: math-generator", () => {
         expect(problem.frac1!.d).toBeGreaterThan(0);
         expect(problem.frac2!.d).toBeGreaterThan(0);
         expect(problem.fracAnswer!.d).toBeGreaterThan(0);
+      }
+    });
+
+    it("respects 'same' denominator mode", () => {
+      for (let i = 0; i < 25; i++) {
+        const problem = generateMathProblem(["+", "-"], 1, 10, false, true, "same", 8);
+        expect(problem.isFraction).toBe(true);
+        expect(problem.frac1!.d).toBe(problem.frac2!.d);
+        expect(problem.hasConversion).toBe(false);
+      }
+    });
+
+    it("respects 'different' denominator mode", () => {
+      for (let i = 0; i < 25; i++) {
+        const problem = generateMathProblem(["+", "-"], 1, 10, false, true, "different", 8);
+        expect(problem.isFraction).toBe(true);
+        expect(problem.frac1!.d).not.toBe(problem.frac2!.d);
+        expect(problem.hasConversion).toBe(true);
+      }
+    });
+
+    it("respects maxDenominator setting", () => {
+      for (let i = 0; i < 25; i++) {
+        const problem = generateMathProblem(["+", "-", "×", "÷"], 1, 10, false, true, "all", 4);
+        expect(problem.isFraction).toBe(true);
+        expect(problem.frac1!.d).toBeLessThanOrEqual(4);
+        expect(problem.frac2!.d).toBeLessThanOrEqual(4);
       }
     });
   });

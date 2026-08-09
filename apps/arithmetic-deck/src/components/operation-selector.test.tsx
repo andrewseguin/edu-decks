@@ -69,4 +69,94 @@ describe("arithmetic-deck: OperationSelector", () => {
     fireEvent.click(multToggle);
     expect(onOperationToggle).toHaveBeenCalledWith("×");
   });
+
+  it("hides Number Range section when Fractions is selected", () => {
+    render(
+      <OperationSelector
+        open={true}
+        onOpenChange={vi.fn()}
+        activeOperations={["+"]}
+        onOperationToggle={vi.fn()}
+        minRange={1}
+        maxRange={10}
+        onRangeChange={vi.fn()}
+        showWholeNumbers={false}
+        showFractions={true}
+        onShowWholeNumbersChange={vi.fn()}
+        onShowFractionsChange={vi.fn()}
+        onStartQuiz={vi.fn()}
+      />
+    );
+
+    expect(screen.queryByText("Number Range")).not.toBeInTheDocument();
+    expect(screen.queryByText("1 - 10")).not.toBeInTheDocument();
+    expect(screen.queryByText("Custom")).not.toBeInTheDocument();
+  });
+
+  it("handles switching number type", () => {
+    const onShowWholeNumbersChange = vi.fn();
+    const onShowFractionsChange = vi.fn();
+
+    render(
+      <OperationSelector
+        open={true}
+        onOpenChange={vi.fn()}
+        activeOperations={["+"]}
+        onOperationToggle={vi.fn()}
+        minRange={1}
+        maxRange={10}
+        onRangeChange={vi.fn()}
+        showWholeNumbers={true}
+        onShowWholeNumbersChange={onShowWholeNumbersChange}
+        showFractions={false}
+        onShowFractionsChange={onShowFractionsChange}
+        onStartQuiz={vi.fn()}
+      />
+    );
+
+    const fractionsBtn = screen.getByRole("button", { name: "Fractions" });
+    fireEvent.click(fractionsBtn);
+    expect(onShowWholeNumbersChange).toHaveBeenCalledWith(false);
+    expect(onShowFractionsChange).toHaveBeenCalledWith(true);
+  });
+
+  it("renders fraction options and handles changing denominator mode and max denominator", () => {
+    const onFractionDenominatorModeChange = vi.fn();
+    const onFractionMaxDenominatorChange = vi.fn();
+
+    render(
+      <OperationSelector
+        open={true}
+        onOpenChange={vi.fn()}
+        activeOperations={["+"]}
+        onOperationToggle={vi.fn()}
+        minRange={1}
+        maxRange={10}
+        onRangeChange={vi.fn()}
+        showWholeNumbers={false}
+        showFractions={true}
+        fractionDenominatorMode="all"
+        onFractionDenominatorModeChange={onFractionDenominatorModeChange}
+        fractionMaxDenominator={8}
+        onFractionMaxDenominatorChange={onFractionMaxDenominatorChange}
+        onShowWholeNumbersChange={vi.fn()}
+        onShowFractionsChange={vi.fn()}
+        onStartQuiz={vi.fn()}
+      />
+    );
+
+    expect(screen.getByText("Denominators")).toBeInTheDocument();
+    expect(screen.getByText("Max Denominator")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Same Only" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Different" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Mixed" })).toBeInTheDocument();
+
+    const sameBtn = screen.getByRole("button", { name: "Same Only" });
+    fireEvent.click(sameBtn);
+    expect(onFractionDenominatorModeChange).toHaveBeenCalledWith("same");
+
+    const upTo4Btn = screen.getByRole("button", { name: "Up to 4" });
+    fireEvent.click(upTo4Btn);
+    expect(onFractionMaxDenominatorChange).toHaveBeenCalledWith(4);
+  });
 });

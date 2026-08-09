@@ -60,7 +60,9 @@ export default function MathDeckPage() {
         settings.minRange,
         settings.maxRange,
         settings.showWholeNumbers,
-        settings.showFractions
+        settings.showFractions,
+        settings.fractionDenominatorMode,
+        settings.fractionMaxDenominator
       ),
     autoPlayAudio: settings.autoPlayAudio,
     isQuizActive,
@@ -128,6 +130,10 @@ export default function MathDeckPage() {
             onShowWholeNumbersChange={settings.setShowWholeNumbers}
             showFractions={settings.showFractions}
             onShowFractionsChange={settings.setShowFractions}
+            fractionDenominatorMode={settings.fractionDenominatorMode}
+            onFractionDenominatorModeChange={settings.setFractionDenominatorMode}
+            fractionMaxDenominator={settings.fractionMaxDenominator}
+            onFractionMaxDenominatorChange={settings.setFractionMaxDenominator}
             open={isOperationSelectorOpen}
             onOpenChange={handleOperationSelectorOpenChange}
             onStartQuiz={() => setIsQuizActive(true)}
@@ -166,6 +172,8 @@ export default function MathDeckPage() {
             maxRange={settings.maxRange}
             showWholeNumbers={settings.showWholeNumbers}
             showFractions={settings.showFractions}
+            fractionDenominatorMode={settings.fractionDenominatorMode}
+            fractionMaxDenominator={settings.fractionMaxDenominator}
             autoPlayAudio={settings.autoPlayAudio}
             onSpeak={(text, onEnd) => speak(text, true, onEnd)}
             onPlayChime={playChime}

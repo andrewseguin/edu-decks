@@ -75,4 +75,19 @@ describe("arithmetic-deck: useDeckSettings", () => {
     expect(result.current.showFractions).toBe(true);
     expect(result.current.showWholeNumbers).toBe(false);
   });
+
+  it("manages fraction denominator mode and max denominator settings", () => {
+    const { result } = renderHook(() => useDeckSettings());
+
+    expect(result.current.fractionDenominatorMode).toBe("all");
+    expect(result.current.fractionMaxDenominator).toBe(8);
+
+    act(() => {
+      result.current.setFractionDenominatorMode("same");
+      result.current.setFractionMaxDenominator(4);
+    });
+
+    expect(result.current.fractionDenominatorMode).toBe("same");
+    expect(result.current.fractionMaxDenominator).toBe(4);
+  });
 });

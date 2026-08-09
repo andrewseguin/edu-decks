@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { MathOperation, OPERATION_COLORS } from "@/lib/types";
+import { FractionDenominatorMode, FractionMaxDenominator, MathOperation, OPERATION_COLORS } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
@@ -19,6 +19,10 @@ type OperationSelectorProps = {
   onShowWholeNumbersChange: (show: boolean) => void;
   showFractions: boolean;
   onShowFractionsChange: (show: boolean) => void;
+  fractionDenominatorMode?: FractionDenominatorMode;
+  onFractionDenominatorModeChange?: (mode: FractionDenominatorMode) => void;
+  fractionMaxDenominator?: FractionMaxDenominator;
+  onFractionMaxDenominatorChange?: (maxD: FractionMaxDenominator) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onStartQuiz: () => void;
@@ -35,6 +39,10 @@ export function OperationSelector({
   onShowWholeNumbersChange,
   showFractions,
   onShowFractionsChange,
+  fractionDenominatorMode = "all",
+  onFractionDenominatorModeChange,
+  fractionMaxDenominator = 8,
+  onFractionMaxDenominatorChange,
   open,
   onOpenChange,
   onStartQuiz,
@@ -203,120 +211,193 @@ export function OperationSelector({
           </div>
 
           {/* Number Range selection (Presets + Custom Option) */}
-          <div>
-            <h4 className="font-medium leading-none font-headline text-lg mb-3">
-              Number Range
-            </h4>
+          {showWholeNumbers && (
+            <div>
+              <h4 className="font-medium leading-none font-headline text-lg mb-3">
+                Number Range
+              </h4>
 
-            {/* Presets including Custom */}
-            <div className="grid grid-cols-5 gap-1 mb-3">
-              {rangePresets.map((preset) => {
-                const isSelected = !showCustom && minRange === preset.min && maxRange === preset.max;
-                return (
-                  <Button
-                    key={preset.label}
-                    type="button"
-                    variant={isSelected ? "default" : "outline"}
-                    size="sm"
-                    className="rounded-xl font-headline font-bold h-9 text-[11px] px-1"
-                    onClick={() => {
-                      setShowCustom(false);
-                      onRangeChange(preset.min, preset.max);
-                    }}
-                  >
-                    {preset.label}
-                  </Button>
-                );
-              })}
-
-              <Button
-                type="button"
-                variant={showCustom ? "default" : "outline"}
-                size="sm"
-                className="rounded-xl font-headline font-bold h-9 text-[11px] px-1"
-                onClick={() => setShowCustom(true)}
-              >
-                Custom
-              </Button>
-            </div>
-
-            {/* Custom Min / Max Stepper Controls (Revealed when Custom is selected) */}
-            {showCustom && (
-              <div className="grid grid-cols-2 gap-3 bg-muted/40 p-3 rounded-2xl border animate-fade-in">
-                {/* Min Control */}
-                <div className="space-y-1.5">
-                  <Label className="text-[11px] font-headline font-bold text-muted-foreground uppercase tracking-wider">
-                    Min Number
-                  </Label>
-                  <div className="flex items-center gap-1">
+              {/* Presets including Custom */}
+              <div className="grid grid-cols-5 gap-1 mb-3">
+                {rangePresets.map((preset) => {
+                  const isSelected = !showCustom && minRange === preset.min && maxRange === preset.max;
+                  return (
                     <Button
+                      key={preset.label}
                       type="button"
-                      variant="outline"
-                      size="icon"
-                      className="h-8 w-8 rounded-lg shrink-0 font-bold text-base"
-                      onClick={() => onRangeChange(Math.max(0, minRange - 1), maxRange)}
-                    >
-                      -
-                    </Button>
-                    <input
-                      type="number"
-                      value={minRange}
-                      onChange={(e) => {
-                        const val = parseInt(e.target.value, 10) || 0;
-                        onRangeChange(Math.max(0, Math.min(val, maxRange - 1)), maxRange);
+                      variant={isSelected ? "default" : "outline"}
+                      size="sm"
+                      className="rounded-xl font-headline font-bold h-9 text-[11px] px-1"
+                      onClick={() => {
+                        setShowCustom(false);
+                        onRangeChange(preset.min, preset.max);
                       }}
-                      className="w-full h-8 text-center font-headline font-bold text-sm bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      className="h-8 w-8 rounded-lg shrink-0 font-bold text-base"
-                      onClick={() => onRangeChange(Math.min(minRange + 1, maxRange - 1), maxRange)}
                     >
-                      +
+                      {preset.label}
                     </Button>
+                  );
+                })}
+
+                <Button
+                  type="button"
+                  variant={showCustom ? "default" : "outline"}
+                  size="sm"
+                  className="rounded-xl font-headline font-bold h-9 text-[11px] px-1"
+                  onClick={() => setShowCustom(true)}
+                >
+                  Custom
+                </Button>
+              </div>
+
+              {/* Custom Min / Max Stepper Controls (Revealed when Custom is selected) */}
+              {showCustom && (
+                <div className="grid grid-cols-2 gap-3 bg-muted/40 p-3 rounded-2xl border animate-fade-in">
+                  {/* Min Control */}
+                  <div className="space-y-1.5">
+                    <Label className="text-[11px] font-headline font-bold text-muted-foreground uppercase tracking-wider">
+                      Min Number
+                    </Label>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 rounded-lg shrink-0 font-bold text-base"
+                        onClick={() => onRangeChange(Math.max(0, minRange - 1), maxRange)}
+                      >
+                        -
+                      </Button>
+                      <input
+                        type="number"
+                        value={minRange}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10) || 0;
+                          onRangeChange(Math.max(0, Math.min(val, maxRange - 1)), maxRange);
+                        }}
+                        className="w-full h-8 text-center font-headline font-bold text-sm bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 rounded-lg shrink-0 font-bold text-base"
+                        onClick={() => onRangeChange(Math.min(minRange + 1, maxRange - 1), maxRange)}
+                      >
+                        +
+                      </Button>
+                    </div>
+                  </div>
+
+                  {/* Max Control */}
+                  <div className="space-y-1.5">
+                    <Label className="text-[11px] font-headline font-bold text-muted-foreground uppercase tracking-wider">
+                      Max Number
+                    </Label>
+                    <div className="flex items-center gap-1">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 rounded-lg shrink-0 font-bold text-base"
+                        onClick={() => onRangeChange(minRange, Math.max(minRange + 1, maxRange - 1))}
+                      >
+                        -
+                      </Button>
+                      <input
+                        type="number"
+                        value={maxRange}
+                        onChange={(e) => {
+                          const val = parseInt(e.target.value, 10) || minRange + 1;
+                          onRangeChange(minRange, Math.max(minRange + 1, val));
+                        }}
+                        className="w-full h-8 text-center font-headline font-bold text-sm bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
+                      />
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        className="h-8 w-8 rounded-lg shrink-0 font-bold text-base"
+                        onClick={() => onRangeChange(minRange, maxRange + 1)}
+                      >
+                        +
+                      </Button>
+                    </div>
                   </div>
                 </div>
+              )}
+            </div>
+          )}
 
-                {/* Max Control */}
-                <div className="space-y-1.5">
-                  <Label className="text-[11px] font-headline font-bold text-muted-foreground uppercase tracking-wider">
-                    Max Number
-                  </Label>
-                  <div className="flex items-center gap-1">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      className="h-8 w-8 rounded-lg shrink-0 font-bold text-base"
-                      onClick={() => onRangeChange(minRange, Math.max(minRange + 1, maxRange - 1))}
-                    >
-                      -
-                    </Button>
-                    <input
-                      type="number"
-                      value={maxRange}
-                      onChange={(e) => {
-                        const val = parseInt(e.target.value, 10) || minRange + 1;
-                        onRangeChange(minRange, Math.max(minRange + 1, val));
-                      }}
-                      className="w-full h-8 text-center font-headline font-bold text-sm bg-background border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary"
-                    />
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="icon"
-                      className="h-8 w-8 rounded-lg shrink-0 font-bold text-base"
-                      onClick={() => onRangeChange(minRange, maxRange + 1)}
-                    >
-                      +
-                    </Button>
-                  </div>
+          {/* Fraction Options (when Fractions is selected) */}
+          {showFractions && (
+            <div className="space-y-4 animate-fade-in">
+              {/* Denominators Match Mode */}
+              <div>
+                <h4 className="font-medium leading-none font-headline text-lg mb-3">
+                  Denominators
+                </h4>
+                <div className="grid grid-cols-3 gap-1.5 p-1 bg-muted rounded-2xl">
+                  <Button
+                    type="button"
+                    variant={fractionDenominatorMode === "same" ? "default" : "ghost"}
+                    className={cn(
+                      "rounded-xl font-headline font-bold h-9 text-xs transition-all",
+                      fractionDenominatorMode === "same" ? "shadow-sm" : "text-muted-foreground"
+                    )}
+                    onClick={() => onFractionDenominatorModeChange?.("same")}
+                  >
+                    Same Only
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={fractionDenominatorMode === "different" ? "default" : "ghost"}
+                    className={cn(
+                      "rounded-xl font-headline font-bold h-9 text-xs transition-all",
+                      fractionDenominatorMode === "different" ? "shadow-sm" : "text-muted-foreground"
+                    )}
+                    onClick={() => onFractionDenominatorModeChange?.("different")}
+                  >
+                    Different
+                  </Button>
+                  <Button
+                    type="button"
+                    variant={fractionDenominatorMode === "all" ? "default" : "ghost"}
+                    className={cn(
+                      "rounded-xl font-headline font-bold h-9 text-xs transition-all",
+                      fractionDenominatorMode === "all" ? "shadow-sm" : "text-muted-foreground"
+                    )}
+                    onClick={() => onFractionDenominatorModeChange?.("all")}
+                  >
+                    Mixed
+                  </Button>
                 </div>
               </div>
-            )}
-          </div>
+
+              {/* Max Denominator */}
+              <div>
+                <h4 className="font-medium leading-none font-headline text-lg mb-3">
+                  Max Denominator
+                </h4>
+                <div className="grid grid-cols-3 gap-2">
+                  {([4, 8, 12] as const).map((d) => {
+                    const isSelected = fractionMaxDenominator === d;
+                    return (
+                      <Button
+                        key={d}
+                        type="button"
+                        variant={isSelected ? "default" : "outline"}
+                        size="sm"
+                        className="rounded-xl font-headline font-bold h-9 text-xs"
+                        onClick={() => onFractionMaxDenominatorChange?.(d)}
+                      >
+                        Up to {d}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Quiz Start Button */}
           <div className="pt-4 border-t">

@@ -1,4 +1,4 @@
-import { MathOperation } from "@/lib/types";
+import { FractionDenominatorMode, FractionMaxDenominator, MathOperation } from "@/lib/types";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 
 export function useDeckSettings() {
@@ -20,6 +20,14 @@ export function useDeckSettings() {
       }
       return "whole";
     }
+  );
+  const [fractionDenominatorMode, setFractionDenominatorMode] = useLocalStorage<FractionDenominatorMode>(
+    "math-deck-fraction-mode",
+    "all"
+  );
+  const [fractionMaxDenominator, setFractionMaxDenominator] = useLocalStorage<FractionMaxDenominator>(
+    "math-deck-fraction-max-denominator",
+    8
   );
   const [showCardCount, setShowCardCount] = useLocalStorage<boolean>("math-deck-show-card-count", true);
   const [showTimer, setShowTimer] = useLocalStorage<boolean>("math-deck-show-timer", true);
@@ -69,6 +77,10 @@ export function useDeckSettings() {
     setShowWholeNumbers,
     showFractions,
     setShowFractions,
+    fractionDenominatorMode,
+    setFractionDenominatorMode,
+    fractionMaxDenominator,
+    setFractionMaxDenominator,
     showCardCount,
     setShowCardCount,
     showTimer,

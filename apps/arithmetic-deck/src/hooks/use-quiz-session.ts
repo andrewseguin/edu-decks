@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { MathOperation, MathProblem, Fraction } from "@/lib/types";
+import { MathOperation, MathProblem, Fraction, FractionDenominatorMode, FractionMaxDenominator } from "@/lib/types";
 import { generateMathProblem } from "@/lib/math-generator";
 
 export function parseFractionValue(str: string): number | null {
@@ -35,6 +35,8 @@ type UseQuizSessionOptions = {
   maxRange: number;
   showWholeNumbers?: boolean;
   showFractions?: boolean;
+  fractionDenominatorMode?: FractionDenominatorMode;
+  fractionMaxDenominator?: FractionMaxDenominator;
   autoPlayAudio: boolean;
   onSpeak: (text: string, onEnd?: () => void) => void;
   onPlayChime: (correct: boolean) => void;
@@ -47,6 +49,8 @@ export function useQuizSession({
   maxRange,
   showWholeNumbers = true,
   showFractions = false,
+  fractionDenominatorMode = 'all',
+  fractionMaxDenominator = 8,
   autoPlayAudio,
   onSpeak,
   onPlayChime,
@@ -92,7 +96,9 @@ export function useQuizSession({
       minRange,
       maxRange,
       showWholeNumbers,
-      showFractions
+      showFractions,
+      fractionDenominatorMode,
+      fractionMaxDenominator
     );
     setCurrentProblem(problem);
     setInputVal("");
@@ -103,7 +109,7 @@ export function useQuizSession({
         playAudioPrompt(problem);
       }, 400);
     }
-  }, [activeOperations, minRange, maxRange, showWholeNumbers, showFractions, autoPlayAudio, playAudioPrompt]);
+  }, [activeOperations, minRange, maxRange, showWholeNumbers, showFractions, fractionDenominatorMode, fractionMaxDenominator, autoPlayAudio, playAudioPrompt]);
 
   useEffect(() => {
     nextQuestion();

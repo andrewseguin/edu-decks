@@ -1,4 +1,10 @@
-import { Fraction, MathOperation, MathProblem } from "./types";
+import {
+  Fraction,
+  FractionDenominatorMode,
+  FractionMaxDenominator,
+  MathOperation,
+  MathProblem,
+} from "./types";
 
 function getRandomInt(min: number, max: number): number {
   const minCeil = Math.ceil(min);
@@ -31,8 +37,8 @@ export function simplifyFraction(n: number, d: number): Fraction {
 export function fractionToWords(f: Fraction): string {
   if (f.d === 1) return `${f.n}`;
   const numNames = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
-  const denSingular = ["", "whole", "half", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"];
-  const denPlural = ["", "wholes", "halves", "thirds", "fourths", "fifths", "sixths", "sevenths", "eighths", "ninths", "tenths"];
+  const denSingular = ["", "whole", "half", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth", "eleventh", "twelfth"];
+  const denPlural = ["", "wholes", "halves", "thirds", "fourths", "fifths", "sixths", "sevenths", "eighths", "ninths", "tenths", "elevenths", "twelfths"];
 
   const nStr = f.n <= 12 ? numNames[f.n] || `${f.n}` : `${f.n}`;
   const dStr = f.n === 1 ? (denSingular[f.d] || `${f.d}th`) : (denPlural[f.d] || `${f.d}ths`);
@@ -49,7 +55,9 @@ export function generateMathProblem(
   minRange: number,
   maxRange: number,
   showWholeNumbers: boolean = true,
-  showFractions: boolean = false
+  showFractions: boolean = false,
+  fractionDenominatorMode: FractionDenominatorMode = 'all',
+  fractionMaxDenominator: FractionMaxDenominator = 8
 ): MathProblem {
   const operations: MathOperation[] = activeOperations.length > 0 ? activeOperations : ['+'];
   const operation = operations[Math.floor(Math.random() * operations.length)];
@@ -65,7 +73,7 @@ export function generateMathProblem(
   }
 
   if (isFraction) {
-    return generateFractionProblem(operation);
+    return generateFractionProblem(operation, fractionDenominatorMode, fractionMaxDenominator);
   }
 
   let num1 = 0;
@@ -145,17 +153,38 @@ export function generateMathProblem(
   };
 }
 
-function generateFractionProblem(
-  operation: MathOperation
+export function generateFractionProblem(
+  operation: MathOperation,
+  denominatorMode: FractionDenominatorMode = 'all',
+  maxDenominator: FractionMaxDenominator = 8
 ): MathProblem {
-  // Clean denominator pairs with LCM <= 12 (both same and different denominators)
-  const cleanPairs: [number, number][] = [
-    [2, 2], [3, 3], [4, 4], [6, 6], [8, 8],
-    [2, 4], [2, 6], [2, 8], [3, 6], [4, 8]
-  ];
+  // Clean denominator pairs grouped by maxDenominator and same/different
+  const samePairsByMax: Record<FractionMaxDenominator, [number, number][]> = {
+    4: [[2, 2], [3, 3], [4, 4]],
+    8: [[2, 2], [3, 3], [4, 4], [6, 6], [8, 8]],
+    12: [[2, 2], [3, 3], [4, 4], [5, 5], [6, 6], [8, 8], [10, 10], [12, 12]],
+  };
+
+  const diffPairsByMax: Record<FractionMaxDenominator, [number, number][]> = {
+    4: [[2, 4]],
+    8: [[2, 4], [2, 6], [2, 8], [3, 6], [4, 8]],
+    12: [[2, 4], [2, 6], [2, 8], [3, 6], [4, 8], [2, 10], [2, 12], [3, 12], [4, 12], [6, 12], [5, 10]],
+  };
+
+  const samePairs = samePairsByMax[maxDenominator] || samePairsByMax[8];
+  const diffPairs = diffPairsByMax[maxDenominator] || diffPairsByMax[8];
+
+  let pairs: [number, number][];
+  if (denominatorMode === 'same') {
+    pairs = samePairs;
+  } else if (denominatorMode === 'different') {
+    pairs = diffPairs;
+  } else {
+    pairs = [...samePairs, ...diffPairs];
+  }
 
   if (operation === '+' || operation === '-') {
-    const pair = cleanPairs[Math.floor(Math.random() * cleanPairs.length)];
+    const pair = pairs[Math.floor(Math.random() * pairs.length)];
     let d1 = pair[0];
     let d2 = pair[1];
 
@@ -229,10 +258,24 @@ function generateFractionProblem(
     };
   }
 
-  // For Multiplication and Division, pick small clean denominators (2, 3, 4)
-  const multDenominators = [2, 3, 4];
-  const d1 = multDenominators[Math.floor(Math.random() * multDenominators.length)];
-  const d2 = multDenominators[Math.floor(Math.random() * multDenominators.length)];
+  // For Multiplication and Division
+  const multDenominatorsByMax: Record<FractionMaxDenominator, number[]> = {
+    4: [2, 3, 4],
+    8: [2, 3, 4, 6, 8],
+    12: [2, 3, 4, 5, 6, 8, 10, 12],
+  };
+  const multDenominators = multDenominatorsByMax[maxDenominator] || multDenominatorsByMax[8];
+
+  let d1 = multDenominators[Math.floor(Math.random() * multDenominators.length)];
+  let d2 = multDenominators[Math.floor(Math.random() * multDenominators.length)];
+
+  if (denominatorMode === 'same') {
+    d2 = d1;
+  } else if (denominatorMode === 'different' && multDenominators.length > 1) {
+    while (d2 === d1) {
+      d2 = multDenominators[Math.floor(Math.random() * multDenominators.length)];
+    }
+  }
 
   let n1 = getRandomInt(1, d1 - 1);
   let n2 = getRandomInt(1, d2 - 1);
