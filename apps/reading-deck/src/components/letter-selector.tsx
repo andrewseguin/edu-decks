@@ -76,9 +76,8 @@ export function LetterSelector({
     <Popover open={open} onOpenChange={onOpenChange}>
       <PopoverTrigger asChild>
         <Button
-          variant="default"
           size="icon"
-          className="active:scale-95 transition-transform"
+          className="bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs active:scale-95 transition-transform"
           aria-label="Select letters"
         >
           <GraduationCap className="h-6 w-6" />
