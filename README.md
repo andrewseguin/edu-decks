@@ -51,9 +51,18 @@ pnpm --filter reading-deck dev
 
 ## 🧪 Verification & Testing
 
-### Workspace Typechecking & Build
+### Typechecking & Unit Tests (Safe During Active Dev)
 ```bash
+# Typecheck across all workspace packages
 pnpm -r typecheck
+
+# Run Vitest unit tests
+pnpm -r test
+```
+
+### Production Build
+```bash
+# Full production build (run when dev servers are stopped)
 pnpm -r build
 ```
 

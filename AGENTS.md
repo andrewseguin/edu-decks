@@ -6,9 +6,10 @@ This file defines mandatory behavioral constraints and operational workflows for
 
 ## 🚨 CRITICAL OPERATIONAL RULES
 
-### 1. DO NOT KILL LOCAL DEVELOPMENT SERVERS
-- **NEVER** run `kill`, `killall`, `pkill`, or `lsof ... | kill -9` on processes listening on ports `9002` (`reading-deck`) or `9003` (`arithmetic-deck`).
+### 1. DO NOT KILL OR CORRUPT LOCAL DEVELOPMENT SERVERS
+- **NEVER** run `kill`, `killall`, `pkill`, or `lsof ... | kill -9` on processes listening on ports `9000` (`landing-page`), `9002` (`reading-deck`), or `9003` (`arithmetic-deck`).
 - **NEVER** terminate a running `pnpm dev` process.
+- **NEVER** run `next build` or `pnpm -r build` while `pnpm dev` is running. Running `next build` concurrently overwrites the active `.next` cache and build manifests with production bundles, corrupting the dev server and causing `500 Internal Server Error`.
 - Both `apps/arithmetic-deck/playwright.config.ts` and `apps/reading-deck/playwright.config.ts` are configured with `reuseExistingServer: true`. Automated visual regression tests (`pnpm -r test:visual`) will automatically attach to and reuse any already-running development server.
 
 ### 2. ZERO DESTRUCTION
@@ -19,11 +20,12 @@ This file defines mandatory behavioral constraints and operational workflows for
 - Card-to-card transitions across all decks use the subtle fade-in zoom animation (`animate-fade-in-zoom`).
 
 ### 4. INCREMENTAL VERIFICATION
-- After every phase of changes, you must run type-checking and the build command across the workspace to prove the workspace is green before proceeding:
+- During active development, verify changes using type-checking and unit tests:
   ```bash
   pnpm -r typecheck
-  pnpm -r build
+  pnpm -r test
   ```
+- **Only run `pnpm -r build`** when dev servers are intentionally stopped or when performing final release/deployment validation.
 
 ---
 
