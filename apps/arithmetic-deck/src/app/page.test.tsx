@@ -8,7 +8,7 @@ describe("arithmetic-deck: MathDeckPage Integration", () => {
 
     // Check Math card rendered with '=' sign
     await waitFor(() => {
-      expect(screen.getByText("=")).toBeInTheDocument();
+      expect(screen.getAllByText("=")[0]).toBeInTheDocument();
     });
 
     // Check header controls (operation selector and settings)

@@ -30,12 +30,12 @@ describe("arithmetic-deck: MathCard", () => {
       />
     );
 
-    expect(screen.getByText("6")).toBeInTheDocument();
-    expect(screen.getByText("+")).toBeInTheDocument();
-    expect(screen.getByText("4")).toBeInTheDocument();
-    expect(screen.getByText("=")).toBeInTheDocument();
+    expect(screen.getAllByText("6")[0]).toBeInTheDocument();
+    expect(screen.getAllByText("+")[0]).toBeInTheDocument();
+    expect(screen.getAllByText("4")[0]).toBeInTheDocument();
+    expect(screen.getAllByText("=")[0]).toBeInTheDocument();
     // Frosted badge '?' is present on front
-    expect(screen.getByText("?")).toBeInTheDocument();
+    expect(screen.getAllByText("?")[0]).toBeInTheDocument();
   });
 
   it("handles card tap and speech on speak button click", () => {
@@ -57,7 +57,7 @@ describe("arithmetic-deck: MathCard", () => {
     expect(onSpeak).toHaveBeenCalledWith("6 plus 4");
 
     // Click card
-    fireEvent.click(screen.getByText("6"));
+    fireEvent.click(screen.getAllByText("6")[1]);
     expect(onCardTap).toHaveBeenCalled();
   });
 
