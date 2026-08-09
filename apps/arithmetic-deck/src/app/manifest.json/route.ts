@@ -27,7 +27,7 @@ export function GET() {
         purpose: "maskable",
       },
     ],
-    start_url: basePath ? `${basePath}/` : "/",
+    start_url: basePath ? `${basePath}/?source=pwa` : "/?source=pwa",
     scope: basePath ? `${basePath}/` : "/",
     background_color: "#09090b",
     theme_color: "#09090b",

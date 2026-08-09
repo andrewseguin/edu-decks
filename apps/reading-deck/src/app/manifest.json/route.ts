@@ -10,7 +10,7 @@ export function GET() {
     "background_color": "#09090b",
     "display": "standalone",
     "scope": basePath ? `${basePath}/` : "/",
-    "start_url": basePath ? `${basePath}/` : "/",
+    "start_url": basePath ? `${basePath}/?source=pwa` : "/?source=pwa",
     "name": "Reading Deck",
     "short_name": "Reading Deck",
     "description": "Reading Deck - Phonics, Letters & Reading Fluency",

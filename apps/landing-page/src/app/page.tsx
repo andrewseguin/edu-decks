@@ -22,7 +22,7 @@ const APPS = [
     ageRange: "Ages 4–10 (Pre-K to 4th)",
     description:
       "Master numbers, operations (+, −, ×, ÷), fractions, and 10-frame bonds with visual animation steps and instant feedback.",
-    webUrl: "https://arithmetic.edudecks.org",
+    webUrl: "https://arithmetic.edudecks.org/?ref=landing",
     playStoreUrl:
       "https://play.google.com/store/apps/details?id=org.edudecks.arithmetic",
     primaryButtonClass: DECK_COLORS.emerald.btn,
@@ -52,7 +52,7 @@ const APPS = [
     ageRange: "Ages 3–8 (Pre-K to 2nd)",
     description:
       "Learn the alphabet, letter-sound phonics, animated stroke handwriting guides, and 1,000+ sight words with crystal-clear voice audio.",
-    webUrl: "https://reading.edudecks.org",
+    webUrl: "https://reading.edudecks.org/?ref=landing",
     playStoreUrl:
       "https://play.google.com/store/apps/details?id=org.edudecks.reading",
     primaryButtonClass: DECK_COLORS.emerald.btn,
