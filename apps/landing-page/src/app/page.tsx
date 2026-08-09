@@ -168,13 +168,13 @@ export default function HomePage() {
                 </div>
 
                 {/* Actual Screenshot Frame (Native 16:9 Aspect Ratio) */}
-                <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-border/80 bg-neutral-950 shadow-xs my-3 select-none">
+                <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-border/80 bg-card shadow-xs my-3 select-none">
                   <Image
                     src={currentScreenshot.src}
                     alt={`${app.title} - ${currentScreenshot.label}`}
                     fill
                     sizes="(max-width: 768px) 100vw, 500px"
-                    className="object-contain transition-opacity duration-300"
+                    className="object-cover transition-opacity duration-300"
                     priority
                   />
                 </div>
