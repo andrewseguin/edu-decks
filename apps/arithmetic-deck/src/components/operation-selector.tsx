@@ -5,7 +5,7 @@ import { MathOperation, OPERATION_COLORS } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
-import { Calculator, Check, Sparkles, X } from "lucide-react";
+import { GraduationCap, Check, Sparkles, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 type OperationSelectorProps = {
@@ -64,7 +64,7 @@ export function OperationSelector({
           className="bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs active:scale-95 transition-transform"
           aria-label="Select operations"
         >
-          <Calculator className="h-6 w-6" />
+          <GraduationCap className="h-6 w-6" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
