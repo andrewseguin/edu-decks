@@ -18,6 +18,30 @@ async function advanceToLastStep(page: Page) {
   await page.waitForTimeout(800);
 }
 
+async function hideDevOverlays(page: Page) {
+  try {
+    await page.addStyleTag({
+      content: `
+        nextjs-portal,
+        [data-nextjs-toast],
+        [data-nextjs-dev-tools],
+        #nextjs-dev-tools,
+        #__next-build-watcher,
+        div[data-nextjs-portal],
+        .nextjs-toast-errors-parent {
+          display: none !important;
+          visibility: hidden !important;
+          opacity: 0 !important;
+          pointer-events: none !important;
+        }
+      `,
+    });
+    await page.evaluate(() => {
+      document.querySelectorAll('nextjs-portal, [data-nextjs-dev-tools], #nextjs-dev-tools, #__next-build-watcher').forEach(el => el.remove());
+    });
+  } catch (e) {}
+}
+
 async function clearFocus(page: Page) {
   try {
     await page.mouse.move(0, 0);
@@ -27,6 +51,7 @@ async function clearFocus(page: Page) {
       (document.activeElement as HTMLElement).blur();
     }
   });
+  await hideDevOverlays(page);
   await page.waitForTimeout(200);
 }
 

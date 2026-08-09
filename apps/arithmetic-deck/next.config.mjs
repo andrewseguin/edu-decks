@@ -11,6 +11,7 @@ const nextConfig = {
     unoptimized: true,
   },
   basePath: isMobile ? "" : (process.env.NEXT_PUBLIC_BASE_PATH || ''),
+  devIndicators: false,
 };
 
 export default nextConfig;

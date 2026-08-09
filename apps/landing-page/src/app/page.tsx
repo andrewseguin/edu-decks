@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ExternalLink, CheckCircle2 } from "lucide-react";
+import { ExternalLink, CheckCircle2, GraduationCap } from "lucide-react";
 import { DECK_COLORS } from "@decks/core";
 import { ThemeToggle } from "../components/theme-toggle";
 
@@ -26,7 +26,6 @@ const APPS = [
     playStoreUrl:
       "https://play.google.com/store/apps/details?id=org.edudecks.arithmetic",
     primaryButtonClass: DECK_COLORS.emerald.btn,
-    ageBadgeClass: "bg-muted/60 text-muted-foreground border-border/70",
     screenshots: [
       {
         label: "Card Front",
@@ -56,7 +55,6 @@ const APPS = [
     playStoreUrl:
       "https://play.google.com/store/apps/details?id=org.edudecks.reading",
     primaryButtonClass: DECK_COLORS.emerald.btn,
-    ageBadgeClass: "bg-muted/60 text-muted-foreground border-border/70",
     screenshots: [
       {
         label: "Phonics Card",
@@ -156,21 +154,14 @@ export default function HomePage() {
                 key={app.id}
                 className="group flex flex-col bg-card border border-border/80 rounded-3xl p-5 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 relative overflow-hidden"
               >
-                {/* Top Bar: Title & Target Age */}
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div>
-                    <h2 className="text-xl font-bold font-headline text-foreground tracking-tight">
-                      {app.title}
-                    </h2>
-                    <p className="text-xs font-medium text-muted-foreground mt-0.5">
-                      {app.subtitle}
-                    </p>
-                  </div>
-                  <span
-                    className={`inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-semibold border shrink-0 ${app.ageBadgeClass}`}
-                  >
-                    {app.ageRange}
-                  </span>
+                {/* Top Bar: Large App Title & Subtitle */}
+                <div className="mb-2">
+                  <h2 className="text-2xl sm:text-3xl font-extrabold font-headline text-foreground tracking-tight">
+                    {app.title}
+                  </h2>
+                  <p className="text-sm font-medium text-muted-foreground mt-1">
+                    {app.subtitle}
+                  </p>
                 </div>
 
                 {/* Actual Screenshot Frame (Native 16:9 Aspect Ratio) */}
@@ -216,10 +207,16 @@ export default function HomePage() {
                   })}
                 </div>
 
-                {/* Description */}
-                <p className="text-xs sm:text-sm text-foreground/80 leading-relaxed mb-6">
-                  {app.description}
-                </p>
+                {/* Description & Target Age Badge */}
+                <div className="flex flex-col gap-3 mb-6">
+                  <p className="text-xs sm:text-sm text-foreground/80 leading-relaxed">
+                    {app.description}
+                  </p>
+                  <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-lg text-xs font-semibold bg-muted/60 text-muted-foreground border border-border/70">
+                    <GraduationCap className="w-3.5 h-3.5 text-muted-foreground" />
+                    <span>{app.ageRange}</span>
+                  </div>
+                </div>
 
                 {/* Action Buttons */}
                 <div className="grid grid-cols-2 gap-2.5 mt-auto pt-2">

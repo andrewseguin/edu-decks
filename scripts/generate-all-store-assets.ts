@@ -20,6 +20,30 @@ async function advanceToLastAnimationStep(page: Page) {
   await page.waitForTimeout(1200);
 }
 
+async function hideDevOverlays(page: Page) {
+  try {
+    await page.addStyleTag({
+      content: `
+        nextjs-portal,
+        [data-nextjs-toast],
+        [data-nextjs-dev-tools],
+        #nextjs-dev-tools,
+        #__next-build-watcher,
+        div[data-nextjs-portal],
+        .nextjs-toast-errors-parent {
+          display: none !important;
+          visibility: hidden !important;
+          opacity: 0 !important;
+          pointer-events: none !important;
+        }
+      `,
+    });
+    await page.evaluate(() => {
+      document.querySelectorAll('nextjs-portal, [data-nextjs-dev-tools], #nextjs-dev-tools, #__next-build-watcher').forEach(el => el.remove());
+    });
+  } catch (e) {}
+}
+
 /**
  * Helper to remove focus rings / blur active element before screenshot capture.
  */
@@ -32,6 +56,7 @@ async function clearFocus(page: Page) {
       (document.activeElement as HTMLElement).blur();
     }
   });
+  await hideDevOverlays(page);
   await page.waitForTimeout(200);
 }
 
