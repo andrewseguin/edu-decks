@@ -67,7 +67,16 @@ export function PrivacyPolicyView({ appName }: PrivacyPolicyViewProps) {
           <section>
             <h2 className="text-base font-semibold text-foreground mb-2">6. Contact</h2>
             <p>
-              If you have any questions regarding this Privacy Policy, you can open an issue on our GitHub repository.
+              If you have any questions regarding this Privacy Policy, you can open an issue on our GitHub repository or visit{' '}
+              <a
+                href="https://edudecks.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline font-medium"
+              >
+                edudecks.org
+              </a>
+              .
             </p>
           </section>
         </div>

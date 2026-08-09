@@ -40,5 +40,9 @@ describe("reading-deck: AppSettings", () => {
     });
     fireEvent.click(manageRecordingsBtn);
     expect(onOpenRecordings).toHaveBeenCalledTimes(1);
+
+    const link = screen.getByRole("link", { name: /More decks at edudecks\.org/i });
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute("href", "https://edudecks.org");
   });
 });

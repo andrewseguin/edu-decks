@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Settings, Lock } from "lucide-react";
+import { Settings, Lock, ExternalLink } from "lucide-react";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { cn } from "../lib/utils";
 
@@ -14,6 +14,9 @@ export type AppSettingsModalProps = {
   triggerClassName?: string;
   contentClassName?: string;
   lockButtonLabel?: React.ReactNode;
+  showEduDecksLink?: boolean;
+  eduDecksUrl?: string;
+  eduDecksLabel?: string;
 };
 
 export function AppSettingsModal({
@@ -25,6 +28,9 @@ export function AppSettingsModal({
   triggerClassName,
   contentClassName,
   lockButtonLabel = "Lock Settings",
+  showEduDecksLink = true,
+  eduDecksUrl = "https://edudecks.org",
+  eduDecksLabel = "More decks at edudecks.org",
 }: AppSettingsModalProps) {
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={onOpenChange}>
@@ -85,6 +91,19 @@ export function AppSettingsModal({
                     </div>
                     {lockButtonLabel}
                   </button>
+                </div>
+              )}
+              {showEduDecksLink && (
+                <div className="pt-2 border-t border-border/60 text-center">
+                  <a
+                    href={eduDecksUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-body select-none group"
+                  >
+                    <span>{eduDecksLabel}</span>
+                    <ExternalLink className="h-3 w-3 opacity-60 group-hover:opacity-100 transition-opacity" />
+                  </a>
                 </div>
               )}
             </div>

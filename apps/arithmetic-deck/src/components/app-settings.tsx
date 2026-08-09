@@ -12,6 +12,9 @@ type AppSettingsProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onLockApp?: () => void;
+  showEduDecksLink?: boolean;
+  eduDecksUrl?: string;
+  eduDecksLabel?: string;
 };
 
 export function AppSettings({
@@ -26,6 +29,9 @@ export function AppSettings({
   open,
   onOpenChange,
   onLockApp,
+  showEduDecksLink,
+  eduDecksUrl,
+  eduDecksLabel,
 }: AppSettingsProps) {
   return (
     <DeckStandardSettings
@@ -40,6 +46,9 @@ export function AppSettings({
       keepScreenAwake={keepScreenAwake}
       onKeepScreenAwakeChange={onKeepScreenAwakeChange}
       onLockApp={onLockApp}
+      showEduDecksLink={showEduDecksLink}
+      eduDecksUrl={eduDecksUrl}
+      eduDecksLabel={eduDecksLabel}
     />
   );
 }

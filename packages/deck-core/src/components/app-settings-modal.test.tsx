@@ -89,4 +89,51 @@ describe("deck-core: AppSettingsModal & Subcomponents", () => {
 
     expect(onUnlock).toHaveBeenCalledTimes(1);
   });
+
+  it("renders edudecks.org link by default", () => {
+    render(
+      <AppSettingsModal open={true} onOpenChange={vi.fn()}>
+        <div>Body</div>
+      </AppSettingsModal>
+    );
+
+    const link = screen.getByRole("link", { name: /More decks at edudecks\.org/i });
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute("href", "https://edudecks.org");
+    expect(link).toHaveAttribute("target", "_blank");
+    expect(link).toHaveAttribute("rel", "noopener noreferrer");
+  });
+
+  it("hides edudecks.org link when showEduDecksLink is false", () => {
+    render(
+      <AppSettingsModal
+        open={true}
+        onOpenChange={vi.fn()}
+        showEduDecksLink={false}
+      >
+        <div>Body</div>
+      </AppSettingsModal>
+    );
+
+    expect(
+      screen.queryByRole("link", { name: /edudecks\.org/i })
+    ).not.toBeInTheDocument();
+  });
+
+  it("renders custom edudecks link url and label", () => {
+    render(
+      <AppSettingsModal
+        open={true}
+        onOpenChange={vi.fn()}
+        eduDecksUrl="https://custom.edudecks.org"
+        eduDecksLabel="Custom Deck Portal"
+      >
+        <div>Body</div>
+      </AppSettingsModal>
+    );
+
+    const link = screen.getByRole("link", { name: /Custom Deck Portal/i });
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute("href", "https://custom.edudecks.org");
+  });
 });

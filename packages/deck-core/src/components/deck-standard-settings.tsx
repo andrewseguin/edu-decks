@@ -26,6 +26,9 @@ export type DeckStandardSettingsProps = {
   children?: React.ReactNode;
   triggerClassName?: string;
   contentClassName?: string;
+  showEduDecksLink?: boolean;
+  eduDecksUrl?: string;
+  eduDecksLabel?: string;
 };
 
 export function DeckStandardSettings({
@@ -46,6 +49,9 @@ export function DeckStandardSettings({
   children,
   triggerClassName,
   contentClassName,
+  showEduDecksLink = true,
+  eduDecksUrl = "https://edudecks.org",
+  eduDecksLabel = "More decks at edudecks.org",
 }: DeckStandardSettingsProps) {
   const hasCounters = onShowCardCountChange || onShowTimerChange;
   const hasSystem = onAutoPlaySoundChange || onKeepScreenAwakeChange;
@@ -57,6 +63,9 @@ export function DeckStandardSettings({
       onLockApp={onLockApp}
       triggerClassName={triggerClassName}
       contentClassName={contentClassName}
+      showEduDecksLink={showEduDecksLink}
+      eduDecksUrl={eduDecksUrl}
+      eduDecksLabel={eduDecksLabel}
     >
       {/* Theme Section */}
       <SettingsSection title={themeSectionTitle}>

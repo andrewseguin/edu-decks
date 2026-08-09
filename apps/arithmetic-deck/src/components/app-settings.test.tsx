@@ -27,5 +27,9 @@ describe("arithmetic-deck: AppSettings", () => {
     const cardCountSwitch = screen.getByRole("switch", { name: "Show Card Count" });
     fireEvent.click(cardCountSwitch);
     expect(onShowCardCountChange).toHaveBeenCalledWith(false);
+
+    const link = screen.getByRole("link", { name: /More decks at edudecks\.org/i });
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute("href", "https://edudecks.org");
   });
 });

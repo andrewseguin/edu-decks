@@ -52,5 +52,10 @@ describe("deck-core: DeckStandardSettings", () => {
     const wakeLockSwitch = screen.getByRole("switch", { name: "Keep Screen Awake" });
     fireEvent.click(wakeLockSwitch);
     expect(onKeepScreenAwakeChange).toHaveBeenCalledWith(false);
+
+    // Edudecks link
+    const link = screen.getByRole("link", { name: /More decks at edudecks\.org/i });
+    expect(link).toBeInTheDocument();
+    expect(link).toHaveAttribute("href", "https://edudecks.org");
   });
 });
