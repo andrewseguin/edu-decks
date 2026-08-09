@@ -43,97 +43,184 @@ async function generateLandingScreenshots() {
   const context = await browser.newContext({
     viewport: { width: 1280, height: 720 },
     deviceScaleFactor: 2,
-    colorScheme: 'light',
   });
 
   const page = await context.newPage();
 
+  // ==========================================
   // 1. ARITHMETIC DECK (9003)
-  {
-    console.log('Capturing Arithmetic Deck landscape screenshots...');
-    await page.goto('http://localhost:9003', { waitUntil: 'networkidle' });
-    await page.evaluate(() => {
-      localStorage.setItem('theme', 'light');
-      localStorage.setItem('math-deck-operations', JSON.stringify(['+']));
-      localStorage.setItem('math-deck-number-type', '"whole"');
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-    });
-    await page.reload({ waitUntil: 'networkidle' });
-    await page.waitForTimeout(600);
-    await clearFocus(page);
+  // ==========================================
+  console.log('Capturing Arithmetic Deck screenshots (Light & Dark)...');
+  await page.goto('http://localhost:9003');
+  await page.waitForSelector('main');
+  await page.waitForTimeout(600);
 
-    // Front
-    await page.screenshot({ path: path.join(arithmeticDir, 'landscape-1-card-front.png') });
+  // Set Light Theme & Whole Numbers
+  await page.evaluate(() => {
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+    localStorage.setItem('theme', 'light');
+    localStorage.setItem('math-deck-operations', JSON.stringify(['+']));
+    localStorage.setItem('math-deck-number-type', '"whole"');
+  });
+  await page.waitForTimeout(300);
+  await clearFocus(page);
 
-    // Back with completed visual model (Step 2)
-    const card = page.locator('main > div').first();
-    if (await card.isVisible()) {
-      await card.click();
-      await advanceToLastStep(page);
-      await clearFocus(page);
-      await page.screenshot({ path: path.join(arithmeticDir, 'landscape-2-card-back.png') });
-    }
+  // 1. Front (Light)
+  await page.screenshot({ path: path.join(arithmeticDir, 'landscape-1-card-front.png') });
+  console.log('Saved: arithmetic/landscape-1-card-front.png');
 
-    // Quiz Mode
-    const selectorBtn = page.locator("button[aria-label*='Select'], button[aria-label*='settings']").first();
-    if (await selectorBtn.isVisible()) {
-      await selectorBtn.click();
-      await page.waitForTimeout(400);
-      const startQuizBtn = page.locator('button', { hasText: 'Start Quiz' }).first();
-      if (await startQuizBtn.isVisible()) {
-        await startQuizBtn.click();
-        await page.waitForTimeout(800);
-        await clearFocus(page);
-        await page.screenshot({ path: path.join(arithmeticDir, 'landscape-3-quiz-mode.png') });
-      }
+  // 1. Front (Dark)
+  await page.evaluate(() => {
+    document.documentElement.classList.remove('light');
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+  });
+  await page.waitForTimeout(300);
+  await clearFocus(page);
+  await page.screenshot({ path: path.join(arithmeticDir, 'landscape-1-card-front-dark.png') });
+  console.log('Saved: arithmetic/landscape-1-card-front-dark.png');
+
+  // 2. Back (Dark)
+  await page.mouse.click(640, 360);
+  await advanceToLastStep(page);
+  await clearFocus(page);
+  await page.screenshot({ path: path.join(arithmeticDir, 'landscape-2-card-back-dark.png') });
+  console.log('Saved: arithmetic/landscape-2-card-back-dark.png');
+
+  // 2. Back (Light)
+  await page.evaluate(() => {
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+    localStorage.setItem('theme', 'light');
+  });
+  await page.waitForTimeout(300);
+  await clearFocus(page);
+  await page.screenshot({ path: path.join(arithmeticDir, 'landscape-2-card-back.png') });
+  console.log('Saved: arithmetic/landscape-2-card-back.png');
+
+  // 3. Quiz Mode (Light)
+  const calcBtn = page.locator("button[aria-label='Select operations']");
+  if (await calcBtn.isVisible()) {
+    await calcBtn.click();
+    await page.waitForTimeout(300);
+    const startQuizBtn = page.locator("button:has-text('Start Quiz')");
+    if (await startQuizBtn.isVisible()) {
+      await startQuizBtn.click();
+      await page.waitForTimeout(600);
     }
   }
+  await clearFocus(page);
+  await page.screenshot({ path: path.join(arithmeticDir, 'landscape-3-quiz-mode.png') });
+  console.log('Saved: arithmetic/landscape-3-quiz-mode.png');
 
+  // 3. Quiz Mode (Dark)
+  await page.evaluate(() => {
+    document.documentElement.classList.remove('light');
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+  });
+  await page.waitForTimeout(300);
+  await clearFocus(page);
+  await page.screenshot({ path: path.join(arithmeticDir, 'landscape-3-quiz-mode-dark.png') });
+  console.log('Saved: arithmetic/landscape-3-quiz-mode-dark.png');
+
+  // ==========================================
   // 2. READING DECK (9002)
-  {
-    console.log('Capturing Reading Deck landscape screenshots...');
-    await page.goto('http://localhost:9002', { waitUntil: 'networkidle' });
-    await page.evaluate(() => {
-      localStorage.setItem('theme', 'light');
-      localStorage.setItem('first-read-gamemode', '"letters"');
-      document.documentElement.classList.remove('dark');
-      document.documentElement.classList.add('light');
-    });
-    await page.reload({ waitUntil: 'networkidle' });
-    await page.waitForTimeout(600);
-    await clearFocus(page);
+  // ==========================================
+  console.log('\nCapturing Reading Deck screenshots (Light & Dark)...');
+  await page.goto('http://localhost:9002');
+  await page.waitForSelector('main');
+  await page.waitForTimeout(600);
 
-    // Letter Card Front
-    await page.screenshot({ path: path.join(readingDir, 'landscape-1-card-front.png') });
+  // Set Light Theme & Letters mode
+  await page.evaluate(() => {
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+    localStorage.setItem('theme', 'light');
+    localStorage.setItem('first-read-gamemode', '"letters"');
+  });
+  await page.waitForTimeout(300);
+  await clearFocus(page);
 
-    // Words / Sight Words
-    await page.evaluate(() => {
-      localStorage.setItem('first-read-gamemode', '"words"');
-      localStorage.setItem('first-read-word-difficulty', '"easy"');
-    });
-    await page.reload({ waitUntil: 'networkidle' });
-    await page.waitForTimeout(600);
-    await clearFocus(page);
-    await page.screenshot({ path: path.join(readingDir, 'landscape-2-card-back.png') });
+  // 1. Letters Front (Light)
+  await page.screenshot({ path: path.join(readingDir, 'landscape-1-card-front.png') });
+  console.log('Saved: reading/landscape-1-card-front.png');
 
-    // Quiz Mode
-    const settingsBtn = page.locator("button[aria-label*='Select']").first();
-    if (await settingsBtn.isVisible()) {
-      await settingsBtn.click();
-      await page.waitForTimeout(400);
-      const startQuizBtn = page.locator("button:has-text('Start Quiz')").first();
-      if (await startQuizBtn.isVisible()) {
-        await startQuizBtn.click();
-        await page.waitForTimeout(800);
-        await clearFocus(page);
-        await page.screenshot({ path: path.join(readingDir, 'landscape-3-quiz-mode.png') });
-      }
+  // 1. Letters Front (Dark)
+  await page.evaluate(() => {
+    document.documentElement.classList.remove('light');
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+  });
+  await page.waitForTimeout(300);
+  await clearFocus(page);
+  await page.screenshot({ path: path.join(readingDir, 'landscape-1-card-front-dark.png') });
+  console.log('Saved: reading/landscape-1-card-front-dark.png');
+
+  // 2. Words (Dark)
+  await page.evaluate(() => {
+    localStorage.setItem('first-read-gamemode', '"words"');
+    localStorage.setItem('first-read-word-difficulty', '"easy"');
+  });
+  await page.goto('http://localhost:9002');
+  await page.waitForSelector('main');
+  await page.evaluate(() => {
+    document.documentElement.classList.remove('light');
+    document.documentElement.classList.add('dark');
+  });
+  await page.waitForTimeout(400);
+  await clearFocus(page);
+  await page.screenshot({ path: path.join(readingDir, 'landscape-2-card-back-dark.png') });
+  console.log('Saved: reading/landscape-2-card-back-dark.png');
+
+  // 2. Words (Light)
+  await page.evaluate(() => {
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+    localStorage.setItem('theme', 'light');
+  });
+  await page.waitForTimeout(300);
+  await clearFocus(page);
+  await page.screenshot({ path: path.join(readingDir, 'landscape-2-card-back.png') });
+  console.log('Saved: reading/landscape-2-card-back.png');
+
+  // 3. Quiz Mode (Light)
+  await page.evaluate(() => {
+    localStorage.setItem('first-read-gamemode', '"letters"');
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+  });
+  await page.goto('http://localhost:9002');
+  await page.waitForSelector('main');
+  await page.waitForTimeout(400);
+  const letterSelectorBtn = page.locator("button[aria-label='Select letters']");
+  if (await letterSelectorBtn.isVisible()) {
+    await letterSelectorBtn.click();
+    await page.waitForTimeout(300);
+    const startQuizBtn = page.locator("button:has-text('Start Quiz')");
+    if (await startQuizBtn.isVisible()) {
+      await startQuizBtn.click();
+      await page.waitForTimeout(600);
     }
   }
+  await clearFocus(page);
+  await page.screenshot({ path: path.join(readingDir, 'landscape-3-quiz-mode.png') });
+  console.log('Saved: reading/landscape-3-quiz-mode.png');
+
+  // 3. Quiz Mode (Dark)
+  await page.evaluate(() => {
+    document.documentElement.classList.remove('light');
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+  });
+  await page.waitForTimeout(300);
+  await clearFocus(page);
+  await page.screenshot({ path: path.join(readingDir, 'landscape-3-quiz-mode-dark.png') });
+  console.log('Saved: reading/landscape-3-quiz-mode-dark.png');
 
   await browser.close();
-  console.log('Done generating landscape landing screenshots with completed visual models!');
+  console.log('\n=== All 12 light and dark screenshots successfully generated! ===');
 }
 
 generateLandingScreenshots().catch(console.error);

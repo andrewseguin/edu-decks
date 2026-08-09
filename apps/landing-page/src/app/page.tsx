@@ -31,14 +31,17 @@ const APPS = [
       {
         label: "Card Front",
         src: "/screenshots/arithmetic/landscape-1-card-front.png",
+        srcDark: "/screenshots/arithmetic/landscape-1-card-front-dark.png",
       },
       {
         label: "Visual Model",
         src: "/screenshots/arithmetic/landscape-2-card-back.png",
+        srcDark: "/screenshots/arithmetic/landscape-2-card-back-dark.png",
       },
       {
         label: "Quiz Mode",
         src: "/screenshots/arithmetic/landscape-3-quiz-mode.png",
+        srcDark: "/screenshots/arithmetic/landscape-3-quiz-mode-dark.png",
       },
     ],
   },
@@ -58,14 +61,17 @@ const APPS = [
       {
         label: "Phonics Card",
         src: "/screenshots/reading/landscape-1-card-front.png",
+        srcDark: "/screenshots/reading/landscape-1-card-front-dark.png",
       },
       {
         label: "Sight Words",
         src: "/screenshots/reading/landscape-2-card-back.png",
+        srcDark: "/screenshots/reading/landscape-2-card-back-dark.png",
       },
       {
         label: "Quiz Mode",
         src: "/screenshots/reading/landscape-3-quiz-mode.png",
+        srcDark: "/screenshots/reading/landscape-3-quiz-mode-dark.png",
       },
     ],
   },
@@ -169,12 +175,22 @@ export default function HomePage() {
 
                 {/* Actual Screenshot Frame (Native 16:9 Aspect Ratio) */}
                 <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-border/80 bg-card shadow-xs my-3 select-none">
+                  {/* Light Mode Screenshot */}
                   <Image
                     src={currentScreenshot.src}
                     alt={`${app.title} - ${currentScreenshot.label}`}
                     fill
                     sizes="(max-width: 768px) 100vw, 500px"
-                    className="object-cover transition-opacity duration-300"
+                    className="object-cover transition-opacity duration-300 dark:hidden"
+                    priority
+                  />
+                  {/* Dark Mode Screenshot */}
+                  <Image
+                    src={currentScreenshot.srcDark}
+                    alt={`${app.title} - ${currentScreenshot.label} (Dark Mode)`}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 500px"
+                    className="object-cover transition-opacity duration-300 hidden dark:block"
                     priority
                   />
                 </div>
