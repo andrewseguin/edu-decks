@@ -11,7 +11,7 @@ const TRUST_BADGES = [
   "100% Free",
   "Zero Ads or Trackers",
   "No Account Required",
-  "Works Offline (PWA)",
+  "Open Source",
 ];
 
 const APPS = [
@@ -26,6 +26,7 @@ const APPS = [
     playStoreUrl:
       "https://play.google.com/store/apps/details?id=org.edudecks.arithmetic",
     primaryButtonClass: DECK_COLORS.emerald.btn,
+    accentBorder: "border-t-emerald-500",
     screenshots: [
       {
         label: "Card Front",
@@ -55,6 +56,7 @@ const APPS = [
     playStoreUrl:
       "https://play.google.com/store/apps/details?id=org.edudecks.reading",
     primaryButtonClass: DECK_COLORS.emerald.btn,
+    accentBorder: "border-t-emerald-500",
     screenshots: [
       {
         label: "Phonics Card",
@@ -125,7 +127,7 @@ export default function HomePage() {
         {/* 1. Hero & Trust Badge Strip */}
         <section className="text-center max-w-4xl mx-auto">
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold font-headline tracking-tight text-foreground sm:whitespace-nowrap leading-tight">
-            Simple, ad-free learning cards.
+            Simple learning cards.
           </h1>
 
           {/* Clean Neutral Trust Badge Strip */}
@@ -143,7 +145,7 @@ export default function HomePage() {
         </section>
 
         {/* 2. Deck Cards Showcase */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
+        <section className="grid grid-cols-1 md:grid-cols-2 gap-10 sm:gap-8">
           {APPS.map((app) => {
             const currentIdx = selectedScreenshots[app.id] ?? 0;
             const currentScreenshot =
@@ -152,16 +154,20 @@ export default function HomePage() {
             return (
               <div
                 key={app.id}
-                className="group flex flex-col bg-card border border-border/80 rounded-3xl p-5 sm:p-7 shadow-xs hover:shadow-md transition-all duration-300 relative overflow-hidden"
+                className={`group flex flex-col bg-card border border-border/80 rounded-3xl p-6 sm:p-7 pt-7 sm:pt-8 shadow-xs hover:shadow-md transition-all duration-300 relative overflow-hidden border-t-4 ${app.accentBorder}`}
               >
                 {/* Top Bar: Large App Title & Subtitle */}
-                <div className="mb-2">
+                <div className="mb-3 pt-1">
                   <h2 className="text-2xl sm:text-3xl font-extrabold font-headline text-foreground tracking-tight">
                     {app.title}
                   </h2>
                   <p className="text-sm font-medium text-muted-foreground mt-1">
                     {app.subtitle}
                   </p>
+                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground/90 mt-1.5 font-medium">
+                    <GraduationCap className="w-3.5 h-3.5" />
+                    <span>{app.ageRange}</span>
+                  </div>
                 </div>
 
                 {/* Actual Screenshot Frame (Native 16:9 Aspect Ratio) */}
@@ -207,15 +213,11 @@ export default function HomePage() {
                   })}
                 </div>
 
-                {/* Description & Target Age Badge */}
-                <div className="flex flex-col gap-3 mb-6">
+                {/* Description */}
+                <div className="mb-6">
                   <p className="text-xs sm:text-sm text-foreground/80 leading-relaxed">
                     {app.description}
                   </p>
-                  <div className="inline-flex items-center gap-1.5 self-start px-2.5 py-1 rounded-lg text-xs font-semibold bg-muted/60 text-muted-foreground border border-border/70">
-                    <GraduationCap className="w-3.5 h-3.5 text-muted-foreground" />
-                    <span>{app.ageRange}</span>
-                  </div>
                 </div>
 
                 {/* Action Buttons */}
@@ -234,12 +236,19 @@ export default function HomePage() {
                     href={app.playStoreUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-1.5 py-2.5 px-3 rounded-xl font-headline font-semibold text-xs bg-muted/80 hover:bg-muted text-foreground border border-border/80 transition-all active:scale-[0.98]"
+                    className="inline-flex items-center justify-center gap-2.5 py-2 px-3 rounded-xl font-headline bg-muted/80 hover:bg-muted text-foreground border border-border/80 transition-all active:scale-[0.98]"
                   >
-                    <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                      <path d="M3.609 1.814L13.792 12 3.61 22.186c-.36-.36-.61-.88-.61-1.516V3.33c0-.636.25-1.156.609-1.516zm11.246 11.246l2.368-2.368-2.368-2.368 2.057-1.188 3.535 2.04c.902.52.902 1.368 0 1.89l-3.535 2.04-2.057-1.046zM4.686 1.077L14.07 10.46l-2.072 2.072L4.686 1.077zm0 21.846l7.312-11.455 2.072 2.072-9.384 9.383z" />
-                    </svg>
-                    <span>Google Play</span>
+                    <Image
+                      src="/play_prism.svg"
+                      alt="Google Play"
+                      width={20}
+                      height={20}
+                      className="w-5 h-5 shrink-0 object-contain"
+                    />
+                    <div className="flex flex-col text-left leading-none">
+                      <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">Get it on</span>
+                      <span className="text-xs font-semibold text-foreground tracking-tight mt-0.5">Google Play</span>
+                    </div>
                   </a>
                 </div>
               </div>
@@ -252,7 +261,7 @@ export default function HomePage() {
       <footer className="border-t border-border/60 py-6 px-4 sm:px-6 bg-card/40 text-xs text-muted-foreground">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <div>
-            <span>© {new Date().getFullYear()} EduDecks · Free, Open & Ad-Free</span>
+            <span>© {new Date().getFullYear()} EduDecks · Free & Open Source</span>
           </div>
           <div className="flex items-center gap-5">
             <Link

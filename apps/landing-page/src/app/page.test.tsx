@@ -15,14 +15,14 @@ describe("landing-page: HomePage", () => {
 
     expect(screen.getByText("EduDecks")).toBeInTheDocument();
     expect(
-      screen.getByText("Simple, ad-free learning cards.")
+      screen.getByText("Simple learning cards.")
     ).toBeInTheDocument();
 
     // Trust badges
     expect(screen.getByText("100% Free")).toBeInTheDocument();
     expect(screen.getByText("Zero Ads or Trackers")).toBeInTheDocument();
     expect(screen.getByText("No Account Required")).toBeInTheDocument();
-    expect(screen.getByText("Works Offline (PWA)")).toBeInTheDocument();
+    expect(screen.getByText("Open Source")).toBeInTheDocument();
 
     // Showcase cards
     expect(screen.getByText("Arithmetic Deck")).toBeInTheDocument();
