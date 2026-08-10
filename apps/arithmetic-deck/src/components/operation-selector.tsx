@@ -330,70 +330,77 @@ export function OperationSelector({
 
           {/* Fraction Options (when Fractions is selected) */}
           {showFractions && (
-            <div className="space-y-4 animate-fade-in">
-              {/* Denominators Match Mode */}
-              <div>
-                <h4 className="font-medium leading-none font-headline text-lg mb-3">
-                  Denominators
-                </h4>
-                <div className="grid grid-cols-3 gap-1.5 p-1 bg-muted rounded-2xl">
-                  <Button
-                    type="button"
-                    variant={fractionDenominatorMode === "same" ? "default" : "ghost"}
-                    className={cn(
-                      "rounded-xl font-headline font-bold h-9 text-xs transition-all",
-                      fractionDenominatorMode === "same" ? "shadow-sm" : "text-muted-foreground"
-                    )}
-                    onClick={() => onFractionDenominatorModeChange?.("same")}
-                  >
-                    Same Only
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={fractionDenominatorMode === "different" ? "default" : "ghost"}
-                    className={cn(
-                      "rounded-xl font-headline font-bold h-9 text-xs transition-all",
-                      fractionDenominatorMode === "different" ? "shadow-sm" : "text-muted-foreground"
-                    )}
-                    onClick={() => onFractionDenominatorModeChange?.("different")}
-                  >
-                    Different
-                  </Button>
-                  <Button
-                    type="button"
-                    variant={fractionDenominatorMode === "all" ? "default" : "ghost"}
-                    className={cn(
-                      "rounded-xl font-headline font-bold h-9 text-xs transition-all",
-                      fractionDenominatorMode === "all" ? "shadow-sm" : "text-muted-foreground"
-                    )}
-                    onClick={() => onFractionDenominatorModeChange?.("all")}
-                  >
-                    Mixed
-                  </Button>
+            <div className="animate-fade-in">
+              <h4 className="font-medium leading-none font-headline text-lg mb-3">
+                Denominators
+              </h4>
+              <div className="space-y-3">
+                {/* Denominators Match Mode */}
+                <div className="space-y-1.5">
+                  <Label className="text-[11px] font-headline font-bold text-muted-foreground uppercase tracking-wider">
+                    Types
+                  </Label>
+                  <div className="grid grid-cols-3 gap-1.5 p-1 bg-muted rounded-2xl">
+                    <Button
+                      type="button"
+                      variant={fractionDenominatorMode === "same" ? "default" : "ghost"}
+                      className={cn(
+                        "rounded-xl font-headline font-bold h-9 text-xs transition-all",
+                        fractionDenominatorMode === "same" ? "shadow-sm" : "text-muted-foreground"
+                      )}
+                      onClick={() => onFractionDenominatorModeChange?.("same")}
+                    >
+                      Same Only
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={fractionDenominatorMode === "different" ? "default" : "ghost"}
+                      className={cn(
+                        "rounded-xl font-headline font-bold h-9 text-xs transition-all",
+                        fractionDenominatorMode === "different" ? "shadow-sm" : "text-muted-foreground"
+                      )}
+                      onClick={() => onFractionDenominatorModeChange?.("different")}
+                    >
+                      Different
+                    </Button>
+                    <Button
+                      type="button"
+                      variant={fractionDenominatorMode === "all" ? "default" : "ghost"}
+                      className={cn(
+                        "rounded-xl font-headline font-bold h-9 text-xs transition-all",
+                        fractionDenominatorMode === "all" ? "shadow-sm" : "text-muted-foreground"
+                      )}
+                      onClick={() => onFractionDenominatorModeChange?.("all")}
+                    >
+                      Mixed
+                    </Button>
+                  </div>
                 </div>
-              </div>
 
-              {/* Max Denominator */}
-              <div>
-                <h4 className="font-medium leading-none font-headline text-lg mb-3">
-                  Max Denominator
-                </h4>
-                <div className="grid grid-cols-3 gap-2">
-                  {([4, 8, 12] as const).map((d) => {
-                    const isSelected = fractionMaxDenominator === d;
-                    return (
-                      <Button
-                        key={d}
-                        type="button"
-                        variant={isSelected ? "default" : "outline"}
-                        size="sm"
-                        className="rounded-xl font-headline font-bold h-9 text-xs"
-                        onClick={() => onFractionMaxDenominatorChange?.(d)}
-                      >
-                        Up to {d}
-                      </Button>
-                    );
-                  })}
+                {/* Max Denominator */}
+                <div className="space-y-1.5">
+                  <Label className="text-[11px] font-headline font-bold text-muted-foreground uppercase tracking-wider">
+                    Max Value
+                  </Label>
+                  <div className="grid grid-cols-3 gap-1.5 p-1 bg-muted rounded-2xl">
+                    {([4, 8, 12] as const).map((d) => {
+                      const isSelected = fractionMaxDenominator === d;
+                      return (
+                        <Button
+                          key={d}
+                          type="button"
+                          variant={isSelected ? "default" : "ghost"}
+                          className={cn(
+                            "rounded-xl font-headline font-bold h-9 text-xs transition-all",
+                            isSelected ? "shadow-sm" : "text-muted-foreground"
+                          )}
+                          onClick={() => onFractionMaxDenominatorChange?.(d)}
+                        >
+                          Up to {d}
+                        </Button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>

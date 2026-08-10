@@ -146,7 +146,8 @@ describe("arithmetic-deck: OperationSelector", () => {
     );
 
     expect(screen.getByText("Denominators")).toBeInTheDocument();
-    expect(screen.getByText("Max Denominator")).toBeInTheDocument();
+    expect(screen.getByText("Types")).toBeInTheDocument();
+    expect(screen.getByText("Max Value")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Same Only" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Different" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Mixed" })).toBeInTheDocument();
