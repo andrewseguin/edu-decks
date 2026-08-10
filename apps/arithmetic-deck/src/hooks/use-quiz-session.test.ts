@@ -154,7 +154,7 @@ describe("arithmetic-deck: useQuizSession", () => {
       expect(onPlayChime).toHaveBeenCalledWith(true);
     });
 
-    it("supports switching focus with onSelectNumerator and onSelectDenominator", () => {
+    it("supports switching focus with onSelectNumerator and onSelectDenominator without losing values", () => {
       const { result } = renderHook(() =>
         useQuizSession({
           activeOperations: ["+"],
@@ -168,20 +168,34 @@ describe("arithmetic-deck: useQuizSession", () => {
         })
       );
 
+      // Force a problem where answer is not 5 or 5/8
+      result.current.currentProblem!.answer = 100;
+      result.current.currentProblem!.answerText = "100";
+      result.current.currentProblem!.isFraction = true;
+
       act(() => {
         result.current.handleKeyPress("5");
       });
-      expect(result.current.inputVal).toBe("5");
+      expect(result.current.numPart).toBe("5");
 
       act(() => {
         result.current.onSelectDenominator();
       });
-      expect(result.current.inputVal).toBe("5/");
+      expect(result.current.activeFractionSlot).toBe("denominator");
+      expect(result.current.numPart).toBe("5");
+
+      act(() => {
+        result.current.handleKeyPress("8");
+      });
+      expect(result.current.denPart).toBe("8");
+      expect(result.current.inputVal).toBe("5/8");
 
       act(() => {
         result.current.onSelectNumerator();
       });
-      expect(result.current.inputVal).toBe("5");
+      expect(result.current.activeFractionSlot).toBe("numerator");
+      expect(result.current.numPart).toBe("5");
+      expect(result.current.denPart).toBe("8"); // Does not disappear!
     });
   });
 });

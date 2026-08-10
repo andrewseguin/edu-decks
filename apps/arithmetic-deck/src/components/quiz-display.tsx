@@ -39,6 +39,9 @@ export function QuizDisplay({
   const {
     currentProblem,
     inputVal,
+    numPart,
+    denPart,
+    activeFractionSlot,
     score,
     streak,
     isCorrect,
@@ -130,12 +133,8 @@ export function QuizDisplay({
             {currentProblem.isFraction ? (
               <div className="relative inline-flex items-center justify-center px-1 shrink-0">
                 {(() => {
-                  const parts = inputVal.split("/");
-                  const hasSlash = inputVal.includes("/");
-                  const numPart = parts[0] || "";
-                  const denPart = hasSlash ? parts[1] || "" : "";
-                  const isNumActive = !hasSlash;
-                  const isDenActive = hasSlash;
+                  const isNumActive = activeFractionSlot === "numerator";
+                  const isDenActive = activeFractionSlot === "denominator";
 
                   const getBoxClass = (isActive: boolean) =>
                     cn(
