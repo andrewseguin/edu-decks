@@ -110,7 +110,7 @@ export default function HomePage() {
 
           <div className="flex items-center gap-3">
             <a
-              href="https://github.com/andrewseguin/edu-decks"
+              href="https://github.com/edu-decks/edu-decks"
               target="_blank"
               rel="noopener noreferrer"
               className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors hidden sm:inline-flex"
@@ -271,7 +271,7 @@ export default function HomePage() {
               Privacy Policy
             </Link>
             <a
-              href="https://github.com/andrewseguin/edu-decks"
+              href="https://github.com/edu-decks/edu-decks"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-foreground transition-colors underline-offset-4 hover:underline"
@@ -279,7 +279,7 @@ export default function HomePage() {
               GitHub
             </a>
             <a
-              href="https://github.com/andrewseguin/edu-decks/issues"
+              href="https://github.com/edu-decks/edu-decks/issues"
               target="_blank"
               rel="noopener noreferrer"
               className="hover:text-foreground transition-colors underline-offset-4 hover:underline"

@@ -35,7 +35,7 @@ describe("landing-page: HomePage", () => {
     );
     expect(screen.getByRole("link", { name: "File Issues" })).toHaveAttribute(
       "href",
-      "https://github.com/andrewseguin/edu-decks/issues"
+      "https://github.com/edu-decks/edu-decks/issues"
     );
   });
 
