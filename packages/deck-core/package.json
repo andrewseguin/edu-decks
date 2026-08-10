@@ -10,7 +10,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "lint": "echo 'No lint rules for core yet'"
+    "lint": "echo 'No lint rules for core yet' # workspace trigger"
   },
   "dependencies": {
     "@radix-ui/react-popover": "^1.1.6",
