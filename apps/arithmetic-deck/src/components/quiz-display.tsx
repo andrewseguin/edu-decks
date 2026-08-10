@@ -137,7 +137,7 @@ export function QuizDisplay({
                   const isNumActive = !hasSlash;
                   const isDenActive = hasSlash;
 
-                  const getBoxClass = (isActive: boolean, hasText: boolean) =>
+                  const getBoxClass = (isActive: boolean) =>
                     cn(
                       "min-w-[64px] sm:min-w-[96px] md:min-w-[114px] h-[52px] sm:h-[72px] md:h-[84px] px-2.5 sm:px-4 flex items-center justify-center rounded-2xl sm:rounded-3xl border-2 sm:border-3 transition-all duration-200 select-none font-headline font-bold leading-none text-3xl sm:text-5xl md:text-6xl cursor-pointer outline-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 [-webkit-tap-highlight-color:transparent]",
                       "landscape:min-w-[56px] sm:landscape:min-w-[80px] md:landscape:min-w-[96px] landscape:h-[44px] sm:landscape:h-[62px] md:landscape:h-[72px] landscape:text-2xl sm:landscape:text-4xl md:landscape:text-5xl",
@@ -147,10 +147,8 @@ export function QuizDisplay({
                         : isCorrect === false
                         ? "bg-destructive/30 border-destructive text-white"
                         : isActive
-                        ? "bg-white/40 border-white text-white shadow-md"
-                        : hasText
-                        ? "bg-white/20 border-white/50 text-white/90 shadow-xs"
-                        : "bg-black/20 border-dashed border-white/30 text-white/35"
+                        ? "bg-white/45 border-solid border-white text-white shadow-md"
+                        : "bg-black/25 border-dashed border-white/30 text-white/70 shadow-none"
                     );
 
                   return (
@@ -162,7 +160,7 @@ export function QuizDisplay({
                       <button
                         type="button"
                         tabIndex={-1}
-                        className={getBoxClass(isNumActive, Boolean(numPart))}
+                        className={getBoxClass(isNumActive)}
                         onClick={(e) => {
                           (e.currentTarget as HTMLElement).blur();
                           onSelectNumerator();
@@ -173,7 +171,7 @@ export function QuizDisplay({
                         {numPart ? (
                           <span className="text-white [text-shadow:2px_2px_4px_rgba(0,0,0,0.3)]">{numPart}</span>
                         ) : (
-                          <span className={cn(isNumActive ? "text-white font-extrabold" : "text-white/40")}>?</span>
+                          <span className={isNumActive ? "text-white font-extrabold" : "text-white/40"}>?</span>
                         )}
                       </button>
 
@@ -184,7 +182,7 @@ export function QuizDisplay({
                       <button
                         type="button"
                         tabIndex={-1}
-                        className={getBoxClass(isDenActive, Boolean(denPart))}
+                        className={getBoxClass(isDenActive)}
                         onClick={(e) => {
                           (e.currentTarget as HTMLElement).blur();
                           onSelectDenominator();
@@ -195,7 +193,7 @@ export function QuizDisplay({
                         {denPart ? (
                           <span className="text-white [text-shadow:2px_2px_4px_rgba(0,0,0,0.3)]">{denPart}</span>
                         ) : (
-                          <span className={cn(isDenActive ? "text-white font-extrabold" : "text-white/40")}>?</span>
+                          <span className={isDenActive ? "text-white font-extrabold" : "text-white/40"}>?</span>
                         )}
                       </button>
                     </div>
