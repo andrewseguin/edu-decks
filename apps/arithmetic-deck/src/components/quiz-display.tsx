@@ -139,18 +139,18 @@ export function QuizDisplay({
 
                   const getBoxClass = (isActive: boolean, hasText: boolean) =>
                     cn(
-                      "min-w-[64px] sm:min-w-[96px] md:min-w-[114px] h-[52px] sm:h-[72px] md:h-[84px] px-2.5 sm:px-4 flex items-center justify-center rounded-2xl sm:rounded-3xl border-2 sm:border-3 transition-all duration-200 select-none font-headline font-bold leading-none text-3xl sm:text-5xl md:text-6xl cursor-pointer outline-none",
+                      "min-w-[64px] sm:min-w-[96px] md:min-w-[114px] h-[52px] sm:h-[72px] md:h-[84px] px-2.5 sm:px-4 flex items-center justify-center rounded-2xl sm:rounded-3xl border-2 sm:border-3 transition-all duration-200 select-none font-headline font-bold leading-none text-3xl sm:text-5xl md:text-6xl cursor-pointer outline-none focus:outline-none focus:ring-0 focus-visible:outline-none focus-visible:ring-0 [-webkit-tap-highlight-color:transparent]",
                       "landscape:min-w-[56px] sm:landscape:min-w-[80px] md:landscape:min-w-[96px] landscape:h-[44px] sm:landscape:h-[62px] md:landscape:h-[72px] landscape:text-2xl sm:landscape:text-4xl md:landscape:text-5xl",
                       "[@media(orientation:landscape)_and_(max-height:540px)]:min-w-[44px] [@media(orientation:landscape)_and_(max-height:540px)]:h-[34px] [@media(orientation:landscape)_and_(max-height:540px)]:text-xl [@media(orientation:landscape)_and_(max-height:540px)]:rounded-xl",
                       isCorrect === true
                         ? "bg-emerald-500 border-emerald-300 text-white shadow-lg"
                         : isCorrect === false
                         ? "bg-destructive/30 border-destructive text-white"
-                        : hasText
-                        ? "bg-white/35 border-white text-white shadow-md ring-2 ring-white/50"
                         : isActive
-                        ? "bg-white/25 border-white text-white/90 ring-3 ring-white/70 shadow-md"
-                        : "bg-white/15 border-dashed border-white/40 text-white/60"
+                        ? "bg-white/40 border-white text-white shadow-md"
+                        : hasText
+                        ? "bg-white/20 border-white/50 text-white/90 shadow-xs"
+                        : "bg-black/20 border-dashed border-white/30 text-white/35"
                     );
 
                   return (
@@ -161,14 +161,19 @@ export function QuizDisplay({
                       {/* Numerator Box */}
                       <button
                         type="button"
+                        tabIndex={-1}
                         className={getBoxClass(isNumActive, Boolean(numPart))}
-                        onClick={() => onSelectNumerator()}
+                        onClick={(e) => {
+                          (e.currentTarget as HTMLElement).blur();
+                          onSelectNumerator();
+                        }}
                         aria-label="Numerator input"
+                        aria-selected={isNumActive}
                       >
                         {numPart ? (
                           <span className="text-white [text-shadow:2px_2px_4px_rgba(0,0,0,0.3)]">{numPart}</span>
                         ) : (
-                          <span className="text-white/70">?</span>
+                          <span className={cn(isNumActive ? "text-white font-extrabold" : "text-white/40")}>?</span>
                         )}
                       </button>
 
@@ -178,14 +183,19 @@ export function QuizDisplay({
                       {/* Denominator Box */}
                       <button
                         type="button"
+                        tabIndex={-1}
                         className={getBoxClass(isDenActive, Boolean(denPart))}
-                        onClick={() => onSelectDenominator()}
+                        onClick={(e) => {
+                          (e.currentTarget as HTMLElement).blur();
+                          onSelectDenominator();
+                        }}
                         aria-label="Denominator input"
+                        aria-selected={isDenActive}
                       >
                         {denPart ? (
                           <span className="text-white [text-shadow:2px_2px_4px_rgba(0,0,0,0.3)]">{denPart}</span>
                         ) : (
-                          <span className="text-white/70">?</span>
+                          <span className={cn(isDenActive ? "text-white font-extrabold" : "text-white/40")}>?</span>
                         )}
                       </button>
                     </div>
@@ -204,8 +214,8 @@ export function QuizDisplay({
                       : isCorrect === false
                       ? "bg-destructive/30 border-destructive text-white"
                       : inputVal
-                      ? "bg-white/30 border-white text-white shadow-md"
-                      : "bg-white/20 border-dashed border-white/40 text-white"
+                      ? "bg-white/35 border-white text-white shadow-md"
+                      : "bg-white/25 border-dashed border-white/50 text-white"
                   )}
                 >
                   {inputVal ? (
