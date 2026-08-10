@@ -27,6 +27,16 @@ describe("landing-page: HomePage", () => {
     // Showcase cards
     expect(screen.getByText("Arithmetic Deck")).toBeInTheDocument();
     expect(screen.getByText("Reading Deck")).toBeInTheDocument();
+
+    // Footer Support and Issue links
+    expect(screen.getByRole("link", { name: "support@edudecks.org" })).toHaveAttribute(
+      "href",
+      "mailto:support@edudecks.org"
+    );
+    expect(screen.getByRole("link", { name: "File Issues" })).toHaveAttribute(
+      "href",
+      "https://github.com/andrewseguin/edu-decks/issues"
+    );
   });
 
   it("handles screenshot tab switching on showcase cards", () => {

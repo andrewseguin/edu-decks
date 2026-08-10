@@ -123,4 +123,31 @@ describe("deck-core: useDeckHistory", () => {
 
     expect(speak).toHaveBeenCalledWith(expect.objectContaining({ id: "card-1" }), true);
   });
+
+  it("triggers new card when current item becomes invalid due to validationKey change", () => {
+    let allowedType = "addition";
+    const customGenerate = vi.fn(() => ({
+      id: `card-${++counter}`,
+      type: allowedType,
+    }));
+
+    const { result, rerender } = renderHook(
+      ({ type }) =>
+        useDeckHistory({
+          generateNext: customGenerate,
+          hydrated: true,
+          isItemValid: (item: any) => item.type === type,
+          validationKey: type,
+        }),
+      { initialProps: { type: "addition" } }
+    );
+
+    expect(result.current.currentItem?.type).toBe("addition");
+
+    // Change type to multiplication
+    allowedType = "multiplication";
+    rerender({ type: "multiplication" });
+
+    expect(result.current.currentItem?.type).toBe("multiplication");
+  });
 });

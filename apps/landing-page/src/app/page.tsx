@@ -263,7 +263,7 @@ export default function HomePage() {
           <div>
             <span>© {new Date().getFullYear()} EduDecks · Free & Open Source</span>
           </div>
-          <div className="flex items-center gap-5">
+          <div className="flex flex-wrap items-center justify-center gap-5">
             <Link
               href="/privacy"
               className="hover:text-foreground transition-colors underline-offset-4 hover:underline"
@@ -277,6 +277,20 @@ export default function HomePage() {
               className="hover:text-foreground transition-colors underline-offset-4 hover:underline"
             >
               GitHub
+            </a>
+            <a
+              href="https://github.com/andrewseguin/edu-decks/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-foreground transition-colors underline-offset-4 hover:underline"
+            >
+              File Issues
+            </a>
+            <a
+              href="mailto:support@edudecks.org"
+              className="hover:text-foreground transition-colors underline-offset-4 hover:underline"
+            >
+              support@edudecks.org
             </a>
           </div>
         </div>

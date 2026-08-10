@@ -8,6 +8,8 @@ export type UseDeckHistoryOptions<TItem> = {
   isQuizActive?: boolean;
   speak?: (item: TItem, isFlipped: boolean) => void;
   hydrated?: boolean;
+  isItemValid?: (item: TItem) => boolean;
+  validationKey?: unknown;
 };
 
 export function useDeckHistory<TItem>({
@@ -16,6 +18,8 @@ export function useDeckHistory<TItem>({
   isQuizActive = false,
   speak,
   hydrated = true,
+  isItemValid,
+  validationKey,
 }: UseDeckHistoryOptions<TItem>) {
   const [history, setHistory] = useState<TItem[]>([]);
   const [historyIndex, setHistoryIndex] = useState(-1);
@@ -49,6 +53,24 @@ export function useDeckHistory<TItem>({
       nextCard(true);
     }
   }, [hydrated, history.length, nextCard]);
+
+  useEffect(() => {
+    if (!hydrated || history.length === 0 || historyIndex < 0) return;
+    const currentItem = history[historyIndex];
+    if (currentItem && isItemValid && !isItemValid(currentItem)) {
+      const newItem = generateNext();
+      setHistory((prev) => {
+        const next = [...prev];
+        next[historyIndex] = newItem;
+        return next;
+      });
+      setIsFlipped(false);
+      setShowHint(false);
+      if (autoPlayAudio && !isQuizActive && speak) {
+        speak(newItem, false);
+      }
+    }
+  }, [hydrated, historyIndex, generateNext, autoPlayAudio, isQuizActive, speak, isItemValid, validationKey]);
 
   const handlePrevCard = useCallback(() => {
     setSlideDirection("prev");

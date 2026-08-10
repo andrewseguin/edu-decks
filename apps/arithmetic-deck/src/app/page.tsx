@@ -74,6 +74,42 @@ export default function MathDeckPage() {
       }
     },
     hydrated,
+    isItemValid: (problem) => {
+      if (!settings.activeOperations.includes(problem.operation)) return false;
+      if (problem.isFraction && !settings.showFractions) return false;
+      if (!problem.isFraction && !settings.showWholeNumbers) return false;
+
+      if (problem.isFraction) {
+        if (problem.frac1 && problem.frac1.d > settings.fractionMaxDenominator) return false;
+        if (problem.frac2 && problem.frac2.d > settings.fractionMaxDenominator) return false;
+        if (settings.fractionDenominatorMode === 'same' && problem.frac1 && problem.frac2 && problem.frac1.d !== problem.frac2.d) return false;
+        if (settings.fractionDenominatorMode === 'different' && problem.frac1 && problem.frac2 && problem.frac1.d === problem.frac2.d) return false;
+      } else {
+        const safeMin = Math.max(0, settings.minRange);
+        const safeMax = Math.max(safeMin + 1, settings.maxRange);
+        if (problem.operation === '+' || problem.operation === '-') {
+          if (problem.num1 < safeMin || problem.num1 > safeMax || problem.num2 < safeMin || problem.num2 > safeMax) return false;
+        } else if (problem.operation === '×') {
+          const multMax = Math.min(safeMax, 12);
+          const multMin = Math.min(safeMin, multMax);
+          if (problem.num1 < multMin || problem.num1 > multMax || problem.num2 < multMin || problem.num2 > multMax) return false;
+        } else if (problem.operation === '÷') {
+          const divMax = Math.min(safeMax, 12);
+          const divMin = Math.max(1, Math.min(safeMin, divMax));
+          if (problem.num2 < divMin || problem.num2 > divMax) return false;
+        }
+      }
+      return true;
+    },
+    validationKey: JSON.stringify({
+      ops: settings.activeOperations,
+      min: settings.minRange,
+      max: settings.maxRange,
+      whole: settings.showWholeNumbers,
+      frac: settings.showFractions,
+      mode: settings.fractionDenominatorMode,
+      maxDenom: settings.fractionMaxDenominator,
+    }),
   });
 
   // Timer effect
