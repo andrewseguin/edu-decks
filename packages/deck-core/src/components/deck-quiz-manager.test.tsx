@@ -50,4 +50,20 @@ describe("deck-core: DeckQuizManager", () => {
 
     expect(screen.getByText("Try again")).toBeInTheDocument();
   });
+
+  it("supports showStreak={false} to suppress streak pill", () => {
+    render(
+      <DeckQuizManager
+        score={10}
+        streak={8}
+        showStreak={false}
+        onExit={vi.fn()}
+        prompt={<div>Prompt</div>}
+        input={<div>Input</div>}
+      />
+    );
+
+    expect(screen.getByText("10")).toBeInTheDocument();
+    expect(screen.queryByText(/🔥/)).not.toBeInTheDocument();
+  });
 });

@@ -6,7 +6,8 @@ import { cn } from "../lib/utils";
 
 export type DeckQuizManagerProps = {
   score: number;
-  streak: number;
+  streak?: number;
+  showStreak?: boolean;
   onExit: () => void;
   onReplayAudio?: () => void;
   isPlayingSound?: boolean;
@@ -26,6 +27,7 @@ export type DeckQuizManagerProps = {
 export function DeckQuizManager({
   score,
   streak,
+  showStreak = true,
   onExit,
   onReplayAudio,
   isPlayingSound = false,
@@ -45,6 +47,7 @@ export function DeckQuizManager({
     <QuizOverlayShell
       score={score}
       streak={streak}
+      showStreak={showStreak}
       onExit={onExit}
       onReplayAudio={onReplayAudio}
       isPlayingSound={isPlayingSound}

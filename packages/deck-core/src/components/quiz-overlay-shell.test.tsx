@@ -51,4 +51,15 @@ describe("deck-core: QuizOverlayShell", () => {
     fireEvent.click(replayBtn);
     expect(onReplayAudio).toHaveBeenCalledTimes(1);
   });
+
+  it("hides streak badge when showStreak is false", () => {
+    render(
+      <QuizOverlayShell score={15} streak={5} showStreak={false} onExit={vi.fn()}>
+        <div>Content</div>
+      </QuizOverlayShell>
+    );
+
+    expect(screen.getByText("15")).toBeInTheDocument();
+    expect(screen.queryByText(/🔥/)).not.toBeInTheDocument();
+  });
 });

@@ -6,7 +6,8 @@ import { cn } from "../lib/utils";
 
 export type QuizOverlayShellProps = {
   score: number;
-  streak: number;
+  streak?: number;
+  showStreak?: boolean;
   onExit: () => void;
   onReplayAudio?: () => void;
   isPlayingSound?: boolean;
@@ -21,6 +22,7 @@ export type QuizOverlayShellProps = {
 export function QuizOverlayShell({
   score,
   streak,
+  showStreak = true,
   onExit,
   onReplayAudio,
   isPlayingSound = false,
@@ -86,7 +88,7 @@ export function QuizOverlayShell({
         <div className="flex items-center gap-1.5 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-3.5 py-1.5 rounded-full font-bold text-xs sm:text-sm shrink-0 font-headline h-8">
           <Sparkles className="w-4 h-4" />
           <span>{score}</span>
-          {streak > 1 && (
+          {showStreak && streak !== undefined && streak > 1 && (
             <span className="text-[10px] sm:text-xs bg-amber-500 text-white px-2 py-0.5 rounded-full font-black">
               🔥 {streak}
             </span>

@@ -69,7 +69,7 @@ export function QuizDisplay({
   return (
     <DeckQuizManager
       score={score}
-      streak={streak}
+      showStreak={false}
       onExit={onExit}
       onReplayAudio={() => playAudioPrompt(currentProblem)}
       isPlayingSound={isPlayingSound}
