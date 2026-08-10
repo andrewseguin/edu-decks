@@ -60,7 +60,7 @@ export function PrivacyPolicyView({
             <section>
               <h2 className="text-base font-semibold text-foreground mb-2">1. Overview</h2>
               <p>
-                {appName} is an educational application designed for learners of all ages. We believe in complete transparency and respect your privacy.
+                {appName} is an educational application operated by EduDecks LLC (&ldquo;we&rdquo;, &ldquo;us&rdquo;, or &ldquo;our&rdquo;). We believe in complete transparency and are committed to protecting the privacy of learners, parents, and educators.
               </p>
             </section>
 
@@ -100,7 +100,14 @@ export function PrivacyPolicyView({
             <section>
               <h2 className="text-base font-semibold text-foreground mb-2">6. Contact</h2>
               <p>
-                If you have any questions regarding this Privacy Policy, you can open an issue on our GitHub repository or visit{' '}
+                If you have any questions or feedback regarding this Privacy Policy, please contact EduDecks LLC at{' '}
+                <a
+                  href="mailto:support@edudecks.org"
+                  className="text-primary hover:underline font-medium"
+                >
+                  support@edudecks.org
+                </a>
+                , open an issue on our GitHub repository, or visit{' '}
                 <a
                   href="https://edudecks.org"
                   target="_blank"

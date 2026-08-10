@@ -261,7 +261,7 @@ export default function HomePage() {
       <footer className="border-t border-border/60 py-6 px-4 sm:px-6 bg-card/40 text-xs text-muted-foreground">
         <div className="max-w-5xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
           <div>
-            <span>© {new Date().getFullYear()} EduDecks · Free & Open Source</span>
+            <span>© {new Date().getFullYear()} EduDecks LLC · Free & Open Source</span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-5">
             <Link
