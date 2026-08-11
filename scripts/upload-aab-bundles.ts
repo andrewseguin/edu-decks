@@ -89,6 +89,12 @@ async function uploadAabBundles() {
         }
       }
 
+      // Read localized release notes if present
+      const releaseNotesPath = path.join(root, `store-assets/${app.name}/release-notes.txt`);
+      const releaseNotesText = fs.existsSync(releaseNotesPath)
+        ? fs.readFileSync(releaseNotesPath, 'utf-8').trim()
+        : '• Performance improvements and bug fixes.';
+
       // 4. Assign to Track
       await androidpublisher.edits.tracks.update({
         packageName: app.packageName,
@@ -99,11 +105,18 @@ async function uploadAabBundles() {
             {
               versionCodes: [String(versionCode)],
               status: 'completed',
+              releaseNotes: [
+                {
+                  language: 'en-US',
+                  text: releaseNotesText,
+                },
+              ],
             },
           ],
         },
       });
-      console.log(`  ✓ Assigned release version ${versionCode} to track '${track}'`);
+      console.log(`  ✓ Assigned release version ${versionCode} to track '${track}' with release notes`);
+
 
       // 4. Commit Edit Session
       await androidpublisher.edits.commit({ packageName: app.packageName, editId });

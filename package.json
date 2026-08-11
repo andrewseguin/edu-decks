@@ -17,7 +17,8 @@
     "test:visual:update": "pnpm -r test:visual:update",
     "screenshots:store": "tsx scripts/generate-all-store-assets.ts",
     "screenshots:upload": "tsx scripts/upload-store-screenshots.ts",
-    "bundles:upload": "tsx scripts/upload-aab-bundles.ts"
+    "bundles:upload": "tsx scripts/upload-aab-bundles.ts",
+    "release:notes": "tsx scripts/generate-release-notes.ts"
   },
   "devDependencies": {
     "@capacitor/assets": "^3.0.5",
