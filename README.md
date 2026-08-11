@@ -110,6 +110,31 @@ pnpm -r test:visual:update
 
 ---
 
+## Deployment Environments & Branching Strategy
+
+EduDecks uses a multi-environment branching strategy on Vercel:
+
+| Environment | Subdomain Pattern | Git Branch | Behavior & Environment Detection |
+| :--- | :--- | :--- | :--- |
+| **Dev** | `*-dev.edudecks.org` | `main` | Debug UI and verbose logging enabled (`isDevSite() === true`). |
+| **Staging / Pre-Prod** | `*-staging.edudecks.org` | `main` | Production candidate, exact replica of production configuration (`isDevSite() === false`). |
+| **Production** | `*.edudecks.org` | `prod` | Live production release (`isDevSite() === false`). |
+
+### Multi-Environment Detection (`isDevSite()`)
+The `@decks/core` package exports `isDevSite()`, which dynamically checks `window.location.hostname` at runtime:
+- Returns `true` on `localhost`, `127.0.0.1`, or any `*-dev.edudecks.org` subdomain.
+- Returns `false` on `*-staging.edudecks.org` or production domains (`*.edudecks.org`).
+
+### Promoting to Production
+1. Everyday commits & PRs merge into `main`, auto-deploying to both `*-dev` (with dev tools enabled) and `*-staging` (production candidate).
+2. To push a verified release live to production (`*.edudecks.org`), merge `main` into the `prod` branch:
+   ```bash
+   git push origin main:prod
+   ```
+
+---
+
+
 ## Mobile Native Apps (iOS & Android)
 
 Both `reading-deck` and `arithmetic-deck` are configured with **Capacitor 8** for native iOS and Android deployment.
