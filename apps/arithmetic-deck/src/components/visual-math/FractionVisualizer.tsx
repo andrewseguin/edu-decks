@@ -353,13 +353,14 @@ export function FractionVisualizer({
     const isDivisorVisible = orangeVisible > 0;
 
     const D = commonD;
-    const totalBoxes = Math.max(D, c1, c2);
+    // Cap totalBoxes to Math.max(c1, c2) if D > 12 to prevent an oversized track of empty boxes
+    const totalBoxes = D > 12 ? Math.max(c1, c2) : Math.max(D, c1, c2);
 
     const maxW = 270;
     const gap = 4;
     const pad = 10;
-    const gridW = maxW - pad * 2;
-    const boxW = Math.min(34, Math.max(14, Math.floor((gridW - (totalBoxes - 1) * gap) / totalBoxes)));
+    const availableW = maxW - pad * 2;
+    const boxW = Math.min(34, Math.max(12, Math.floor((availableW - (totalBoxes - 1) * gap) / totalBoxes)));
     const boxH = 32;
 
     const gridY = pad + 20;
@@ -369,10 +370,24 @@ export function FractionVisualizer({
     const cyanW = c1 * boxW + (c1 - 1) * gap;
     const amberW = c2 * boxW + (c2 - 1) * gap;
 
+    const cyanText = `${f1.d === 1 ? f1.n : `${f1.n}/${f1.d}`} = ${c1} box${c1 > 1 ? 'es' : ''}`;
+    const cyanPillWidth = Math.max(76, cyanText.length * 6 + 12);
+    const cyanPillX = Math.max(4, Math.min(svgW - cyanPillWidth - 4, pad + cyanW / 2 - cyanPillWidth / 2));
+    const cyanTextX = cyanPillX + cyanPillWidth / 2;
+
+    const amberText = `${f2.d === 1 ? f2.n : `${f2.n}/${f2.d}`} = ${c2} box${c2 > 1 ? 'es' : ''}`;
+    const amberPillWidth = Math.max(76, amberText.length * 6 + 12);
+    const amberPillX = Math.max(4, Math.min(svgW - amberPillWidth - 4, pad + amberW / 2 - amberPillWidth / 2));
+    const amberTextX = amberPillX + amberPillWidth / 2;
+
     return (
-      <div className="flex flex-col items-center justify-center gap-2">
-        <div className="flex flex-col items-center justify-center gap-1">
-          <svg width={svgW} height={svgH} viewBox={`0 0 ${svgW} ${svgH}`} className="drop-shadow-md overflow-visible max-h-[110px] sm:max-h-[135px] [@media(max-height:640px)]:max-h-[75px] w-auto">
+      <div className="flex flex-col items-center justify-center gap-2 max-w-full">
+        <div className="flex flex-col items-center justify-center gap-1 max-w-full">
+          <svg
+            viewBox={`0 0 ${svgW} ${svgH}`}
+            style={{ width: `${svgW}px`, maxWidth: "100%" }}
+            className="drop-shadow-md overflow-visible max-h-[110px] sm:max-h-[135px] [@media(max-height:640px)]:max-h-[75px] h-auto"
+          >
             {/* Outer Container Frame */}
             <rect
               x={1}
@@ -390,20 +405,20 @@ export function FractionVisualizer({
                 className="fill-none stroke-cyan-300 stroke-2"
               />
               <rect
-                x={pad + cyanW / 2 - 36}
+                x={cyanPillX}
                 y={gridY - 20}
-                width={72}
+                width={cyanPillWidth}
                 height={15}
                 rx={7.5}
                 className="fill-cyan-400 stroke-cyan-300 stroke-1"
               />
               <text
-                x={pad + cyanW / 2}
+                x={cyanTextX}
                 y={gridY - 9}
                 textAnchor="middle"
                 className="font-headline font-extrabold text-[10px] fill-cyan-950 select-none pointer-events-none"
               >
-                {f1.d === 1 ? f1.n : `${f1.n}/${f1.d}`} = {c1} box{c1 > 1 ? 'es' : ''}
+                {cyanText}
               </text>
             </g>
 
@@ -452,20 +467,20 @@ export function FractionVisualizer({
                   className="fill-none stroke-amber-400 stroke-2 stroke-dashed"
                 />
                 <rect
-                  x={pad + amberW / 2 - 36}
+                  x={amberPillX}
                   y={gridY + boxH + 6}
-                  width={72}
+                  width={amberPillWidth}
                   height={15}
                   rx={7.5}
                   className="fill-amber-400 stroke-amber-300 stroke-1"
                 />
                 <text
-                  x={pad + amberW / 2}
+                  x={amberTextX}
                   y={gridY + boxH + 17}
                   textAnchor="middle"
                   className="font-headline font-extrabold text-[10px] fill-amber-950 select-none pointer-events-none"
                 >
-                  {f2.d === 1 ? f2.n : `${f2.n}/${f2.d}`} = {c2} box{c2 > 1 ? 'es' : ''}
+                  {amberText}
                 </text>
               </g>
             )}
