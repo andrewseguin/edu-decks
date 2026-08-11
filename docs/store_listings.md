@@ -1,10 +1,10 @@
-# 📱 EduDecks App Store Listings & Metadata
+# EduDecks App Store Listings & Metadata
 
 Official store listing titles, short descriptions, full descriptions, and promotional text for **Google Play Store** and **Apple App Store**.
 
 ---
 
-## 🎴 Reading Deck (`org.edudecks.reading`)
+## Reading Deck (`org.edudecks.reading`)
 
 ### App Title
 `Reading Deck: Phonics & Letters`
@@ -16,10 +16,10 @@ Official store listing titles, short descriptions, full descriptions, and promot
 ```text
 Reading Deck is a clean, distraction-free phonics and reading fluency app designed for early learners (Pre-K to 2nd grade).
 
-🤝 BUILT FOR CO-LEARNING
+BUILT FOR CO-LEARNING
 EduDecks apps are interactive flash cards made for practicing together. Each deck includes visual hints and audio prompts, but kids learn best when someone sits with them to guide their practice, answer questions, and celebrate their progress.
 
-✨ KEY FEATURES:
+KEY FEATURES:
 • Alphabet Phonics & Tracing: Master uppercase & lowercase letters with stroke-guided animations and clear audio pronunciations.
 • 1,000+ Sight Words: Color-coded difficulty levels covering essential early reading vocabulary.
 • Interactive Quiz Mode: Test recognition with audio-guided choice cards and streak tracking.
@@ -30,7 +30,7 @@ EduDecks apps are interactive flash cards made for practicing together. Each dec
 
 ---
 
-## 🔢 Arithmetic Deck (`org.edudecks.arithmetic`)
+## Arithmetic Deck (`org.edudecks.arithmetic`)
 
 ### App Title
 `Arithmetic Deck: Math Flashcards`
@@ -42,10 +42,10 @@ EduDecks apps are interactive flash cards made for practicing together. Each dec
 ```text
 Arithmetic Deck is a clean, distraction-free mental math application designed for young learners (Pre-K to 4th grade).
 
-🤝 BUILT FOR CO-LEARNING
+BUILT FOR CO-LEARNING
 EduDecks apps are interactive flash cards made for practicing together. Each deck includes visual hints and audio prompts, but kids learn best when someone sits with them to guide their practice, answer questions, and celebrate their progress.
 
-✨ KEY FEATURES:
+KEY FEATURES:
 • Multiple Operations: Practice Addition, Subtraction, Multiplication, and Division.
 • Visual Strategy Models: 10-frame blocks, array grids, equal division groups, and interactive fraction pie charts.
 • Conceptual Math Sense: Step-by-step strategy hints build deep understanding beyond simple memorization.

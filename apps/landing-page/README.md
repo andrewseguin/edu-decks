@@ -1,4 +1,4 @@
-# EduDecks Portal (`apps/landing-page`) 🌐✨
+# EduDecks Portal (`apps/landing-page`)
 
 [![Live Portal](https://img.shields.io/badge/Live-edudecks.org-emerald?style=for-the-badge&logo=googlechrome)](https://edudecks.org)
 [![Workspace Root](https://img.shields.io/badge/Monorepo-edu--decks-purple?style=for-the-badge)](../../README.md)
@@ -7,17 +7,17 @@ The central web portal and application showcase for **EduDecks** (`edudecks.org`
 
 ---
 
-## 🔗 Quick Links & Navigation
+## Quick Links & Navigation
 
-- 🌐 **Live Web Portal**: [https://edudecks.org](https://edudecks.org)
-- 📖 **Reading Deck Web App**: [https://reading.edudecks.org](https://reading.edudecks.org)
-- 🔢 **Arithmetic Deck Web App**: [https://arithmetic.edudecks.org](https://arithmetic.edudecks.org)
-- 🏠 **EduDecks Monorepo Root**: [`../../README.md`](../../README.md)
-- 📱 **Store Listings Reference**: [`../../docs/store_listings.md`](../../docs/store_listings.md)
+- **Live Web Portal**: [https://edudecks.org](https://edudecks.org)
+- **Reading Deck Web App**: [https://reading.edudecks.org](https://reading.edudecks.org)
+- **Arithmetic Deck Web App**: [https://arithmetic.edudecks.org](https://arithmetic.edudecks.org)
+- **EduDecks Monorepo Root**: [`../../README.md`](../../README.md)
+- **Store Listings Reference**: [`../../docs/store_listings.md`](../../docs/store_listings.md)
 
 ---
 
-## 🌟 Portal Features
+## Portal Features
 
 - **App Showcase Cards**: Interactive cards for `Reading Deck` and `Arithmetic Deck` with live links, Play Store badges, and target age ranges.
 - **Interactive Screenshot Switcher**: Preview Card Front, Visual Hints/Models, and Quiz Mode in both Light and Dark themes.
@@ -27,7 +27,7 @@ The central web portal and application showcase for **EduDecks** (`edudecks.org`
 
 ---
 
-## 💻 Tech Stack
+## Tech Stack
 
 - **Framework**: [Next.js 15](https://nextjs.org) (App Router, Turbopack) & [React 19](https://react.dev)
 - **Styling**: [Tailwind CSS 3.4](https://tailwindcss.com), `lucide-react`, and `@decks/core` tokens
@@ -35,7 +35,7 @@ The central web portal and application showcase for **EduDecks** (`edudecks.org`
 
 ---
 
-## 🚀 Development Quick Start
+## Development Quick Start
 
 Run the landing page dev server locally (Port `9000`):
 
@@ -60,7 +60,7 @@ pnpm --filter landing-page test
 
 ---
 
-## 🏠 Navigation
+## Navigation
 - Back to [EduDecks Monorepo Root](../../README.md)
 - Explore [Reading Deck (`apps/reading-deck`)](../reading-deck/README.md)
 - Explore [Arithmetic Deck (`apps/arithmetic-deck`)](../arithmetic-deck/README.md)

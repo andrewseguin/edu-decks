@@ -1,4 +1,4 @@
-# `@decks/core` 🎨⚡
+# `@decks/core`
 
 [![Workspace Root](https://img.shields.io/badge/Monorepo-edu--decks-purple?style=for-the-badge)](../../README.md)
 [![EduDecks Portal](https://img.shields.io/badge/Portal-edudecks.org-emerald?style=for-the-badge)](https://edudecks.org)
@@ -7,16 +7,16 @@ The shared UI component library, layout shells, accessibility standards, and bro
 
 ---
 
-## 🔗 Quick Links & Navigation
+## Quick Links & Navigation
 
-- 🏠 **Monorepo Root README**: [`../../README.md`](../../README.md)
-- 🌐 **EduDecks Portal App**: [`../../apps/landing-page/README.md`](../../apps/landing-page/README.md)
-- 📖 **Reading Deck App**: [`../../apps/reading-deck/README.md`](../../apps/reading-deck/README.md)
-- 🔢 **Arithmetic Deck App**: [`../../apps/arithmetic-deck/README.md`](../../apps/arithmetic-deck/README.md)
+- **Monorepo Root README**: [`../../README.md`](../../README.md)
+- **EduDecks Portal App**: [`../../apps/landing-page/README.md`](../../apps/landing-page/README.md)
+- **Reading Deck App**: [`../../apps/reading-deck/README.md`](../../apps/reading-deck/README.md)
+- **Arithmetic Deck App**: [`../../apps/arithmetic-deck/README.md`](../../apps/arithmetic-deck/README.md)
 
 ---
 
-## 📦 What is `@decks/core`?
+## What is `@decks/core`?
 
 `@decks/core` centralizes all common user experience, visual convergence, accessibility patterns, and co-learning UI flows across `apps/arithmetic-deck`, `apps/reading-deck`, and future educational decks.
 
@@ -24,7 +24,7 @@ By importing from `@decks/core`, applications ensure 100% consistent layouts, to
 
 ---
 
-## 🧩 Exported Components
+## Exported Components
 
 ### Layout Shells & Overlays
 - **`FlashCardShell`**: Primary 3D-flipping, swipable flashcard wrapper supporting interactive front/back content, customizable card colors, corner control slots, and frosted question-mark badges.
@@ -42,7 +42,7 @@ By importing from `@decks/core`, applications ensure 100% consistent layouts, to
 
 ---
 
-## 🪝 Exported Hooks
+## Exported Hooks
 
 - **`useAudio(defaultPlayFn)`**: Manages Web Audio speech prompts, sound effects, and pronunciation chimes.
 - **`useWakeLock(enabled)`**: Integrates the Web Standard Screen Wake Lock API (`navigator.wakeLock`) to keep tablet and mobile displays awake during active learning sessions.
@@ -50,7 +50,7 @@ By importing from `@decks/core`, applications ensure 100% consistent layouts, to
 
 ---
 
-## 🛠️ Usage & Tailwind CSS Configuration
+## Usage & Tailwind CSS Configuration
 
 In any Next.js application within `apps/*`:
 
@@ -80,6 +80,6 @@ export default {
 
 ---
 
-## 🏠 Navigation
+## Navigation
 - Back to [EduDecks Monorepo Root](../../README.md)
 - Visit [edudecks.org](https://edudecks.org)

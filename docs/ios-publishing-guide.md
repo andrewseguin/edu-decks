@@ -1,10 +1,10 @@
-# 🍏 iOS App Store Publishing & Release Guide
+# iOS App Store Publishing & Release Guide
 
 A complete reference for configuring, building, archiving, and deploying **Arithmetic Deck** (`org.edudecks.arithmetic`) and **Reading Deck** (`org.edudecks.reading`) to the Apple App Store.
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 1. [Apple Developer Account Enrollment](#1-apple-developer-account-enrollment)
 2. [App Store Connect Initial Setup](#2-app-store-connect-initial-setup)
 3. [Building & Archiving from CLI / Xcode](#3-building--archiving-from-cli--xcode)
@@ -21,7 +21,7 @@ If the web portal shows *"Your enrollment could not be completed at this time"*:
 
 1. Download the **[Apple Developer](https://apps.apple.com/us/app/apple-developer/id640199958)** app from the App Store on an iPhone, iPad, or Mac.
 2. Tap the **Account** tab and sign in with your Apple ID.
-3. Tap **"Enroll Now"** $\rightarrow$ select **Individual / Sole Proprietor**.
+3. Tap **"Enroll Now"** -> select **Individual / Sole Proprietor**.
 4. Complete payment ($99/year) with Apple Pay.
    - *Note:* Individual accounts display your personal legal name as the Seller. You can still brand the app title as `EduDecks: Arithmetic Deck` and upgrade to an LLC/Organization account later with zero downtime.
 
@@ -32,7 +32,7 @@ If the web portal shows *"Your enrollment could not be completed at this time"*:
 Go to **[appstoreconnect.apple.com](https://appstoreconnect.apple.com)**:
 
 ### Register the App Records (One-Time Setup)
-Under **Apps** $\rightarrow$ Click **`+`** $\rightarrow$ **New App**:
+Under **Apps** -> Click **`+`** -> **New App**:
 
 | Property | Arithmetic Deck | Reading Deck |
 | :--- | :--- | :--- |
@@ -89,10 +89,10 @@ In Xcode:
 
 ### Step C: Archive & Upload Build
 1. Set the destination device to **Any iOS Device (arm64)**.
-2. In the top menu, click **Product** $\rightarrow$ **Archive**.
+2. In the top menu, click **Product** -> **Archive**.
 3. In the **Organizer** window that opens:
    - Click **Distribute App**.
-   - Select **Custom** $\rightarrow$ **App Store Connect** $\rightarrow$ **Upload**.
+   - Select **Custom** -> **App Store Connect** -> **Upload**.
    - Keep default options and click **Upload**.
 
 ---
@@ -107,7 +107,7 @@ In App Store Connect under **App Privacy**:
 - State is strictly kept in device `localStorage`. Zero analytics, tracking, or ad SDKs.
 
 ### 4.2 Age Rating & Made for Kids
-- Under **Age Rating**: Complete questionnaire $\rightarrow$ Rating will be **4+**.
+- Under **Age Rating**: Complete questionnaire -> Rating will be **4+**.
 - Check **"Made for Kids"**:
   - Arithmetic Deck: **Ages 5 & Under**, **Ages 6–8**, **Ages 9–11**
   - Reading Deck: **Ages 5 & Under**, **Ages 6–8**

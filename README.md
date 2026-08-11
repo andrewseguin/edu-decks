@@ -1,4 +1,4 @@
-# `edu-decks` 🎴✨
+# `edu-decks`
 
 [![EduDecks Portal](https://img.shields.io/badge/Web-edudecks.org-emerald?style=for-the-badge&logo=googlechrome)](https://edudecks.org)
 [![Reading Deck](https://img.shields.io/badge/App-Reading%20Deck-blue?style=for-the-badge)](https://reading.edudecks.org)
@@ -9,21 +9,21 @@ An interactive, distraction-free educational flashcard suite built for early lea
 
 ---
 
-## 🌟 Design Philosophy
+## Design Philosophy
 
 EduDecks is designed to be **100% free, private, and distraction-free — with zero ads, zero trackers, and no accounts required.**
 
-### 🤝 Built for Co-Learning
+### Built for Co-Learning
 EduDecks apps are interactive flash cards made for practicing together. Each deck includes visual hints and audio prompts, but kids learn best when someone sits with them to guide their practice, answer questions, and celebrate their progress.
 
-### 🎴 The EduDecks Suite
-- 📖 **[Reading Deck](https://reading.edudecks.org)** (`apps/reading-deck`) — Alphabet phonics, animated stroke handwriting guides, 1,000+ sight words with voice audio, interactive quiz modes, and custom family voice recordings.
-- 🔢 **[Arithmetic Deck](https://arithmetic.edudecks.org)** (`apps/arithmetic-deck`) — Mental arithmetic & number sense covering addition, subtraction, multiplication, division, 10-frame blocks, array grids, and interactive fraction pie charts.
-- 🌐 **[EduDecks Portal](https://edudecks.org)** (`apps/landing-page`) — Central web portal showcasing the app suite, native screenshot previews, App Store / Google Play links, and privacy center.
+### The EduDecks Suite
+- **[Reading Deck](https://reading.edudecks.org)** (`apps/reading-deck`) — Alphabet phonics, animated stroke handwriting guides, 1,000+ sight words with voice audio, interactive quiz modes, and custom family voice recordings.
+- **[Arithmetic Deck](https://arithmetic.edudecks.org)** (`apps/arithmetic-deck`) — Mental arithmetic & number sense covering addition, subtraction, multiplication, division, 10-frame blocks, array grids, and interactive fraction pie charts.
+- **[EduDecks Portal](https://edudecks.org)** (`apps/landing-page`) — Central web portal showcasing the app suite, native screenshot previews, App Store / Google Play links, and privacy center.
 
 ---
 
-## 🔗 Quick Links & Navigation
+## Quick Links & Navigation
 
 - **Live Web Applications**:
   - [EduDecks Main Portal](https://edudecks.org)
@@ -41,7 +41,7 @@ EduDecks apps are interactive flash cards made for practicing together. Each dec
 
 ---
 
-## 📦 Workspace Overview
+## Workspace Overview
 
 ```text
 edu-decks/
@@ -59,7 +59,7 @@ edu-decks/
 
 ---
 
-## 🚀 Quick Start for Developers
+## Quick Start for Developers
 
 ### 1. Prerequisites
 - **Node.js** `>= 20.0.0`
@@ -88,7 +88,7 @@ pnpm --filter arithmetic-deck dev
 
 ---
 
-## 🧪 Verification & Automated Testing
+## Verification & Automated Testing
 
 During active development, verify code changes using incremental typechecking and unit tests:
 
@@ -113,7 +113,7 @@ pnpm -r test:visual:update
 
 ---
 
-## 📱 Mobile Native Apps (iOS & Android)
+## Mobile Native Apps (iOS & Android)
 
 Both `reading-deck` and `arithmetic-deck` are configured with **Capacitor 8** for native iOS and Android deployment.
 
@@ -139,7 +139,7 @@ For full release instructions, credentials backup, and store submission commands
 
 ---
 
-## 📄 License & Community
+## License & Community
 
 EduDecks is free & open-source software licensed under the **[MIT License](./LICENSE)**.  
 For support or issue reporting, visit [GitHub Issues](https://github.com/edu-decks/edu-decks/issues) or email [support@edudecks.org](mailto:support@edudecks.org).

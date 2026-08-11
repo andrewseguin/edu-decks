@@ -1,4 +1,4 @@
-# Reading Deck 🎴📖
+# Reading Deck
 
 [![Live Web App](https://img.shields.io/badge/Web-reading.edudecks.org-blue?style=for-the-badge&logo=googlechrome)](https://reading.edudecks.org)
 [![Google Play](https://img.shields.io/badge/Google%20Play-Reading%20Deck-emerald?style=for-the-badge&logo=googleplay)](https://play.google.com/store/apps/details?id=org.edudecks.reading)
@@ -9,24 +9,24 @@ An interactive, playful flashcard application designed to help children (Ages 3�
 
 ---
 
-## 🔗 Quick Links & Navigation
+## Quick Links & Navigation
 
-- 📖 **Live Web Application**: [https://reading.edudecks.org](https://reading.edudecks.org)
-- 🌐 **EduDecks Main Portal**: [https://edudecks.org](https://edudecks.org)
-- 🔒 **Privacy Policy**: [https://reading.edudecks.org/privacy](https://reading.edudecks.org/privacy)
-- 🏠 **Monorepo Root README**: [`../../README.md`](../../README.md)
-- 🔢 **Arithmetic Deck App**: [`../arithmetic-deck/README.md`](../arithmetic-deck/README.md)
-- 🎨 **Shared Core UI (`@decks/core`)**: [`../../packages/deck-core/README.md`](../../packages/deck-core/README.md)
+- **Live Web Application**: [https://reading.edudecks.org](https://reading.edudecks.org)
+- **EduDecks Main Portal**: [https://edudecks.org](https://edudecks.org)
+- **Privacy Policy**: [https://reading.edudecks.org/privacy](https://reading.edudecks.org/privacy)
+- **Monorepo Root README**: [`../../README.md`](../../README.md)
+- **Arithmetic Deck App**: [`../arithmetic-deck/README.md`](../arithmetic-deck/README.md)
+- **Shared Core UI (`@decks/core`)**: [`../../packages/deck-core/README.md`](../../packages/deck-core/README.md)
 
 ---
 
-## 🤝 Built for Co-Learning
+## Built for Co-Learning
 
 Reading Deck is designed for children to explore together with a parent, teacher, caregiver, or study partner. While the app provides clear audio prompts, letter sounds, and stroke tracing guides, kids learn best when someone sits with them to guide their practice, answer questions, and celebrate their progress.
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
 - **Alphabet Phonics & Tracing**:
   - Interactive uppercase and lowercase letter cards.
@@ -50,7 +50,7 @@ Reading Deck is designed for children to explore together with a parent, teacher
 
 ---
 
-## 💻 Tech Stack & Architecture
+## Tech Stack & Architecture
 
 - **Framework**: [Next.js 15](https://nextjs.org) (App Router), [React 19](https://react.dev)
 - **Shared Core**: Uses `@decks/core` (`FlashCardShell`, `QuizOverlayShell`, `DeckControlBar`, `SessionStats`, `useAudio`, `useWakeLock`)
@@ -59,7 +59,7 @@ Reading Deck is designed for children to explore together with a parent, teacher
 
 ---
 
-## 🚀 Quick Start (pnpm Workspace)
+## Quick Start (pnpm Workspace)
 
 ### 1. Run Local Development Server (Port `9002`)
 From the workspace root or inside `apps/reading-deck`:
@@ -95,7 +95,7 @@ pnpm --filter reading-deck cap:open:android
 
 ---
 
-## 🏠 Navigation
+## Navigation
 - Back to [EduDecks Monorepo Root](../../README.md)
 - Explore [Arithmetic Deck (`apps/arithmetic-deck`)](../arithmetic-deck/README.md)
 - Explore [EduDecks Portal (`apps/landing-page`)](../landing-page/README.md)

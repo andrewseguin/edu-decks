@@ -1,10 +1,10 @@
-# 🚀 Store Publishing & Release Guide
+# Store Publishing & Release Guide
 
 Quick reference for building, signing, and deploying **Arithmetic Deck** (`org.edudecks.arithmetic`) and **Reading Deck** (`org.edudecks.reading`).
 
 ---
 
-## ⚡ 1. Fast CLI Release Build & Asset Generation
+## 1. Fast CLI Release Build & Asset Generation
 
 ### Step A: Regenerate Store Screenshots & Feature Graphics (Optional)
 To automatically capture up-to-date 1080p screenshots, tablet graphics, and 1024×500 feature graphics into `store-assets/`:
@@ -33,7 +33,7 @@ pnpm -F arithmetic-deck build:android:bundle && pnpm -F reading-deck build:andro
 
 ---
 
-## 🔑 2. Keystore & API Credentials Sync (Google Cloud Secret Manager)
+## 2. Keystore & API Credentials Sync (Google Cloud Secret Manager)
 
 Your release keystore (`~/keystores/edudecks-release.p12`), environment script (`~/keystores/release-env.sh`), and Google Play Developer API key (`~/keystores/google-play-api-key.json`) are backed up in **Google Cloud Secret Manager**.
 
@@ -63,11 +63,11 @@ chmod 600 ~/keystores/edudecks-release.p12 ~/keystores/release-env.sh ~/keystore
 
 ---
 
-## 📤 3. Store Deployment Steps
+## 3. Store Deployment Steps
 
-### 🤖 Google Play Store (Android)
+### Google Play Store (Android)
 1. **First-Time Release (Google Play Console):**
-   - Go to [play.google.com/console](https://play.google.com/console/) $\rightarrow$ create App entry.
+   - Go to [play.google.com/console](https://play.google.com/console/) -> create App entry.
    - Fill out legal questionnaires (**Data Safety**, **Target Audience / COPPA**, **Content Rating**).
    - Under **Users & permissions**, invite `play-store-cli@studio-7470092926-a6975.iam.gserviceaccount.com` with listing & release permissions.
    - Under **Production > Releases** (or **Internal Testing**), upload initial `app-release.aab`.
@@ -83,7 +83,7 @@ chmod 600 ~/keystores/edudecks-release.p12 ~/keystores/release-env.sh ~/keystore
 
 ---
 
-### 🍏 Apple App Store (iOS)
+### Apple App Store (iOS)
 1. **Sync native assets & open Xcode:**
    ```bash
    pnpm cap:sync
@@ -91,12 +91,12 @@ chmod 600 ~/keystores/edudecks-release.p12 ~/keystores/release-env.sh ~/keystore
    pnpm -F reading-deck cap:open:ios
    ```
 2. **Archive & Upload:**
-   - In Xcode: Set build target to **Any iOS Device (arm64)** $\rightarrow$ **Product > Archive**.
-   - Click **Distribute App** $\rightarrow$ **App Store Connect** $\rightarrow$ **Upload**.
+   - In Xcode: Set build target to **Any iOS Device (arm64)** -> **Product > Archive**.
+   - Click **Distribute App** -> **App Store Connect** -> **Upload**.
 
 ---
 
-## 📦 4. App Metadata Reference
+## 4. App Metadata Reference
 
 | Property | Arithmetic Deck | Reading Deck |
 | :--- | :--- | :--- |
