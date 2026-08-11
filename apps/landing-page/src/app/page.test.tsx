@@ -28,6 +28,11 @@ describe("landing-page: HomePage", () => {
     expect(screen.getByText("Arithmetic Deck")).toBeInTheDocument();
     expect(screen.getByText("Reading Deck")).toBeInTheDocument();
 
+    // Co-learning guidance section banner
+    expect(
+      screen.getByText("Built for Co-Learning")
+    ).toBeInTheDocument();
+
     // Footer Support and Issue links
     expect(screen.getByRole("link", { name: "support@edudecks.org" })).toHaveAttribute(
       "href",

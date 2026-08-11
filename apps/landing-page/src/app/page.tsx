@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ExternalLink, CheckCircle2, GraduationCap } from "lucide-react";
+import { ExternalLink, CheckCircle2, GraduationCap, HeartHandshake } from "lucide-react";
 import { DECK_COLORS } from "@decks/core";
 import { ThemeToggle } from "../components/theme-toggle";
 
@@ -254,6 +254,24 @@ export default function HomePage() {
               </div>
             );
           })}
+        </section>
+
+        {/* 3. Parent Co-Learning Section Banner */}
+        <section className="bg-card border border-border/80 rounded-3xl p-6 sm:p-8 shadow-xs">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="p-3 rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shrink-0">
+              <HeartHandshake className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-lg sm:text-xl font-bold font-headline text-foreground">
+                Built for Co-Learning
+              </h3>
+              <p className="text-xs sm:text-sm text-muted-foreground mt-1 leading-relaxed">
+                EduDecks apps are interactive flash cards made for practicing together.
+                Each deck includes visual hints and audio prompts, but kids learn best when someone sits with them to guide their practice, answer questions, and celebrate their progress.
+              </p>
+            </div>
+          </div>
         </section>
       </main>
 
