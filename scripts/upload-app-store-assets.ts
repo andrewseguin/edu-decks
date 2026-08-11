@@ -260,6 +260,14 @@ async function uploadAppStoreAssets() {
             }),
           });
           iphoneSet = createSetRes.data;
+        } else {
+          // Delete previous screenshots to replace with exact 1290x2796 specs
+          try {
+            const existingShotsRes = await apiRequest(`/appScreenshotSets/${iphoneSet.id}/appScreenshots`);
+            for (const shot of existingShotsRes.data || []) {
+              await apiRequest(`/appScreenshots/${shot.id}`, { method: 'DELETE' }).catch(() => {});
+            }
+          } catch (_) {}
         }
 
         const screenshotFiles = [
