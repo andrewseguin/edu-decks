@@ -308,7 +308,7 @@ export function WholeNumberVisualizer({
         <StepControls
           steps={[
             { step: 1, label: `1. Setup (${num1}×${num2})`, activeColor: "bg-cyan-300 text-cyan-950 border-cyan-200" },
-            { step: 2, label: `2. Grid Area (${num1 * num2})`, activeColor: "bg-white text-slate-900 border-white" },
+            { step: 2, label: "2. Math Grid", activeColor: "bg-white text-slate-900 border-white" },
           ]}
           activeStep={activeStep}
           onStepClick={onStepClick}
@@ -379,7 +379,7 @@ export function WholeNumberVisualizer({
         <StepControls
           steps={[
             { step: 1, label: `1. Total (${num1})`, activeColor: "bg-cyan-300 text-cyan-950 border-cyan-200" },
-            { step: 2, label: `2. Groups (${groupCount}×${itemsPerGroup})`, activeColor: "bg-amber-300 text-amber-950 border-amber-200" },
+            { step: 2, label: `2. Form Groups (${num2})`, activeColor: "bg-amber-300 text-amber-950 border-amber-200" },
           ]}
           activeStep={activeStep}
           onStepClick={onStepClick}
