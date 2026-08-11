@@ -55,11 +55,11 @@ export function AppSettingsModal({
           )}
           align="end"
           sideOffset={8}
-          collisionPadding={16}
+          collisionPadding={{ top: 56, right: 16, bottom: 16, left: 16 }}
           onPointerDown={(e) => e.stopPropagation()}
         >
           {/* Mobile Fullscreen Header with Close Button */}
-          <div className="flex items-center justify-end p-4 border-b sm:hidden sticky top-0 bg-background z-10">
+          <div className="flex items-center justify-end p-4 pt-[max(1rem,env(safe-area-inset-top))] border-b sm:hidden sticky top-0 bg-background z-10">
             <h4 className="font-medium font-headline text-lg mr-auto">
               {title}
             </h4>
@@ -152,7 +152,7 @@ export function LockSnackbar({
   return (
     <div
       className={cn(
-        "fixed top-6 left-1/2 -translate-x-1/2 z-50 pointer-events-auto",
+        "fixed top-[max(1.5rem,calc(env(safe-area-inset-top)+0.5rem))] left-1/2 -translate-x-1/2 z-50 pointer-events-auto",
         className
       )}
       onPointerDown={(e) => e.stopPropagation()}

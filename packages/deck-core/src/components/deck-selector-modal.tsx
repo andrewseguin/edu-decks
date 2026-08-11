@@ -59,7 +59,7 @@ export function DeckSelectorModal({
           )}
           align="end"
           sideOffset={8}
-          collisionPadding={16}
+          collisionPadding={{ top: 56, right: 16, bottom: 16, left: 16 }}
           onPointerDown={(e) => e.stopPropagation()}
         >
           <div className="grid gap-5">
