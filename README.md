@@ -31,10 +31,10 @@ EduDecks apps are interactive flash cards made for practicing together. Each dec
   - [Store Publishing & Release Guide](./docs/store-publishing-guide.md)
   - [iOS Packaging Guide](./docs/ios-publishing-guide.md)
 - **Workspace Packages**:
-  - [`apps/landing-page/README.md`](./apps/landing-page/README.md) — Portal web app details.
-  - [`apps/reading-deck/README.md`](./apps/reading-deck/README.md) — Reading Deck phonics, audio, & tracing details.
-  - [`apps/arithmetic-deck/README.md`](./apps/arithmetic-deck/README.md) — Arithmetic Deck math generator & visualizer details.
-  - [`packages/deck-core/README.md`](./packages/deck-core/README.md) — Shared `@decks/core` UI component & hook API reference.
+  - [`apps/landing-page/README.md`](./apps/landing-page/README.md) - Portal web app details.
+  - [`apps/reading-deck/README.md`](./apps/reading-deck/README.md) - Reading Deck phonics, audio, & tracing details.
+  - [`apps/arithmetic-deck/README.md`](./apps/arithmetic-deck/README.md) - Arithmetic Deck math generator & visualizer details.
+  - [`packages/deck-core/README.md`](./packages/deck-core/README.md) - Shared `@decks/core` UI component & hook API reference.
 
 ---
 
