@@ -9,6 +9,8 @@
     "build:mobile": "pnpm -r build:mobile",
     "cap:sync": "pnpm -r cap:sync",
     "dev": "pnpm -r --parallel dev",
+    "dev:ios:reading": "pnpm --filter reading-deck cap:live:ios",
+    "dev:ios:arithmetic": "pnpm --filter arithmetic-deck cap:live:ios",
     "lint": "pnpm -r typecheck",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",

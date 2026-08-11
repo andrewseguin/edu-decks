@@ -10,6 +10,7 @@
     "build:android:bundle": "MOBILE_BUILD=true next build && cap sync android && cd android && ./gradlew bundleRelease",
     "cap:open:android": "cap open android",
     "cap:open:ios": "cap open ios",
+    "cap:live:ios": "cap run ios -l --external",
     "start": "next start -p 9002",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
