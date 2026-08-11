@@ -11,6 +11,8 @@
     "dev": "pnpm -r --parallel dev",
     "dev:ios:reading": "pnpm --filter reading-deck cap:live:ios",
     "dev:ios:arithmetic": "pnpm --filter arithmetic-deck cap:live:ios",
+    "archive:ios:reading": "pnpm --filter reading-deck cap:sync && xcodebuild -project apps/reading-deck/ios/App/App.xcodeproj -scheme App -configuration Release -destination 'generic/platform=iOS' -archivePath apps/reading-deck/ios/App.xcarchive archive",
+    "archive:ios:arithmetic": "pnpm --filter arithmetic-deck cap:sync && xcodebuild -project apps/arithmetic-deck/ios/App/App.xcodeproj -scheme App -configuration Release -destination 'generic/platform=iOS' -archivePath apps/arithmetic-deck/ios/App.xcarchive archive",
     "lint": "pnpm -r typecheck",
     "typecheck": "pnpm -r typecheck",
     "test": "pnpm -r test",
