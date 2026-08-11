@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { cn } from "./utils";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
+import { cn, isDevSite } from "./utils";
 
 describe("deck-core: cn utility", () => {
   it("merges class names properly", () => {
@@ -28,3 +28,41 @@ describe("deck-core: cn utility", () => {
     expect(cn("", null, undefined, false)).toBe("");
   });
 });
+
+describe("deck-core: isDevSite utility", () => {
+  const mockHostname = (hostname: string) => {
+    Object.defineProperty(window, "location", {
+      writable: true,
+      configurable: true,
+      value: {
+        hostname,
+      },
+    });
+  };
+
+  it("returns true on localhost", () => {
+    mockHostname("localhost");
+    expect(isDevSite()).toBe(true);
+  });
+
+  it("returns true on 127.0.0.1", () => {
+    mockHostname("127.0.0.1");
+    expect(isDevSite()).toBe(true);
+  });
+
+  it("returns true on -dev. subdomains", () => {
+    mockHostname("reading-dev.edudecks.org");
+    expect(isDevSite()).toBe(true);
+    mockHostname("arithmetic-dev.edudecks.org");
+    expect(isDevSite()).toBe(true);
+  });
+
+  it("returns false on staging and production subdomains", () => {
+    mockHostname("reading-staging.edudecks.org");
+    expect(isDevSite()).toBe(false);
+    mockHostname("reading.edudecks.org");
+    expect(isDevSite()).toBe(false);
+  });
+});
+
+
