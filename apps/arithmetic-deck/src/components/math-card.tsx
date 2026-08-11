@@ -71,12 +71,12 @@ export function MathCard({
       frontContent={
         <div
           className={cn(
-            "absolute inset-0 flex flex-col items-center justify-center transition-transform duration-500 ease-in-out z-20 pointer-events-none p-2 sm:p-4",
+            "absolute inset-x-0 flex flex-col items-center justify-center transition-all duration-500 ease-in-out z-20 pointer-events-none p-2 sm:p-4",
             isDiagramVisible
               ? problem.hasConversion
-                ? "-translate-y-[26%] sm:-translate-y-[27%] [@media(max-height:640px)]:-translate-y-[25%]"
-                : "-translate-y-[24%] sm:-translate-y-[23%] [@media(max-height:640px)]:-translate-y-[22%]"
-              : "translate-y-0"
+                ? "top-[24%] sm:top-[23%] -translate-y-1/2"
+                : "top-[30%] sm:top-[29%] md:top-[28%] -translate-y-1/2"
+              : "top-1/2 -translate-y-1/2"
           )}
         >
           {/* Main Equation Line */}
