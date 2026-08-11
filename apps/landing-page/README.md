@@ -20,7 +20,6 @@ The central web portal and application showcase for **EduDecks** ([edudecks.org]
 
 - **App Showcase Cards**: Interactive cards for `Reading Deck` and `Arithmetic Deck` with live links, Play Store badges, and target age ranges.
 - **Interactive Screenshot Switcher**: Preview Card Front, Visual Hints/Models, and Quiz Mode in both Light and Dark themes.
-- **Co-Learning Guidance Banner**: Highlights the EduDecks philosophy of practicing side-by-side with children.
 - **Privacy Policy Center**: Direct access to the transparent [EduDecks Privacy Policy](https://edudecks.org/privacy) (100% ad-free, zero tracking, no accounts).
 - **Theme Support**: Seamless light/dark mode switching powered by `next-themes` and `@decks/core`.
 
