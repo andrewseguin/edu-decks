@@ -1,4 +1,4 @@
-• Chore(publishing): update store listing CLI scripts, full-bleed icons, and native adaptive icons
-• Unify fraction denominator settings and segmented toggles
-• Chore(deck-core): trigger monorepo build deployment
-• Maintain independent numerator and denominator state when switching slots
+• Improve PrivacyPolicyView header and navigation UX
+• Add GitHub issues and support email (support@edudecks.org) links to footer
+• Remove Next.js dev indicator from screenshots and polish landing page visual hierarchy
+• Add anonymous pwa and landing source parameters for edge log metrics

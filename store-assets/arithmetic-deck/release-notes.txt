@@ -1,4 +1,4 @@
-• Chore(publishing): update store listing CLI scripts, full-bleed icons, and native adaptive icons
 • Unify fraction denominator settings and segmented toggles
-• Chore(deck-core): trigger monorepo build deployment
 • Maintain independent numerator and denominator state when switching slots
+• Remove pulsing caret and use clean static contrast for active input
+• Support showStreak prop and hide streak in arithmetic quiz mode
