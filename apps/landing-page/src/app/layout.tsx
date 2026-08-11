@@ -10,7 +10,7 @@ const lexend = Lexend({
 });
 
 export const metadata: Metadata = {
-  title: "EduDecks — Minimalist Educational Flashcards for Kids",
+  title: "EduDecks - Minimalist Educational Flashcards for Kids",
   description:
     "A suite of playful, distraction-free educational flashcard apps for mental arithmetic, phonics, and reading fluency. 100% free, no ads, and private.",
   keywords: [
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   publisher: "EduDecks",
   metadataBase: new URL("https://edudecks.org"),
   openGraph: {
-    title: "EduDecks — Minimalist Educational Flashcards for Kids",
+    title: "EduDecks - Minimalist Educational Flashcards for Kids",
     description:
       "Playful, distraction-free flashcard apps for mental arithmetic, phonics, and reading fluency. Free, open, and private.",
     url: "https://edudecks.org",

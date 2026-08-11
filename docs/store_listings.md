@@ -9,7 +9,7 @@ Official store listing titles, short descriptions, full descriptions, and promot
 ### App Title
 `Reading Deck: Phonics & Letters`
 
-### Short Description (Google Play Store — max 80 chars)
+### Short Description (Google Play Store - max 80 chars)
 `Interactive phonics & sight word flashcards designed for co-learning together.`
 
 ### Full Description (Google Play & Apple App Store)
@@ -35,7 +35,7 @@ KEY FEATURES:
 ### App Title
 `Arithmetic Deck: Math Flashcards`
 
-### Short Description (Google Play Store — max 80 chars)
+### Short Description (Google Play Store - max 80 chars)
 `Interactive math flashcards for mental arithmetic designed for co-learning.`
 
 ### Full Description (Google Play & Apple App Store)

@@ -8,15 +8,15 @@ An interactive, distraction-free educational flashcard suite built for early lea
 
 ## Design Philosophy
 
-EduDecks is designed to be 100% free, private, and distraction-free — with zero ads, zero trackers, and no accounts required.
+EduDecks is designed to be 100% free, private, and distraction-free with zero ads, zero trackers, and no accounts required.
 
 ### Built for Co-Learning
 EduDecks apps are interactive flash cards made for practicing together. Each deck includes visual hints and audio prompts, but kids learn best when someone sits with them to guide their practice, answer questions, and celebrate their progress.
 
 ### The EduDecks Suite
-- **[Reading Deck](https://reading.edudecks.org)** (`apps/reading-deck`) — Alphabet phonics, animated stroke handwriting guides, 1,000+ sight words with voice audio, interactive quiz modes, and custom family voice recordings.
-- **[Arithmetic Deck](https://arithmetic.edudecks.org)** (`apps/arithmetic-deck`) — Mental arithmetic & number sense covering addition, subtraction, multiplication, division, 10-frame blocks, array grids, and interactive fraction pie charts.
-- **[EduDecks Portal](https://edudecks.org)** (`apps/landing-page`) — Central web portal showcasing the app suite, native screenshot previews, App Store / Google Play links, and privacy center.
+- **[Reading Deck](https://reading.edudecks.org)** (`apps/reading-deck`) - Alphabet phonics, animated stroke handwriting guides, 1,000+ sight words with voice audio, interactive quiz modes, and custom family voice recordings.
+- **[Arithmetic Deck](https://arithmetic.edudecks.org)** (`apps/arithmetic-deck`) - Mental arithmetic & number sense covering addition, subtraction, multiplication, division, 10-frame blocks, array grids, and interactive fraction pie charts.
+- **[EduDecks Portal](https://edudecks.org)** (`apps/landing-page`) - Central web portal showcasing the app suite, native screenshot previews, App Store / Google Play links, and privacy center.
 
 ---
 
