@@ -27,7 +27,19 @@ This file defines mandatory behavioral constraints and operational workflows for
   ```
 - **Only run `pnpm -r build`** when dev servers are intentionally stopped or when performing final release/deployment validation.
 
+### 5. MULTI-ENVIRONMENT DEPLOYMENTS & PRODUCTION BRANCH DISCIPLINE
+- Everyday commits, feature work, and PRs merge into the `main` branch.
+- Commits to `main` automatically deploy to `*-dev.edudecks.org` (`isDevSite() === true` for logs & dev tools) and `*-staging.edudecks.org` (`isDevSite() === false` for prod candidate testing).
+- Live production sites (`*.edudecks.org`) are served exclusively from the **`prod`** branch.
+- **NEVER** push directly to `prod` without validating changes on `main` / `*-staging.edudecks.org` first.
+- To promote a verified candidate from `main` to live production:
+  ```bash
+  git push origin main:prod
+  ```
+- Always use `isDevSite()` from `@decks/core` to guard developer debug overlays, verbose logging, or diagnostic tools.
+
 ---
+
 
 ## 📦 Workspace Overview
 - `apps/landing-page` (Port `9000`) — EduDecks Portal & Landing Showcase

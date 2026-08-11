@@ -27,6 +27,7 @@ EduDecks apps are interactive flash cards made for practicing together. Each dec
   - [Reading Deck Web App](https://reading.edudecks.org)
   - [Arithmetic Deck Web App](https://arithmetic.edudecks.org)
 - **Documentation & Publishing**:
+  - [Multi-Environment & Deployment Guide](./docs/deployment-guide.md)
   - [App Store Listings & Copy](./docs/store_listings.md)
   - [Store Publishing & Release Guide](./docs/store-publishing-guide.md)
   - [iOS Packaging Guide](./docs/ios-publishing-guide.md)
