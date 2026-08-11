@@ -250,10 +250,12 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
     if (isRecording) {
       await handleToggleRecording();
     }
-    if (isPlaying) {
-      stopPlayback();
-      return;
-    }
+
+    stopPlayback();
+
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+    const signal = abortController.signal;
 
     const audioUrl = overrideUrl !== undefined ? overrideUrl : localAudioUrl;
 
@@ -275,12 +277,18 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
             await audioContext.resume();
           }
 
+          if (signal.aborted) {
+            setIsPlaying(false);
+            return;
+          }
+
           const source = audioContext.createBufferSource();
           source.buffer = buffer;
           source.connect(audioContext.destination);
           currentSourceRef.current = source;
 
           source.onended = () => {
+            if (signal.aborted) return;
             setIsPlaying(false);
             currentSourceRef.current = null;
           };
@@ -292,6 +300,11 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
       }
     }
 
+    if (signal.aborted) {
+      setIsPlaying(false);
+      return;
+    }
+
     // 2. HTML Audio fallback for letter sounds (plays .m4a / .mp3 directly)
     setIsPlaying(true);
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
@@ -300,14 +313,20 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
     currentAudioRef.current = audio;
 
     const playFallbackTTS = () => {
+      if (signal.aborted) return;
       if (typeof window !== "undefined" && "speechSynthesis" in window) {
         try {
-          window.speechSynthesis.cancel();
           const utterance = new SpeechSynthesisUtterance(content.value);
           utterance.lang = "en-US";
           utterance.rate = 0.9;
-          utterance.onend = () => setIsPlaying(false);
-          utterance.onerror = () => setIsPlaying(false);
+          utterance.onend = () => {
+            if (signal.aborted) return;
+            setIsPlaying(false);
+          };
+          utterance.onerror = () => {
+            if (signal.aborted) return;
+            setIsPlaying(false);
+          };
           window.speechSynthesis.speak(utterance);
         } catch (_) {
           setIsPlaying(false);
@@ -319,17 +338,23 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
     };
 
     audio.onended = () => {
+      if (signal.aborted) return;
       setIsPlaying(false);
       currentAudioRef.current = null;
     };
     audio.onerror = () => {
+      if (signal.aborted) return;
       playFallbackTTS();
     };
 
     try {
       await audio.play();
-    } catch (err) {
-      console.warn("HTML Audio play failed:", err);
+    } catch (err: any) {
+      currentAudioRef.current = null;
+      if (signal.aborted || err?.name === 'AbortError') {
+        setIsPlaying(false);
+        return;
+      }
       playFallbackTTS();
     }
   }
@@ -360,7 +385,6 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
     const fallbackToSpeechSynthesis = () => {
       if (signal.aborted) return;
       try {
-        window.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(content.value);
         utterance.lang = "en-US";
         utterance.rate = 0.9;
@@ -400,6 +424,11 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
       }
     };
 
+    if (signal.aborted) {
+      setIsPlaying(false);
+      return;
+    }
+
     // Directly play the high-clarity word MP3 voice sound
     const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '';
     const mp3Url = `${basePath}/sounds/words/${content.value.toLowerCase()}.mp3`;
@@ -413,14 +442,19 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
     };
 
     audio.onerror = () => {
+      if (signal.aborted) return;
       currentAudioRef.current = null;
       fallbackToSpeechSynthesis();
     };
 
     try {
       await audio.play();
-    } catch (err) {
+    } catch (err: any) {
       currentAudioRef.current = null;
+      if (signal.aborted || err?.name === 'AbortError') {
+        setIsPlaying(false);
+        return;
+      }
       fallbackToSpeechSynthesis();
     }
 
