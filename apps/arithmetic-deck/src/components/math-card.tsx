@@ -74,15 +74,15 @@ export function MathCard({
             "absolute inset-0 flex flex-col items-center justify-center transition-transform duration-500 ease-in-out z-20 pointer-events-none p-2 sm:p-4",
             isDiagramVisible
               ? problem.hasConversion
-                ? "-translate-y-16 sm:-translate-y-20 [@media(max-height:640px)]:-translate-y-14"
-                : "-translate-y-14 sm:-translate-y-16 md:-translate-y-20 [@media(max-height:640px)]:-translate-y-12"
+                ? "-translate-y-[26%] sm:-translate-y-[27%] [@media(max-height:640px)]:-translate-y-[25%]"
+                : "-translate-y-[24%] sm:-translate-y-[23%] [@media(max-height:640px)]:-translate-y-[22%]"
               : "translate-y-0"
           )}
         >
           {/* Main Equation Line */}
           <div
             className={cn(
-              "relative flex items-center justify-center whitespace-nowrap text-center transition-all duration-700 ease-in-out origin-center",
+              "relative flex items-center justify-center whitespace-nowrap text-center transition-all duration-500 ease-in-out origin-center",
               isDiagramVisible
                 ? problem.isFraction
                   ? "scale-[0.88] sm:scale-[0.85] [@media(max-height:640px)]:scale-[0.80] [@media(orientation:landscape)_and_(max-height:640px)]:scale-[0.88]"
@@ -232,10 +232,10 @@ export function MathCard({
           className={cn(
             "absolute inset-x-0 bottom-2 sm:bottom-3 flex items-center justify-center pointer-events-none z-10 transition-all p-1 sm:p-2",
             problem.hasConversion
-              ? "top-[7rem] sm:top-[8.5rem]"
-              : "top-[5.5rem] sm:top-[7rem]",
+              ? "top-[52%] sm:top-[50%] [@media(max-height:640px)]:top-[50%]"
+              : "top-[44%] sm:top-[42%] [@media(max-height:640px)]:top-[44%]",
             isDiagramVisible
-              ? "opacity-100 translate-y-0 scale-100 delay-150 duration-500 ease-out pointer-events-auto"
+              ? "opacity-100 translate-y-0 scale-100 delay-200 duration-500 ease-out pointer-events-auto"
               : "opacity-0 translate-y-8 scale-95 delay-0 duration-300 ease-in pointer-events-none"
           )}
         >
