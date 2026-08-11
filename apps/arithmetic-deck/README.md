@@ -28,6 +28,7 @@ pnpm --filter arithmetic-deck build
 
 ## ✨ Features
 
+- 🤝 **Built for Co-Learning**: Interactive flash cards designed for practicing together — providing visual hints and step animations while empowering parents, teachers, and partners to guide math practice and celebrate progress.
 - ➕ **Multiple Operations**: Addition, Subtraction, Multiplication, and Division.
 - 🍕 **Fraction Visualizations**: Interactive pie charts, subdivide grid cuts, and automatic common denominator conversion badges (e.g. `1/2 - 3/6 = 0` converted to `3/6 - 3/6 = 0/6`).
 - 🔢 **Whole Number Visualizations**: 10-frame fill-in/take-away blocks, multiplication grid arrays, and equal division groups.

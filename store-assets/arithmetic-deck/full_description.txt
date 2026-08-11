@@ -1,0 +1,12 @@
+Arithmetic Deck is a clean, distraction-free mental math application designed for young learners (Pre-K to 4th grade).
+
+BUILT FOR CO-LEARNING
+EduDecks apps are interactive flash cards made for practicing together. Each deck includes visual hints and audio prompts, but kids learn best when someone sits with them to guide their practice, answer questions, and celebrate their progress.
+
+KEY FEATURES:
+• Multiple Operations: Practice Addition, Subtraction, Multiplication, and Division.
+• Visual Strategy Models: 10-frame blocks, array grids, equal division groups, and interactive fraction pie charts.
+• Conceptual Math Sense: Step-by-step strategy hints build deep understanding beyond simple memorization.
+• Interactive Quiz Mode: Practice mental arithmetic with clean numeric keypads and streak counters.
+• Screen Keep-Awake: Built-in Screen Wake Lock prevents display timeouts during math sessions.
+• 100% Free & Private: Zero ads, zero trackers, no subscription, no account required, and fully offline-capable.

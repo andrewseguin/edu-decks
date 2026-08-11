@@ -1,0 +1,12 @@
+Reading Deck is a clean, distraction-free phonics and reading fluency app designed for early learners (Pre-K to 2nd grade).
+
+BUILT FOR CO-LEARNING
+EduDecks apps are interactive flash cards made for practicing together. Each deck includes visual hints and audio prompts, but kids learn best when someone sits with them to guide their practice, answer questions, and celebrate their progress.
+
+KEY FEATURES:
+• Alphabet Phonics & Tracing: Master uppercase & lowercase letters with stroke-guided animations and clear audio pronunciations.
+• 1,000+ Sight Words: Color-coded difficulty levels covering essential early reading vocabulary.
+• Interactive Quiz Mode: Test recognition with audio-guided choice cards and streak tracking.
+• Custom Voice Recordings: Record your own voice prompts for personalized family learning.
+• Screen Keep-Awake: Built-in Screen Wake Lock prevents display timeouts during reading sessions.
+• 100% Free & Private: Zero ads, zero trackers, no subscription, no account required, and fully offline-capable.

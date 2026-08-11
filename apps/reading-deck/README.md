@@ -28,6 +28,7 @@ pnpm --filter reading-deck build
 
 ## 🌟 Features
 
+- **Built for Co-Learning**: Interactive flash cards designed for practicing together — providing visual hints and audio prompts while empowering parents, teachers, and partners to guide practice and celebrate progress.
 - **Interactive Phonics & Word Cards**: Large, vibrant cards with letter tracing, color-coded difficulty levels, and instant speech playback.
 - **Pre-rendered High-Quality Audio**: Built-in natural MP3 audio files for 1,000+ vocabulary words in `public/sounds/words/` alongside Web Audio API letter sound buffers.
 - **Interactive Quiz Mode**:

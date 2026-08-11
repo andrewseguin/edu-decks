@@ -1,6 +1,8 @@
 # `edu-decks` 🎴✨
 
-An interactive, distraction-free educational flashcard suite built with **Next.js 15**, **React 19**, **Tailwind CSS**, and **pnpm workspaces**. Designed for early learners to practice mental arithmetic, phonics, and reading fluency with visual animations, speech audio, and interactive practice quizzes.
+An interactive, distraction-free educational flashcard suite built with **Next.js 15**, **React 19**, **Tailwind CSS**, and **pnpm workspaces**. Designed for early learners and adults to practice mental arithmetic, phonics, and reading fluency together with visual animations, speech audio, and interactive practice quizzes.
+
+> 🤝 **Built for Co-Learning**: EduDecks apps are interactive flash cards made for practicing together. Each deck includes visual hints and audio prompts, but kids learn best when someone sits with them to guide their practice, answer questions, and celebrate their progress.
 
 ---
 
