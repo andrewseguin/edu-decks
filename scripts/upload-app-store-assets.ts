@@ -85,8 +85,74 @@ async function apiRequest(endpoint: string, options: RequestInit = {}) {
   return res.json();
 }
 
+async function uploadSingleScreenshot(screenshotSetId: string, filePath: string) {
+  const fileStats = fs.statSync(filePath);
+  const fileName = path.basename(filePath);
+  const fileBuffer = fs.readFileSync(filePath);
+
+  // 1. Reserve Screenshot Slot
+  const reserveRes = await apiRequest('/appScreenshots', {
+    method: 'POST',
+    body: JSON.stringify({
+      data: {
+        type: 'appScreenshots',
+        attributes: {
+          fileSize: fileStats.size,
+          fileName,
+        },
+        relationships: {
+          appScreenshotSet: {
+            data: {
+              id: screenshotSetId,
+              type: 'appScreenshotSets',
+            },
+          },
+        },
+      },
+    }),
+  });
+
+  const screenshotId = reserveRes.data.id;
+  const uploadOps = reserveRes.data.attributes.uploadOperations;
+
+  // 2. Upload Binary Chunks
+  for (const op of uploadOps) {
+    const chunk = fileBuffer.subarray(op.offset, op.offset + op.length);
+    const headers: Record<string, string> = {};
+    for (const h of op.requestHeaders) {
+      headers[h.name] = h.value;
+    }
+
+    const uploadRes = await fetch(op.url, {
+      method: op.method,
+      headers,
+      body: chunk,
+    });
+
+    if (!uploadRes.ok) {
+      throw new Error(`Failed binary chunk upload to ${op.url}: ${uploadRes.statusText}`);
+    }
+  }
+
+  // 3. Commit Upload State
+  await apiRequest(`/appScreenshots/${screenshotId}`, {
+    method: 'PATCH',
+    body: JSON.stringify({
+      data: {
+        id: screenshotId,
+        type: 'appScreenshots',
+        attributes: {
+          uploaded: true,
+        },
+      },
+    }),
+  });
+
+  console.log(`    ✓ Uploaded screenshot: ${fileName}`);
+}
+
 async function uploadAppStoreAssets() {
-  console.log("🚀 Starting App Store Connect Automated Metadata & Listing Sync...");
+  console.log("🚀 Starting App Store Connect Automated Metadata & Screenshot Sync...");
 
   // 1. Fetch Apps
   const appsRes = await apiRequest('/apps?include=appInfos,appStoreVersions');
@@ -101,7 +167,7 @@ async function uploadAppStoreAssets() {
 
     console.log(`\n📱 Processing ${config.name} (ID: ${app.id})...`);
 
-    // 2. Fetch App Info Localizations (Name & Subtitle)
+    // 2. Update App Name & Subtitle
     try {
       const appInfosRes = await apiRequest(`/apps/${app.id}/appInfos`);
       const appInfoId = appInfosRes.data[0]?.id;
@@ -132,14 +198,15 @@ async function uploadAppStoreAssets() {
       console.warn(`  ⚠️ Could not update App Name/Subtitle:`, e.message || e);
     }
 
-    // 3. Fetch App Store Version Localizations (Description & Keywords)
+    // 3. Update Description & Keywords
+    let verLocId: string | null = null;
     try {
       const versionsRes = await apiRequest(`/apps/${app.id}/appStoreVersions`);
       const currentVersionId = versionsRes.data[0]?.id;
 
       if (currentVersionId) {
         const verLocalizationsRes = await apiRequest(`/appStoreVersions/${currentVersionId}/appStoreVersionLocalizations`);
-        const verLocId = verLocalizationsRes.data[0]?.id;
+        verLocId = verLocalizationsRes.data[0]?.id;
 
         if (verLocId) {
           await apiRequest(`/appStoreVersionLocalizations/${verLocId}`, {
@@ -162,9 +229,60 @@ async function uploadAppStoreAssets() {
     } catch (e: any) {
       console.warn(`  ⚠️ Could not update Version Description/Keywords:`, e.message || e);
     }
+
+    // 4. Upload Screenshots to Screenshot Sets
+    if (verLocId && fs.existsSync(config.assetDir)) {
+      try {
+        console.log(`  🖼️ Uploading Screenshots for ${config.name}...`);
+        
+        // Fetch or Create APP_IPHONE_65 screenshot set
+        const existingSetsRes = await apiRequest(`/appStoreVersionLocalizations/${verLocId}/appScreenshotSets`);
+        let iphoneSet = existingSetsRes.data.find((s: any) => s.attributes.screenshotDisplayType === 'APP_IPHONE_65');
+
+        if (!iphoneSet) {
+          const createSetRes = await apiRequest('/appScreenshotSets', {
+            method: 'POST',
+            body: JSON.stringify({
+              data: {
+                type: 'appScreenshotSets',
+                attributes: {
+                  screenshotDisplayType: 'APP_IPHONE_65',
+                },
+                relationships: {
+                  appStoreVersionLocalization: {
+                    data: {
+                      id: verLocId,
+                      type: 'appStoreVersionLocalizations',
+                    },
+                  },
+                },
+              },
+            }),
+          });
+          iphoneSet = createSetRes.data;
+        }
+
+        const screenshotFiles = [
+          'screenshot-1-card-front.png',
+          'screenshot-2-card-back.png',
+          'screenshot-3-card-next.png',
+          'screenshot-4-quiz-mode.png',
+        ];
+
+        for (const file of screenshotFiles) {
+          const filePath = path.join(config.assetDir, file);
+          if (fs.existsSync(filePath)) {
+            await uploadSingleScreenshot(iphoneSet.id, filePath);
+          }
+        }
+
+      } catch (e: any) {
+        console.warn(`  ⚠️ Could not upload Screenshots:`, e.message || e);
+      }
+    }
   }
 
-  console.log("\n🎉 SUCCESS: All App Store Connect metadata & names synced programmatically!");
+  console.log("\n🎉 SUCCESS: All App Store Connect metadata, names, and screenshots synced programmatically!");
 }
 
 uploadAppStoreAssets().catch(console.error);
