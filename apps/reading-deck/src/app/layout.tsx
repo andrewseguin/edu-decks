@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Toaster } from "@/components/ui/toaster";
 import { AudioProvider } from "@/components/AudioProvider";
 import { ThemeProvider } from "@decks/core";
@@ -8,6 +8,15 @@ import './globals.css';
 export const metadata: Metadata = {
   title: 'Reading Deck - Phonics, Letters & Reading Fluency',
   description: 'A playful, distraction-free flashcard application for learning phonics, letters, and sight words.',
+};
+
+export const viewport: Viewport = {
+  themeColor: "#09090b",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  viewportFit: "cover",
 };
 
 export default function RootLayout({

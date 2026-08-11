@@ -49,7 +49,7 @@ export function DeckAppShell({
       {/* Flow-based Header */}
       <header
         className={cn(
-          "w-full px-3 sm:px-6 pt-2 sm:pt-4 pb-1 shrink-0 flex items-center justify-between pointer-events-none z-30 min-h-[44px] sm:min-h-[52px]",
+          "w-full px-3 sm:px-6 pt-[max(0.5rem,env(safe-area-inset-top))] sm:pt-[max(1rem,env(safe-area-inset-top))] pb-1 shrink-0 flex items-center justify-between pointer-events-none z-30 min-h-[44px] sm:min-h-[52px]",
           headerClassName
         )}
       >

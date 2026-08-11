@@ -36,7 +36,7 @@ export function QuizOverlayShell({
   return (
     <div
       className={cn(
-        "fixed inset-0 z-40 bg-background flex flex-col justify-between p-3 sm:p-6 select-none overflow-hidden",
+        "fixed inset-0 z-40 bg-background flex flex-col justify-between p-3 sm:p-6 pt-[max(0.75rem,env(safe-area-inset-top))] sm:pt-[max(1.5rem,env(safe-area-inset-top))] select-none overflow-hidden",
         className
       )}
       onPointerDown={(e) => e.stopPropagation()}
