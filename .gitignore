@@ -14,4 +14,5 @@ out/
 *.json.key
 studio-*.json
 *-key.json
+*.xcarchive/
 
