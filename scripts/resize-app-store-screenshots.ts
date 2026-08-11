@@ -7,42 +7,50 @@ const dirs = [
   path.join(process.cwd(), 'store-assets/arithmetic-deck'),
 ];
 
-const TARGET_WIDTH = 1290;
-const TARGET_HEIGHT = 2796; // Apple 6.7" / 6.5" Display Required Resolution
+// Apple App Store Connect Exact Dimension Requirements
+const SPECS = [
+  { displayType: 'APP_IPHONE_65', width: 1242, height: 2688, suffix: '' },      // 6.5" Display (iPhone XS Max, 11 Pro Max, 14 Plus)
+  { displayType: 'APP_IPHONE_67', width: 1290, height: 2796, suffix: '-67' },   // 6.7" Display (iPhone 14 Pro Max, 15 Pro Max, 16 Pro Max)
+];
 
 async function resizeScreenshots() {
-  console.log(`📐 Resizing screenshots to Apple required resolution (${TARGET_WIDTH} x ${TARGET_HEIGHT})...`);
+  console.log(`📐 Generating Apple compliant screenshot resolutions...`);
 
   for (const dir of dirs) {
     if (!fs.existsSync(dir)) continue;
 
-    const files = [
+    const baseFiles = [
       'screenshot-1-card-front.png',
       'screenshot-2-card-back.png',
       'screenshot-3-card-next.png',
       'screenshot-4-quiz-mode.png',
     ];
 
-    for (const file of files) {
-      const filePath = path.join(dir, file);
-      if (!fs.existsSync(filePath)) continue;
+    for (const baseFile of baseFiles) {
+      const srcPath = path.join(dir, baseFile);
+      if (!fs.existsSync(srcPath)) continue;
 
-      const tempPath = path.join(dir, `temp_${file}`);
+      const baseName = path.basename(baseFile, '.png');
 
-      // Resize with canvas containment and sharp background fitting
-      await sharp(filePath)
-        .resize(TARGET_WIDTH, TARGET_HEIGHT, {
-          fit: 'contain',
-          background: { r: 107, g: 33, b: 168, alpha: 1 }, // Soft background pad
-        })
-        .toFile(tempPath);
+      for (const spec of SPECS) {
+        const outName = `${baseName}${spec.suffix}.png`;
+        const outPath = path.join(dir, outName);
+        const tempPath = path.join(dir, `temp_${outName}`);
 
-      fs.renameSync(tempPath, filePath);
-      console.log(`  ✓ Resized ${path.basename(dir)}/${file} -> ${TARGET_WIDTH}x${TARGET_HEIGHT}`);
+        await sharp(srcPath)
+          .resize(spec.width, spec.height, {
+            fit: 'contain',
+            background: { r: 107, g: 33, b: 168, alpha: 1 },
+          })
+          .toFile(tempPath);
+
+        fs.renameSync(tempPath, outPath);
+        console.log(`  ✓ Created ${path.basename(dir)}/${outName} -> ${spec.width}x${spec.height} (${spec.displayType})`);
+      }
     }
   }
 
-  console.log("✨ All screenshots resized to Apple exact specifications!");
+  console.log("✨ All Apple compliant screenshot sets created!");
 }
 
 resizeScreenshots().catch(console.error);

@@ -233,54 +233,70 @@ async function uploadAppStoreAssets() {
     // 4. Upload Screenshots to Screenshot Sets
     if (verLocId && fs.existsSync(config.assetDir)) {
       try {
-        console.log(`  🖼️ Uploading Screenshots for ${config.name}...`);
+        console.log(`  🖼️ Syncing Screenshots for ${config.name}...`);
         
-        // Fetch or Create APP_IPHONE_65 screenshot set
         const existingSetsRes = await apiRequest(`/appStoreVersionLocalizations/${verLocId}/appScreenshotSets`);
-        let iphoneSet = existingSetsRes.data.find((s: any) => s.attributes.screenshotDisplayType === 'APP_IPHONE_65');
+        const existingSets = existingSetsRes.data || [];
 
-        if (!iphoneSet) {
-          const createSetRes = await apiRequest('/appScreenshotSets', {
-            method: 'POST',
-            body: JSON.stringify({
-              data: {
-                type: 'appScreenshotSets',
-                attributes: {
-                  screenshotDisplayType: 'APP_IPHONE_65',
-                },
-                relationships: {
-                  appStoreVersionLocalization: {
-                    data: {
-                      id: verLocId,
-                      type: 'appStoreVersionLocalizations',
+        const SPECS = [
+          {
+            displayType: 'APP_IPHONE_65',
+            files: [
+              'screenshot-1-card-front.png',
+              'screenshot-2-card-back.png',
+              'screenshot-3-card-next.png',
+              'screenshot-4-quiz-mode.png',
+            ],
+          },
+          {
+            displayType: 'APP_IPHONE_67',
+            files: [
+              'screenshot-1-card-front-67.png',
+              'screenshot-2-card-back-67.png',
+              'screenshot-3-card-next-67.png',
+              'screenshot-4-quiz-mode-67.png',
+            ],
+          },
+        ];
+
+        for (const spec of SPECS) {
+          let targetSet = existingSets.find((s: any) => s.attributes.screenshotDisplayType === spec.displayType);
+
+          if (!targetSet) {
+            const createSetRes = await apiRequest('/appScreenshotSets', {
+              method: 'POST',
+              body: JSON.stringify({
+                data: {
+                  type: 'appScreenshotSets',
+                  attributes: {
+                    screenshotDisplayType: spec.displayType,
+                  },
+                  relationships: {
+                    appStoreVersionLocalization: {
+                      data: {
+                        id: verLocId,
+                        type: 'appStoreVersionLocalizations',
+                      },
                     },
                   },
                 },
-              },
-            }),
-          });
-          iphoneSet = createSetRes.data;
-        } else {
-          // Delete previous screenshots to replace with exact 1290x2796 specs
-          try {
-            const existingShotsRes = await apiRequest(`/appScreenshotSets/${iphoneSet.id}/appScreenshots`);
+              }),
+            });
+            targetSet = createSetRes.data;
+          } else {
+            // Delete existing shots to replace cleanly
+            const existingShotsRes = await apiRequest(`/appScreenshotSets/${targetSet.id}/appScreenshots`);
             for (const shot of existingShotsRes.data || []) {
               await apiRequest(`/appScreenshots/${shot.id}`, { method: 'DELETE' }).catch(() => {});
             }
-          } catch (_) {}
-        }
+          }
 
-        const screenshotFiles = [
-          'screenshot-1-card-front.png',
-          'screenshot-2-card-back.png',
-          'screenshot-3-card-next.png',
-          'screenshot-4-quiz-mode.png',
-        ];
-
-        for (const file of screenshotFiles) {
-          const filePath = path.join(config.assetDir, file);
-          if (fs.existsSync(filePath)) {
-            await uploadSingleScreenshot(iphoneSet.id, filePath);
+          console.log(`   📱 Uploading set ${spec.displayType}...`);
+          for (const file of spec.files) {
+            const filePath = path.join(config.assetDir, file);
+            if (fs.existsSync(filePath)) {
+              await uploadSingleScreenshot(targetSet.id, filePath);
+            }
           }
         }
 
