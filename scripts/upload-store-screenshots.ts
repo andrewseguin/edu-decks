@@ -22,8 +22,42 @@ async function uploadPlayStoreScreenshots() {
   const androidpublisher = google.androidpublisher({ version: 'v3', auth: client as any });
 
   const apps = [
-    { name: 'arithmetic-deck', packageName: 'org.edudecks.arithmetic', assetDir: path.join(root, 'store-assets/arithmetic-deck') },
-    { name: 'reading-deck', packageName: 'org.edudecks.reading', assetDir: path.join(root, 'store-assets/reading-deck') },
+    {
+      name: 'arithmetic-deck',
+      packageName: 'org.edudecks.arithmetic',
+      assetDir: path.join(root, 'store-assets/arithmetic-deck'),
+      title: 'Arithmetic Deck - Math Cards',
+      shortDescription: 'Practice addition, subtraction, multiplication, and division with flashcards.',
+      fullDescription: `Master mental math and number sense with Arithmetic Deck! Designed for early learners, kids, and students, Arithmetic Deck provides fun, interactive math flashcard drills for addition, subtraction, multiplication, and division.
+
+FEATURES:
+• Interactive Math Flashcards: Practice addition (+), subtraction (−), multiplication (×), and division (÷) with colorful, intuitive cards.
+• Visual Dot Diagrams: See visual subitizing dot patterns to understand the concept behind every calculation.
+• Customizable Skill Levels: Select number ranges and math operations tailored for toddlers, kindergarteners, and elementary students.
+• Timed Quiz Mode: Test speed and retention with interactive quiz challenges.
+• 100% Offline & Ad-Free: Zero ads, zero tracking, zero data collection. Pure distraction-free learning.
+• Tactile Audio Cues & Sound Effects: Delightful sound effects keep learners engaged.
+
+Arithmetic Deck is built for classrooms, homeschoolers, and parents looking for a simple, engaging tool to build early math confidence.`,
+    },
+    {
+      name: 'reading-deck',
+      packageName: 'org.edudecks.reading',
+      assetDir: path.join(root, 'store-assets/reading-deck'),
+      title: 'Reading Deck - Phonics Cards',
+      shortDescription: 'Learn letters, phonics sounds, blends, and sight words with flashcards.',
+      fullDescription: `Build strong reading fluency and phonics skills with Reading Deck! Designed for toddlers, preschoolers, and early readers, Reading Deck helps children master letter names, letter sounds, consonant blends, and foundational sight words through tactile flashcards.
+
+FEATURES:
+• Alphabet & Letter Sounds: Explore uppercase and lowercase letters with crystal-clear audio TTS pronunciation for every letter sound.
+• Phonics & Blends Practice: Learn consonant-vowel-consonant (CVC) patterns, digraphs, and blend combinations.
+• High-Frequency Sight Words: Practice core sight words to improve early reading speed and comprehension.
+• Interactive Quiz Mode: Test letter and word recognition with interactive listening quizzes.
+• 100% Offline & Ad-Free: Zero ads, zero tracking, zero data collection. A safe, distraction-free environment for kids.
+• Beautiful Design System: Vibrant colors, readable typography, and soft sound effects designed for small hands.
+
+Reading Deck empowers early readers to develop confidence in phonemic awareness and early literacy skills.`,
+    },
   ];
 
   for (const app of apps) {
@@ -42,6 +76,18 @@ async function uploadPlayStoreScreenshots() {
     const language = 'en-US';
 
     try {
+      // 1. Update Main Store Listing Text
+      await androidpublisher.edits.listings.update({
+        packageName: app.packageName,
+        editId,
+        language,
+        requestBody: {
+          title: app.title,
+          shortDescription: app.shortDescription,
+          fullDescription: app.fullDescription,
+        },
+      });
+      console.log(`  ✓ Updated main store listing text (Title, Short & Full Description)`);
       // 2. Upload Phone Screenshots
       const phoneFiles = [
         'screenshot-1-card-front.png',
@@ -142,6 +188,26 @@ async function uploadPlayStoreScreenshots() {
           media: { mimeType: 'image/png', body: fs.createReadStream(featureGraphicPath) },
         });
         console.log(`  ✓ Uploaded feature graphic (1024x500)`);
+      }
+
+      // 6. Upload App Icon (512x512)
+      const iconPath = path.join(app.assetDir, 'app-icon-512x512.png');
+      if (fs.existsSync(iconPath)) {
+        await androidpublisher.edits.images.deleteall({
+          packageName: app.packageName,
+          editId,
+          language,
+          imageType: 'icon',
+        }).catch(() => {});
+
+        await androidpublisher.edits.images.upload({
+          packageName: app.packageName,
+          editId,
+          language,
+          imageType: 'icon',
+          media: { mimeType: 'image/png', body: fs.createReadStream(iconPath) },
+        });
+        console.log(`  ✓ Uploaded app icon (512x512)`);
       }
 
       // 6. Commit Edit Session
