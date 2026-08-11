@@ -1,9 +1,8 @@
 # EduDecks Portal (`apps/landing-page`)
 
-[![Live Portal](https://img.shields.io/badge/Live-edudecks.org-emerald?style=for-the-badge&logo=googlechrome)](https://edudecks.org)
-[![Workspace Root](https://img.shields.io/badge/Monorepo-edu--decks-purple?style=for-the-badge)](../../README.md)
+The central web portal and application showcase for **EduDecks** ([edudecks.org](https://edudecks.org)). Designed to welcome parents, educators, and early learners with direct access to live web applications, native App Store / Google Play download links, interactive screenshot previews, and privacy resources.
 
-The central web portal and application showcase for **EduDecks** (`edudecks.org`). Designed to welcome parents, educators, and early learners with direct access to live web applications, native App Store / Google Play download links, interactive screenshot previews, and privacy resources.
+**Live Portal**: [https://edudecks.org](https://edudecks.org) · **Monorepo Root**: [`../../README.md`](../../README.md)
 
 ---
 

@@ -1,11 +1,8 @@
 # Arithmetic Deck
 
-[![Live Web App](https://img.shields.io/badge/Web-arithmetic.edudecks.org-amber?style=for-the-badge&logo=googlechrome)](https://arithmetic.edudecks.org)
-[![Google Play](https://img.shields.io/badge/Google%20Play-Arithmetic%20Deck-emerald?style=for-the-badge&logo=googleplay)](https://play.google.com/store/apps/details?id=org.edudecks.arithmetic)
-[![EduDecks Portal](https://img.shields.io/badge/Portal-edudecks.org-purple?style=for-the-badge)](https://edudecks.org)
-[![Workspace Root](https://img.shields.io/badge/Monorepo-edu--decks-purple?style=for-the-badge)](../../README.md)
-
 An interactive, distraction-free mental arithmetic application designed for young learners (Ages 4–10 / Pre-K to 4th grade) to build number sense and math fluency through visual strategy models and interactive flashcards.
+
+**Live App**: [arithmetic.edudecks.org](https://arithmetic.edudecks.org) · **Main Portal**: [edudecks.org](https://edudecks.org) · **Monorepo**: [`../../README.md`](../../README.md)
 
 ---
 

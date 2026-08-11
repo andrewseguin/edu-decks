@@ -1,11 +1,8 @@
 # Reading Deck
 
-[![Live Web App](https://img.shields.io/badge/Web-reading.edudecks.org-blue?style=for-the-badge&logo=googlechrome)](https://reading.edudecks.org)
-[![Google Play](https://img.shields.io/badge/Google%20Play-Reading%20Deck-emerald?style=for-the-badge&logo=googleplay)](https://play.google.com/store/apps/details?id=org.edudecks.reading)
-[![EduDecks Portal](https://img.shields.io/badge/Portal-edudecks.org-purple?style=for-the-badge)](https://edudecks.org)
-[![Workspace Root](https://img.shields.io/badge/Monorepo-edu--decks-purple?style=for-the-badge)](../../README.md)
-
 An interactive, playful flashcard application designed to help children (Ages 3–8 / Pre-K to 2nd grade) learn alphabet phonics, stroke-guided letter tracing, sight words, and reading fluency.
+
+**Live App**: [reading.edudecks.org](https://reading.edudecks.org) · **Main Portal**: [edudecks.org](https://edudecks.org) · **Monorepo**: [`../../README.md`](../../README.md)
 
 ---
 

@@ -1,9 +1,8 @@
 # `@decks/core`
 
-[![Workspace Root](https://img.shields.io/badge/Monorepo-edu--decks-purple?style=for-the-badge)](../../README.md)
-[![EduDecks Portal](https://img.shields.io/badge/Portal-edudecks.org-emerald?style=for-the-badge)](https://edudecks.org)
+The shared UI component library, layout shells, accessibility standards, and browser utility hooks for the **EduDecks** educational flashcard monorepo ([edudecks.org](https://edudecks.org)).
 
-The shared UI component library, layout shells, accessibility standards, and browser utility hooks for the **EduDecks** educational flashcard monorepo (`edudecks.org`).
+**Monorepo Root**: [`../../README.md`](../../README.md) · **Portal**: [edudecks.org](https://edudecks.org)
 
 ---
 

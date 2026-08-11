@@ -1,11 +1,8 @@
 # `edu-decks`
 
-[![EduDecks Portal](https://img.shields.io/badge/Web-edudecks.org-emerald?style=for-the-badge&logo=googlechrome)](https://edudecks.org)
-[![Reading Deck](https://img.shields.io/badge/App-Reading%20Deck-blue?style=for-the-badge)](https://reading.edudecks.org)
-[![Arithmetic Deck](https://img.shields.io/badge/App-Arithmetic%20Deck-amber?style=for-the-badge)](https://arithmetic.edudecks.org)
-[![License: MIT](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](./LICENSE)
-
 An interactive, distraction-free educational flashcard suite built for early learners and adults to explore together. Built with **Next.js 15**, **React 19**, **Tailwind CSS**, **Capacitor 8**, and **pnpm workspaces**.
+
+**Live Apps**: [EduDecks Portal](https://edudecks.org) · [Reading Deck](https://reading.edudecks.org) · [Arithmetic Deck](https://arithmetic.edudecks.org)
 
 ---
 
