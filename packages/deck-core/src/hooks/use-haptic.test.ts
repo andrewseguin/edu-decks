@@ -30,7 +30,7 @@ describe("deck-core: useHaptic", () => {
     const { result } = renderHook(() => useHaptic(true));
     result.current.trigger("light");
 
-    expect(mockVibrate).toHaveBeenCalledWith(10);
+    expect(mockVibrate).toHaveBeenCalledWith(40);
   });
 
   it("supports success and warning vibration sequences", () => {
@@ -38,10 +38,10 @@ describe("deck-core: useHaptic", () => {
 
     const { result } = renderHook(() => useHaptic(true));
     result.current.trigger("success");
-    expect(mockVibrate).toHaveBeenCalledWith([15, 30, 15]);
+    expect(mockVibrate).toHaveBeenCalledWith([40, 60, 40]);
 
     result.current.trigger("warning");
-    expect(mockVibrate).toHaveBeenCalledWith([35, 40, 35]);
+    expect(mockVibrate).toHaveBeenCalledWith([70, 80, 70]);
   });
 
   it("does not trigger vibration when disabled", () => {
