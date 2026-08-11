@@ -9,12 +9,12 @@ const dirs = [
 
 // Apple App Store Connect Exact Dimension Requirements
 const SPECS = [
-  { displayType: 'APP_IPHONE_65', width: 1242, height: 2688, suffix: '' },      // 6.5" Display (iPhone XS Max, 11 Pro Max, 14 Plus)
-  { displayType: 'APP_IPHONE_67', width: 1290, height: 2796, suffix: '-67' },   // 6.7" Display (iPhone 14 Pro Max, 15 Pro Max, 16 Pro Max)
+  { displayType: 'APP_IPHONE_65', width: 1242, height: 2688, suffix: '' },      // 6.5" Display
+  { displayType: 'APP_IPHONE_67', width: 1290, height: 2796, suffix: '-67' },   // 6.7" Display
 ];
 
 async function resizeScreenshots() {
-  console.log(`📐 Generating Apple compliant screenshot resolutions...`);
+  console.log(`📐 Generating edge-to-edge full bleed Apple screenshots (no purple bars)...`);
 
   for (const dir of dirs) {
     if (!fs.existsSync(dir)) continue;
@@ -37,20 +37,21 @@ async function resizeScreenshots() {
         const outPath = path.join(dir, outName);
         const tempPath = path.join(dir, `temp_${outName}`);
 
+        // Use fit: 'cover' for full bleed edge-to-edge screenshots with zero letterboxing bars
         await sharp(srcPath)
           .resize(spec.width, spec.height, {
-            fit: 'contain',
-            background: { r: 107, g: 33, b: 168, alpha: 1 },
+            fit: 'cover',
+            position: 'center',
           })
           .toFile(tempPath);
 
         fs.renameSync(tempPath, outPath);
-        console.log(`  ✓ Created ${path.basename(dir)}/${outName} -> ${spec.width}x${spec.height} (${spec.displayType})`);
+        console.log(`  ✓ Created edge-to-edge ${path.basename(dir)}/${outName} -> ${spec.width}x${spec.height}`);
       }
     }
   }
 
-  console.log("✨ All Apple compliant screenshot sets created!");
+  console.log("✨ All edge-to-edge screenshots generated!");
 }
 
 resizeScreenshots().catch(console.error);
