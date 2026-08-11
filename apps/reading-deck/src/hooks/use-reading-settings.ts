@@ -55,6 +55,10 @@ export function useReadingSettings(): ReadingDeckSettings {
     "first-read-keep-awake",
     true
   );
+  const [enableHaptic, setEnableHaptic] = useLocalStorage<boolean>(
+    "first-read-enable-haptic",
+    true
+  );
 
   return {
     letterCase,
@@ -83,5 +87,7 @@ export function useReadingSettings(): ReadingDeckSettings {
     setAutoPlaySound,
     keepScreenAwake,
     setKeepScreenAwake,
+    enableHaptic,
+    setEnableHaptic,
   };
 }

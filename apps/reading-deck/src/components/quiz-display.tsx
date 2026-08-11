@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Volume2, X, Sparkles, CheckCircle2 } from "lucide-react";
-import { DeckQuizManager, DECK_COLORS } from "@decks/core";
+import { DeckQuizManager, DECK_COLORS, triggerHaptic } from "@decks/core";
 import { Button } from "@/components/ui/button";
 import { getLetterInfo, ALL_LETTERS } from "@/lib/letters";
 import { EASY_WORDS, HARD_WORDS } from "@/lib/words";
@@ -289,6 +289,7 @@ export function QuizDisplay({
       setIsCorrect(true);
       setScore((s) => s + 1);
       setStreak((s) => s + 1);
+      triggerHaptic("success");
 
       // Play success chime
       if (audioContext) {
@@ -314,6 +315,7 @@ export function QuizDisplay({
     } else {
       setIsCorrect(false);
       setStreak(0);
+      triggerHaptic("warning");
       setTimeout(() => {
         setSelectedOption(null);
         setIsCorrect(null);

@@ -14,6 +14,7 @@ describe("deck-core: useDeckPreferences", () => {
     expect(result.current.showTimer).toBe(true);
     expect(result.current.autoPlaySound).toBe(false);
     expect(result.current.keepScreenAwake).toBe(true);
+    expect(result.current.enableHaptic).toBe(true);
     expect(result.current.isLocked).toBe(false);
   });
 
@@ -23,11 +24,13 @@ describe("deck-core: useDeckPreferences", () => {
         keyPrefix: "math-deck",
         defaultShowCardCount: false,
         defaultAutoPlaySound: true,
+        defaultEnableHaptic: false,
       })
     );
 
     expect(result.current.showCardCount).toBe(false);
     expect(result.current.autoPlaySound).toBe(true);
+    expect(result.current.enableHaptic).toBe(false);
   });
 
   it("updates individual preferences and reflects state changes", () => {
@@ -38,6 +41,7 @@ describe("deck-core: useDeckPreferences", () => {
       result.current.setShowTimer(false);
       result.current.setAutoPlaySound(true);
       result.current.setKeepScreenAwake(false);
+      result.current.setEnableHaptic(false);
       result.current.setIsLocked(true);
     });
 
@@ -45,6 +49,7 @@ describe("deck-core: useDeckPreferences", () => {
     expect(result.current.showTimer).toBe(false);
     expect(result.current.autoPlaySound).toBe(true);
     expect(result.current.keepScreenAwake).toBe(false);
+    expect(result.current.enableHaptic).toBe(false);
     expect(result.current.isLocked).toBe(true);
   });
 });

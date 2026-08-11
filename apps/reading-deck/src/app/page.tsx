@@ -43,6 +43,7 @@ export default function Home() {
       onPrev: handlePrevCard,
       onTap: handleTap,
       isMenuOpen: isAnyModalOpen,
+      enableHaptics: settings.enableHaptic,
     });
 
   useEffect(() => {
@@ -120,6 +121,8 @@ export default function Home() {
             onAutoPlaySoundChange={settings.setAutoPlaySound}
             keepScreenAwake={settings.keepScreenAwake}
             onKeepScreenAwakeChange={settings.setKeepScreenAwake}
+            enableHaptic={settings.enableHaptic}
+            onEnableHapticChange={settings.setEnableHaptic}
             open={isSettingsOpen}
             onOpenChange={handleSettingsOpenChange}
             onOpenRecordings={() => setIsRecordingsModalOpen(true)}

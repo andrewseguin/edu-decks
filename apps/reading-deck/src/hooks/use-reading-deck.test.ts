@@ -35,6 +35,8 @@ describe("reading-deck: useReadingDeck", () => {
     setAutoPlaySound: () => {},
     keepScreenAwake: true,
     setKeepScreenAwake: () => {},
+    enableHaptic: true,
+    setEnableHaptic: () => {},
   };
 
   it("initializes with letter content and handles next card and prev card", () => {

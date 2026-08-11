@@ -19,6 +19,8 @@ export type DeckStandardSettingsProps = {
   onAutoPlaySoundChange?: (autoPlay: boolean) => void;
   keepScreenAwake?: boolean;
   onKeepScreenAwakeChange?: (keep: boolean) => void;
+  enableHaptic?: boolean;
+  onEnableHapticChange?: (enable: boolean) => void;
   onLockApp?: () => void;
   themeSectionTitle?: string;
   countersSectionTitle?: string;
@@ -42,6 +44,8 @@ export function DeckStandardSettings({
   onAutoPlaySoundChange,
   keepScreenAwake,
   onKeepScreenAwakeChange,
+  enableHaptic,
+  onEnableHapticChange,
   onLockApp,
   themeSectionTitle = "Theme",
   countersSectionTitle = "Counters",
@@ -54,7 +58,7 @@ export function DeckStandardSettings({
   eduDecksLabel = "More decks at edudecks.org",
 }: DeckStandardSettingsProps) {
   const hasCounters = onShowCardCountChange || onShowTimerChange;
-  const hasSystem = onAutoPlaySoundChange || onKeepScreenAwakeChange;
+  const hasSystem = onAutoPlaySoundChange || onKeepScreenAwakeChange || onEnableHapticChange;
 
   return (
     <AppSettingsModal
@@ -94,7 +98,7 @@ export function DeckStandardSettings({
         </SettingsSection>
       )}
 
-      {/* System Section (Audio & Screen) */}
+      {/* System Section (Audio, Screen, Haptics) */}
       {hasSystem && (
         <SettingsSection title={systemSectionTitle}>
           {onAutoPlaySoundChange && autoPlaySound !== undefined && (
@@ -111,6 +115,14 @@ export function DeckStandardSettings({
               label="Keep Screen Awake"
               checked={keepScreenAwake}
               onCheckedChange={onKeepScreenAwakeChange}
+            />
+          )}
+          {onEnableHapticChange && enableHaptic !== undefined && (
+            <SettingsToggle
+              id="deck-haptic-toggle"
+              label="Haptic Feedback"
+              checked={enableHaptic}
+              onCheckedChange={onEnableHapticChange}
             />
           )}
         </SettingsSection>

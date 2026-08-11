@@ -9,6 +9,8 @@ type AppSettingsProps = {
   onAutoPlayAudioChange: (autoPlay: boolean) => void;
   keepScreenAwake: boolean;
   onKeepScreenAwakeChange: (keep: boolean) => void;
+  enableHaptic?: boolean;
+  onEnableHapticChange?: (enable: boolean) => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onLockApp?: () => void;
@@ -26,6 +28,8 @@ export function AppSettings({
   onAutoPlayAudioChange,
   keepScreenAwake,
   onKeepScreenAwakeChange,
+  enableHaptic,
+  onEnableHapticChange,
   open,
   onOpenChange,
   onLockApp,
@@ -45,6 +49,8 @@ export function AppSettings({
       onAutoPlaySoundChange={onAutoPlayAudioChange}
       keepScreenAwake={keepScreenAwake}
       onKeepScreenAwakeChange={onKeepScreenAwakeChange}
+      enableHaptic={enableHaptic}
+      onEnableHapticChange={onEnableHapticChange}
       onLockApp={onLockApp}
       showEduDecksLink={showEduDecksLink}
       eduDecksUrl={eduDecksUrl}
