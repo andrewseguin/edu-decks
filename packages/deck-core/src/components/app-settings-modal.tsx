@@ -15,6 +15,7 @@ export type AppSettingsModalProps = {
   contentClassName?: string;
   lockButtonLabel?: React.ReactNode;
   showEduDecksLink?: boolean;
+  isInteractiveLink?: boolean;
   eduDecksUrl?: string;
   eduDecksLabel?: string;
 };
@@ -29,9 +30,19 @@ export function AppSettingsModal({
   contentClassName,
   lockButtonLabel = "Lock Settings",
   showEduDecksLink = true,
+  isInteractiveLink,
   eduDecksUrl = "https://edudecks.org",
   eduDecksLabel = "More decks at edudecks.org",
 }: AppSettingsModalProps) {
+  const isNative =
+    typeof window !== "undefined" &&
+    Boolean(
+      (window as any).Capacitor?.isNativePlatform?.() ||
+        (window as any).Capacitor?.getPlatform?.() === "ios" ||
+        (window as any).Capacitor?.getPlatform?.() === "android"
+    );
+  const shouldBeInteractive =
+    isInteractiveLink !== undefined ? isInteractiveLink : !isNative;
   return (
     <PopoverPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <PopoverPrimitive.Trigger asChild>
@@ -95,15 +106,21 @@ export function AppSettingsModal({
               )}
               {showEduDecksLink && (
                 <div className="pt-2 border-t border-border/60 text-center">
-                  <a
-                    href={eduDecksUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-body select-none group"
-                  >
-                    <span>{eduDecksLabel}</span>
-                    <ExternalLink className="h-3 w-3 opacity-60 group-hover:opacity-100 transition-opacity" />
-                  </a>
+                  {shouldBeInteractive ? (
+                    <a
+                      href={eduDecksUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors font-body select-none group"
+                    >
+                      <span>{eduDecksLabel}</span>
+                      <ExternalLink className="h-3 w-3 opacity-60 group-hover:opacity-100 transition-opacity" />
+                    </a>
+                  ) : (
+                    <span className="text-xs text-muted-foreground font-body select-none">
+                      {eduDecksLabel}
+                    </span>
+                  )}
                 </div>
               )}
             </div>

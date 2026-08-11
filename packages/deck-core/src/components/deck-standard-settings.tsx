@@ -27,6 +27,7 @@ export type DeckStandardSettingsProps = {
   triggerClassName?: string;
   contentClassName?: string;
   showEduDecksLink?: boolean;
+  isInteractiveLink?: boolean;
   eduDecksUrl?: string;
   eduDecksLabel?: string;
 };
@@ -50,6 +51,7 @@ export function DeckStandardSettings({
   triggerClassName,
   contentClassName,
   showEduDecksLink = true,
+  isInteractiveLink,
   eduDecksUrl = "https://edudecks.org",
   eduDecksLabel = "More decks at edudecks.org",
 }: DeckStandardSettingsProps) {
@@ -64,6 +66,7 @@ export function DeckStandardSettings({
       triggerClassName={triggerClassName}
       contentClassName={contentClassName}
       showEduDecksLink={showEduDecksLink}
+      isInteractiveLink={isInteractiveLink}
       eduDecksUrl={eduDecksUrl}
       eduDecksLabel={eduDecksLabel}
     >
