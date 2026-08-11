@@ -9,9 +9,9 @@ An interactive, distraction-free educational flashcard suite built for early lea
 
 ---
 
-## 🌟 Product Mission & Design Philosophy
+## 🌟 Design Philosophy
 
-EduDecks is built on a simple promise: **100% free, private, distraction-free learning tools with zero ads, zero trackers, and no accounts required.**
+EduDecks is designed to be **100% free, private, and distraction-free — with zero ads, zero trackers, and no accounts required.**
 
 ### 🤝 Built for Co-Learning
 EduDecks apps are interactive flash cards made for practicing together. Each deck includes visual hints and audio prompts, but kids learn best when someone sits with them to guide their practice, answer questions, and celebrate their progress.
