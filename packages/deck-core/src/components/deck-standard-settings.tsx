@@ -63,14 +63,32 @@ export function DeckStandardSettings({
   const hasCounters = onShowCardCountChange || onShowTimerChange;
   const hasSystem = onAutoPlaySoundChange || onKeepScreenAwakeChange || onEnableHapticChange;
 
-  const handleTestVibration = () => {
-    const success = triggerHaptic("warning", true);
-    if (success) {
-      setTestVibrationMsg("Vibrating! (300ms pulse)");
-    } else {
-      setTestVibrationMsg("navigator.vibrate returned false or unsupported");
+  const handleTestVibration = (e?: React.SyntheticEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
     }
-    setTimeout(() => setTestVibrationMsg(null), 3000);
+
+    if (typeof window === "undefined") {
+      setTestVibrationMsg("SSR environment");
+      return;
+    }
+
+    if (!("vibrate" in navigator)) {
+      setTestVibrationMsg("navigator.vibrate API not supported on this browser/OS");
+      return;
+    }
+
+    try {
+      const res = navigator.vibrate(300);
+      if (res) {
+        setTestVibrationMsg("vibrate(300) returned TRUE. If no buzz, check OS Touch Vibration settings!");
+      } else {
+        setTestVibrationMsg("vibrate(300) returned FALSE (Blocked by OS or Silent Mode)");
+      }
+    } catch (err) {
+      setTestVibrationMsg(`Error: ${err instanceof Error ? err.message : String(err)}`);
+    }
   };
 
   return (
@@ -142,6 +160,7 @@ export function DeckStandardSettings({
                 <div className="pt-1 flex flex-col gap-1">
                   <button
                     type="button"
+                    onPointerDown={handleTestVibration}
                     onClick={handleTestVibration}
                     className="w-full inline-flex items-center justify-center gap-2 px-3 py-2 text-xs font-headline font-bold rounded-xl border border-input bg-background hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
                   >
