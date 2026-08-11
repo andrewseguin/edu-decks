@@ -24,7 +24,8 @@ const apps: AppConfig[] = [
     paths: ['apps/arithmetic-deck', 'packages/deck-core'],
     excludeKeywords: /phonics|letter|tracing|word|speech|reading/i,
     defaultNotes: [
-      '• Streamlined math deck settings panel with mobile domain attribution.',
+      '• Improved fraction deck controls and custom denominator options.',
+      '• Streamlined app settings panel with mobile domain attribution.',
       '• Smooth card flip animations and high-contrast dark mode.',
       '• Audio TTS reader and Screen Wake Lock stability improvements.',
     ],
@@ -34,50 +35,60 @@ const apps: AppConfig[] = [
     paths: ['apps/reading-deck', 'packages/deck-core'],
     excludeKeywords: /fraction|denominator|numerator|math|arithmetic|number sense|digit/i,
     defaultNotes: [
-      '• Streamlined reading deck settings panel with mobile domain attribution.',
       '• Letter tracing precision and audio voice recording playback enhancements.',
+      '• Streamlined app settings panel with mobile domain attribution.',
+      '• Smooth card flip animations and high-contrast dark mode.',
       '• Audio TTS reader and Screen Wake Lock stability improvements.',
     ],
   },
 ];
 
-function isDeveloperChore(subject: string): boolean {
-  // Ignore technical/repo maintenance commits that aren't user-facing
-  const chorePatterns = [
-    /^chore\(/i,
-    /^ci\(/i,
-    /^test\(/i,
-    /^docs\(/i,
-    /^style\([^)]+\): trigger/i,
-    /build deployment/i,
-    /trigger monorepo/i,
-  ];
-  return chorePatterns.some((pattern) => pattern.test(subject));
-}
+// Terms that indicate internal/developer work not relevant to end-user parents
+const internalNoisePattern = /dev indicator|metric|telemetry|edge log|parameter|screenshot|bundle|script|cli|monorepo|ci|deps|dependency|package\.json|tsconfig|playwright|vite|next\.js|turbopack|pwa/i;
 
-function cleanCommitSubject(subject: string): string {
+function cleanUserFacingSubject(subject: string): string | null {
+  // Ignore developer chores and internal infrastructure
+  if (/^(chore|ci|test|docs|refactor\([^)]+\): trigger)/i.test(subject)) {
+    return null;
+  }
+
+  if (internalNoisePattern.test(subject)) {
+    return null;
+  }
+
   let clean = subject
     .replace(/^(feat|fix|style|refactor|perf)\([^)]+\):\s*/i, '')
     .replace(/^(feat|fix|style|refactor|perf):\s*/i, '')
     .trim();
 
+  // Common technical phrase to parent-friendly phrase mapping
+  clean = clean
+    .replace(/PrivacyPolicyView/i, 'Privacy policy view')
+    .replace(/showStreak prop/i, 'streak counter options')
+    .replace(/pulsing caret/i, 'active input cursor')
+    .replace(/segmented toggles/i, 'segmented controls');
+
+  // Ensure ends with a period if concise sentence
+  if (!clean.endsWith('.')) clean += '.';
+
   // Capitalize first letter
   clean = clean.charAt(0).toUpperCase() + clean.slice(1);
-  return clean;
+
+  if (clean.length < 8) return null;
+  return `• ${clean}`;
 }
 
 function generateReleaseNotes() {
   const root = process.cwd();
   const git = getGitExec();
 
-  console.log('📝 Generating app-scoped release notes from git history...');
+  console.log('📝 Generating user-facing release notes from git history...');
 
   for (const app of apps) {
     let logOutput = '';
     try {
-      // Scoped git log for this app's paths
       const pathsArg = app.paths.join(' ');
-      logOutput = execSync(`${git} log -n 30 --oneline --no-merges -- ${pathsArg}`, {
+      logOutput = execSync(`${git} log -n 40 --oneline --no-merges -- ${pathsArg}`, {
         encoding: 'utf-8',
       });
     } catch (err: any) {
@@ -93,23 +104,29 @@ function generateReleaseNotes() {
     const processedSummaries = new Set<string>();
 
     for (const rawSubject of rawLines) {
-      if (isDeveloperChore(rawSubject)) continue;
       if (app.excludeKeywords.test(rawSubject)) continue;
 
-      const clean = cleanCommitSubject(rawSubject);
-      const lower = clean.toLowerCase();
+      const userNote = cleanUserFacingSubject(rawSubject);
+      if (!userNote) continue;
 
-      if (clean.length > 5 && !processedSummaries.has(lower)) {
+      const lower = userNote.toLowerCase();
+      if (!processedSummaries.has(lower)) {
         processedSummaries.add(lower);
-        userFacingPoints.push(`• ${clean}`);
+        userFacingPoints.push(userNote);
       }
 
       if (userFacingPoints.length >= 4) break;
     }
 
-    // Fall back to app-appropriate defaults if no app-specific commits matched
-    const finalPoints =
-      userFacingPoints.length > 0 ? userFacingPoints : app.defaultNotes;
+    // Combine matched user notes with fallback defaults to ensure 3-4 high quality notes
+    const finalPoints = [...userFacingPoints];
+    for (const defaultNote of app.defaultNotes) {
+      if (finalPoints.length >= 3) break;
+      if (!finalPoints.includes(defaultNote)) {
+        finalPoints.push(defaultNote);
+      }
+    }
+
     const notesText = finalPoints.join('\n') + '\n';
 
     const notesFile = path.join(root, `store-assets/${app.name}/release-notes.txt`);
@@ -119,7 +136,7 @@ function generateReleaseNotes() {
     console.log(notesText.split('\n').map((l) => `    ${l}`).join('\n'));
   }
 
-  console.log('✨ App-scoped release notes updated successfully!');
+  console.log('✨ Parent & user-facing release notes updated successfully!');
 }
 
 generateReleaseNotes();

@@ -1,4 +1,4 @@
-• Unify fraction denominator settings and segmented toggles
-• Maintain independent numerator and denominator state when switching slots
-• Remove pulsing caret and use clean static contrast for active input
-• Support showStreak prop and hide streak in arithmetic quiz mode
+• Unify fraction denominator settings and segmented controls.
+• Maintain independent numerator and denominator state when switching slots.
+• Remove active input cursor and use clean static contrast for active input.
+• Support streak counter options and hide streak in arithmetic quiz mode.

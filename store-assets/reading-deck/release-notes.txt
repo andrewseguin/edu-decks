@@ -1,4 +1,4 @@
-• Improve PrivacyPolicyView header and navigation UX
-• Add GitHub issues and support email (support@edudecks.org) links to footer
-• Remove Next.js dev indicator from screenshots and polish landing page visual hierarchy
-• Add anonymous pwa and landing source parameters for edge log metrics
+• Improve Privacy policy view header and navigation UX.
+• Add GitHub issues and support email (support@edudecks.org) links to footer.
+• Fill top-right game settings buttons with brand emerald green.
+• Add subtle link back to edudecks.org in settings panel.
