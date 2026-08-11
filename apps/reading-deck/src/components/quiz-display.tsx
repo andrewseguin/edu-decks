@@ -281,15 +281,21 @@ export function QuizDisplay({
   // Handle user selecting an option card
   const handleSelectOption = (item: QuizItem) => {
     if (!targetItem || selectedOption !== null) return;
-    stopAudio(); // Stop any prompt sound immediately!
 
+    // Trigger haptic IMMEDIATELY within active touch gesture
+    if (item.value === targetItem.value) {
+      triggerHaptic("success");
+    } else {
+      triggerHaptic("warning");
+    }
+
+    stopAudio(); // Stop any prompt sound immediately!
     setSelectedOption(item.value);
 
     if (item.value === targetItem.value) {
       setIsCorrect(true);
       setScore((s) => s + 1);
       setStreak((s) => s + 1);
-      triggerHaptic("success");
 
       // Play success chime
       if (audioContext) {
@@ -315,7 +321,6 @@ export function QuizDisplay({
     } else {
       setIsCorrect(false);
       setStreak(0);
-      triggerHaptic("warning");
       setTimeout(() => {
         setSelectedOption(null);
         setIsCorrect(null);
@@ -388,10 +393,6 @@ export function QuizDisplay({
                   lineHeight: 1,
                   backgroundColor: !isSelected && item.color ? `${item.color}15` : undefined,
                   color: !isSelected && item.color ? item.color : undefined,
-                }}
-                onPointerDown={(e) => {
-                  e.stopPropagation();
-                  handleSelectOption(item);
                 }}
                 onClick={(e) => {
                   e.stopPropagation();

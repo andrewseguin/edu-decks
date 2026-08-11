@@ -154,19 +154,19 @@ export function useQuizSession({
       if (submitTimeoutRef.current) clearTimeout(submitTimeoutRef.current);
 
       if (isAnswerCorrect) {
+        triggerHaptic("success");
         setIsCorrect(true);
         setScore((s) => s + 1);
         setStreak((s) => s + 1);
-        triggerHaptic("success");
         onPlayChime(true);
 
         submitTimeoutRef.current = setTimeout(() => {
           nextQuestion();
         }, 800);
       } else {
+        triggerHaptic("warning");
         setIsCorrect(false);
         setStreak(0);
-        triggerHaptic("warning");
         onPlayChime(false);
 
         submitTimeoutRef.current = setTimeout(() => {
