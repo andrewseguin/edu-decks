@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { Volume2, X, Sparkles, CheckCircle2 } from "lucide-react";
-import { DeckQuizManager, DECK_COLORS, triggerHaptic } from "@decks/core";
+import { DeckQuizManager, DECK_COLORS } from "@decks/core";
 import { Button } from "@/components/ui/button";
 import { getLetterInfo, ALL_LETTERS } from "@/lib/letters";
 import { EASY_WORDS, HARD_WORDS } from "@/lib/words";
@@ -281,15 +281,8 @@ export function QuizDisplay({
   // Handle user selecting an option card
   const handleSelectOption = (item: QuizItem) => {
     if (!targetItem || selectedOption !== null) return;
-
-    // Trigger haptic IMMEDIATELY within active touch gesture
-    if (item.value === targetItem.value) {
-      triggerHaptic("success");
-    } else {
-      triggerHaptic("warning");
-    }
-
     stopAudio(); // Stop any prompt sound immediately!
+
     setSelectedOption(item.value);
 
     if (item.value === targetItem.value) {
@@ -393,6 +386,10 @@ export function QuizDisplay({
                   lineHeight: 1,
                   backgroundColor: !isSelected && item.color ? `${item.color}15` : undefined,
                   color: !isSelected && item.color ? item.color : undefined,
+                }}
+                onPointerDown={(e) => {
+                  e.stopPropagation();
+                  handleSelectOption(item);
                 }}
                 onClick={(e) => {
                   e.stopPropagation();

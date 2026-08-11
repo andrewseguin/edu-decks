@@ -18,7 +18,6 @@ export * from "./hooks/use-deck-preferences";
 export * from "./hooks/use-deck-quiz-state";
 export * from "./hooks/use-deck-controller";
 export * from "./hooks/use-deck-gestures";
-export * from "./hooks/use-haptic";
 export * from "./lib/utils";
 export * from "./lib/types";
 export * from "./lib/colors";

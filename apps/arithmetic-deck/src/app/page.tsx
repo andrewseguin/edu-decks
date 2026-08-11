@@ -127,7 +127,6 @@ export default function MathDeckPage() {
     onPrev: handlePrevCard,
     onTap: handleCardTap,
     isMenuOpen: isQuizActive || isSettingsOpen || isOperationSelectorOpen,
-    enableHaptics: settings.enableHaptic,
   });
 
   const handleOperationSelectorOpenChange = (open: boolean) => {
@@ -184,8 +183,6 @@ export default function MathDeckPage() {
             onAutoPlayAudioChange={settings.setAutoPlayAudio}
             keepScreenAwake={settings.keepScreenAwake}
             onKeepScreenAwakeChange={settings.setKeepScreenAwake}
-            enableHaptic={settings.enableHaptic}
-            onEnableHapticChange={settings.setEnableHaptic}
             open={isSettingsOpen}
             onOpenChange={handleSettingsOpenChange}
             onLockApp={() => settings.setIsLocked(true)}

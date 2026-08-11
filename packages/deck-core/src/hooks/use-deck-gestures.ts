@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { triggerHaptic } from "./use-haptic";
 
 export type UseDeckGesturesOptions = {
   onNext?: () => void;
@@ -12,7 +11,6 @@ export type UseDeckGesturesOptions = {
   tapThreshold?: number;
   menuCloseCooldownMs?: number;
   enableKeyboard?: boolean;
-  enableHaptics?: boolean;
 };
 
 export function useDeckGestures({
@@ -24,7 +22,6 @@ export function useDeckGestures({
   tapThreshold = 12,
   menuCloseCooldownMs = 300,
   enableKeyboard = true,
-  enableHaptics = true,
 }: UseDeckGesturesOptions) {
   const touchStartRef = React.useRef<{ x: number; y: number } | null>(null);
   const lastMenuCloseTimeRef = React.useRef<number>(0);
@@ -70,18 +67,16 @@ export function useDeckGestures({
 
       // Check horizontal swipe
       if (absDeltaX > swipeThreshold && absDeltaX > absDeltaY) {
-        triggerHaptic("light", enableHaptics);
         if (deltaX > 0) {
           onPrev?.();
         } else {
           onNext?.();
         }
       } else if (absDeltaX <= tapThreshold && absDeltaY <= tapThreshold) {
-        triggerHaptic("light", enableHaptics);
         onTap?.();
       }
     },
-    [isMenuOpen, menuCloseCooldownMs, swipeThreshold, tapThreshold, onNext, onPrev, onTap, enableHaptics]
+    [isMenuOpen, menuCloseCooldownMs, swipeThreshold, tapThreshold, onNext, onPrev, onTap]
   );
 
   React.useEffect(() => {

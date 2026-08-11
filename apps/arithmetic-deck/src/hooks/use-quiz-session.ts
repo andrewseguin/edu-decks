@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { MathOperation, MathProblem, Fraction, FractionDenominatorMode, FractionMaxDenominator } from "@/lib/types";
 import { generateMathProblem } from "@/lib/math-generator";
-import { triggerHaptic } from "@decks/core";
 
 export function parseFractionValue(str: string): number | null {
   const parts = str.trim().split('/');
@@ -154,7 +153,6 @@ export function useQuizSession({
       if (submitTimeoutRef.current) clearTimeout(submitTimeoutRef.current);
 
       if (isAnswerCorrect) {
-        triggerHaptic("success");
         setIsCorrect(true);
         setScore((s) => s + 1);
         setStreak((s) => s + 1);
@@ -164,7 +162,6 @@ export function useQuizSession({
           nextQuestion();
         }, 800);
       } else {
-        triggerHaptic("warning");
         setIsCorrect(false);
         setStreak(0);
         onPlayChime(false);

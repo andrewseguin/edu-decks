@@ -33,7 +33,6 @@ export function useDeckSettings() {
   const [showTimer, setShowTimer] = useLocalStorage<boolean>("math-deck-show-timer", true);
   const [autoPlayAudio, setAutoPlayAudio] = useLocalStorage<boolean>("math-deck-autoplay-audio", false);
   const [keepScreenAwake, setKeepScreenAwake] = useLocalStorage<boolean>("math-deck-keep-awake", true);
-  const [enableHaptic, setEnableHaptic] = useLocalStorage<boolean>("math-deck-enable-haptic", true);
   const [isLocked, setIsLocked] = useLocalStorage<boolean>("math-deck-locked", false);
 
   const showWholeNumbers = numberType === "whole";
@@ -90,8 +89,6 @@ export function useDeckSettings() {
     setAutoPlayAudio,
     keepScreenAwake,
     setKeepScreenAwake,
-    enableHaptic,
-    setEnableHaptic,
     isLocked,
     setIsLocked,
     handleOperationToggle,

@@ -37,6 +37,4 @@ export type ReadingDeckSettings = {
   setAutoPlaySound: (val: boolean | ((val: boolean) => boolean)) => void;
   keepScreenAwake: boolean;
   setKeepScreenAwake: (val: boolean | ((val: boolean) => boolean)) => void;
-  enableHaptic: boolean;
-  setEnableHaptic: (val: boolean | ((val: boolean) => boolean)) => void;
 };
