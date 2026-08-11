@@ -116,6 +116,10 @@
     min-width: 100% !important;
     max-width: none !important;
   }
+
+  .mobile-fullscreen > div:first-child {
+    padding-top: max(1rem, env(safe-area-inset-top)) !important;
+  }
 }
 
 /* Ten Frame Fill In & Take Away Animations */

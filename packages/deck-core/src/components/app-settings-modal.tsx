@@ -59,7 +59,7 @@ export function AppSettingsModal({
           onPointerDown={(e) => e.stopPropagation()}
         >
           {/* Mobile Fullscreen Header with Close Button */}
-          <div className="flex items-center justify-end p-4 pt-[max(1rem,env(safe-area-inset-top))] border-b sm:hidden sticky top-0 bg-background z-10">
+          <div className="flex items-center justify-end p-4 border-b sm:hidden sticky top-0 bg-background z-10">
             <h4 className="font-medium font-headline text-lg mr-auto">
               {title}
             </h4>
