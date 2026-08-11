@@ -1,12 +1,24 @@
 # `@decks/core` 🎨⚡
 
-The shared UI component library, layout shells, and browser utility hooks for the **`edu-decks`** educational flashcard monorepo.
+[![Workspace Root](https://img.shields.io/badge/Monorepo-edu--decks-purple?style=for-the-badge)](../../README.md)
+[![EduDecks Portal](https://img.shields.io/badge/Portal-edudecks.org-emerald?style=for-the-badge)](https://edudecks.org)
+
+The shared UI component library, layout shells, accessibility standards, and browser utility hooks for the **EduDecks** educational flashcard monorepo (`edudecks.org`).
+
+---
+
+## 🔗 Quick Links & Navigation
+
+- 🏠 **Monorepo Root README**: [`../../README.md`](../../README.md)
+- 🌐 **EduDecks Portal App**: [`../../apps/landing-page/README.md`](../../apps/landing-page/README.md)
+- 📖 **Reading Deck App**: [`../../apps/reading-deck/README.md`](../../apps/reading-deck/README.md)
+- 🔢 **Arithmetic Deck App**: [`../../apps/arithmetic-deck/README.md`](../../apps/arithmetic-deck/README.md)
 
 ---
 
 ## 📦 What is `@decks/core`?
 
-`@decks/core` centralizes all common user experience, visual convergence, and accessibility patterns across `apps/arithmetic-deck`, `apps/reading-deck`, and future educational decks.
+`@decks/core` centralizes all common user experience, visual convergence, accessibility patterns, and co-learning UI flows across `apps/arithmetic-deck`, `apps/reading-deck`, and future educational decks.
 
 By importing from `@decks/core`, applications ensure 100% consistent layouts, touch animations, audio feedback, parental controls, and full-screen quiz overlays.
 
@@ -15,7 +27,7 @@ By importing from `@decks/core`, applications ensure 100% consistent layouts, to
 ## 🧩 Exported Components
 
 ### Layout Shells & Overlays
-- **`FlashCardShell`**: The primary 3D-flipping, swipable flashcard wrapper supporting interactive front/back content, customizable card colors, corner control slots, and frosted question-mark badges.
+- **`FlashCardShell`**: Primary 3D-flipping, swipable flashcard wrapper supporting interactive front/back content, customizable card colors, corner control slots, and frosted question-mark badges.
 - **`QuizOverlayShell`**: Full-screen responsive quiz mode overlay with integrated exit controls, score & streak badge header, replay prompt button, and animated entrance.
 - **`DeckControlBar`**: Responsive top-right control toolbar wrapper with proper touch z-indexing and event propagation shielding.
 
@@ -65,3 +77,9 @@ export default {
   // ...
 };
 ```
+
+---
+
+## 🏠 Navigation
+- Back to [EduDecks Monorepo Root](../../README.md)
+- Visit [edudecks.org](https://edudecks.org)

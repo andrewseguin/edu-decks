@@ -1,14 +1,66 @@
 # Arithmetic Deck 🎴✨
 
-An interactive, distraction-free arithmetic application built with **Next.js 15**, **React 19**, and **Tailwind CSS**. Designed for young learners to build number sense and mental arithmetic fluency using visual fraction pie charts, 10-frame blocks, array grids, and quiz mode.
+[![Live Web App](https://img.shields.io/badge/Web-arithmetic.edudecks.org-amber?style=for-the-badge&logo=googlechrome)](https://arithmetic.edudecks.org)
+[![Google Play](https://img.shields.io/badge/Google%20Play-Arithmetic%20Deck-emerald?style=for-the-badge&logo=googleplay)](https://play.google.com/store/apps/details?id=org.edudecks.arithmetic)
+[![EduDecks Portal](https://img.shields.io/badge/Portal-edudecks.org-purple?style=for-the-badge)](https://edudecks.org)
+[![Workspace Root](https://img.shields.io/badge/Monorepo-edu--decks-purple?style=for-the-badge)](../../README.md)
 
-Part of the **[`edu-decks`](../../README.md)** educational flashcard monorepo.
+An interactive, distraction-free mental arithmetic application designed for young learners (Ages 4–10 / Pre-K to 4th grade) to build number sense and math fluency through visual strategy models and interactive flashcards.
+
+---
+
+## 🔗 Quick Links & Navigation
+
+- 🔢 **Live Web Application**: [https://arithmetic.edudecks.org](https://arithmetic.edudecks.org)
+- 🌐 **EduDecks Main Portal**: [https://edudecks.org](https://edudecks.org)
+- 🔒 **Privacy Policy**: [https://arithmetic.edudecks.org/privacy](https://arithmetic.edudecks.org/privacy)
+- 🏠 **Monorepo Root README**: [`../../README.md`](../../README.md)
+- 📖 **Reading Deck App**: [`../reading-deck/README.md`](../reading-deck/README.md)
+- 🎨 **Shared Core UI (`@decks/core`)**: [`../../packages/deck-core/README.md`](../../packages/deck-core/README.md)
+
+---
+
+## 🤝 Built for Co-Learning
+
+Arithmetic Deck is designed for children to explore together with a parent, teacher, caregiver, or study partner. While the app provides step animations, visual models, and audio hints, kids learn best when someone sits with them to guide their practice, talk through math strategies, and celebrate their progress.
+
+---
+
+## 🌟 Key Features
+
+- ➕ **Four Arithmetic Operations**:
+  - Addition, Subtraction, Multiplication, and Division.
+  - Customizable number range presets (0–5, 0–10, 0–20, 0–50, 0–100).
+- 🍕 **Interactive Fraction Visualizations**:
+  - Dynamic fraction pie charts and subdivide grid cuts.
+  - Common denominator conversion badges (e.g. `1/2 - 3/6 = 0` converted to `3/6 - 3/6 = 0/6`).
+- 🔢 **Whole Number Strategy Visualizers**:
+  - 10-frame fill-in/take-away blocks.
+  - Multiplication grid arrays and equal division grouping visualizers.
+- 🎯 **Interactive Quiz Mode**:
+  - Responsive numeric keypad overlay for mental math practice.
+  - Score streak counter, victory animations, and sound effects.
+- 📱 **Responsive Design & Dark Mode**:
+  - Optimized layouts for Desktop, Tablet, and Mobile devices in both Light and Dark themes.
+- 🔒 **Parental Controls & Screen Keep-Awake**:
+  - Settings lock with 3-second auto-dismissing notifications.
+  - Screen Wake Lock API (`navigator.wakeLock`) keeps displays awake during practice.
+- 100% Free & Private: Zero ads, zero tracking, no accounts required, fully offline PWA support.
+
+---
+
+## 💻 Tech Stack & Architecture
+
+- **Framework**: [Next.js 15](https://nextjs.org) (App Router), [React 19](https://react.dev)
+- **Shared Core**: Uses `@decks/core` (`FlashCardShell`, `QuizOverlayShell`, `DeckControlBar`, `SessionStats`, `useAudio`, `useWakeLock`)
+- **Native Packaging**: [Capacitor 8](https://capacitorjs.com) for iOS and Android
+- **Testing**: [Vitest](https://vitest.dev) for unit tests & [Playwright](https://playwright.dev) for 4-viewport visual regression tests
 
 ---
 
 ## 🚀 Quick Start (pnpm Workspace)
 
-### 1. Run Development Server
+### 1. Run Local Development Server (Port `9003`)
 From the workspace root or inside `apps/arithmetic-deck`:
 ```bash
 # From workspace root
@@ -19,49 +71,31 @@ pnpm dev
 ```
 Open [http://localhost:9003](http://localhost:9003) in your browser.
 
-### 2. Build for Production
+### 2. Verification & Testing
 ```bash
-pnpm --filter arithmetic-deck build
-```
+# Typecheck TypeScript
+pnpm --filter arithmetic-deck typecheck
 
----
+# Run Vitest unit tests
+pnpm --filter arithmetic-deck test
 
-## ✨ Features
-
-- 🤝 **Built for Co-Learning**: Interactive flash cards designed for practicing together — providing visual hints and step animations while empowering parents, teachers, and partners to guide math practice and celebrate progress.
-- ➕ **Multiple Operations**: Addition, Subtraction, Multiplication, and Division.
-- 🍕 **Fraction Visualizations**: Interactive pie charts, subdivide grid cuts, and automatic common denominator conversion badges (e.g. `1/2 - 3/6 = 0` converted to `3/6 - 3/6 = 0/6`).
-- 🔢 **Whole Number Visualizations**: 10-frame fill-in/take-away blocks, multiplication grid arrays, and equal division groups.
-- 🎨 **Shared Core UX (`@decks/core`)**: Implements `FlashCardShell`, `QuizOverlayShell`, `DeckControlBar`, and `SessionStats` for seamless visual convergence across `edu-decks`.
-- 📱 **Responsive Design**: Custom viewport layouts for Desktop Landscape, Tablet Landscape, Mobile Landscape, and Mobile Portrait with bounds checking to prevent UI overlaps.
-- 🎯 **Quiz Mode**: Interactive practice mode with numeric keypad and score streak tracking.
-- 🌓 **Themes**: Full Light Mode & Dark Mode support via `next-themes`.
-- 🔊 **Audio & Screen Controls**: Text-to-speech audio reader, sound effects, and Screen Wake Lock API (`navigator.wakeLock`) persistence.
-
----
-
-## 📸 Automated Visual Regression & Screenshot Testing
-
-We use **Playwright** for automated screenshot diffing and visual regression testing across 4 viewports and Light/Dark themes.
-
-### Run Visual Tests
-```bash
+# Run Playwright visual regression tests
 pnpm --filter arithmetic-deck test:visual
 ```
 
-### Update Screenshot Baselines
+### 3. Native Mobile App Sync
 ```bash
-pnpm --filter arithmetic-deck test:visual:update
+# Open native iOS project in Xcode
+pnpm --filter arithmetic-deck cap:open:ios
+
+# Open native Android project in Android Studio
+pnpm --filter arithmetic-deck cap:open:android
 ```
 
-### Test Coverage
-- **Viewports**:
-  - `Desktop Landscape` (1280x720)
-  - `Tablet Landscape` (1024x600)
-  - `Mobile Landscape` (844x390)
-  - `Mobile Portrait` (390x844)
-- **Scenarios Tested**:
-  - Light & Dark Themes (Front & Back)
-  - Card Front (Frosted `?` badge)
-  - Card Back (Revealed equation & visual representation)
-  - Quiz Mode Overlay (Header, equation card, keypad grid)
+---
+
+## 🏠 Navigation
+- Back to [EduDecks Monorepo Root](../../README.md)
+- Explore [Reading Deck (`apps/reading-deck`)](../reading-deck/README.md)
+- Explore [EduDecks Portal (`apps/landing-page`)](../landing-page/README.md)
+- Visit [arithmetic.edudecks.org](https://arithmetic.edudecks.org)

@@ -1,28 +1,65 @@
 # `edu-decks` 🎴✨
 
-An interactive, distraction-free educational flashcard suite built with **Next.js 15**, **React 19**, **Tailwind CSS**, and **pnpm workspaces**. Designed for early learners and adults to practice mental arithmetic, phonics, and reading fluency together with visual animations, speech audio, and interactive practice quizzes.
+[![EduDecks Portal](https://img.shields.io/badge/Web-edudecks.org-emerald?style=for-the-badge&logo=googlechrome)](https://edudecks.org)
+[![Reading Deck](https://img.shields.io/badge/App-Reading%20Deck-blue?style=for-the-badge)](https://reading.edudecks.org)
+[![Arithmetic Deck](https://img.shields.io/badge/App-Arithmetic%20Deck-amber?style=for-the-badge)](https://arithmetic.edudecks.org)
+[![License: MIT](https://img.shields.io/badge/License-MIT-purple?style=for-the-badge)](./LICENSE)
 
-> 🤝 **Built for Co-Learning**: EduDecks apps are interactive flash cards made for practicing together. Each deck includes visual hints and audio prompts, but kids learn best when someone sits with them to guide their practice, answer questions, and celebrate their progress.
+An interactive, distraction-free educational flashcard suite built for early learners and adults to explore together. Built with **Next.js 15**, **React 19**, **Tailwind CSS**, **Capacitor 8**, and **pnpm workspaces**.
+
+---
+
+## 🌟 Product Mission & Design Philosophy
+
+EduDecks is built on a simple promise: **100% free, private, distraction-free learning tools with zero ads, zero trackers, and no accounts required.**
+
+### 🤝 Built for Co-Learning
+EduDecks apps are interactive flash cards made for practicing together. Each deck includes visual hints and audio prompts, but kids learn best when someone sits with them to guide their practice, answer questions, and celebrate their progress.
+
+### 🎴 The EduDecks Suite
+- 📖 **[Reading Deck](https://reading.edudecks.org)** (`apps/reading-deck`) — Alphabet phonics, animated stroke handwriting guides, 1,000+ sight words with voice audio, interactive quiz modes, and custom family voice recordings.
+- 🔢 **[Arithmetic Deck](https://arithmetic.edudecks.org)** (`apps/arithmetic-deck`) — Mental arithmetic & number sense covering addition, subtraction, multiplication, division, 10-frame blocks, array grids, and interactive fraction pie charts.
+- 🌐 **[EduDecks Portal](https://edudecks.org)** (`apps/landing-page`) — Central web portal showcasing the app suite, native screenshot previews, App Store / Google Play links, and privacy center.
+
+---
+
+## 🔗 Quick Links & Navigation
+
+- **Live Web Applications**:
+  - [EduDecks Main Portal](https://edudecks.org)
+  - [Reading Deck Web App](https://reading.edudecks.org)
+  - [Arithmetic Deck Web App](https://arithmetic.edudecks.org)
+- **Documentation & Publishing**:
+  - [App Store Listings & Copy](./docs/store_listings.md)
+  - [Store Publishing & Release Guide](./docs/store-publishing-guide.md)
+  - [iOS Packaging Guide](./docs/ios-publishing-guide.md)
+- **Workspace Packages**:
+  - [`apps/landing-page/README.md`](./apps/landing-page/README.md) — Portal web app details.
+  - [`apps/reading-deck/README.md`](./apps/reading-deck/README.md) — Reading Deck phonics, audio, & tracing details.
+  - [`apps/arithmetic-deck/README.md`](./apps/arithmetic-deck/README.md) — Arithmetic Deck math generator & visualizer details.
+  - [`packages/deck-core/README.md`](./packages/deck-core/README.md) — Shared `@decks/core` UI component & hook API reference.
 
 ---
 
 ## 📦 Workspace Overview
 
-```
+```text
 edu-decks/
 ├── apps/
-│   ├── landing-page/      # EduDecks landing portal & deck apps showcase
-│   ├── arithmetic-deck/   # Numbers, operations (+, -, ×, ÷), fraction pie charts, & 10-frames
-│   └── reading-deck/      # Alphabet phonics, 1,000+ sight words, letter tracing, & reading fluency
+│   ├── landing-page/      # EduDecks landing portal (edudecks.org) & deck showcase
+│   ├── arithmetic-deck/   # Mental math, operations (+, -, ×, ÷), fractions, & 10-frames
+│   └── reading-deck/      # Alphabet phonics, 1,000+ sight words, letter tracing, & audio
 ├── packages/
 │   └── deck-core/         # Shared UI shells, toolbars, quiz overlays, badges, audio & wake-lock hooks
-├── pnpm-workspace.yaml    # Workspace configuration
-└── turbo.json             # Workspace task runner rules
+├── docs/                  # Publishing guides & Play Store / App Store metadata
+├── store-assets/          # App icons, feature graphics, & Play Store screenshots
+├── pnpm-workspace.yaml    # Workspace package layout
+└── turbo.json             # Turbopack task runner rules
 ```
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start for Developers
 
 ### 1. Prerequisites
 - **Node.js** `>= 20.0.0`
@@ -33,48 +70,44 @@ edu-decks/
 pnpm install
 ```
 
-### 3. Start Development Servers
+### 3. Start Local Development Servers
 Run applications concurrently:
 ```bash
 pnpm dev
 ```
-- **EduDecks Portal (landing-page)**: [http://localhost:9000](http://localhost:9000)
-- **Arithmetic Deck**: [http://localhost:9003](http://localhost:9003)
-- **Reading Deck**: [http://localhost:9002](http://localhost:9002)
+- **EduDecks Portal (`landing-page`)**: [http://localhost:9000](http://localhost:9000)
+- **Reading Deck (`reading-deck`)**: [http://localhost:9002](http://localhost:9002)
+- **Arithmetic Deck (`arithmetic-deck`)**: [http://localhost:9003](http://localhost:9003)
 
 To run a single application:
 ```bash
 pnpm --filter landing-page dev
-pnpm --filter arithmetic-deck dev
 pnpm --filter reading-deck dev
+pnpm --filter arithmetic-deck dev
 ```
 
 ---
 
-## 🧪 Verification & Testing
+## 🧪 Verification & Automated Testing
 
-### Typechecking & Unit Tests (Safe During Active Dev)
+During active development, verify code changes using incremental typechecking and unit tests:
+
 ```bash
 # Typecheck across all workspace packages
 pnpm -r typecheck
 
-# Run Vitest unit tests
+# Run Vitest unit tests across all applications
 pnpm -r test
 ```
 
-### Production Build
-```bash
-# Full production build (run when dev servers are stopped)
-pnpm -r build
-```
+### Automated Visual Regression Testing (Playwright)
+We use **Playwright** for automated visual regression testing across 4 viewports (`Desktop Landscape`, `Tablet Landscape`, `Mobile Landscape`, `Mobile Portrait`) and Light/Dark themes:
 
-### Automated Visual Regression Testing
-We use **Playwright** for automated screenshot diffing across 4 viewports (`Desktop Landscape`, `Tablet Landscape`, `Mobile Landscape`, `Mobile Portrait`) and Light/Dark themes:
 ```bash
-# Run automated screenshot comparison tests
+# Run automated visual regression tests
 pnpm -r test:visual
 
-# Update baseline snapshots after UI changes
+# Update baseline snapshots after intentional UI changes
 pnpm -r test:visual:update
 ```
 
@@ -82,48 +115,31 @@ pnpm -r test:visual:update
 
 ## 📱 Mobile Native Apps (iOS & Android)
 
-Both applications are configured with **Capacitor 8** for native iOS and Android packaging.
+Both `reading-deck` and `arithmetic-deck` are configured with **Capacitor 8** for native iOS and Android deployment.
 
 ### 1. Sync Native Projects
-Whenever web code, assets, or icons are updated:
+Whenever web code or static assets are updated:
 ```bash
 pnpm cap:sync
 ```
 
-### 2. Build & Publish iOS (App Store & TestFlight)
-Open the native iOS project in Xcode:
+### 2. Native iOS (Xcode & App Store)
 ```bash
-# Arithmetic Deck
-pnpm -F arithmetic-deck cap:open:ios
-
-# Reading Deck
 pnpm -F reading-deck cap:open:ios
+pnpm -F arithmetic-deck cap:open:ios
 ```
-- In Xcode: Select your Apple Team under **Signing & Capabilities**.
-- Build / Distribute: Go to **Product > Archive > Distribute App** to upload directly to App Store Connect / TestFlight.
 
-### 3. Build & Publish Android (Google Play Store)
-Open the native Android project in Android Studio:
+### 3. Native Android (Android Studio & Google Play Store)
 ```bash
-# Arithmetic Deck
-pnpm -F arithmetic-deck cap:open:android
-
-# Reading Deck
 pnpm -F reading-deck cap:open:android
+pnpm -F arithmetic-deck cap:open:android
 ```
-- In Android Studio: Select **Build > Generate Signed Bundle / APK...**
-- Choose **Android App Bundle (`.aab`)** and upload the release bundle to Google Play Console.
 
-### 4. Unified Icon & Asset Generator
-The monorepo includes a visual HTML template for scalable, consistent app icons across future deck apps:
-```bash
-# Edit icon templates or preview in browser
-open scripts/icon-generator.html
-```
+For full release instructions, credentials backup, and store submission commands, see [docs/store-publishing-guide.md](./docs/store-publishing-guide.md).
 
 ---
 
-## 📚 Documentation
-- [`packages/deck-core/README.md`](./packages/deck-core/README.md) — Shared core component & hook API reference.
-- [`apps/arithmetic-deck/README.md`](./apps/arithmetic-deck/README.md) — Arithmetic Deck features & math generator details.
-- [`apps/reading-deck/README.md`](./apps/reading-deck/README.md) — Reading Deck phonics, word audio, & tracing details.
+## 📄 License & Community
+
+EduDecks is free & open-source software licensed under the **[MIT License](./LICENSE)**.  
+For support or issue reporting, visit [GitHub Issues](https://github.com/edu-decks/edu-decks/issues) or email [support@edudecks.org](mailto:support@edudecks.org).

@@ -1,14 +1,67 @@
 # Reading Deck 🎴📖
 
-An interactive, playful web application designed to help children learn alphabet phonics, sight words, and reading fluency.
+[![Live Web App](https://img.shields.io/badge/Web-reading.edudecks.org-blue?style=for-the-badge&logo=googlechrome)](https://reading.edudecks.org)
+[![Google Play](https://img.shields.io/badge/Google%20Play-Reading%20Deck-emerald?style=for-the-badge&logo=googleplay)](https://play.google.com/store/apps/details?id=org.edudecks.reading)
+[![EduDecks Portal](https://img.shields.io/badge/Portal-edudecks.org-purple?style=for-the-badge)](https://edudecks.org)
+[![Workspace Root](https://img.shields.io/badge/Monorepo-edu--decks-purple?style=for-the-badge)](../../README.md)
 
-Part of the **[`edu-decks`](../../README.md)** educational flashcard monorepo.
+An interactive, playful flashcard application designed to help children (Ages 3–8 / Pre-K to 2nd grade) learn alphabet phonics, stroke-guided letter tracing, sight words, and reading fluency.
+
+---
+
+## 🔗 Quick Links & Navigation
+
+- 📖 **Live Web Application**: [https://reading.edudecks.org](https://reading.edudecks.org)
+- 🌐 **EduDecks Main Portal**: [https://edudecks.org](https://edudecks.org)
+- 🔒 **Privacy Policy**: [https://reading.edudecks.org/privacy](https://reading.edudecks.org/privacy)
+- 🏠 **Monorepo Root README**: [`../../README.md`](../../README.md)
+- 🔢 **Arithmetic Deck App**: [`../arithmetic-deck/README.md`](../arithmetic-deck/README.md)
+- 🎨 **Shared Core UI (`@decks/core`)**: [`../../packages/deck-core/README.md`](../../packages/deck-core/README.md)
+
+---
+
+## 🤝 Built for Co-Learning
+
+Reading Deck is designed for children to explore together with a parent, teacher, caregiver, or study partner. While the app provides clear audio prompts, letter sounds, and stroke tracing guides, kids learn best when someone sits with them to guide their practice, answer questions, and celebrate their progress.
+
+---
+
+## 🌟 Key Features
+
+- **Alphabet Phonics & Tracing**:
+  - Interactive uppercase and lowercase letter cards.
+  - Animated stroke guides for proper handwriting technique.
+  - Natural letter sound pronunciations powered by Web Audio API.
+- **1,000+ Vocabulary Sight Words**:
+  - Pre-rendered natural voice MP3 audio for 1,000+ words (`public/sounds/words/`).
+  - Color-coded difficulty levels (Pre-K, Kindergarten, 1st Grade, 2nd Grade).
+- **Interactive Quiz Mode**:
+  - Practice matching spoken audio prompts to choices in Letters or Words mode.
+  - Configurable challenge options (choose 4, 6, or 8 cards per question).
+  - Animated score streak counter and victory feedback.
+- **Custom Family Voice Recordings**:
+  - Record custom voice prompts saved locally in IndexedDB using `AudioStorage` so children can hear familiar voices.
+- **Parental Controls & Lock Mode**:
+  - Settings lock with 3-second auto-dismissing toast notifications to prevent accidental menu changes by young children.
+- **Screen Keep-Awake**:
+  - Integrated Web Standard Screen Wake Lock API (`navigator.wakeLock`) keeps phone and tablet displays awake during reading sessions.
+- **100% Free & Private**:
+  - Zero ads, zero tracking, no accounts required, fully offline PWA support.
+
+---
+
+## 💻 Tech Stack & Architecture
+
+- **Framework**: [Next.js 15](https://nextjs.org) (App Router), [React 19](https://react.dev)
+- **Shared Core**: Uses `@decks/core` (`FlashCardShell`, `QuizOverlayShell`, `DeckControlBar`, `SessionStats`, `useAudio`, `useWakeLock`)
+- **Native Packaging**: [Capacitor 8](https://capacitorjs.com) for iOS and Android
+- **Testing**: [Vitest](https://vitest.dev) for unit tests & [Playwright](https://playwright.dev) for 4-viewport visual regression tests
 
 ---
 
 ## 🚀 Quick Start (pnpm Workspace)
 
-### 1. Run Development Server
+### 1. Run Local Development Server (Port `9002`)
 From the workspace root or inside `apps/reading-deck`:
 ```bash
 # From workspace root
@@ -19,51 +72,31 @@ pnpm dev
 ```
 Open [http://localhost:9002](http://localhost:9002) in your browser.
 
-### 2. Build for Production
+### 2. Verification & Testing
 ```bash
-pnpm --filter reading-deck build
-```
+# Typecheck TypeScript
+pnpm --filter reading-deck typecheck
 
----
+# Run Vitest unit tests
+pnpm --filter reading-deck test
 
-## 🌟 Features
-
-- **Built for Co-Learning**: Interactive flash cards designed for practicing together — providing visual hints and audio prompts while empowering parents, teachers, and partners to guide practice and celebrate progress.
-- **Interactive Phonics & Word Cards**: Large, vibrant cards with letter tracing, color-coded difficulty levels, and instant speech playback.
-- **Pre-rendered High-Quality Audio**: Built-in natural MP3 audio files for 1,000+ vocabulary words in `public/sounds/words/` alongside Web Audio API letter sound buffers.
-- **Interactive Quiz Mode**:
-  - Practice matching spoken audio prompts to choices in Letters or Words mode.
-  - **Configurable Challenge**: Choose between **4 Cards**, **6 Cards**, or **8 Cards** as choice options.
-  - Animated score and streak tracking.
-- **Shared Core UX (`@decks/core`)**: Uses `FlashCardShell`, `QuizOverlayShell`, `DeckControlBar`, and `SessionStats` for seamless visual convergence across `edu-decks`.
-- **Screen Keep-Awake**: Integrated Web Standard Screen Wake Lock API (`navigator.wakeLock`) keeps tablet and phone screens awake during reading sessions.
-- **Custom Parent Voice Recordings**: Record custom voice prompts saved locally in IndexedDB using `AudioStorage`.
-- **Parental Controls & Lock Mode**: Quick settings lock with 3-second auto-dismissing startup notifications to prevent accidental setting changes by young children.
-- **Offline PWA Support**: Progressive Web App support with service worker caching for offline use on iPads, tablets, and phones.
-
----
-
-## 📸 Automated Visual Regression & Screenshot Testing
-
-We use **Playwright** for automated screenshot diffing and visual regression testing across 4 viewports and Light/Dark themes.
-
-### Run Visual Tests
-```bash
+# Run Playwright visual regression tests
 pnpm --filter reading-deck test:visual
 ```
 
-### Update Screenshot Baselines
+### 3. Native Mobile App Sync
 ```bash
-pnpm --filter reading-deck test:visual:update
+# Open native iOS project in Xcode
+pnpm --filter reading-deck cap:open:ios
+
+# Open native Android project in Android Studio
+pnpm --filter reading-deck cap:open:android
 ```
 
-### Test Coverage
-- **Viewports**:
-  - `Desktop Landscape` (1280x720)
-  - `Tablet Landscape` (1024x600)
-  - `Mobile Landscape` (844x390)
-  - `Mobile Portrait` (390x844)
-- **Scenarios Tested**:
-  - Light & Dark Themes
-  - Card Front & Card Navigation
-  - Quiz Mode Overlay
+---
+
+## 🏠 Navigation
+- Back to [EduDecks Monorepo Root](../../README.md)
+- Explore [Arithmetic Deck (`apps/arithmetic-deck`)](../arithmetic-deck/README.md)
+- Explore [EduDecks Portal (`apps/landing-page`)](../landing-page/README.md)
+- Visit [reading.edudecks.org](https://reading.edudecks.org)
