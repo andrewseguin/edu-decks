@@ -15,4 +15,5 @@ out/
 studio-*.json
 *-key.json
 *.xcarchive/
+*.p8
 
