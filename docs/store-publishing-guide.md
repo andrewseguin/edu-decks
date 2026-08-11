@@ -83,16 +83,24 @@ chmod 600 ~/keystores/edudecks-release.p12 ~/keystores/release-env.sh ~/keystore
 
 ---
 
-### Apple App Store (iOS)
-1. **Sync native assets & open Xcode:**
+### Apple App Store & TestFlight (iOS)
+1. **1-Command Complete Release (Build + Archive + Upload to TestFlight):**
    ```bash
-   pnpm cap:sync
-   pnpm -F arithmetic-deck cap:open:ios
-   pnpm -F reading-deck cap:open:ios
+   pnpm release:ios
    ```
-2. **Archive & Upload:**
-   - In Xcode: Set build target to **Any iOS Device (arm64)** -> **Product > Archive**.
-   - Click **Distribute App** -> **App Store Connect** -> **Upload**.
+2. **Individual CLI Archiving & Upload Commands:**
+   ```bash
+   # Archive builds programmatically
+   pnpm archive:ios:reading
+   pnpm archive:ios:arithmetic
+
+   # Upload archives directly to TestFlight via CLI
+   pnpm upload:ios:reading
+   pnpm upload:ios:arithmetic
+   ```
+3. **Xcode GUI Alternative (Optional):**
+   - Open Xcode: `pnpm --filter reading-deck cap:open:ios` or `pnpm --filter arithmetic-deck cap:open:ios`
+   - Set build target to **Any iOS Device (arm64)** -> **Product > Archive** -> **Distribute App**.
 
 ---
 
