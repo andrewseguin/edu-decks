@@ -7,83 +7,53 @@ const dirs = [
   path.join(process.cwd(), 'store-assets/arithmetic-deck'),
 ];
 
-// Apple App Store Connect Exact Dimension Requirements
-const SPECS = [
-  { displayType: 'APP_IPHONE_65', width: 1242, height: 2688, suffix: '' },      // 6.5" Display
-  { displayType: 'APP_IPHONE_67', width: 1290, height: 2796, suffix: '-67' },   // 6.7" Display
-];
-
-async function removePurpleBarsAndResize() {
-  console.log(`🎨 Replacing purple padding with native app warm cream background (#fbf8f3)...`);
+async function formatAppStoreScreenshots() {
+  console.log(`📐 Formatting native iPhone and native iPad screenshots to Apple required specifications...`);
 
   for (const dir of dirs) {
     if (!fs.existsSync(dir)) continue;
 
-    const baseFiles = [
-      'screenshot-1-card-front.png',
-      'screenshot-2-card-back.png',
-      'screenshot-3-card-next.png',
-      'screenshot-4-quiz-mode.png',
+    const shots = [
+      'screenshot-1-card-front',
+      'screenshot-2-card-back',
+      'screenshot-3-card-next',
+      'screenshot-4-quiz-mode',
     ];
 
-    for (const baseFile of baseFiles) {
-      const srcPath = path.join(dir, baseFile);
-      if (!fs.existsSync(srcPath)) continue;
+    for (const baseName of shots) {
+      const phoneSrc = path.join(dir, `${baseName}.png`);
+      const ipadSrc = path.join(dir, `${baseName}-ipad.png`);
 
-      const baseName = path.basename(baseFile, '.png').replace(/-67$/, '');
+      // 1. iPhone 6.5" Display (1242 x 2688)
+      if (fs.existsSync(phoneSrc)) {
+        const temp65 = path.join(dir, `temp_${baseName}.png`);
+        await sharp(phoneSrc)
+          .resize(1242, 2688, { fit: 'contain', background: { r: 251, g: 248, b: 243, alpha: 1 } })
+          .toFile(temp65);
+        fs.renameSync(temp65, phoneSrc);
 
-      // Load image buffer, inspect and replace purple bars with warm cream #fbf8f3 (251, 248, 243)
-      const image = sharp(srcPath);
-      const { width, height } = await image.metadata();
-
-      if (!width || !height) continue;
-
-      const rawPixels = await image.raw().toBuffer({ resolveWithObject: true });
-      const data = rawPixels.data;
-      const channels = rawPixels.info.channels;
-
-      // Detect and replace purple pixels (R~107, G~33, B~168) with app warm cream (251, 248, 243)
-      for (let i = 0; i < data.length; i += channels) {
-        const r = data[i];
-        const g = data[i + 1];
-        const b = data[i + 2];
-
-        // Match purple color range
-        if (r >= 90 && r <= 130 && g >= 20 && g <= 60 && b >= 140 && b <= 190) {
-          data[i] = 251;     // R
-          data[i + 1] = 248; // G
-          data[i + 2] = 243; // B
-        }
+        // 2. iPhone 6.7" Display (1290 x 2796)
+        const path67 = path.join(dir, `${baseName}-67.png`);
+        const temp67 = path.join(dir, `temp_${baseName}-67.png`);
+        await sharp(phoneSrc)
+          .resize(1290, 2796, { fit: 'contain', background: { r: 251, g: 248, b: 243, alpha: 1 } })
+          .toFile(temp67);
+        fs.renameSync(temp67, path67);
       }
 
-      // Re-encode cleaned raw image
-      const cleanedBuffer = await sharp(data, {
-        raw: {
-          width: rawPixels.info.width,
-          height: rawPixels.info.height,
-          channels: rawPixels.info.channels,
-        },
-      }).png().toBuffer();
-
-      for (const spec of SPECS) {
-        const outName = `${baseName}${spec.suffix}.png`;
-        const outPath = path.join(dir, outName);
-        const tempPath = path.join(dir, `temp_${outName}`);
-
-        await sharp(cleanedBuffer)
-          .resize(spec.width, spec.height, {
-            fit: 'contain',
-            background: { r: 251, g: 248, b: 243, alpha: 1 }, // Exact App Warm Cream Background
-          })
-          .toFile(tempPath);
-
-        fs.renameSync(tempPath, outPath);
-        console.log(`  ✓ Cleaned & Resized ${path.basename(dir)}/${outName} -> ${spec.width}x${spec.height} (Cream Background)`);
+      // 3. Native iPad Pro 12.9" Display (2048 x 2732) from Playwright native iPad capture
+      if (fs.existsSync(ipadSrc)) {
+        const tempIpad = path.join(dir, `temp_${baseName}-ipad.png`);
+        await sharp(ipadSrc)
+          .resize(2048, 2732, { fit: 'contain', background: { r: 251, g: 248, b: 243, alpha: 1 } })
+          .toFile(tempIpad);
+        fs.renameSync(tempIpad, ipadSrc);
+        console.log(`  ✓ Formatted Native iPad: ${path.basename(dir)}/${baseName}-ipad.png -> 2048x2732`);
       }
     }
   }
 
-  console.log("✨ All screenshot purple bars replaced with warm cream background!");
+  console.log("✨ All native iPhone & iPad App Store screenshots formatted!");
 }
 
-removePurpleBarsAndResize().catch(console.error);
+formatAppStoreScreenshots().catch(console.error);
