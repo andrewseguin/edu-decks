@@ -112,12 +112,9 @@ export function OperationSelector({
                     className={cn(
                       "h-12 rounded-xl flex items-center justify-between gap-2 pl-2.5 pr-2 transition-all select-none border group cursor-pointer",
                       isActive
-                        ? "text-white shadow-sm border-transparent"
+                        ? "bg-primary text-primary-foreground shadow-sm border-transparent"
                         : "text-muted-foreground border-border bg-card hover:bg-accent hover:text-accent-foreground"
                     )}
-                    style={{
-                      backgroundColor: isActive ? info.hex : undefined,
-                    }}
                     onClick={() => {
                       if (onOperationSelectExclusive) {
                         onOperationSelectExclusive(op);
@@ -410,14 +407,13 @@ export function OperationSelector({
           <div className="pt-4 border-t">
             <Button
               variant="default"
-              className="w-full h-14 rounded-2xl text-lg font-bold font-headline gap-2 bg-amber-500 hover:bg-amber-600 text-white shadow-md active:scale-95 transition-transform"
+              className="w-full h-14 rounded-2xl text-lg font-bold font-headline bg-amber-600 hover:bg-amber-500 text-white shadow-md active:scale-95 transition-transform"
               onClick={() => {
                 onOpenChange?.(false);
                 onStartQuiz?.();
               }}
             >
-              <Sparkles className="w-5 h-5" />
-              <span>Start Quiz</span>
+              Start Quiz
             </Button>
           </div>
         </div>
