@@ -197,15 +197,17 @@ export function LetterSelector({
                       {level.name}
                     </h5>
                     <Button
-                      variant="link"
+                      variant="ghost"
                       size="sm"
+                      className="h-7 px-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
                       onClick={() => handleSelectAll(level.letters)}
                     >
                       All
                     </Button>
                     <Button
-                      variant="link"
+                      variant="ghost"
                       size="sm"
+                      className="h-7 px-2 text-xs font-semibold text-muted-foreground hover:text-foreground"
                       onClick={() => handleClearAll(level.letters)}
                     >
                       Clear
@@ -261,14 +263,13 @@ export function LetterSelector({
 
                 <Button
                   variant="default"
-                  className="w-full h-14 rounded-2xl text-lg font-bold font-headline gap-2 bg-amber-500 hover:bg-amber-600 text-white shadow-md active:scale-95 transition-transform"
+                  className="w-full h-14 rounded-2xl text-lg font-bold font-headline bg-amber-600 hover:bg-amber-500 text-white shadow-md active:scale-95 transition-transform"
                   onClick={() => {
                     onOpenChange?.(false);
                     onStartQuiz?.();
                   }}
                 >
-                  <Sparkles className="w-5 h-5" />
-                  <span>Start Quiz</span>
+                  Start Quiz
                 </Button>
               </div>
             </div>
