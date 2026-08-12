@@ -13,7 +13,19 @@ export function useAudioRecorder() {
         try {
             const mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
             setStream(mediaStream);
-            const mediaRecorder = new MediaRecorder(mediaStream);
+
+            let options: MediaRecorderOptions = {};
+            if (typeof MediaRecorder !== "undefined") {
+                if (MediaRecorder.isTypeSupported("audio/mp4")) {
+                    options = { mimeType: "audio/mp4" };
+                } else if (MediaRecorder.isTypeSupported("audio/webm")) {
+                    options = { mimeType: "audio/webm" };
+                } else if (MediaRecorder.isTypeSupported("audio/aac")) {
+                    options = { mimeType: "audio/aac" };
+                }
+            }
+
+            const mediaRecorder = new MediaRecorder(mediaStream, options);
             mediaRecorderRef.current = mediaRecorder;
             chunksRef.current = [];
 
@@ -38,8 +50,10 @@ export function useAudioRecorder() {
                 return;
             }
 
+            const mimeType = mediaRecorderRef.current.mimeType || "audio/mp4";
+
             mediaRecorderRef.current.onstop = async () => {
-                const rawBlob = new Blob(chunksRef.current, { type: "audio/webm" });
+                const rawBlob = new Blob(chunksRef.current, { type: mimeType });
 
                 // Trim silence and convert to WAV
                 const audioBlob = await trimSilence(rawBlob);

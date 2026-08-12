@@ -6,6 +6,8 @@
 	<string>$(CAPACITOR_DEBUG)</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Arithmetic Deck uses your microphone so you can record custom voice audio for math practice.</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
