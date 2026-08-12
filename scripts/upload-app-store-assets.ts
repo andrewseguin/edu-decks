@@ -257,6 +257,15 @@ async function uploadAppStoreAssets() {
               'screenshot-4-quiz-mode-67.png',
             ],
           },
+          {
+            displayType: 'APP_IPAD_PRO_3GEN_129',
+            files: [
+              'screenshot-1-card-front-ipad.png',
+              'screenshot-2-card-back-ipad.png',
+              'screenshot-3-card-next-ipad.png',
+              'screenshot-4-quiz-mode-ipad.png',
+            ],
+          },
         ];
 
         for (const spec of SPECS) {
