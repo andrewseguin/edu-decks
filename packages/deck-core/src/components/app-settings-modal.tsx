@@ -196,20 +196,25 @@ export function LockSnackbar({
 
 export type SettingsSectionProps = {
   title: string;
+  icon?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
 };
 
 export function SettingsSection({
   title,
+  icon,
   children,
   className,
 }: SettingsSectionProps) {
   return (
     <div className={cn("space-y-4", className)}>
-      <h4 className="font-medium leading-none font-headline text-lg">
-        {title}
-      </h4>
+      <div className="flex items-center gap-2">
+        {icon}
+        <h4 className="font-medium leading-none font-headline text-lg">
+          {title}
+        </h4>
+      </div>
       {children}
     </div>
   );
