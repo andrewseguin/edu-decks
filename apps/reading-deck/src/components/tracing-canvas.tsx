@@ -52,16 +52,22 @@ export function TracingCanvas({ contentKey }: { contentKey: string }) {
     const ctx = canvasRef.current?.getContext('2d');
     if (!ctx) return;
     const { x, y } = getCoordinates(e);
-    ctx.beginPath();
-    ctx.moveTo(x, y);
+
     ctx.lineWidth = 14;       // Perfect thickness for tracing letters
     ctx.lineCap = "round";
     ctx.lineJoin = "round";
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.6)"; // Opaque white so it layers nicely
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.6)";
+    ctx.fillStyle = "rgba(255, 255, 255, 0.6)";
+
+    // 1. Draw a round dot immediately for single taps (like dots on 'i' and 'j')
+    ctx.beginPath();
+    ctx.arc(x, y, 7, 0, Math.PI * 2);
+    ctx.fill();
+
+    // 2. Start path for continuous drag tracing
+    ctx.beginPath();
+    ctx.moveTo(x, y);
     setIsDrawing(true);
-    // Draw a single dot incase they just tap without moving
-    ctx.lineTo(x, y);
-    ctx.stroke();
   };
 
   const draw = (e: React.PointerEvent<HTMLCanvasElement>) => {
