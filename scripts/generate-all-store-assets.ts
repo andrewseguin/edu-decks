@@ -159,7 +159,7 @@ async function generateAllStoreAssets() {
   ];
 
   for (const app of APPS) {
-    console.log(`\n📸 Capturing Native iPhone & iPad Screenshots for ${app.name}...`);
+    console.log(`\n📸 Capturing Native iPhone (Portrait) & Native iPad (Landscape) Screenshots for ${app.name}...`);
     fs.mkdirSync(app.dir, { recursive: true });
 
     // 1. Native iPhone Viewport (iPhone 14 Pro Max -> 1290x2796)
@@ -169,10 +169,10 @@ async function generateAllStoreAssets() {
     });
     const phonePage = await phoneContext.newPage();
 
-    // 2. Native iPad Viewport (iPad Pro 12.9" Portrait -> 2048x2732)
+    // 2. Native iPad Landscape Viewport (iPad Pro 12.9" Landscape -> 2732x2048)
     const ipadContext = await browser.newContext({
-      viewport: { width: 1024, height: 1366 },
-      deviceScaleFactor: 2,
+      viewport: { width: 1366, height: 1024 }, // Horizontal landscape aspect ratio
+      deviceScaleFactor: 2,                     // Outputs 2732 wide x 2048 tall
       isMobile: true,
       hasTouch: true,
       colorScheme: 'light',
@@ -194,13 +194,13 @@ async function generateAllStoreAssets() {
       await shot.setup(phonePage);
       await clearFocus(phonePage);
       await phonePage.screenshot({ path: path.join(app.dir, `${shot.name}.png`) });
-      console.log(`  ✓ Captured iPhone Native: ${shot.name}.png`);
+      console.log(`  ✓ Captured iPhone Native Portrait: ${shot.name}.png`);
 
-      // Capture iPad Native Viewport
+      // Capture iPad Native Landscape Viewport
       await shot.setup(ipadPage);
       await clearFocus(ipadPage);
       await ipadPage.screenshot({ path: path.join(app.dir, `${shot.name}-ipad.png`) });
-      console.log(`  ✓ Captured iPad Native: ${shot.name}-ipad.png`);
+      console.log(`  ✓ Captured iPad Native Landscape: ${shot.name}-ipad.png`);
     }
 
     await phoneContext.close();
@@ -208,7 +208,7 @@ async function generateAllStoreAssets() {
   }
 
   await browser.close();
-  console.log('\n✨ All native iPhone and iPad screenshots captured cleanly!');
+  console.log('\n✨ All native iPhone Portrait & iPad Landscape screenshots captured cleanly!');
 }
 
 generateAllStoreAssets().catch(console.error);
