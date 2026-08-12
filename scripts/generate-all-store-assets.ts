@@ -73,6 +73,19 @@ async function launchActiveQuizMode(page: Page) {
   return false;
 }
 
+async function openSelectorModal(page: Page) {
+  try {
+    const selectorBtn = page.locator("button[aria-label*='Select'], button[aria-label*='settings']").first();
+    if (await selectorBtn.isVisible()) {
+      await selectorBtn.click();
+      await page.waitForTimeout(500);
+      await clearFocus(page);
+      return true;
+    }
+  } catch (e) {}
+  return false;
+}
+
 async function generateAllStoreAssets() {
   const root = process.cwd();
   const browser = await chromium.launch({ headless: true });
@@ -105,15 +118,10 @@ async function generateAllStoreAssets() {
       },
       setupCard3: async (page: Page) => {
         await page.evaluate(() => {
-          localStorage.setItem('math-deck-number-type', '"fractions"');
-          localStorage.setItem('math-deck-operations', JSON.stringify(['+']));
+          localStorage.setItem('theme', 'light');
         });
         await page.reload({ waitUntil: 'networkidle' });
-        const card = page.locator('main > div').first();
-        if (await card.isVisible()) {
-          await card.click();
-          await advanceToLastAnimationStep(page);
-        }
+        await openSelectorModal(page);
       },
       setupCard4: async (page: Page) => {
         await page.evaluate(() => {
@@ -143,10 +151,11 @@ async function generateAllStoreAssets() {
         await page.reload({ waitUntil: 'networkidle' });
       },
       setupCard3: async (page: Page) => {
-        const card = page.locator('main > div').first();
-        if (await card.isVisible()) {
-          await card.click();
-        }
+        await page.evaluate(() => {
+          localStorage.setItem('theme', 'light');
+        });
+        await page.reload({ waitUntil: 'networkidle' });
+        await openSelectorModal(page);
       },
       setupCard4: async (page: Page) => {
         await page.evaluate(() => {
@@ -171,8 +180,8 @@ async function generateAllStoreAssets() {
 
     // 2. Native iPad Landscape Viewport (iPad Pro 12.9" Landscape -> 2732x2048)
     const ipadContext = await browser.newContext({
-      viewport: { width: 1366, height: 1024 }, // Horizontal landscape aspect ratio
-      deviceScaleFactor: 2,                     // Outputs 2732 wide x 2048 tall
+      viewport: { width: 1366, height: 1024 },
+      deviceScaleFactor: 2,
       isMobile: true,
       hasTouch: true,
       colorScheme: 'light',
