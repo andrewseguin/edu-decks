@@ -43,7 +43,7 @@ export function ThemeToggleGroup({ className }: ThemeToggleGroupProps) {
             className={cn(
               "inline-flex items-center justify-center rounded-xl font-headline font-semibold h-8 text-xs gap-1.5 transition-all outline-none select-none cursor-pointer",
               isSelected
-                ? "bg-background text-foreground shadow-sm font-bold"
+                ? "bg-primary text-primary-foreground shadow-xs font-bold"
                 : "text-muted-foreground hover:text-foreground hover:bg-background/50"
             )}
             onClick={() => setTheme(id)}
