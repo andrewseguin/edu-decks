@@ -41,7 +41,7 @@ export function ThemeToggleGroup({ className }: ThemeToggleGroupProps) {
             key={id}
             type="button"
             className={cn(
-              "inline-flex items-center justify-center rounded-xl font-headline font-semibold h-8 text-xs gap-1.5 transition-all outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 select-none cursor-pointer border-none",
+              "inline-flex items-center justify-center rounded-xl font-headline font-semibold h-9 text-xs sm:text-sm gap-1.5 transition-all outline-none focus:outline-none focus:ring-0 focus-visible:ring-0 select-none cursor-pointer border-none",
               isSelected
                 ? "bg-primary text-primary-foreground shadow-xs font-bold"
                 : "text-muted-foreground hover:text-foreground hover:bg-background/50"

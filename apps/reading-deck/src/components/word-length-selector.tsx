@@ -24,20 +24,24 @@ export function WordLengthSelector({
   };
 
   return (
-    <div className="flex items-center gap-1 rounded-full p-1 bg-muted">
+    <div className="grid grid-cols-4 gap-1.5 p-1 rounded-2xl bg-muted/50 border border-border/50">
       {AVAILABLE_LENGTHS.map((length) => {
         const isSelected = selectedLengths.includes(length);
         return (
-          <Button
+          <button
             key={length}
-            variant={isSelected ? "default" : "ghost"}
+            type="button"
+            className={cn(
+              "inline-flex items-center justify-center rounded-xl font-headline font-semibold h-9 text-xs sm:text-sm transition-all outline-none focus:outline-none select-none cursor-pointer border-none",
+              isSelected
+                ? "bg-primary text-primary-foreground shadow-xs font-bold"
+                : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+            )}
             onClick={() => toggleLength(length)}
-            className="rounded-full flex-1"
             aria-pressed={isSelected}
-            size="sm"
           >
             {length}
-          </Button>
+          </button>
         );
       })}
     </div>

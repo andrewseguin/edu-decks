@@ -49,12 +49,12 @@ export function AppSettingsModal({
         <button
           type="button"
           className={cn(
-            "inline-flex items-center justify-center rounded-md text-sm font-medium h-10 w-10 text-foreground/50 hover:text-foreground active:scale-95 transition-transform",
+            "inline-flex items-center justify-center rounded-xl text-sm font-medium h-12 w-12 text-foreground/70 hover:text-foreground active:scale-95 transition-transform",
             triggerClassName
           )}
           aria-label="App settings"
         >
-          <Settings className="h-5 w-5" />
+          <Settings className="h-6 w-6" />
         </button>
       </PopoverPrimitive.Trigger>
       <PopoverPrimitive.Portal>

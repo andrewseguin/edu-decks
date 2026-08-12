@@ -69,7 +69,7 @@ export function OperationSelector({
       <PopoverTrigger asChild>
         <Button
           size="icon"
-          className="bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs active:scale-95 transition-transform"
+          className="h-12 w-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs active:scale-95 transition-transform"
           aria-label="Select operations"
         >
           <GraduationCap className="h-6 w-6" />

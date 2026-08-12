@@ -21,25 +21,35 @@ export function GameModeToggle({
   return (
     <div
       className={cn(
-        "flex items-center gap-2 rounded-full p-1 bg-muted",
+        "grid grid-cols-2 gap-1.5 p-1 rounded-2xl bg-muted/50 border border-border/50",
         className
       )}
     >
-      <Button
-        variant={value === "letters" ? "default" : "ghost"}
-        className="rounded-full w-full"
+      <button
+        type="button"
+        className={cn(
+          "inline-flex items-center justify-center rounded-xl font-headline font-semibold h-9 text-xs sm:text-sm transition-all outline-none focus:outline-none select-none cursor-pointer border-none",
+          value === "letters"
+            ? "bg-primary text-primary-foreground shadow-xs font-bold"
+            : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+        )}
         onClick={() => onValueChange("letters")}
       >
         Letters
-      </Button>
+      </button>
       {enableWords && (
-        <Button
-          variant={value === "words" ? "default" : "ghost"}
-          className="rounded-full w-full"
+        <button
+          type="button"
+          className={cn(
+            "inline-flex items-center justify-center rounded-xl font-headline font-semibold h-9 text-xs sm:text-sm transition-all outline-none focus:outline-none select-none cursor-pointer border-none",
+            value === "words"
+              ? "bg-primary text-primary-foreground shadow-xs font-bold"
+              : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+          )}
           onClick={() => onValueChange("words")}
         >
           Words
-        </Button>
+        </button>
       )}
     </div>
   );

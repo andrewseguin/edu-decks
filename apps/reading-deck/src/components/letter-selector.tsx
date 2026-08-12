@@ -77,7 +77,7 @@ export function LetterSelector({
       <PopoverTrigger asChild>
         <Button
           size="icon"
-          className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs active:scale-95 transition-transform"
+          className="h-12 w-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs active:scale-95 transition-transform"
           aria-label="Select letters"
         >
           <GraduationCap className="h-6 w-6" />
@@ -123,31 +123,43 @@ export function LetterSelector({
                   <h4 className="font-medium leading-none font-headline text-lg mb-4">
                     Letter Casing
                   </h4>
-                  <div className="flex bg-muted p-1 rounded-xl gap-1">
-                    <Button
-                      variant={letterCase === "lower" ? "default" : "ghost"}
-                      size="sm"
-                      className="flex-1 text-lg py-6 font-headline font-bold"
+                  <div className="grid grid-cols-3 gap-1.5 p-1 rounded-2xl bg-muted/50 border border-border/50">
+                    <button
+                      type="button"
+                      className={cn(
+                        "inline-flex items-center justify-center rounded-xl font-headline font-semibold h-9 text-base gap-1.5 transition-all outline-none focus:outline-none select-none cursor-pointer border-none",
+                        letterCase === "lower"
+                          ? "bg-primary text-primary-foreground shadow-xs font-bold"
+                          : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                      )}
                       onClick={() => onLetterCaseChange("lower")}
                     >
                       a
-                    </Button>
-                    <Button
-                      variant={letterCase === "upper" ? "default" : "ghost"}
-                      size="sm"
-                      className="flex-1 text-lg py-6 font-headline font-bold"
+                    </button>
+                    <button
+                      type="button"
+                      className={cn(
+                        "inline-flex items-center justify-center rounded-xl font-headline font-semibold h-9 text-base gap-1.5 transition-all outline-none focus:outline-none select-none cursor-pointer border-none",
+                        letterCase === "upper"
+                          ? "bg-primary text-primary-foreground shadow-xs font-bold"
+                          : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                      )}
                       onClick={() => onLetterCaseChange("upper")}
                     >
                       A
-                    </Button>
-                    <Button
-                      variant={letterCase === "mixed" ? "default" : "ghost"}
-                      size="sm"
-                      className="flex-1 text-lg py-6 font-headline font-bold"
+                    </button>
+                    <button
+                      type="button"
+                      className={cn(
+                        "inline-flex items-center justify-center rounded-xl font-headline font-semibold h-9 text-base gap-1.5 transition-all outline-none focus:outline-none select-none cursor-pointer border-none",
+                        letterCase === "mixed"
+                          ? "bg-primary text-primary-foreground shadow-xs font-bold"
+                          : "text-muted-foreground hover:text-foreground hover:bg-background/50"
+                      )}
                       onClick={() => onLetterCaseChange("mixed")}
                     >
                       Aa
-                    </Button>
+                    </button>
                   </div>
                 </div>
               )}
