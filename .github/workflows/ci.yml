@@ -55,12 +55,14 @@ jobs:
         run: pnpm -r build
 
       - name: Install Playwright Browsers
-        run: pnpm --filter reading-deck exec playwright install --with-deps chromium
+        run: |
+          pnpm --filter reading-deck exec playwright install --with-deps chromium
+          pnpm --filter geometry-deck exec playwright install --with-deps chromium
 
       - name: Start Next.js Development Servers
         run: |
           pnpm dev &
-          npx wait-on http-get://127.0.0.1:9002 http-get://127.0.0.1:9003 --timeout 120000
+          npx wait-on http-get://127.0.0.1:9002 http-get://127.0.0.1:9003 http-get://127.0.0.1:9004 --timeout 120000
 
       - name: Run Visual Regression Tests
         run: pnpm -r test:visual
@@ -75,4 +77,6 @@ jobs:
             apps/reading-deck/test-results/
             apps/arithmetic-deck/playwright-report/
             apps/arithmetic-deck/test-results/
+            apps/geometry-deck/playwright-report/
+            apps/geometry-deck/test-results/
           retention-days: 7

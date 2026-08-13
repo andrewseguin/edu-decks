@@ -1,0 +1,43 @@
+import { NextResponse } from "next/server";
+
+export const dynamic = "force-static";
+
+export function GET() {
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "";
+
+  const manifest = {
+    short_name: "Geometry Deck",
+    name: "Geometry Deck — Formulas, Properties & Theorems",
+    description: "Geometry flashcards covering angles, triangles, circles, and more",
+    icons: [
+      {
+        src: `${basePath}/icon-192.png`,
+        type: "image/png",
+        sizes: "192x192",
+      },
+      {
+        src: `${basePath}/icon-512.png`,
+        type: "image/png",
+        sizes: "512x512",
+      },
+      {
+        src: `${basePath}/icon-maskable-512.png`,
+        type: "image/png",
+        sizes: "512x512",
+        purpose: "maskable",
+      },
+    ],
+    start_url: basePath ? `${basePath}/?source=pwa` : "/?source=pwa",
+    scope: basePath ? `${basePath}/` : "/",
+    background_color: "#09090b",
+    theme_color: "#09090b",
+    display: "standalone",
+    orientation: "any",
+  };
+
+  return new NextResponse(JSON.stringify(manifest), {
+    headers: {
+      "Content-Type": "application/manifest+json",
+    },
+  });
+}

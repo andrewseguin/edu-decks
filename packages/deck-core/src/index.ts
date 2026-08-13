@@ -1,4 +1,5 @@
 export * from "./components/flash-card-shell";
+export * from "./components/card-reveal-layout";
 export * from "./components/app-settings-modal";
 export * from "./components/session-stats";
 export * from "./components/deck-control-bar";

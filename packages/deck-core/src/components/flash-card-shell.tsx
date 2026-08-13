@@ -97,6 +97,12 @@ export type FlashCardShellProps = {
   speakerClassName?: string;
   speakerAriaLabel?: string;
   speakerSize?: "md" | "lg";
+  /**
+   * When true, the card grows taller on mobile portrait to accommodate
+   * diagrams, fraction models, or other content that needs more vertical room.
+   * Mirrors the `isDiagramVisible` expansion used in arithmetic-deck.
+   */
+  tall?: boolean;
 };
 
 export function FrostedBadge({
@@ -153,6 +159,7 @@ export function FlashCardShell({
   speakerClassName,
   speakerAriaLabel = "Listen to card",
   speakerSize = "lg",
+  tall = false,
 }: FlashCardShellProps) {
   const animClass = "animate-fade-in-zoom";
 
@@ -192,7 +199,15 @@ export function FlashCardShell({
   return (
     <div
       className={cn(
-        "relative select-none [-webkit-touch-callout:none] border-none rounded-3xl overflow-hidden cursor-pointer transition-all duration-300",
+        "relative select-none [-webkit-touch-callout:none] border-none rounded-3xl overflow-hidden cursor-pointer",
+        // Standard shared size — all decks use this baseline
+        "w-[90vw] max-w-[700px]",
+        "transition-all duration-500 ease-in-out",
+        "h-[55vw] max-h-[min(420px,68svh)] min-h-[220px]",
+        "[@media(orientation:landscape)_and_(max-height:500px)]:h-[72vh]",
+        "[@media(orientation:landscape)_and_(max-height:500px)]:max-h-[72vh]",
+        // Expand on mobile portrait when content needs more room (diagrams, fraction models, etc.)
+        tall && "max-sm:portrait:h-[88vw] max-sm:portrait:min-h-[340px] max-sm:portrait:max-h-[min(450px,76svh)]",
         animClass,
         className
       )}

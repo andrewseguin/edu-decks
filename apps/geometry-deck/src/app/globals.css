@@ -1,0 +1,231 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Warm amber-tinted background — echoes the Angles topic color */
+    --background: 42 60% 95%;
+    --foreground: 20 14% 4%;
+
+    --card: 42 60% 98%;
+    --card-foreground: 20 14% 4%;
+
+    --popover: 42 60% 98%;
+    --popover-foreground: 20 14% 4%;
+
+    --primary: 160 60% 36%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 42 25% 90%;
+    --secondary-foreground: 20 14% 4%;
+
+    --muted: 42 25% 90%;
+    --muted-foreground: 20 14% 40%;
+
+    --accent: 42 30% 90%;
+    --accent-foreground: 20 14% 15%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 42 25% 85%;
+    --input: 42 25% 85%;
+    --ring: 160 60% 50%;
+
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 20 14% 8%;
+    --foreground: 42 60% 95%;
+
+    --card: 20 14% 10%;
+    --card-foreground: 42 60% 95%;
+
+    --popover: 20 14% 10%;
+    --popover-foreground: 42 60% 95%;
+
+    --primary: 160 65% 38%;
+    --primary-foreground: 160 100% 98%;
+
+    --secondary: 20 14% 15%;
+    --secondary-foreground: 42 60% 95%;
+
+    --muted: 20 14% 15%;
+    --muted-foreground: 42 60% 80%;
+
+    --accent: 20 14% 18%;
+    --accent-foreground: 42 60% 95%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 20 14% 15%;
+    --input: 20 14% 15%;
+    --ring: 160 65% 50%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply bg-background text-foreground overflow-hidden font-body antialiased select-none;
+  }
+
+  button:focus, *:focus {
+    outline: none;
+    box-shadow: none;
+  }
+
+  button:focus-visible, *:focus-visible {
+    outline: 2px solid hsl(var(--primary)) !important;
+    outline-offset: 2px !important;
+  }
+}
+
+/* ────────────────────────────────────────────────────────── */
+/* Card fade-in zoom — shared across all decks               */
+/* ────────────────────────────────────────────────────────── */
+@keyframes fadeInZoom {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-fade-in-zoom {
+  animation: fadeInZoom 0.35s ease-out forwards;
+}
+
+/* ────────────────────────────────────────────────────────── */
+/* Step-by-step answer reveal                                */
+/* ────────────────────────────────────────────────────────── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeInUp 0.3s ease-out forwards;
+}
+
+/* ────────────────────────────────────────────────────────── */
+/* Equation token morph — individual slot value change        */
+/* Plays when a token value changes within a stable equation  */
+/* ────────────────────────────────────────────────────────── */
+@keyframes slotIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px) scale(0.88);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-slot-in {
+  animation: slotIn 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+/* ────────────────────────────────────────────────────────── */
+/* SVG angle arc stroke-dashoffset animation                  */
+/* ────────────────────────────────────────────────────────── */
+@keyframes drawArc {
+  from {
+    stroke-dashoffset: var(--arc-length, 200);
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animate-draw-arc {
+  animation: drawArc 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ────────────────────────────────────────────────────────── */
+/* SVG label fade-in                                          */
+/* ────────────────────────────────────────────────────────── */
+@keyframes svgLabelIn {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.animate-svg-label {
+  animation: svgLabelIn 0.25s ease-out forwards;
+}
+
+/* ────────────────────────────────────────────────────────── */
+/* Mobile fullscreen popover override                         */
+/* ────────────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  [data-radix-popper-content-wrapper]:has(.mobile-fullscreen) {
+    transform: none !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    z-index: 50 !important;
+    min-width: 100% !important;
+    max-width: none !important;
+  }
+
+  .mobile-fullscreen > div:first-child {
+    padding-top: max(1rem, env(safe-area-inset-top)) !important;
+  }
+}
+
+/* ────────────────────────────────────────────────────────── */
+/* 3D Flip Utilities (shared with deck-core FlashCardShell)  */
+/* ────────────────────────────────────────────────────────── */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.transform-style-3d {
+  transform-style: preserve-3d;
+}
+
+.backface-hidden {
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+
+.rotate-y-180 {
+  transform: rotateY(-180deg);
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+
+.animate-shake {
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+}

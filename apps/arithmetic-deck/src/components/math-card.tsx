@@ -5,7 +5,7 @@ import { MathProblem, OPERATION_COLORS } from "@/lib/types";
 import { VisualMath } from "./visual-math";
 import { FractionDisplay } from "./fraction-display";
 import { MathSymbol } from "./math-symbol";
-import { FlashCardShell, FrostedBadge, CardCornerButton } from "@decks/core";
+import { FlashCardShell, FrostedBadge, CardCornerButton, CardRevealLayout } from "@decks/core";
 import { Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -47,12 +47,9 @@ export function MathCard({
       slideDirection={slideDirection}
       backgroundColor={opInfo.hex}
       className={cn(
-        "w-[90vw] max-w-[700px] border-none transition-all duration-500 ease-in-out",
-        // Standard compact resting height matching Reading Deck
-        "h-[55vw] max-h-[min(420px,68svh)] min-h-[220px] [@media(orientation:landscape)_and_(max-height:500px)]:h-[72vh] [@media(orientation:landscape)_and_(max-height:500px)]:max-h-[72vh]",
-        // On mobile portrait only, when revealed, smoothly expand slightly to give division & fraction models full room
-        isDiagramVisible && "max-sm:portrait:h-[88vw] max-sm:portrait:min-h-[340px] max-sm:portrait:max-h-[min(450px,76svh)]"
+        "border-none",
       )}
+      tall={isDiagramVisible}
       onCardTap={onCardTap}
       onSpeak={handleSpeak}
       speakerAriaLabel="Listen to equation"
@@ -68,18 +65,23 @@ export function MathCard({
           />
         ) : undefined
       }
-      frontContent={
-        <div
-          className={cn(
-            "absolute inset-x-0 flex flex-col items-center justify-center transition-all duration-500 ease-in-out z-20 pointer-events-none p-2 sm:p-4",
-            isDiagramVisible
-              ? problem.hasConversion
-                ? "top-[24%] sm:top-[23%] -translate-y-1/2"
-                : "top-[30%] sm:top-[29%] md:top-[28%] -translate-y-1/2"
-              : "top-1/2 -translate-y-1/2"
-          )}
-        >
-          {/* Main Equation Line */}
+    >
+      <CardRevealLayout
+        isRevealed={isDiagramVisible}
+        primaryRevealedTopClass={
+          problem.hasConversion
+            ? "top-[24%] sm:top-[23%]"
+            : "top-[30%] sm:top-[29%] md:top-[28%]"
+        }
+        detailTopClass={
+          problem.hasConversion
+            ? "top-[52%] sm:top-[50%] [@media(max-height:640px)]:top-[50%]"
+            : "top-[44%] sm:top-[42%] [@media(max-height:640px)]:top-[44%]"
+        }
+        primaryClassName="p-2 sm:p-4"
+        detailClassName="p-1 sm:p-2 items-center justify-center"
+        primary={
+          /* Main Equation Line */
           <div
             className={cn(
               "relative flex items-center justify-center whitespace-nowrap text-center transition-all duration-500 ease-in-out origin-center",
@@ -225,23 +227,13 @@ export function MathCard({
               </div>
             )}
           </div>
-        </div>
-      }
-      backContent={
-        <div
-          className={cn(
-            "absolute inset-x-0 bottom-2 sm:bottom-3 flex items-center justify-center pointer-events-none z-10 transition-all p-1 sm:p-2",
-            problem.hasConversion
-              ? "top-[52%] sm:top-[50%] [@media(max-height:640px)]:top-[50%]"
-              : "top-[44%] sm:top-[42%] [@media(max-height:640px)]:top-[44%]",
-            isDiagramVisible
-              ? "opacity-100 translate-y-0 scale-100 delay-200 duration-500 ease-out pointer-events-auto"
-              : "opacity-0 translate-y-8 scale-95 delay-0 duration-300 ease-in pointer-events-none"
-          )}
-        >
-          <VisualMath problem={problem} isFlipped={isDiagramVisible} />
-        </div>
-      }
-    />
+        }
+        detail={
+          <div className="flex-1 flex items-center justify-center p-1 sm:p-2">
+            <VisualMath problem={problem} isFlipped={isDiagramVisible} />
+          </div>
+        }
+      />
+    </FlashCardShell>
   );
 }
