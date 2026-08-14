@@ -216,21 +216,10 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
             strokeLinecap="round"
           />
 
-          {/* Base Angle Value Labels (Tucked in left & right corners, never overlap) */}
+          {/* Base Angle Value Labels (Positioned outside left & right corners so they NEVER overlap) */}
           <text
-            x={x1 + 8}
-            y={BASE_Y - 6}
-            textAnchor="start"
-            fontSize={12}
-            fontWeight="800"
-            fill="#5ee8ff"
-            fontFamily="var(--font-heading, system-ui)"
-          >
-            {baseAngle}°
-          </text>
-          <text
-            x={x2 - 8}
-            y={BASE_Y - 6}
+            x={x1 - 6}
+            y={BASE_Y + 3}
             textAnchor="end"
             fontSize={12}
             fontWeight="800"
@@ -239,11 +228,22 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
           >
             {baseAngle}°
           </text>
+          <text
+            x={x2 + 6}
+            y={BASE_Y + 3}
+            textAnchor="start"
+            fontSize={12}
+            fontWeight="800"
+            fill="#5ee8ff"
+            fontFamily="var(--font-heading, system-ui)"
+          >
+            {baseAngle}°
+          </text>
 
-          {/* Apex Angle Value Label */}
+          {/* Apex Angle Value Label (Floating OUTSIDE above apex node) */}
           <text
             x={apexX}
-            y={apexY + Math.min(36, h * 0.4)}
+            y={apexY - 14}
             textAnchor="middle"
             fontSize={12}
             fontWeight="800"
