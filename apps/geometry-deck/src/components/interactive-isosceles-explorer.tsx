@@ -216,12 +216,12 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
             strokeLinecap="round"
           />
 
-          {/* Base Angle Value Labels */}
+          {/* Base Angle Value Labels (Tucked in left & right corners, never overlap) */}
           <text
-            x={x1 + 30}
-            y={BASE_Y - 8}
+            x={x1 + 8}
+            y={BASE_Y - 6}
             textAnchor="start"
-            fontSize={13}
+            fontSize={12}
             fontWeight="800"
             fill="#5ee8ff"
             fontFamily="var(--font-heading, system-ui)"
@@ -229,10 +229,10 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
             {baseAngle}°
           </text>
           <text
-            x={x2 - 30}
-            y={BASE_Y - 8}
+            x={x2 - 8}
+            y={BASE_Y - 6}
             textAnchor="end"
-            fontSize={13}
+            fontSize={12}
             fontWeight="800"
             fill="#5ee8ff"
             fontFamily="var(--font-heading, system-ui)"
@@ -243,9 +243,9 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
           {/* Apex Angle Value Label */}
           <text
             x={apexX}
-            y={apexY + 42}
+            y={apexY + Math.min(36, h * 0.4)}
             textAnchor="middle"
-            fontSize={13}
+            fontSize={12}
             fontWeight="800"
             fill="#ffd45e"
             fontFamily="var(--font-heading, system-ui)"
