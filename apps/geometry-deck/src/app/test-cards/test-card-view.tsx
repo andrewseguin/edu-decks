@@ -28,16 +28,19 @@ const CARD_TYPE_LABELS: Record<CardType, string> = { term: "Terms", formula: "Fo
 // Renders the actual card directly. Tapping the card or state buttons toggles
 // between Primary (Front) and Reveal (Back). Supports Desktop vs Mobile viewports.
 // ─────────────────────────────────────────────────────────────────────────────
+// ─────────────────────────────────────────────────────────────────────────────
 function InteractiveCardItem({
   card,
   id,
   overrideState,
   globalViewport,
+  showOutlines,
 }: {
   card: GeometryCardType;
   id: string;
   overrideState: "front" | "back" | null;
   globalViewport: "desktop" | "mobile";
+  showOutlines?: boolean;
 }) {
   const [localFlipped, setLocalFlipped] = useState<boolean | null>(null);
 
@@ -113,6 +116,7 @@ function InteractiveCardItem({
             isFlipped={isFlipped}
             slideDirection="next"
             className="w-full border-none"
+            showDebugOutlines={showOutlines}
             onSpeak={() => {}}
             onTap={() => setLocalFlipped(!isFlipped)}
           />
@@ -215,6 +219,7 @@ function GalleryView() {
   const [activeCardTypes, setActiveCardTypes] = useState<CardType[]>(ALL_CARD_TYPES);
   const [globalState, setGlobalState] = useState<"front" | "back" | null>(null);
   const [globalViewport, setGlobalViewport] = useState<"desktop" | "mobile">("desktop");
+  const [showOutlines, setShowOutlines] = useState<boolean>(false);
   const [isInitialized, setIsInitialized] = useState(false);
 
   // ── 1. Load initial view state from URL query params or localStorage ───────
@@ -226,13 +231,15 @@ function GalleryView() {
     const urlTypes = params.get("types");
     const urlViewport = params.get("viewport");
     const urlFlip = params.get("flip");
+    const urlOutlines = params.get("outlines");
 
     let topics = ALL_TOPICS;
     let types = ALL_CARD_TYPES;
     let viewport: "desktop" | "mobile" = "desktop";
     let flip: "front" | "back" | null = null;
+    let outlines = false;
 
-    if (urlTopics || urlTypes || urlViewport || urlFlip) {
+    if (urlTopics || urlTypes || urlViewport || urlFlip || urlOutlines !== null) {
       if (urlTopics) {
         const parsed = urlTopics.split(",").filter((t) => ALL_TOPICS.includes(t as TopicType)) as TopicType[];
         if (parsed.length > 0) topics = parsed;
@@ -246,6 +253,9 @@ function GalleryView() {
       }
       if (urlFlip === "front" || urlFlip === "back") {
         flip = urlFlip;
+      }
+      if (urlOutlines === "true") {
+        outlines = true;
       }
     } else {
       try {
@@ -264,6 +274,9 @@ function GalleryView() {
           if (data.flip === "front" || data.flip === "back") {
             flip = data.flip;
           }
+          if (typeof data.outlines === "boolean") {
+            outlines = data.outlines;
+          }
         }
       } catch {
         // Ignore
@@ -274,6 +287,7 @@ function GalleryView() {
     setActiveCardTypes(types);
     setGlobalViewport(viewport);
     setGlobalState(flip);
+    setShowOutlines(outlines);
     setIsInitialized(true);
   }, []);
 
@@ -285,6 +299,7 @@ function GalleryView() {
     const isDefaultTypes = activeCardTypes.length === ALL_CARD_TYPES.length;
     const isDefaultViewport = globalViewport === "desktop";
     const isDefaultFlip = globalState === null;
+    const isDefaultOutlines = showOutlines === false;
 
     try {
       localStorage.setItem(
@@ -294,6 +309,7 @@ function GalleryView() {
           types: activeCardTypes,
           viewport: globalViewport,
           flip: globalState,
+          outlines: showOutlines,
         })
       );
     } catch {
@@ -305,24 +321,27 @@ function GalleryView() {
     if (!isDefaultTypes) params.set("types", activeCardTypes.join(","));
     if (!isDefaultViewport) params.set("viewport", globalViewport);
     if (!isDefaultFlip) params.set("flip", globalState);
+    if (!isDefaultOutlines) params.set("outlines", "true");
 
     const newQuery = params.toString();
     const newUrl = newQuery ? `${window.location.pathname}?${newQuery}` : window.location.pathname;
     window.history.replaceState(null, "", newUrl);
-  }, [activeTopics, activeCardTypes, globalViewport, globalState, isInitialized]);
+  }, [activeTopics, activeCardTypes, globalViewport, globalState, showOutlines, isInitialized]);
 
   // ── 3. Reset filters ───────────────────────────────────────────────────────
   const isCustomized =
     activeTopics.length !== ALL_TOPICS.length ||
     activeCardTypes.length !== ALL_CARD_TYPES.length ||
     globalViewport !== "desktop" ||
-    globalState !== null;
+    globalState !== null ||
+    showOutlines !== false;
 
   function resetFilters() {
     setActiveTopics(ALL_TOPICS);
     setActiveCardTypes(ALL_CARD_TYPES);
     setGlobalViewport("desktop");
     setGlobalState(null);
+    setShowOutlines(false);
     try {
       localStorage.removeItem(LOCAL_STORAGE_KEY);
     } catch {
@@ -429,6 +448,34 @@ function GalleryView() {
         </div>
 
         <div>
+          <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Outlines</p>
+          <div className="flex gap-1.5 font-mono text-xs">
+            <button
+              type="button"
+              onClick={() => setShowOutlines(false)}
+              className={`px-2.5 py-1 rounded-md transition-colors ${
+                !showOutlines
+                  ? "bg-slate-600 text-white font-bold"
+                  : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
+              }`}
+            >
+              Off
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowOutlines(true)}
+              className={`px-2.5 py-1 rounded-md transition-colors ${
+                showOutlines
+                  ? "bg-cyan-600 text-white font-bold"
+                  : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
+              }`}
+            >
+              On
+            </button>
+          </div>
+        </div>
+
+        <div>
           <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Bulk Flip</p>
           <div className="flex gap-1.5 font-mono text-xs">
             <button
@@ -480,7 +527,7 @@ function GalleryView() {
       <div className="p-6 sm:p-8 max-w-5xl mx-auto">
         <h1 className="text-2xl font-bold mb-1">Geometry Deck — Test Card Catalogue</h1>
         <p className="text-gray-400 text-sm mb-8">
-          Interactive live card catalogue · Click any card or toggle Primary/Reveal and Desktop/Mobile viewports
+          Interactive live card catalogue · Click any card or toggle Primary/Reveal, Desktop/Mobile viewports, and Outlines
         </p>
 
         {filteredIds.length === 0 ? (
@@ -503,6 +550,7 @@ function GalleryView() {
                           id={id}
                           overrideState={globalState}
                           globalViewport={globalViewport}
+                          showOutlines={showOutlines}
                         />
                       </div>
                     );
