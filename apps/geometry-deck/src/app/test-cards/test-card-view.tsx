@@ -4,7 +4,7 @@
  * TestCardView — Client Component
  *
  * Index view: live thumbnail gallery of every card × every state.
- * Single-card view: full-page rendering of one card at a specific state/step.
+ * Single-card view: full-page rendering of one card at a specific state.
  */
 
 import Link from "next/link";
@@ -15,7 +15,6 @@ import type { GeometryCard as GeometryCardType } from "@/lib/types";
 type Props = {
   cardId: string | undefined;
   state: "front" | "back";
-  step: number;
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -37,13 +36,11 @@ const THUMB_H = Math.round(CARD_H * SCALE); // ~97px
 function CardThumbnail({
   card,
   isFlipped,
-  step,
   label,
   href,
 }: {
   card: GeometryCardType;
   isFlipped: boolean;
-  step: number;
   label: string;
   href: string;
 }) {
@@ -69,7 +66,6 @@ function CardThumbnail({
             <GeometryCard
               card={card}
               isFlipped={isFlipped}
-              forcedStepIndex={isFlipped ? step : undefined}
               slideDirection="next"
               onSpeak={() => {}}
               onTap={() => {}}
@@ -87,7 +83,7 @@ function CardThumbnail({
 // ─────────────────────────────────────────────────────────────────────────────
 // Main export
 // ─────────────────────────────────────────────────────────────────────────────
-export function TestCardView({ cardId, state, step }: Props) {
+export function TestCardView({ cardId, state }: Props) {
 
   // ── Single-card view ────────────────────────────────────────────────────
   if (cardId) {
@@ -106,7 +102,7 @@ export function TestCardView({ cardId, state, step }: Props) {
       );
     }
 
-    const stepCount = card.backSteps?.length ?? 0;
+    const isBack = state === "back";
 
     return (
       <main
@@ -118,22 +114,19 @@ export function TestCardView({ cardId, state, step }: Props) {
           id="card-meta"
           data-card-id={cardId}
           data-state={state}
-          data-step={step}
-          data-step-count={stepCount}
           className="sr-only"
           aria-hidden="true"
         />
 
         <GeometryCard
           card={card}
-          isFlipped={state === "back"}
-          forcedStepIndex={state === "back" ? step : undefined}
+          isFlipped={isBack}
           slideDirection="next"
           onSpeak={() => {}}
           onTap={() => {}}
         />
 
-        {/* Step nav */}
+        {/* State nav */}
         <nav className="flex flex-wrap gap-2 justify-center text-xs font-mono text-gray-400 select-none">
           <Link
             href={`/test-cards?card=${cardId}&state=front`}
@@ -145,19 +138,16 @@ export function TestCardView({ cardId, state, step }: Props) {
           >
             front
           </Link>
-          {Array.from({ length: stepCount }, (_, i) => (
-            <Link
-              key={i}
-              href={`/test-cards?card=${cardId}&state=back&step=${i}`}
-              className={`px-2 py-1 rounded ${
-                state === "back" && step === i
-                  ? "bg-white text-gray-900 font-bold"
-                  : "bg-gray-800 hover:bg-gray-700"
-              }`}
-            >
-              back·{i}
-            </Link>
-          ))}
+          <Link
+            href={`/test-cards?card=${cardId}&state=back`}
+            className={`px-2 py-1 rounded ${
+              state === "back"
+                ? "bg-white text-gray-900 font-bold"
+                : "bg-gray-800 hover:bg-gray-700"
+            }`}
+          >
+            back
+          </Link>
         </nav>
 
         <Link
@@ -276,7 +266,6 @@ function GalleryView() {
                 <div className="flex flex-col gap-8">
                   {ids.map((id) => {
                     const card = TEST_CARDS[id];
-                    const stepCount = card.backSteps?.length ?? 0;
                     const typeTag = card.cardType === "term" ? "T" : card.cardType === "formula" ? "F" : "C";
 
                     return (
@@ -287,16 +276,8 @@ function GalleryView() {
                         </div>
 
                         <div className="flex flex-wrap gap-3">
-                          <CardThumbnail card={card} isFlipped={false} step={-1} label="front" href={`/test-cards?card=${id}&state=front`} />
-                          {stepCount > 0 && (
-                            <CardThumbnail card={card} isFlipped={true} step={-1} label="back·∅" href={`/test-cards?card=${id}&state=back&step=-1`} />
-                          )}
-                          {Array.from({ length: stepCount }, (_, i) => (
-                            <CardThumbnail key={i} card={card} isFlipped={true} step={i}
-                              label={i === stepCount - 1 ? "answer" : `step·${i}`}
-                              href={`/test-cards?card=${id}&state=back&step=${i}`}
-                            />
-                          ))}
+                          <CardThumbnail card={card} isFlipped={false} label="front" href={`/test-cards?card=${id}&state=front`} />
+                          <CardThumbnail card={card} isFlipped={true} label="back" href={`/test-cards?card=${id}&state=back`} />
                         </div>
                       </div>
                     );

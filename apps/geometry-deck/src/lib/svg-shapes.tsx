@@ -28,26 +28,110 @@ function arcPath(cx: number, cy: number, r: number, startAngle: number, endAngle
   return `M ${start.x} ${start.y} A ${r} ${r} 0 ${large} 0 ${end.x} ${end.y}`;
 }
 
-function SvgLabel({ x, y, text, size = LABEL_SIZE, opacity = 0.95 }: {
-  x: number; y: number; text: string; size?: number; opacity?: number;
+function SvgLabel({ x, y, text, size = LABEL_SIZE, opacity = 0.95, color }: {
+  x: number; y: number; text: string; size?: number; opacity?: number; color?: string;
 }) {
   const rx = Math.round(x * 100) / 100;
   const ry = Math.round(y * 100) / 100;
+  const fill = color ?? `rgba(255,255,255,${opacity})`;
   return (
     <text x={rx} y={ry} textAnchor="middle" fontSize={size} fontWeight="600"
-      fill={`rgba(255,255,255,${opacity})`} fontFamily={LABEL_FONT}>{text}</text>
+      fill={fill} fontFamily={LABEL_FONT}>{text}</text>
   );
 }
 
-function UnknownPill({ x, y }: { x: number; y: number }) {
+function UnknownPill({
+  x,
+  y,
+  label,
+  revealValue,
+  color,
+  unit = "°",
+}: {
+  x: number;
+  y: number;
+  label?: string;
+  revealValue?: number;
+  color?: string;
+  unit?: string;
+}) {
   const rx = Math.round(x * 100) / 100;
   const ry = Math.round(y * 100) / 100;
+  const isRevealed = revealValue != null;
+  const pillW = 34;
+  const pillH = 22;
+  const labelColor = color ?? "white";
+
+  const labelText = label ? `${label} = ` : "";
+  const pillCx = label ? rx + 16 : rx;
+  const labelX = label ? rx - 4 : rx;
+
+  const displayAnswer = isRevealed ? `${revealValue}${unit}` : "";
+
   return (
     <g>
-      <rect x={rx - 14} y={ry - 11} width={28} height={22} rx={11}
-        fill={WHITE25} stroke="rgba(255,255,255,0.5)" strokeWidth={1.5} />
-      <text x={rx} y={ry + 4} textAnchor="middle" fontSize={13} fontWeight="700"
-        fill="white" fontFamily={LABEL_FONT}>?</text>
+      {label && (
+        <text
+          x={labelX}
+          y={ry + 4}
+          textAnchor="end"
+          fontSize={13}
+          fontWeight="700"
+          fill={labelColor}
+          fontFamily={LABEL_FONT}
+        >
+          {labelText}
+        </text>
+      )}
+
+      {/* Revealed answer */}
+      <text
+        x={pillCx}
+        y={ry + 4}
+        textAnchor={label ? "start" : "middle"}
+        fontSize={14}
+        fontWeight="700"
+        fill={labelColor}
+        fontFamily={LABEL_FONT}
+        style={{
+          opacity: isRevealed ? 1 : 0,
+          transition: "opacity 0.4s ease 0.15s",
+        }}
+      >
+        {displayAnswer}
+      </text>
+
+      {/* Glassmorphic ? badge */}
+      <g
+        style={{
+          opacity: isRevealed ? 0 : 1,
+          transform: isRevealed ? "scale(0.75)" : "scale(1)",
+          transformOrigin: `${pillCx}px ${ry}px`,
+          transition: "opacity 0.3s ease, transform 0.3s ease",
+        }}
+      >
+        <rect
+          x={pillCx - pillW / 2}
+          y={ry - pillH / 2}
+          width={pillW}
+          height={pillH}
+          rx={pillH / 2}
+          fill="rgba(255,255,255,0.22)"
+          stroke="rgba(255,255,255,0.65)"
+          strokeWidth={1.5}
+        />
+        <text
+          x={pillCx}
+          y={ry + 4}
+          textAnchor="middle"
+          fontSize={14}
+          fontWeight="800"
+          fill="rgba(255,255,255,0.95)"
+          fontFamily={LABEL_FONT}
+        >
+          ?
+        </text>
+      </g>
     </g>
   );
 }
@@ -101,49 +185,166 @@ function AngleSingle({ dims, mutation }: { dims: Record<string, number | string>
   );
 }
 
+function LegendValueToken({
+  x,
+  y,
+  label,
+  value,
+  isUnknown,
+  revealValue,
+  color,
+}: {
+  x: number;
+  y: number;
+  label: string;
+  value: number;
+  isUnknown: boolean;
+  revealValue?: number;
+  color: string;
+}) {
+  const isRevealed = revealValue != null;
+  const pillW = 34;
+  const pillH = 22;
+  const valueX = x + 6;
+  const pillCx = valueX + pillW / 2;
+
+  return (
+    <g>
+      {/* Label "A = " or "B = " */}
+      <text
+        x={x}
+        y={y + 4}
+        textAnchor="end"
+        fontSize={13}
+        fontWeight="700"
+        fill={color}
+        fontFamily={LABEL_FONT}
+      >
+        {label} =
+      </text>
+
+      {!isUnknown ? (
+        /* Known value: simple text */
+        <text
+          x={valueX}
+          y={y + 4}
+          textAnchor="start"
+          fontSize={14}
+          fontWeight="700"
+          fill={color}
+          fontFamily={LABEL_FONT}
+        >
+          {value}°
+        </text>
+      ) : (
+        /* Unknown value: glassmorphic ? badge when unrevealed, text when revealed */
+        <>
+          {/* Revealed answer */}
+          <text
+            x={valueX}
+            y={y + 4}
+            textAnchor="start"
+            fontSize={14}
+            fontWeight="700"
+            fill={color}
+            fontFamily={LABEL_FONT}
+            style={{
+              opacity: isRevealed ? 1 : 0,
+              transition: "opacity 0.4s ease 0.15s",
+            }}
+          >
+            {revealValue}°
+          </text>
+
+          {/* Glassmorphic ? badge */}
+          <g
+            style={{
+              opacity: isRevealed ? 0 : 1,
+              transform: isRevealed ? "scale(0.75)" : "scale(1)",
+              transformOrigin: `${pillCx}px ${y}px`,
+              transition: "opacity 0.3s ease, transform 0.3s ease",
+            }}
+          >
+            <rect
+              x={valueX}
+              y={y - pillH / 2}
+              width={pillW}
+              height={pillH}
+              rx={pillH / 2}
+              fill="rgba(255,255,255,0.22)"
+              stroke="rgba(255,255,255,0.65)"
+              strokeWidth={1.5}
+            />
+            <text
+              x={pillCx}
+              y={y + 4}
+              textAnchor="middle"
+              fontSize={14}
+              fontWeight="800"
+              fill="rgba(255,255,255,0.95)"
+              fontFamily={LABEL_FONT}
+            >
+              ?
+            </text>
+          </g>
+        </>
+      )}
+    </g>
+  );
+}
+
 function AngleSupplementary({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
   const aAngle = typeof dims.A === "number" ? dims.A : 53;
   const bAngle = 180 - aAngle;
   const unknownDim = dims.unknown as string | undefined;
-  const vx = 110, vy = 130, rayLen = 90;
+  const vx = 110, vy = 85, rayLen = 80;
   const leftEnd = { x: vx - rayLen, y: vy }, rightEnd = { x: vx + rayLen, y: vy };
   const rad = (aAngle * Math.PI) / 180;
-  // midEnd direction: cos(PI-rad) = -cos(rad), y goes up = -sin(rad) in SVG
   const midEnd = { x: vx + rayLen * Math.cos(Math.PI - rad), y: vy - rayLen * Math.sin(rad) };
   const arcR = 32;
-  // Arc point on the middle ray (same direction as midEnd)
-  const midArcX = vx + arcR * Math.cos(Math.PI - rad); // = vx - arcR*cos(rad)
+  const midArcX = vx + arcR * Math.cos(Math.PI - rad);
   const midArcY = vy - arcR * Math.sin(rad);
-  // Arc B: east → middle ray (bAngle arc, sweep=0 = CCW on screen = going upward)
   const arcBPath = `M ${vx + arcR} ${vy} A ${arcR} ${arcR} 0 ${bAngle > 180 ? 1 : 0} 0 ${midArcX} ${midArcY}`;
-  // Arc A: middle ray → west (aAngle arc, sweep=0 = CCW = continuing upward through north)
   const arcAPath = `M ${midArcX} ${midArcY} A ${arcR} ${arcR} 0 ${aAngle > 180 ? 1 : 0} 0 ${vx - arcR} ${vy}`;
-  const arcALen = (arcR * 2 * Math.PI * aAngle) / 360;
-  const arcBLen = (arcR * 2 * Math.PI * bAngle) / 360;
-  // Label A: in the bisector of angle A (between middle and west)
-  const aMidAngle = 180 - aAngle / 2;  // degrees from east, in standard math
-  const labelAX = vx + (arcR + 20) * Math.cos(-(aMidAngle * Math.PI) / 180);
-  const labelAY = vy + (arcR + 20) * Math.sin(-(aMidAngle * Math.PI) / 180);
-  // Label B: in the bisector of angle B (between east and middle)
-  const bMidAngle = bAngle / 2;
-  const labelBX = vx + (arcR + 22) * Math.cos(-(bMidAngle * Math.PI) / 180);
-  const labelBY = vy + (arcR + 22) * Math.sin(-(bMidAngle * Math.PI) / 180);
+  const COLOR_A = "#5ee8ff";
+  const COLOR_B = "#ffd45e";
+
+  // Wedge fills
+  const wr = 28;
+  const mwx = vx + wr * Math.cos(Math.PI - rad);
+  const mwy = vy - wr * Math.sin(rad);
+  const wedgeA = `M ${vx} ${vy} L ${vx - wr} ${vy} A ${wr} ${wr} 0 ${aAngle > 180 ? 1 : 0} 1 ${mwx} ${mwy} Z`;
+  const wedgeB = `M ${vx} ${vy} L ${mwx} ${mwy} A ${wr} ${wr} 0 ${bAngle > 180 ? 1 : 0} 1 ${vx + wr} ${vy} Z`;
+
+  // Letter labels inside diagram arcs (just "A" and "B" — compact 11px font)
+  const letterR = arcR + 14;
+  const aMid = 180 - aAngle / 2;
+  const aLx = vx + letterR * Math.cos(-(aMid * Math.PI) / 180);
+  const aLy = vy + letterR * Math.sin(-(aMid * Math.PI) / 180);
+
+  const bMid = bAngle / 2;
+  const bLx = vx + letterR * Math.cos(-(bMid * Math.PI) / 180);
+  const bLy = vy + letterR * Math.sin(-(bMid * Math.PI) / 180);
+
+  const legendY = 120;
+
   return (
-    <svg viewBox="0 0 220 180" className="w-full h-full" aria-hidden>
+    <svg viewBox="0 0 220 140" className="w-full h-full" aria-hidden>
+      <path d={wedgeA} fill={COLOR_A} fillOpacity={0.12} />
+      <path d={wedgeB} fill={COLOR_B} fillOpacity={0.12} />
       <line x1={leftEnd.x} y1={leftEnd.y} x2={rightEnd.x} y2={rightEnd.y} stroke={WHITE70} strokeWidth={STROKE_W} strokeLinecap="round" />
       <line x1={vx} y1={vy} x2={midEnd.x} y2={midEnd.y} stroke={WHITE70} strokeWidth={STROKE_W} strokeLinecap="round" />
       <circle cx={vx} cy={vy} r={3} fill={WHITE90} />
-      <path d={arcAPath} fill="none" stroke={WHITE90} strokeWidth={2.5} strokeLinecap="round"
-        style={{ strokeDasharray: `${arcALen} 1000`, strokeDashoffset: mutation?.drawAngleArc === "A" ? arcALen : 0,
-          animation: mutation?.drawAngleArc === "A" ? `drawArc 0.55s cubic-bezier(0.4,0,0.2,1) forwards` : undefined,
-          "--arc-length": arcALen } as React.CSSProperties} />
-      <path d={arcBPath} fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth={2.5} strokeLinecap="round"
-        style={{ strokeDasharray: `${arcBLen} 1000`, strokeDashoffset: mutation?.drawAngleArc === "B" ? arcBLen : 0,
-          animation: mutation?.drawAngleArc === "B" ? `drawArc 0.55s cubic-bezier(0.4,0,0.2,1) 0.1s forwards` : undefined,
-          "--arc-length": arcBLen } as React.CSSProperties} />
-      {unknownDim === "A" ? <UnknownPill x={labelAX} y={labelAY} /> : <SvgLabel x={labelAX} y={labelAY} text={`A = ${aAngle}°`} />}
-      {unknownDim === "B" ? <UnknownPill x={labelBX} y={labelBY} /> : <SvgLabel x={labelBX} y={labelBY} text={`B = ${bAngle}°`} />}
-      <text x={110} y={170} textAnchor="middle" fontSize={11} fill={WHITE50} fontFamily={LABEL_FONT}>A + B = 180°</text>
+      <path d={arcAPath} fill="none" stroke={COLOR_A} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
+      <path d={arcBPath} fill="none" stroke={COLOR_B} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
+
+      {/* Letter labels inside diagram arcs */}
+      <SvgLabel x={aLx} y={aLy} text="A" size={11} color={COLOR_A} />
+      <SvgLabel x={bLx} y={bLy} text="B" size={11} color={COLOR_B} />
+
+      {/* Visually centered legend row below diagram */}
+      <LegendValueToken x={60} y={legendY} label="A" value={aAngle} isUnknown={unknownDim === "A"} revealValue={mutation?.revealAnswer} color={COLOR_A} />
+      <LegendValueToken x={148} y={legendY} label="B" value={bAngle} isUnknown={unknownDim === "B"} revealValue={mutation?.revealAnswer} color={COLOR_B} />
     </svg>
   );
 }
@@ -152,50 +353,64 @@ function AngleComplementary({ dims, mutation }: { dims: Record<string, number | 
   const aAngle = typeof dims.A === "number" ? dims.A : 34;
   const bAngle = 90 - aAngle;
   const unknownDim = dims.unknown as string | undefined;
-  const vx = 60, vy = 140, rayLen = 90;
+  const vx = 55, vy = 90, rayLen = 80;
   const rightEnd = { x: vx + rayLen, y: vy }, upEnd = { x: vx, y: vy - rayLen };
   const rad = (aAngle * Math.PI) / 180;
   const midEnd = { x: vx + rayLen * Math.cos(-rad), y: vy + rayLen * Math.sin(-rad) };
-  const arcAR = 30;
-  // Arc point on the middle ray (same direction as midEnd)
-  const midArcX = vx + arcAR * Math.cos(-rad);
-  const midArcY = vy + arcAR * Math.sin(-rad);  // = vy - arcAR*sin(rad)
-  // Arc A: east → middle ray (aAngle, CCW on screen = sweep=0)
-  const arcAPath = `M ${vx + arcAR} ${vy} A ${arcAR} ${arcAR} 0 0 0 ${midArcX} ${midArcY}`;
-  // Arc B: middle ray → north/up (bAngle = 90-aAngle, CCW on screen)
-  const arcBPath = `M ${midArcX} ${midArcY} A ${arcAR} ${arcAR} 0 0 0 ${vx} ${vy - arcAR}`;
-  const arcALen = (arcAR * 2 * Math.PI * aAngle) / 360;
-  const arcBLen = (arcAR * 2 * Math.PI * bAngle) / 360;
-  const labelAX = vx + (arcAR + 20) * Math.cos((-aAngle / 2) * Math.PI / 180);
-  const labelAY = vy + (arcAR + 20) * Math.sin((-aAngle / 2) * Math.PI / 180);
-  const bMid = aAngle + bAngle / 2;  // = aAngle + (90 - aAngle)/2 = 45 + aAngle/2
-  const labelBX = vx + (arcAR + 20) * Math.cos((-bMid) * Math.PI / 180);
-  const labelBY = vy + (arcAR + 20) * Math.sin((-bMid) * Math.PI / 180);
+  const arcR = 30;
+  const midArcX = vx + arcR * Math.cos(-rad);
+  const midArcY = vy + arcR * Math.sin(-rad);
+  const arcAPath = `M ${vx + arcR} ${vy} A ${arcR} ${arcR} 0 0 0 ${midArcX} ${midArcY}`;
+  const arcBPath = `M ${midArcX} ${midArcY} A ${arcR} ${arcR} 0 0 0 ${vx} ${vy - arcR}`;
+  const COLOR_A = "#5ee8ff";
+  const COLOR_B = "#ffd45e";
+
+  // Wedge fills
+  const wr = 26;
+  const mwx = vx + wr * Math.cos(-rad);
+  const mwy = vy + wr * Math.sin(-rad);
+  const wedgeA = `M ${vx} ${vy} L ${vx + wr} ${vy} A ${wr} ${wr} 0 0 0 ${mwx} ${mwy} Z`;
+  const wedgeB = `M ${vx} ${vy} L ${mwx} ${mwy} A ${wr} ${wr} 0 0 0 ${vx} ${vy - wr} Z`;
+
+  // Letter labels inside diagram arcs
+  const letterR = arcR + 14;
+  const aMid = aAngle / 2;
+  const aLx = vx + letterR * Math.cos((-aMid * Math.PI) / 180);
+  const aLy = vy + letterR * Math.sin((-aMid * Math.PI) / 180);
+
+  const bMid = aAngle + bAngle / 2;
+  const bLx = vx + letterR * Math.cos((-bMid * Math.PI) / 180);
+  const bLy = vy + letterR * Math.sin((-bMid * Math.PI) / 180);
+
+  const legendY = 120;
+
   return (
-    <svg viewBox="0 0 220 180" className="w-full h-full" aria-hidden>
+    <svg viewBox="0 0 190 140" className="w-full h-full" aria-hidden>
+      <path d={wedgeA} fill={COLOR_A} fillOpacity={0.12} />
+      <path d={wedgeB} fill={COLOR_B} fillOpacity={0.12} />
       <rect x={vx} y={vy - 14} width={14} height={14} fill="none" stroke={WHITE50} strokeWidth={1.5} />
       <line x1={vx} y1={vy} x2={rightEnd.x} y2={rightEnd.y} stroke={WHITE70} strokeWidth={STROKE_W} strokeLinecap="round" />
       <line x1={vx} y1={vy} x2={upEnd.x} y2={upEnd.y} stroke={WHITE70} strokeWidth={STROKE_W} strokeLinecap="round" />
       <line x1={vx} y1={vy} x2={midEnd.x} y2={midEnd.y} stroke={WHITE70} strokeWidth={STROKE_W} strokeLinecap="round" />
       <circle cx={vx} cy={vy} r={3} fill={WHITE90} />
-      <path d={arcAPath} fill="none" stroke={WHITE90} strokeWidth={2.5} strokeLinecap="round"
-        style={{ strokeDasharray: `${arcALen} 1000`, strokeDashoffset: mutation?.drawAngleArc === "A" ? arcALen : 0,
-          animation: mutation?.drawAngleArc === "A" ? `drawArc 0.55s cubic-bezier(0.4,0,0.2,1) forwards` : undefined,
-          "--arc-length": arcALen } as React.CSSProperties} />
-      <path d={arcBPath} fill="none" stroke="rgba(255,255,255,0.75)" strokeWidth={2.5} strokeLinecap="round"
-        style={{ strokeDasharray: `${arcBLen} 1000`, strokeDashoffset: mutation?.drawAngleArc === "B" ? arcBLen : 0,
-          animation: mutation?.drawAngleArc === "B" ? `drawArc 0.55s cubic-bezier(0.4,0,0.2,1) 0.1s forwards` : undefined,
-          "--arc-length": arcBLen } as React.CSSProperties} />
-      {unknownDim === "A" ? <UnknownPill x={labelAX} y={labelAY} /> : <SvgLabel x={labelAX} y={labelAY} text={`A = ${aAngle}°`} />}
-      {unknownDim === "B" ? <UnknownPill x={labelBX} y={labelBY} /> : <SvgLabel x={labelBX} y={labelBY} text={`B = ${bAngle}°`} />}
-      <text x={160} y={165} textAnchor="middle" fontSize={11} fill={WHITE50} fontFamily={LABEL_FONT}>A + B = 90°</text>
+      <path d={arcAPath} fill="none" stroke={COLOR_A} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
+      <path d={arcBPath} fill="none" stroke={COLOR_B} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
+
+      {/* Letter labels inside diagram arcs */}
+      <SvgLabel x={aLx} y={aLy} text="A" size={11} color={COLOR_A} />
+      <SvgLabel x={bLx} y={bLy} text="B" size={11} color={COLOR_B} />
+
+      {/* Visually centered legend row below diagram */}
+      <LegendValueToken x={48} y={legendY} label="A" value={aAngle} isUnknown={unknownDim === "A"} revealValue={mutation?.revealAnswer} color={COLOR_A} />
+      <LegendValueToken x={130} y={legendY} label="B" value={bAngle} isUnknown={unknownDim === "B"} revealValue={mutation?.revealAnswer} color={COLOR_B} />
     </svg>
   );
 }
 
-function AngleVerticallyOpposite({ dims }: { dims: Record<string, number | string> }) {
+function AngleVerticallyOpposite({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
   const aAngle = typeof dims.A === "number" ? dims.A : 42;
   const bAngle = 180 - aAngle;
+  const unknownDim = dims.unknown as string | undefined;
   const vx = 110, vy = 90, rayLen = 85;
   const rad = (aAngle * Math.PI) / 180;
   // Four ray endpoints
@@ -228,7 +443,11 @@ function AngleVerticallyOpposite({ dims }: { dims: Record<string, number | strin
       <path d={arcBPath1} fill="none" stroke="rgba(180,220,255,0.75)" strokeWidth={2.5} strokeLinecap="round" />
       <path d={arcBPath2} fill="none" stroke="rgba(180,220,255,0.75)" strokeWidth={2.5} strokeLinecap="round" />
       <SvgLabel x={vx + arcR + 20} y={vy - 8} text={`A = ${aAngle}°`} />
-      <SvgLabel x={vx - arcR - 22} y={vy + 16} text={`C = ${aAngle}°`} />
+      {unknownDim === "C" ? (
+        <UnknownPill x={vx - arcR - 22} y={vy + 12} label="C" unit="°" revealValue={mutation?.revealAnswer} />
+      ) : (
+        <SvgLabel x={vx - arcR - 22} y={vy + 16} text={`C = ${aAngle}°`} />
+      )}
       <SvgLabel x={vx - arcR - 22} y={vy - 8} text={`B = ${bAngle}°`} />
       <SvgLabel x={vx + arcR + 20} y={vy + 16} text={`D = ${bAngle}°`} />
       <text x={110} y={175} textAnchor="middle" fontSize={11} fill={WHITE50} fontFamily={LABEL_FONT}>A = C,  B = D</text>
@@ -806,7 +1025,7 @@ export function renderShapeSvg(descriptor: SvgDescriptor, mutation?: SvgMutation
     case "angle-single":              return <AngleSingle dims={dimensions} mutation={mutation} />;
     case "angle-supplementary":       return <AngleSupplementary dims={dimensions} mutation={mutation} />;
     case "angle-complementary":       return <AngleComplementary dims={dimensions} mutation={mutation} />;
-    case "angle-vertically-opposite": return <AngleVerticallyOpposite dims={dimensions} />;
+    case "angle-vertically-opposite": return <AngleVerticallyOpposite dims={dimensions} mutation={mutation} />;
     case "angle-reflex":              return <AngleReflex dims={dimensions} />;
     case "angle-parallel-alternate":  return <AngleParallelAlternate dims={dimensions} />;
     case "angle-parallel-cointerior": return <AngleParallelCointerior dims={dimensions} />;

@@ -120,7 +120,7 @@ describe("deck-core: FlashCardShell & Subcomponents", () => {
       />
     );
 
-    const badge = screen.getByText("FRONT CONTAINER");
+    const badge = screen.getByText("PROMPT CONTAINER");
     expect(badge).toBeInTheDocument();
     expect(badge).toHaveAttribute("data-card-debug-badge", "true");
   });

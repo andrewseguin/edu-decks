@@ -146,8 +146,8 @@ const CARD_IDS: string[] = [
 // Test generation
 //
 // For each card we generate:
-//   <cardId>-front          — card front face
-//   <cardId>-back-step-N    — card back at each step index
+//   <cardId>-front   — card front face
+//   <cardId>-back    — card back (full proof table)
 // ─────────────────────────────────────────────────────────────────────────────
 
 for (const cardId of CARD_IDS) {
@@ -165,38 +165,17 @@ for (const cardId of CARD_IDS) {
       );
     });
 
-    // ── Back — one screenshot per step ────────────────────────────────────
+    // ── Back ──────────────────────────────────────────────────────────────
     test("back", async ({ page }) => {
-      // Navigate to step 0 first to discover the total step count
-      await page.goto(`${BASE_URL}/test-cards?card=${cardId}&state=back&step=0`);
+      await page.goto(`${BASE_URL}/test-cards?card=${cardId}&state=back`);
       await freezeAnimations(page);
       await page.waitForSelector('[data-testid="test-card-root"]');
 
-      const stepCountAttr = await page.getAttribute("#card-meta", "data-step-count");
-      const stepCount = parseInt(stepCountAttr ?? "0", 10);
-
-      // Screenshot each step (including step 0 which we're already on)
-      for (let s = 0; s < stepCount; s++) {
-        if (s > 0) {
-          await page.goto(`${BASE_URL}/test-cards?card=${cardId}&state=back&step=${s}`);
-          await freezeAnimations(page);
-          await page.waitForSelector('[data-testid="test-card-root"]');
-        }
-
-        await expect(page).toHaveScreenshot(
-          `${cardId}-back-step-${s}.png`,
-          screenshotOptions,
-        );
-      }
-
-      // Also capture the "no step visible" initial state (step = -1)
-      await page.goto(`${BASE_URL}/test-cards?card=${cardId}&state=back&step=-1`);
-      await freezeAnimations(page);
-      await page.waitForSelector('[data-testid="test-card-root"]');
       await expect(page).toHaveScreenshot(
-        `${cardId}-back-empty.png`,
+        `${cardId}-back.png`,
         screenshotOptions,
       );
     });
   });
 }
+

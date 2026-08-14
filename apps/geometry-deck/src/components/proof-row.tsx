@@ -4,32 +4,13 @@ import { cn } from "@/lib/utils";
 import type { EquationToken } from "@/lib/types";
 
 type ProofRowProps = {
-  /** Left column: structured equation tokens (preferred) */
   tokens: EquationToken[] | null;
-  /** Left column: plain-text fallback */
   formulaLine: string | null;
-  /** Right column: mathematical justification */
   reason: string;
-  /** Whether this is the final answer row (rendered larger/brighter) */
   isAnswer: boolean;
 };
 
-/**
- * One row in the two-column proof layout.
- *
- *   A = πr²      │  Circle area formula
- *   25π = πr²    │  Substitute A = 25π
- *   r² = 25      │  Divide both sides by π
- *   r = 5        │  Take the square root    ← answer row (larger)
- *
- * Animates in via animate-fade-in when it first mounts (new step appears).
- * No per-token slot animation — the whole row fades in together, keeping the
- * proof feel clean and synchronised.
- */
 export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProps) {
-  // Render the equation as flat text (tokens joined) or plain formulaLine.
-  // We intentionally do NOT use EquationDisplay here — the per-slot animation
-  // would conflict with the row-level fade-in in a distracting way.
   const equationNode = (() => {
     if (tokens && tokens.length > 0) {
       return (
@@ -37,15 +18,12 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
           className={cn(
             "font-mono leading-tight whitespace-nowrap",
             isAnswer
-              ? "text-white font-bold text-sm sm:text-[15px]"
-              : "text-white/85 font-semibold text-xs sm:text-[13px]",
+              ? "text-white font-bold text-base sm:text-lg"
+              : "text-white/90 font-semibold text-sm sm:text-base",
           )}
         >
           {tokens.map((t) => (
-            <span
-              key={t.id}
-              className={cn(t.dim ? "text-white/45" : undefined)}
-            >
+            <span key={t.id} className={cn(t.dim ? "text-white/50" : undefined)}>
               {t.value}
             </span>
           ))}
@@ -58,8 +36,8 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
           className={cn(
             "font-mono leading-tight",
             isAnswer
-              ? "text-white font-bold text-sm sm:text-[15px]"
-              : "text-white/85 font-semibold text-xs sm:text-[13px]",
+              ? "text-white font-bold text-base sm:text-lg"
+              : "text-white/90 font-semibold text-sm sm:text-base",
           )}
         >
           {formulaLine}
@@ -70,28 +48,20 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
   })();
 
   return (
-    <div
-      className={cn(
-        "grid w-full items-center animate-fade-in",
-        "grid-cols-[1fr_1px_1fr] gap-x-0",
-      )}
-    >
-      {/* Left column — equation/work, right-aligned towards the divider */}
-      <div className="flex justify-end pr-3 py-[3px]">
+    <div className="grid w-full items-center grid-cols-[1fr_1px_1fr] gap-x-0 py-1">
+      <div className="flex justify-end pr-3">
         {equationNode}
       </div>
 
-      {/* Vertical divider */}
-      <div className="self-stretch bg-white/25 min-h-[18px]" />
+      <div className="self-stretch bg-white/15 min-h-[20px]" />
 
-      {/* Right column — reason, left-aligned from the divider */}
-      <div className="flex items-center pl-3 py-[3px]">
+      <div className="flex items-center pl-3">
         <span
           className={cn(
-            "leading-tight",
+            "leading-tight italic",
             isAnswer
-              ? "text-white/85 text-xs sm:text-sm font-semibold"
-              : "text-white/50 italic text-[11px] sm:text-xs",
+              ? "text-white/80 text-xs sm:text-sm font-semibold not-italic"
+              : "text-white/55 text-[11px] sm:text-xs",
           )}
         >
           {reason}

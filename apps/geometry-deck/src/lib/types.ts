@@ -77,14 +77,13 @@ export type SvgMutation = {
   drawAngleArc?: string;
   /** For 3D: which edge to draw */
   drawEdge?: string;
+  /** Reveal the numeric answer on the unknown pill */
+  revealAnswer?: number;
 };
 
 export type AnimationStep = {
-  /** Cumulative delay before this step fires (ms from card flip) */
-  delayMs: number;
   /**
    * Structured equation tokens for morphing display.
-   * Preferred over formulaLine for calc/formula cards.
    * Tokens with the same id morph in place; different ids trigger a crossfade.
    */
   equationTokens?: EquationToken[];
@@ -142,4 +141,4 @@ export type GeometryCard = {
 // ── Settings ─────────────────────────────────────────────────────────────────
 
 export type MeasurementUnit = "none" | "cm" | "m" | "in";
-export type AnimationSpeed = "normal" | "slow";
+

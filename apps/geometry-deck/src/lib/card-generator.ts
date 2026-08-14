@@ -30,7 +30,8 @@ function uid(u: "none" | "cm" | "m" | "in"): string { return u === "none" ? "" :
 // -------------------------------------------------------------------------------
 const tok = (id: string, value: string): EquationToken => ({ id, value });
 const dim = (id: string, value: string): EquationToken => ({ id, value, dim: true });
-const eq = (id = "eq"): EquationToken => dim(id, "=");
+const eq = (id = "eq"): EquationToken => dim(id, " = ");
+const op = (value: string): EquationToken => dim("op", ` ${value} `);
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ── ANGLES ───────────────────────────────────────────────────────────────────
@@ -45,7 +46,7 @@ function makeAnglesTermCards(): GeometryCard[] {
       frontSpeechText: "Acute angles are…?",
       backDefinition: "Greater than 0°, less than 90°",
       backSvgExamples: [{ shape: "angle-single", dimensions: { angle: 30 }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "0° < acute < 90°" }],
+      backSteps: [{ formulaLine: "0° < acute < 90°" }],
       backSpeechText: "Greater than 0 degrees, less than 90 degrees", color,
     },
     {
@@ -54,7 +55,7 @@ function makeAnglesTermCards(): GeometryCard[] {
       frontSpeechText: "Obtuse angles are…?",
       backDefinition: "Greater than 90°, less than 180°",
       backSvgExamples: [{ shape: "angle-single", dimensions: { angle: 130 }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "90° < obtuse < 180°" }],
+      backSteps: [{ formulaLine: "90° < obtuse < 180°" }],
       backSpeechText: "Greater than 90 degrees, less than 180 degrees", color,
     },
     {
@@ -63,7 +64,7 @@ function makeAnglesTermCards(): GeometryCard[] {
       frontSpeechText: "Reflex angles are…?",
       backDefinition: "Greater than 180°, less than 360°",
       backSvgExamples: [{ shape: "angle-reflex", dimensions: { angles: "200,270,330" }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "180° < reflex < 360°" }],
+      backSteps: [{ formulaLine: "180° < reflex < 360°" }],
       backSpeechText: "Greater than 180 degrees, less than 360 degrees", color,
     },
     {
@@ -72,7 +73,7 @@ function makeAnglesTermCards(): GeometryCard[] {
       frontSpeechText: "Complementary angles are…?",
       backDefinition: "Two angles that sum to 90°",
       backSvgExamples: [{ shape: "angle-complementary", dimensions: { A: 30 }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "A + B = 90°" }, { delayMs: 600, formulaLine: "e.g. 30° + 60° = 90°" }],
+      backSteps: [{ formulaLine: "A + B = 90°" }, { formulaLine: "e.g. 30° + 60° = 90°" }],
       backSpeechText: "Two angles that sum to 90 degrees", color,
     },
     {
@@ -81,7 +82,7 @@ function makeAnglesTermCards(): GeometryCard[] {
       frontSpeechText: "Supplementary angles are…?",
       backDefinition: "Two angles that sum to 180°",
       backSvgExamples: [{ shape: "angle-supplementary", dimensions: { A: 120 }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "A + B = 180°" }, { delayMs: 600, formulaLine: "e.g. 120° + 60° = 180°" }],
+      backSteps: [{ formulaLine: "A + B = 180°" }, { formulaLine: "e.g. 120° + 60° = 180°" }],
       backSpeechText: "Two angles that sum to 180 degrees", color,
     },
     {
@@ -90,7 +91,7 @@ function makeAnglesTermCards(): GeometryCard[] {
       frontSpeechText: "Vertically opposite angles are…?",
       backDefinition: "Equal — formed by two intersecting lines",
       backSvgExamples: [{ shape: "angle-vertically-opposite", dimensions: { A: 42 }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "A = C,   B = D" }, { delayMs: 600, formulaLine: "A + B = 180° (supplementary)" }],
+      backSteps: [{ formulaLine: "A = C,   B = D" }, { formulaLine: "A + B = 180° (supplementary)" }],
       backSpeechText: "Vertically opposite angles are equal", color,
     },
     {
@@ -99,7 +100,7 @@ function makeAnglesTermCards(): GeometryCard[] {
       frontSpeechText: "Alternate angles are…?",
       backDefinition: "Opposite sides of a transversal — equal when lines are parallel",
       backSvgExamples: [{ shape: "angle-parallel-alternate", dimensions: { angle: 55 }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "Z-angle pattern" }, { delayMs: 600, formulaLine: "alternate angles are equal" }],
+      backSteps: [{ formulaLine: "Z-angle pattern" }, { formulaLine: "alternate angles are equal" }],
       backSpeechText: "Alternate angles are on opposite sides of the transversal and are equal when lines are parallel", color,
     },
     {
@@ -108,7 +109,7 @@ function makeAnglesTermCards(): GeometryCard[] {
       frontSpeechText: "Co-interior angles are…?",
       backDefinition: "Same side of transversal — sum to 180° when lines are parallel",
       backSvgExamples: [{ shape: "angle-parallel-cointerior", dimensions: { A: 110 }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "C-angle pattern" }, { delayMs: 600, formulaLine: "A + B = 180°" }],
+      backSteps: [{ formulaLine: "C-angle pattern" }, { formulaLine: "A + B = 180°" }],
       backSpeechText: "Co-interior angles are on the same side of the transversal and sum to 180 degrees", color,
     },
   ];
@@ -124,10 +125,10 @@ function makeAnglesCalcCard(): GeometryCard {
       frontSvg: { shape: "angle-supplementary", dimensions: { A, unknown: "B" }, labelMode: "numeric", unknownDimension: "B" },
       frontSpeechText: `A is ${A} degrees. Find B.`,
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("lhs","A"), dim("op","+"), tok("mid","B"), eq(), tok("sum","180\u00b0")], svgMutation: { drawAngleArc: "A" }, reason: "Supplementary angles sum to 180\u00b0" },
-        { delayMs: 600, equationTokens: [tok("lhs",`${A}\u00b0`), dim("op","+"), tok("mid","B"), eq(), tok("sum","180\u00b0")], reason: `Substitute A = ${A}\u00b0` },
-        { delayMs: 1200, equationTokens: [tok("lhs","B"), eq(), tok("rhs",`180\u00b0 \u2212 ${A}\u00b0`)], svgMutation: { drawAngleArc: "B" }, reason: "Isolate B" },
-        { delayMs: 1800, equationTokens: [tok("lhs","B"), eq(), tok("rhs",`${B}\u00b0`)], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","A"), op("+"), tok("mid","B"), eq(), tok("sum","180°")], reason: "Supplementary angles sum to 180°" },
+        { equationTokens: [tok("lhs",`${A}°`), op("+"), tok("mid","B"), eq(), tok("sum","180°")], reason: `Substitute A = ${A}°` },
+        { equationTokens: [tok("lhs","B"), eq(), tok("rhs1","180°"), op("−"), tok("rhs2",`${A}°`)], reason: "Isolate B" },
+        { equationTokens: [tok("lhs","B"), eq(), tok("rhs",`${B}°`)], reason: "Evaluate" },
       ],
       backSpeechText: `B equals ${B} degrees`, numericAnswer: B, color,
     };
@@ -139,10 +140,10 @@ function makeAnglesCalcCard(): GeometryCard {
       frontSvg: { shape: "angle-complementary", dimensions: { A, unknown: "B" }, labelMode: "numeric", unknownDimension: "B" },
       frontSpeechText: `A is ${A} degrees. Find B.`,
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("lhs","A"), dim("op","+"), tok("mid","B"), eq(), tok("sum","90\u00b0")], svgMutation: { drawAngleArc: "A" }, reason: "Complementary angles sum to 90\u00b0" },
-        { delayMs: 600, equationTokens: [tok("lhs",`${A}\u00b0`), dim("op","+"), tok("mid","B"), eq(), tok("sum","90\u00b0")], reason: `Substitute A = ${A}\u00b0` },
-        { delayMs: 1200, equationTokens: [tok("lhs","B"), eq(), tok("rhs",`90\u00b0 \u2212 ${A}\u00b0`)], svgMutation: { drawAngleArc: "B" }, reason: "Isolate B" },
-        { delayMs: 1800, equationTokens: [tok("lhs","B"), eq(), tok("rhs",`${B}\u00b0`)], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","A"), op("+"), tok("mid","B"), eq(), tok("sum","90°")], reason: "Complementary angles sum to 90°" },
+        { equationTokens: [tok("lhs",`${A}°`), op("+"), tok("mid","B"), eq(), tok("sum","90°")], reason: `Substitute A = ${A}°` },
+        { equationTokens: [tok("lhs","B"), eq(), tok("rhs1","90°"), op("−"), tok("rhs2",`${A}°`)], reason: "Isolate B" },
+        { equationTokens: [tok("lhs","B"), eq(), tok("rhs",`${B}°`)], reason: "Evaluate" },
       ],
       backSpeechText: `B equals ${B} degrees`, numericAnswer: B, color,
     };
@@ -153,8 +154,8 @@ function makeAnglesCalcCard(): GeometryCard {
     frontSvg: { shape: "angle-vertically-opposite", dimensions: { A }, labelMode: "numeric", unknownDimension: "C" },
     frontSpeechText: `A is ${A} degrees. Find vertically opposite angle C.`,
     backSteps: [
-      { delayMs: 0, formulaLine: "Vertically opposite angles are equal", reason: "Theorem" },
-      { delayMs: 700, equationTokens: [tok("lhs","C"), eq(), tok("mid","A"), eq("eq2"), tok("rhs",`${A}°`)], reason: "Vertically opposite angles are equal" },
+      { formulaLine: "Vertically opposite angles are equal", reason: "Theorem" },
+      { equationTokens: [tok("lhs","C"), eq(), tok("mid","A"), eq("eq2"), tok("rhs",`${A}°`)], reason: "Vertically opposite angles are equal" },
     ],
     backSpeechText: `C equals ${A} degrees`, numericAnswer: A, color,
   };
@@ -173,7 +174,7 @@ function makeTrianglesTermCards(): GeometryCard[] {
       frontSpeechText: "Equilateral triangles are…?",
       backDefinition: "3 equal sides, 3 equal angles (60° each)",
       backSvgExamples: [{ shape: "triangle", dimensions: { style: "equilateral", labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "All sides equal, all angles = 60°" }],
+      backSteps: [{ formulaLine: "All sides equal, all angles = 60°" }],
       backSpeechText: "Equilateral triangles have 3 equal sides and 3 equal angles of 60 degrees each", color,
     },
     {
@@ -182,7 +183,7 @@ function makeTrianglesTermCards(): GeometryCard[] {
       frontSpeechText: "Isosceles triangles are…?",
       backDefinition: "2 equal sides, 2 equal base angles",
       backSvgExamples: [{ shape: "triangle", dimensions: { style: "isosceles", labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "2 equal sides → 2 equal base angles" }],
+      backSteps: [{ formulaLine: "2 equal sides → 2 equal base angles" }],
       backSpeechText: "Isosceles triangles have 2 equal sides and 2 equal base angles", color,
     },
     {
@@ -191,7 +192,7 @@ function makeTrianglesTermCards(): GeometryCard[] {
       frontSpeechText: "Scalene triangles are…?",
       backDefinition: "No equal sides, no equal angles",
       backSvgExamples: [{ shape: "triangle", dimensions: { style: "scalene", labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "All sides different, all angles different" }],
+      backSteps: [{ formulaLine: "All sides different, all angles different" }],
       backSpeechText: "Scalene triangles have no equal sides and no equal angles", color,
     },
     {
@@ -200,7 +201,7 @@ function makeTrianglesTermCards(): GeometryCard[] {
       frontSpeechText: "Right triangles are…?",
       backDefinition: "One angle is exactly 90°",
       backSvgExamples: [{ shape: "right-triangle", dimensions: { a: 3, b: 4, c: 5, labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "One angle = 90° (right angle)" }],
+      backSteps: [{ formulaLine: "One angle = 90° (right angle)" }],
       backSpeechText: "Right triangles have one angle of exactly 90 degrees", color,
     },
     {
@@ -209,7 +210,7 @@ function makeTrianglesTermCards(): GeometryCard[] {
       frontSpeechText: "The triangle angle sum is…?",
       backDefinition: "A + B + C = 180°",
       backSvgExamples: [{ shape: "triangle", dimensions: { angA: 60, angB: 70, unknown: "C", style: "scalene", labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "A + B + C = 180°" }, { delayMs: 600, formulaLine: "e.g. 60° + 70° + 50° = 180°" }],
+      backSteps: [{ formulaLine: "A + B + C = 180°" }, { formulaLine: "e.g. 60° + 70° + 50° = 180°" }],
       backSpeechText: "The triangle angle sum is A plus B plus C equals 180 degrees", color,
     },
     {
@@ -219,9 +220,9 @@ function makeTrianglesTermCards(): GeometryCard[] {
       backDefinition: "a² + b² = c²",
       backSvgExamples: [{ shape: "right-triangle", dimensions: { a: "a", b: "b", c: "c", labelMode: "variable" }, labelMode: "variable" }],
       backSteps: [
-        { delayMs: 0, formulaLine: "a² + b² = c²" },
-        { delayMs: 700, formulaLine: "c is always the hypotenuse" },
-        { delayMs: 1400, formulaLine: "c = √(a² + b²)" },
+        { formulaLine: "a² + b² = c²" },
+        { formulaLine: "c is always the hypotenuse" },
+        { formulaLine: "c = √(a² + b²)" },
       ],
       backSpeechText: "The Pythagorean theorem states a squared plus b squared equals c squared", color,
     },
@@ -237,8 +238,8 @@ function makeTrianglesFormulaCards(): GeometryCard[] {
       frontSpeechText: "Find the formula for the area of a triangle with base b and height h.",
       backFormula: "A = ½bh",
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("lhs","A"), eq(), tok("rhs","\u00bd \u00d7 base \u00d7 height")], svgMutation: { fillInterior: true }, reason: "Triangle area formula" },
-        { delayMs: 700, equationTokens: [tok("lhs","A"), eq(), tok("rhs","\u00bdbh")], reason: "Simplify" },
+        { equationTokens: [tok("lhs","A"), eq(), tok("rhs","\u00bd \u00d7 base \u00d7 height")], svgMutation: { fillInterior: true }, reason: "Triangle area formula" },
+        { equationTokens: [tok("lhs","A"), eq(), tok("rhs","\u00bdbh")], reason: "Simplify" },
       ],
       backSpeechText: "A equals one half base times height", color,
     },
@@ -248,7 +249,7 @@ function makeTrianglesFormulaCards(): GeometryCard[] {
       frontSpeechText: "Find the formula for the perimeter of a triangle with sides a, b, c.",
       backFormula: "P = a + b + c",
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("lhs","P"), eq(), tok("rhs","a + b + c")], svgMutation: { traceStroke: "perimeter" } },
+        { equationTokens: [tok("lhs","P"), eq(), tok("rhs","a + b + c")], svgMutation: { traceStroke: "perimeter" } },
       ],
       backSpeechText: "P equals a plus b plus c", color,
     },
@@ -258,9 +259,9 @@ function makeTrianglesFormulaCards(): GeometryCard[] {
       frontSpeechText: "Find the hypotenuse c of a right triangle with legs a and b.",
       backFormula: "c = √(a² + b²)",
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("lhs","a\u00b2 + b\u00b2"), eq(), tok("rhs","c\u00b2")] },
-        { delayMs: 700, equationTokens: [tok("lhs","a\u00b2 + b\u00b2"), eq(), tok("rhs","c\u00b2")], svgMutation: { traceStroke: "hypotenuse" } },
-        { delayMs: 1400, equationTokens: [tok("lhs","c"), eq(), tok("rhs","\u221a(a\u00b2 + b\u00b2)")] },
+        { equationTokens: [tok("lhs","a\u00b2 + b\u00b2"), eq(), tok("rhs","c\u00b2")] },
+        { equationTokens: [tok("lhs","a\u00b2 + b\u00b2"), eq(), tok("rhs","c\u00b2")], svgMutation: { traceStroke: "hypotenuse" } },
+        { equationTokens: [tok("lhs","c"), eq(), tok("rhs","\u221a(a\u00b2 + b\u00b2)")] },
       ],
       backSpeechText: "c equals the square root of a squared plus b squared", color,
     },
@@ -280,10 +281,10 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "triangle", dimensions: { angA: A, angB: B, unknown: "C", style: "scalene", labelMode: "numeric" }, labelMode: "numeric" },
       frontSpeechText: `A is ${A} degrees, B is ${B} degrees. Find C.`,
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("A","A"), dim("p1","+"), tok("B","B"), dim("p2","+"), tok("C","C"), eq(), tok("sum","180\u00b0")], reason: "Triangle angle sum theorem" },
-        { delayMs: 600, equationTokens: [tok("A",`${A}\u00b0`), dim("p1","+"), tok("B",`${B}\u00b0`), dim("p2","+"), tok("C","C"), eq(), tok("sum","180\u00b0")], reason: `Substitute A = ${A}\u00b0, B = ${B}\u00b0` },
-        { delayMs: 1200, equationTokens: [tok("lhs","C"), eq(), tok("rhs",`180\u00b0 \u2212 ${A}\u00b0 \u2212 ${B}\u00b0`)], reason: "Isolate C" },
-        { delayMs: 1800, equationTokens: [tok("lhs","C"), eq(), tok("rhs",`${C}\u00b0`)], reason: "Evaluate" },
+        { equationTokens: [tok("A","A"), dim("p1","+"), tok("B","B"), dim("p2","+"), tok("C","C"), eq(), tok("sum","180\u00b0")], reason: "Triangle angle sum theorem" },
+        { equationTokens: [tok("A",`${A}\u00b0`), dim("p1","+"), tok("B",`${B}\u00b0`), dim("p2","+"), tok("C","C"), eq(), tok("sum","180\u00b0")], reason: `Substitute A = ${A}\u00b0, B = ${B}\u00b0` },
+        { equationTokens: [tok("lhs","C"), eq(), tok("rhs",`180\u00b0 \u2212 ${A}\u00b0 \u2212 ${B}\u00b0`)], reason: "Isolate C" },
+        { equationTokens: [tok("lhs","C"), eq(), tok("rhs",`${C}\u00b0`)], reason: "Evaluate" },
       ],
       backSpeechText: `C equals ${C} degrees`, numericAnswer: C, color,
     };
@@ -296,9 +297,9 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "triangle", dimensions: { b, h, style: "scalene", labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "A" },
       frontSpeechText: `Base is ${b}, height is ${h}. Find the area.`,
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("lhs","A"), eq(), tok("rhs","\u00bd \u00d7 b \u00d7 h")], reason: "Triangle area formula" },
-        { delayMs: 600, equationTokens: [tok("lhs","A"), eq(), tok("rhs",`\u00bd \u00d7 ${b} \u00d7 ${h}`)], svgMutation: { fillInterior: true }, reason: `Substitute b = ${b}, h = ${h}` },
-        { delayMs: 1200, equationTokens: [tok("lhs","A"), eq(), tok("rhs",`${A}${u}\u00b2`)], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","A"), eq(), tok("rhs","\u00bd \u00d7 b \u00d7 h")], reason: "Triangle area formula" },
+        { equationTokens: [tok("lhs","A"), eq(), tok("rhs",`\u00bd \u00d7 ${b} \u00d7 ${h}`)], svgMutation: { fillInterior: true }, reason: `Substitute b = ${b}, h = ${h}` },
+        { equationTokens: [tok("lhs","A"), eq(), tok("rhs",`${A}${u}\u00b2`)], reason: "Evaluate" },
       ],
       backSpeechText: `A equals ${A} square ${settings.measurementUnit === "none" ? "units" : settings.measurementUnit}`, numericAnswer: A, color,
     };
@@ -311,9 +312,9 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "triangle", dimensions: { a, b, c, style: "scalene", labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "P" },
       frontSpeechText: `Sides are ${a}, ${b}, and ${c}. Find the perimeter.`,
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("lhs","P"), eq(), tok("rhs","a + b + c")], svgMutation: { traceStroke: "perimeter" }, reason: "Perimeter = sum of all sides" },
-        { delayMs: 700, equationTokens: [tok("lhs","P"), eq(), tok("rhs",`${a} + ${b} + ${c}`)], reason: "Substitute the side lengths" },
-        { delayMs: 1400, equationTokens: [tok("lhs","P"), eq(), tok("rhs",`${P}${u}`)], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","P"), eq(), tok("rhs","a + b + c")], svgMutation: { traceStroke: "perimeter" }, reason: "Perimeter = sum of all sides" },
+        { equationTokens: [tok("lhs","P"), eq(), tok("rhs",`${a} + ${b} + ${c}`)], reason: "Substitute the side lengths" },
+        { equationTokens: [tok("lhs","P"), eq(), tok("rhs",`${P}${u}`)], reason: "Evaluate" },
       ],
       backSpeechText: `P equals ${P}`, numericAnswer: P, color,
     };
@@ -328,10 +329,10 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "right-triangle", dimensions: { a, b, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "c" },
       frontSpeechText: `a is ${a}, b is ${b}. Find c.`,
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("lhs","a\u00b2 + b\u00b2"), eq(), tok("rhs","c\u00b2")], reason: "Pythagorean theorem" },
-        { delayMs: 600, equationTokens: [tok("lhs",`${a}\u00b2 + ${b}\u00b2`), eq(), tok("rhs","c\u00b2")], reason: `Substitute a = ${a}, b = ${b}` },
-        { delayMs: 1200, equationTokens: [tok("lhs",`${a * a} + ${b * b}`), eq(), tok("rhs",`${c2}`)], svgMutation: { traceStroke: "hypotenuse" }, reason: "Square both values" },
-        { delayMs: 1800, equationTokens: [tok("lhs","c"), eq(), tok("rhs",`${cDisp}${u}`)], reason: "Take the square root" },
+        { equationTokens: [tok("lhs","a\u00b2 + b\u00b2"), eq(), tok("rhs","c\u00b2")], reason: "Pythagorean theorem" },
+        { equationTokens: [tok("lhs",`${a}\u00b2 + ${b}\u00b2`), eq(), tok("rhs","c\u00b2")], reason: `Substitute a = ${a}, b = ${b}` },
+        { equationTokens: [tok("lhs",`${a * a} + ${b * b}`), eq(), tok("rhs",`${c2}`)], svgMutation: { traceStroke: "hypotenuse" }, reason: "Square both values" },
+        { equationTokens: [tok("lhs","c"), eq(), tok("rhs",`${cDisp}${u}`)], reason: "Take the square root" },
       ],
       backSpeechText: `c equals ${cDisp}`, numericAnswer: Number.isInteger(c) ? c : 0, color,
     };
@@ -347,10 +348,10 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
     frontSvg: { shape: "right-triangle", dimensions: { b, c, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "a" },
     frontSpeechText: `b is ${b}, c is ${c}. Find a.`,
     backSteps: [
-      { delayMs: 0, equationTokens: [tok("lhs","a² + b²"), eq(), tok("rhs","c²")], reason: "Pythagorean theorem" },
-      { delayMs: 600, equationTokens: [tok("lhs",`a² + ${b}²`), eq(), tok("rhs",`${c}²`)], reason: "Substitute known values" },
-      { delayMs: 1200, equationTokens: [tok("lhs","a²"), eq(), tok("rhs",`${c * c} − ${b * b} = ${a2}`)], reason: "Isolate a²" },
-      { delayMs: 1800, equationTokens: [tok("lhs","a"), eq(), tok("rhs",`${aDisp}${u}`)], svgMutation: { traceStroke: "hypotenuse" }, reason: "Take the square root" },
+      { equationTokens: [tok("lhs","a² + b²"), eq(), tok("rhs","c²")], reason: "Pythagorean theorem" },
+      { equationTokens: [tok("lhs",`a² + ${b}²`), eq(), tok("rhs",`${c}²`)], reason: "Substitute known values" },
+      { equationTokens: [tok("lhs","a²"), eq(), tok("rhs",`${c * c} − ${b * b} = ${a2}`)], reason: "Isolate a²" },
+      { equationTokens: [tok("lhs","a"), eq(), tok("rhs",`${aDisp}${u}`)], svgMutation: { traceStroke: "hypotenuse" }, reason: "Take the square root" },
     ],
     backSpeechText: `a equals ${aDisp}`, numericAnswer: Number.isInteger(a) ? a : 0, color,
   };
@@ -369,7 +370,7 @@ function makeQuadTermCards(): GeometryCard[] {
       frontSpeechText: "Parallelograms are…?",
       backDefinition: "Opposite sides equal and parallel, opposite angles equal",
       backSvgExamples: [{ shape: "parallelogram", dimensions: { b: "b", h: "h", labelMode: "variable" }, labelMode: "variable" }],
-      backSteps: [{ delayMs: 0, formulaLine: "Opposite sides ∥ and equal" }, { delayMs: 600, formulaLine: "Opposite angles equal" }],
+      backSteps: [{ formulaLine: "Opposite sides ∥ and equal" }, { formulaLine: "Opposite angles equal" }],
       backSpeechText: "Parallelograms have opposite sides equal and parallel, and opposite angles equal", color,
     },
     {
@@ -378,7 +379,7 @@ function makeQuadTermCards(): GeometryCard[] {
       frontSpeechText: "Rhombuses are…?",
       backDefinition: "4 equal sides, opposite angles equal, NOT necessarily 90°",
       backSvgExamples: [{ shape: "parallelogram", dimensions: { b: 6, h: 4, labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "All 4 sides equal" }, { delayMs: 600, formulaLine: "Angles NOT necessarily 90°" }],
+      backSteps: [{ formulaLine: "All 4 sides equal" }, { formulaLine: "Angles NOT necessarily 90°" }],
       backSpeechText: "Rhombuses have 4 equal sides and opposite angles equal, but are not necessarily right angles", color,
     },
     {
@@ -387,7 +388,7 @@ function makeQuadTermCards(): GeometryCard[] {
       frontSpeechText: "Trapezoids are…?",
       backDefinition: "Exactly one pair of parallel sides",
       backSvgExamples: [{ shape: "trapezoid", dimensions: { a: 5, b: 9, h: 4, labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "Exactly 1 pair of parallel sides" }],
+      backSteps: [{ formulaLine: "Exactly 1 pair of parallel sides" }],
       backSpeechText: "Trapezoids have exactly one pair of parallel sides", color,
     },
   ];
@@ -401,7 +402,7 @@ function makeQuadFormulaCards(): GeometryCard[] {
       frontSvg: { shape: "rectangle", dimensions: { labelMode: "variable" }, labelMode: "variable", unknownDimension: "A" },
       frontSpeechText: "Find the area of a rectangle with length l and width w.",
       backFormula: "A = l × w",
-      backSteps: [{ delayMs: 0, formulaLine: "A = l × w", svgMutation: { fillInterior: true } }],
+      backSteps: [{ formulaLine: "A = l × w", svgMutation: { fillInterior: true } }],
       backSpeechText: "A equals l times w", color,
     },
     {
@@ -409,7 +410,7 @@ function makeQuadFormulaCards(): GeometryCard[] {
       frontSvg: { shape: "rectangle", dimensions: { labelMode: "variable" }, labelMode: "variable", unknownDimension: "P" },
       frontSpeechText: "Find the perimeter of a rectangle with length l and width w.",
       backFormula: "P = 2(l + w)",
-      backSteps: [{ delayMs: 0, formulaLine: "P = 2(l + w)", svgMutation: { traceStroke: "perimeter" } }],
+      backSteps: [{ formulaLine: "P = 2(l + w)", svgMutation: { traceStroke: "perimeter" } }],
       backSpeechText: "P equals 2 times l plus w", color,
     },
     {
@@ -417,7 +418,7 @@ function makeQuadFormulaCards(): GeometryCard[] {
       frontSvg: { shape: "parallelogram", dimensions: { b: "b", h: "h", labelMode: "variable" }, labelMode: "variable", unknownDimension: "A" },
       frontSpeechText: "Find the area of a parallelogram with base b and height h.",
       backFormula: "A = b × h",
-      backSteps: [{ delayMs: 0, formulaLine: "A = b × h", svgMutation: { fillInterior: true } }],
+      backSteps: [{ formulaLine: "A = b × h", svgMutation: { fillInterior: true } }],
       backSpeechText: "A equals b times h", color,
     },
     {
@@ -425,7 +426,7 @@ function makeQuadFormulaCards(): GeometryCard[] {
       frontSvg: { shape: "trapezoid", dimensions: { a: "a", b: "b", h: "h", labelMode: "variable" }, labelMode: "variable", unknownDimension: "A" },
       frontSpeechText: "Find the area of a trapezoid with parallel sides a and b, and height h.",
       backFormula: "A = ½(a + b)h",
-      backSteps: [{ delayMs: 0, formulaLine: "A = ½(a + b)h", svgMutation: { fillInterior: true } }],
+      backSteps: [{ formulaLine: "A = ½(a + b)h", svgMutation: { fillInterior: true } }],
       backSpeechText: "A equals one half a plus b times h", color,
     },
   ];
@@ -447,9 +448,9 @@ function makeQuadCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "rectangle", dimensions: { l, w, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "A" },
       frontSpeechText: `Length is ${l}, width is ${w}. Find the area.`,
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("lhs","A"), eq(), tok("rhs","l \u00d7 w")], reason: "Rectangle area formula" },
-        { delayMs: 600, equationTokens: [tok("lhs","A"), eq(), tok("rhs",`${l} \u00d7 ${w}`)], svgMutation: { fillInterior: true }, reason: `Substitute l = ${l}, w = ${w}` },
-        { delayMs: 1200, equationTokens: [tok("lhs","A"), eq(), tok("rhs",`${A}${u}\u00b2`)], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","A"), eq(), tok("rhs","l \u00d7 w")], reason: "Rectangle area formula" },
+        { equationTokens: [tok("lhs","A"), eq(), tok("rhs",`${l} \u00d7 ${w}`)], svgMutation: { fillInterior: true }, reason: `Substitute l = ${l}, w = ${w}` },
+        { equationTokens: [tok("lhs","A"), eq(), tok("rhs",`${A}${u}\u00b2`)], reason: "Evaluate" },
       ],
       backSpeechText: `A equals ${A}`, numericAnswer: A, color,
     };
@@ -462,9 +463,9 @@ function makeQuadCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "rectangle", dimensions: { l, w, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "P" },
       frontSpeechText: `Length is ${l}, width is ${w}. Find the perimeter.`,
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("lhs","P"), eq(), tok("rhs","2(l + w)")], svgMutation: { traceStroke: "perimeter" }, reason: "Rectangle perimeter formula" },
-        { delayMs: 700, equationTokens: [tok("lhs","P"), eq(), tok("rhs",`2(${l} + ${w})`)], reason: `Substitute l = ${l}, w = ${w}` },
-        { delayMs: 1400, equationTokens: [tok("lhs","P"), eq(), tok("rhs",`${P}${u}`)], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","P"), eq(), tok("rhs","2(l + w)")], svgMutation: { traceStroke: "perimeter" }, reason: "Rectangle perimeter formula" },
+        { equationTokens: [tok("lhs","P"), eq(), tok("rhs",`2(${l} + ${w})`)], reason: `Substitute l = ${l}, w = ${w}` },
+        { equationTokens: [tok("lhs","P"), eq(), tok("rhs",`${P}${u}`)], reason: "Evaluate" },
       ],
       backSpeechText: `P equals ${P}`, numericAnswer: P, color,
     };
@@ -477,9 +478,9 @@ function makeQuadCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "parallelogram", dimensions: { b, h, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "A" },
       frontSpeechText: `Base is ${b}, height is ${h}. Find the area.`,
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("lhs","A"), eq(), tok("rhs","b \u00d7 h")], reason: "Parallelogram area formula" },
-        { delayMs: 600, equationTokens: [tok("lhs","A"), eq(), tok("rhs",`${b} \u00d7 ${h}`)], svgMutation: { fillInterior: true }, reason: `Substitute b = ${b}, h = ${h}` },
-        { delayMs: 1200, equationTokens: [tok("lhs","A"), eq(), tok("rhs",`${A}${u}\u00b2`)], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","A"), eq(), tok("rhs","b \u00d7 h")], reason: "Parallelogram area formula" },
+        { equationTokens: [tok("lhs","A"), eq(), tok("rhs",`${b} \u00d7 ${h}`)], svgMutation: { fillInterior: true }, reason: `Substitute b = ${b}, h = ${h}` },
+        { equationTokens: [tok("lhs","A"), eq(), tok("rhs",`${A}${u}\u00b2`)], reason: "Evaluate" },
       ],
       backSpeechText: `A equals ${A}`, numericAnswer: A, color,
     };
@@ -492,9 +493,9 @@ function makeQuadCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "trapezoid", dimensions: { a, b, h, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "A" },
       frontSpeechText: `a is ${a}, b is ${b}, h is ${h}. Find the area.`,
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("lhs","A"), eq(), tok("rhs","\u00bd(a + b)h")], reason: "Trapezoid area formula" },
-        { delayMs: 600, equationTokens: [tok("lhs","A"), eq(), tok("rhs",`\u00bd(${a} + ${b}) \u00d7 ${h}`)], svgMutation: { fillInterior: true }, reason: `Substitute a = ${a}, b = ${b}, h = ${h}` },
-        { delayMs: 1200, equationTokens: [tok("lhs","A"), eq(), tok("rhs",`${A}${u}\u00b2`)], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","A"), eq(), tok("rhs","\u00bd(a + b)h")], reason: "Trapezoid area formula" },
+        { equationTokens: [tok("lhs","A"), eq(), tok("rhs",`\u00bd(${a} + ${b}) \u00d7 ${h}`)], svgMutation: { fillInterior: true }, reason: `Substitute a = ${a}, b = ${b}, h = ${h}` },
+        { equationTokens: [tok("lhs","A"), eq(), tok("rhs",`${A}${u}\u00b2`)], reason: "Evaluate" },
       ],
       backSpeechText: `A equals ${A}`, numericAnswer: A, color,
     };
@@ -508,10 +509,10 @@ function makeQuadCalcCard(settings: GeneratorSettings): GeometryCard {
     frontSvg: { shape: "rectangle", dimensions: { A, w, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "l" },
     frontSpeechText: `Area is ${A}, width is ${w}. Find the length.`,
     backSteps: [
-      { delayMs: 0, equationTokens: [tok("lhs","A"), eq(), tok("rhs","l \u00d7 w")], reason: "Rectangle area formula" },
-      { delayMs: 600, equationTokens: [tok("lhs",`${A}`), eq(), tok("rhs",`l \u00d7 ${w}`)], reason: `Substitute A = ${A}, w = ${w}` },
-      { delayMs: 1200, equationTokens: [tok("lhs","l"), eq(), tok("rhs",`${A} \u00f7 ${w}`)], reason: "Divide both sides by w" },
-      { delayMs: 1800, equationTokens: [tok("lhs","l"), eq(), tok("rhs",`${l}${u}`)], reason: "Evaluate" },
+      { equationTokens: [tok("lhs","A"), eq(), tok("rhs","l \u00d7 w")], reason: "Rectangle area formula" },
+      { equationTokens: [tok("lhs",`${A}`), eq(), tok("rhs",`l \u00d7 ${w}`)], reason: `Substitute A = ${A}, w = ${w}` },
+      { equationTokens: [tok("lhs","l"), eq(), tok("rhs",`${A} \u00f7 ${w}`)], reason: "Divide both sides by w" },
+      { equationTokens: [tok("lhs","l"), eq(), tok("rhs",`${l}${u}`)], reason: "Evaluate" },
     ],
     backSpeechText: `l equals ${l}`, numericAnswer: l, color,
   };
@@ -530,7 +531,7 @@ function makeCirclesTermCards(): GeometryCard[] {
       frontSpeechText: "Circumference is…?",
       backDefinition: "The distance around a circle",
       backSvgExamples: [{ shape: "circle", dimensions: { r: 5, labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "C = distance around the circle", svgMutation: { traceStroke: "circumference" } }],
+      backSteps: [{ formulaLine: "C = distance around the circle", svgMutation: { traceStroke: "circumference" } }],
       backSpeechText: "Circumference is the distance around a circle", color,
     },
     {
@@ -539,7 +540,7 @@ function makeCirclesTermCards(): GeometryCard[] {
       frontSpeechText: "Pi is…?",
       backDefinition: "The ratio of circumference to diameter ≈ 3.14159…",
       backSvgExamples: [{ shape: "circle", dimensions: { r: 5, showDiameter: 1, labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "π = C ÷ d" }, { delayMs: 700, formulaLine: "π ≈ 3.14159…" }],
+      backSteps: [{ formulaLine: "π = C ÷ d" }, { formulaLine: "π ≈ 3.14159…" }],
       backSpeechText: "Pi is the ratio of circumference to diameter", color,
     },
     {
@@ -548,7 +549,7 @@ function makeCirclesTermCards(): GeometryCard[] {
       frontSpeechText: "The radius is…?",
       backDefinition: "The distance from the centre to any point on the edge",
       backSvgExamples: [{ shape: "circle", dimensions: { r: 5, labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "radius = centre to edge" }],
+      backSteps: [{ formulaLine: "radius = centre to edge" }],
       backSpeechText: "The radius is the distance from the center to any point on the edge", color,
     },
     {
@@ -557,7 +558,7 @@ function makeCirclesTermCards(): GeometryCard[] {
       frontSpeechText: "The diameter is…?",
       backDefinition: "Twice the radius: d = 2r",
       backSvgExamples: [{ shape: "circle", dimensions: { r: 5, showDiameter: 1, labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "d = 2r" }, { delayMs: 600, formulaLine: "diameter = 2 × radius" }],
+      backSteps: [{ formulaLine: "d = 2r" }, { formulaLine: "diameter = 2 × radius" }],
       backSpeechText: "The diameter is twice the radius", color,
     },
   ];
@@ -572,8 +573,8 @@ function makeCirclesFormulaCards(): GeometryCard[] {
       frontSpeechText: "Find the formula for the circumference of a circle.",
       backFormula: "C = 2πr",
       backSteps: [
-        { delayMs: 0, formulaLine: "C = 2π × radius", svgMutation: { traceStroke: "circumference" } },
-        { delayMs: 700, formulaLine: "C = 2πr" },
+        { formulaLine: "C = 2π × radius", svgMutation: { traceStroke: "circumference" } },
+        { formulaLine: "C = 2πr" },
       ],
       backSpeechText: "C equals 2 pi r", color,
     },
@@ -583,8 +584,8 @@ function makeCirclesFormulaCards(): GeometryCard[] {
       frontSpeechText: "Find the formula for the area of a circle.",
       backFormula: "A = πr²",
       backSteps: [
-        { delayMs: 0, formulaLine: "A = π × r²", svgMutation: { fillInterior: true } },
-        { delayMs: 700, formulaLine: "A = πr²" },
+        { formulaLine: "A = π × r²", svgMutation: { fillInterior: true } },
+        { formulaLine: "A = πr²" },
       ],
       backSpeechText: "A equals pi r squared", color,
     },
@@ -593,7 +594,7 @@ function makeCirclesFormulaCards(): GeometryCard[] {
       frontSvg: { shape: "circle", dimensions: { showDiameter: 1, labelMode: "variable" }, labelMode: "variable" },
       frontSpeechText: "What is the relationship between diameter and radius?",
       backFormula: "d = 2r",
-      backSteps: [{ delayMs: 0, formulaLine: "d = 2r" }, { delayMs: 600, formulaLine: "r = d ÷ 2" }],
+      backSteps: [{ formulaLine: "d = 2r" }, { formulaLine: "r = d ÷ 2" }],
       backSpeechText: "d equals 2 r", color,
     },
   ];
@@ -610,9 +611,9 @@ function makeCirclesCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "circle", dimensions: { r, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "C" },
       frontSpeechText: `Radius is ${r}. Find the circumference.`,
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("lhs","C"), eq(), tok("rhs","2\u03c0r")], svgMutation: { traceStroke: "circumference" }, reason: "Circumference (C) formula" },
-        { delayMs: 700, equationTokens: [tok("lhs","C"), eq(), tok("rhs",`2\u03c0 \u00d7 ${r}`)], reason: `Substitute r = ${r}` },
-        { delayMs: 1400, equationTokens: [tok("lhs","C"), eq(), tok("rhs",`${2 * r}\u03c0`)], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","C"), eq(), tok("rhs","2\u03c0r")], svgMutation: { traceStroke: "circumference" }, reason: "Circumference (C) formula" },
+        { equationTokens: [tok("lhs","C"), eq(), tok("rhs",`2\u03c0 \u00d7 ${r}`)], reason: `Substitute r = ${r}` },
+        { equationTokens: [tok("lhs","C"), eq(), tok("rhs",`${2 * r}\u03c0`)], reason: "Evaluate" },
       ],
       backSpeechText: `C equals ${2 * r} pi`, numericAnswer: 2 * r, color,
     };
@@ -624,9 +625,9 @@ function makeCirclesCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "circle", dimensions: { r, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "A" },
       frontSpeechText: `Radius is ${r}. Find the area.`,
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("lhs","A"), eq(), tok("rhs","\u03c0r\u00b2")], reason: "Circle area formula" },
-        { delayMs: 700, equationTokens: [tok("lhs","A"), eq(), tok("rhs",`\u03c0 \u00d7 ${r}\u00b2`)], svgMutation: { fillInterior: true }, reason: `Substitute r = ${r}` },
-        { delayMs: 1400, equationTokens: [tok("lhs","A"), eq(), tok("rhs",`${r * r}\u03c0`)], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","A"), eq(), tok("rhs","\u03c0r\u00b2")], reason: "Circle area formula" },
+        { equationTokens: [tok("lhs","A"), eq(), tok("rhs",`\u03c0 \u00d7 ${r}\u00b2`)], svgMutation: { fillInterior: true }, reason: `Substitute r = ${r}` },
+        { equationTokens: [tok("lhs","A"), eq(), tok("rhs",`${r * r}\u03c0`)], reason: "Evaluate" },
       ],
       backSpeechText: `A equals ${r * r} pi`, numericAnswer: r * r, color,
     };
@@ -639,10 +640,10 @@ function makeCirclesCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "circle", dimensions: { C: `${cCoeff}π`, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "r" },
       frontSpeechText: `C equals ${cCoeff} pi. Find the radius.`,
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("lhs","C"), eq(), tok("rhs","2\u03c0r")], reason: "Circumference (C) formula" },
-        { delayMs: 600, equationTokens: [tok("lhs",`${cCoeff}\u03c0`), eq(), tok("rhs","2\u03c0r")], reason: `Substitute C = ${cCoeff}\u03c0` },
-        { delayMs: 1200, equationTokens: [tok("lhs","r"), eq(), tok("rhs",`${cCoeff}\u03c0 \u00f7 2\u03c0`)], reason: "Divide both sides by 2\u03c0" },
-        { delayMs: 1800, equationTokens: [tok("lhs","r"), eq(), tok("rhs",`${r}`)], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","C"), eq(), tok("rhs","2\u03c0r")], reason: "Circumference (C) formula" },
+        { equationTokens: [tok("lhs",`${cCoeff}\u03c0`), eq(), tok("rhs","2\u03c0r")], reason: `Substitute C = ${cCoeff}\u03c0` },
+        { equationTokens: [tok("lhs","r"), eq(), tok("rhs",`${cCoeff}\u03c0 \u00f7 2\u03c0`)], reason: "Divide both sides by 2\u03c0" },
+        { equationTokens: [tok("lhs","r"), eq(), tok("rhs",`${r}`)], reason: "Evaluate" },
       ],
       backSpeechText: `r equals ${r}`, numericAnswer: r, color,
     };
@@ -655,10 +656,10 @@ function makeCirclesCalcCard(settings: GeneratorSettings): GeometryCard {
     frontSvg: { shape: "circle", dimensions: { A: `${rSq}π`, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "r" },
     frontSpeechText: `A equals ${rSq} pi. Find the radius.`,
     backSteps: [
-      { delayMs: 0, equationTokens: [tok("lhs","A"), eq(), tok("rhs","\u03c0r\u00b2")], reason: "Circle area formula" },
-      { delayMs: 600, equationTokens: [tok("lhs",`${rSq}\u03c0`), eq(), tok("rhs","\u03c0r\u00b2")], reason: `Substitute A = ${rSq}\u03c0` },
-      { delayMs: 1200, equationTokens: [tok("lhs","r\u00b2"), eq(), tok("rhs",`${rSq}`)], reason: "Divide both sides by \u03c0" },
-      { delayMs: 1800, equationTokens: [tok("lhs","r"), eq(), tok("rhs",`\u221a${rSq} = ${r}`)], reason: "Take the square root" },
+      { equationTokens: [tok("lhs","A"), eq(), tok("rhs","\u03c0r\u00b2")], reason: "Circle area formula" },
+      { equationTokens: [tok("lhs",`${rSq}\u03c0`), eq(), tok("rhs","\u03c0r\u00b2")], reason: `Substitute A = ${rSq}\u03c0` },
+      { equationTokens: [tok("lhs","r\u00b2"), eq(), tok("rhs",`${rSq}`)], reason: "Divide both sides by \u03c0" },
+      { equationTokens: [tok("lhs","r"), eq(), tok("rhs",`\u221a${rSq} = ${r}`)], reason: "Take the square root" },
     ],
     backSpeechText: `r equals ${r}`, numericAnswer: r, color,
   };
@@ -677,7 +678,7 @@ function makePolygonsTermCards(): GeometryCard[] {
       frontSpeechText: "Regular polygons are…?",
       backDefinition: "All sides equal, all interior angles equal",
       backSvgExamples: [{ shape: "polygon", dimensions: { n: 5, labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "Equal sides + equal angles" }],
+      backSteps: [{ formulaLine: "Equal sides + equal angles" }],
       backSpeechText: "Regular polygons have all sides equal and all interior angles equal", color,
     },
     {
@@ -686,7 +687,7 @@ function makePolygonsTermCards(): GeometryCard[] {
       frontSpeechText: "Exterior angles of any convex polygon are…?",
       backDefinition: "Always sum to 360°",
       backSvgExamples: [{ shape: "polygon", dimensions: { n: 6, labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "Sum of exterior angles = 360°" }, { delayMs: 700, formulaLine: "Always, for any convex polygon" }],
+      backSteps: [{ formulaLine: "Sum of exterior angles = 360°" }, { formulaLine: "Always, for any convex polygon" }],
       backSpeechText: "Exterior angles of any convex polygon always sum to 360 degrees", color,
     },
   ];
@@ -700,7 +701,7 @@ function makePolygonsFormulaCards(): GeometryCard[] {
       frontSvg: { shape: "polygon", dimensions: { n: 5, s: "s", labelMode: "variable" }, labelMode: "variable", unknownDimension: "P" },
       frontSpeechText: "Find the perimeter of a regular polygon with n sides of length s.",
       backFormula: "P = n × s",
-      backSteps: [{ delayMs: 0, formulaLine: "P = n × s", svgMutation: { traceStroke: "perimeter" } }],
+      backSteps: [{ formulaLine: "P = n × s", svgMutation: { traceStroke: "perimeter" } }],
       backSpeechText: "P equals n times s", color,
     },
     {
@@ -709,8 +710,8 @@ function makePolygonsFormulaCards(): GeometryCard[] {
       frontSpeechText: "Find the interior angle sum of a regular polygon with n sides.",
       backFormula: "Sum = (n − 2) × 180°",
       backSteps: [
-        { delayMs: 0, formulaLine: "Interior angle sum = (n − 2) × 180°" },
-        { delayMs: 700, formulaLine: "Each triangle in the partition = 180°" },
+        { formulaLine: "Interior angle sum = (n − 2) × 180°" },
+        { formulaLine: "Each triangle in the partition = 180°" },
       ],
       backSpeechText: "Interior angle sum equals n minus 2 times 180 degrees", color,
     },
@@ -720,9 +721,9 @@ function makePolygonsFormulaCards(): GeometryCard[] {
       frontSpeechText: "Find each interior angle of a regular polygon with n sides.",
       backFormula: "Each = (n − 2) × 180° ÷ n",
       backSteps: [
-        { delayMs: 0, formulaLine: "Sum = (n − 2) × 180°" },
-        { delayMs: 700, formulaLine: "Each = Sum ÷ n" },
-        { delayMs: 1400, formulaLine: "Each = (n − 2) × 180° ÷ n" },
+        { formulaLine: "Sum = (n − 2) × 180°" },
+        { formulaLine: "Each = Sum ÷ n" },
+        { formulaLine: "Each = (n − 2) × 180° ÷ n" },
       ],
       backSpeechText: "Each interior angle equals n minus 2 times 180 degrees divided by n", color,
     },
@@ -741,9 +742,9 @@ function makePolygonsCalcCard(): GeometryCard {
       frontSvg: { shape: "polygon", dimensions: { n, s, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "P" },
       frontSpeechText: `Regular polygon with ${n} sides of length ${s}. Find the perimeter.`,
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("lhs","P"), eq(), tok("rhs","n \u00d7 s")], svgMutation: { traceStroke: "perimeter" }, reason: "Regular polygon perimeter" },
-        { delayMs: 700, equationTokens: [tok("lhs","P"), eq(), tok("rhs",`${n} \u00d7 ${s}`)], reason: `Substitute n = ${n}, s = ${s}` },
-        { delayMs: 1400, equationTokens: [tok("lhs","P"), eq(), tok("rhs",`${P}`)], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","P"), eq(), tok("rhs","n \u00d7 s")], svgMutation: { traceStroke: "perimeter" }, reason: "Regular polygon perimeter" },
+        { equationTokens: [tok("lhs","P"), eq(), tok("rhs",`${n} \u00d7 ${s}`)], reason: `Substitute n = ${n}, s = ${s}` },
+        { equationTokens: [tok("lhs","P"), eq(), tok("rhs",`${P}`)], reason: "Evaluate" },
       ],
       backSpeechText: `P equals ${P}`, numericAnswer: P, color,
     };
@@ -756,10 +757,10 @@ function makePolygonsCalcCard(): GeometryCard {
       frontSvg: { shape: "polygon", dimensions: { n, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "Sum" },
       frontSpeechText: `Regular polygon with ${n} sides. Find the interior angle sum.`,
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("lhs","Sum"), eq(), tok("rhs","(n \u2212 2) \u00d7 180\u00b0")], reason: "Interior angle sum formula" },
-        { delayMs: 700, equationTokens: [tok("lhs","Sum"), eq(), tok("rhs",`(${n} \u2212 2) \u00d7 180\u00b0`)], reason: `Substitute n = ${n}` },
-        { delayMs: 1400, equationTokens: [tok("lhs","Sum"), eq(), tok("rhs",`${n - 2} \u00d7 180\u00b0`)], reason: "Simplify bracket" },
-        { delayMs: 2100, equationTokens: [tok("lhs","Sum"), eq(), tok("rhs",`${sum}\u00b0`)], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","Sum"), eq(), tok("rhs","(n \u2212 2) \u00d7 180\u00b0")], reason: "Interior angle sum formula" },
+        { equationTokens: [tok("lhs","Sum"), eq(), tok("rhs",`(${n} \u2212 2) \u00d7 180\u00b0`)], reason: `Substitute n = ${n}` },
+        { equationTokens: [tok("lhs","Sum"), eq(), tok("rhs",`${n - 2} \u00d7 180\u00b0`)], reason: "Simplify bracket" },
+        { equationTokens: [tok("lhs","Sum"), eq(), tok("rhs",`${sum}\u00b0`)], reason: "Evaluate" },
       ],
       backSpeechText: `Interior angle sum equals ${sum} degrees`, numericAnswer: sum, color,
     };
@@ -773,10 +774,10 @@ function makePolygonsCalcCard(): GeometryCard {
     frontSvg: { shape: "polygon", dimensions: { n, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "Each" },
     frontSpeechText: `Regular polygon with ${n} sides. Find each interior angle.`,
     backSteps: [
-      { delayMs: 0, equationTokens: [tok("lhs","Sum"), eq(), tok("rhs",`(n \u2212 2) \u00d7 180\u00b0`)], reason: "Interior angle sum formula" },
-      { delayMs: 600, equationTokens: [tok("lhs","Sum"), eq(), tok("rhs",`${sum}\u00b0`)], reason: `Evaluate for n = ${n}` },
-      { delayMs: 1200, equationTokens: [tok("lhs","Each"), eq(), tok("rhs",`${sum}\u00b0 \u00f7 ${n}`)], reason: `Divide by ${n} sides` },
-      { delayMs: 1800, equationTokens: [tok("lhs","Each"), eq(), tok("rhs",`${each}\u00b0`)], reason: "Evaluate" },
+      { equationTokens: [tok("lhs","Sum"), eq(), tok("rhs",`(n \u2212 2) \u00d7 180\u00b0`)], reason: "Interior angle sum formula" },
+      { equationTokens: [tok("lhs","Sum"), eq(), tok("rhs",`${sum}\u00b0`)], reason: `Evaluate for n = ${n}` },
+      { equationTokens: [tok("lhs","Each"), eq(), tok("rhs",`${sum}\u00b0 \u00f7 ${n}`)], reason: `Divide by ${n} sides` },
+      { equationTokens: [tok("lhs","Each"), eq(), tok("rhs",`${each}\u00b0`)], reason: "Evaluate" },
     ],
     backSpeechText: `Each interior angle is ${each} degrees`, numericAnswer: each, color,
   };
@@ -795,7 +796,7 @@ function make3DTermCards(): GeometryCard[] {
       frontSpeechText: "A face is…?",
       backDefinition: "A flat surface of a 3D shape",
       backSvgExamples: [{ shape: "prism", dimensions: { l: 4, w: 3, h: 2, labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "Face = flat surface" }, { delayMs: 600, formulaLine: "A cube has 6 faces" }],
+      backSteps: [{ formulaLine: "Face = flat surface" }, { formulaLine: "A cube has 6 faces" }],
       backSpeechText: "A face is a flat surface of a 3D shape", color,
     },
     {
@@ -804,7 +805,7 @@ function make3DTermCards(): GeometryCard[] {
       frontSpeechText: "An edge is…?",
       backDefinition: "A line where two faces meet",
       backSvgExamples: [{ shape: "prism", dimensions: { l: 4, w: 3, h: 2, labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "Edge = line where 2 faces meet" }, { delayMs: 600, formulaLine: "A cube has 12 edges" }],
+      backSteps: [{ formulaLine: "Edge = line where 2 faces meet" }, { formulaLine: "A cube has 12 edges" }],
       backSpeechText: "An edge is where two faces meet", color,
     },
     {
@@ -813,7 +814,7 @@ function make3DTermCards(): GeometryCard[] {
       frontSpeechText: "A vertex is…?",
       backDefinition: "A corner point where edges meet",
       backSvgExamples: [{ shape: "prism", dimensions: { l: 4, w: 3, h: 2, labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ delayMs: 0, formulaLine: "Vertex = corner where edges meet" }, { delayMs: 600, formulaLine: "A cube has 8 vertices" }],
+      backSteps: [{ formulaLine: "Vertex = corner where edges meet" }, { formulaLine: "A cube has 8 vertices" }],
       backSpeechText: "A vertex is a corner point where edges meet", color,
     },
     {
@@ -823,8 +824,8 @@ function make3DTermCards(): GeometryCard[] {
       backDefinition: "V − E + F = 2 for any convex polyhedron",
       backSvgExamples: [{ shape: "prism", dimensions: { l: 4, w: 3, h: 2, labelMode: "numeric" }, labelMode: "numeric" }],
       backSteps: [
-        { delayMs: 0, formulaLine: "V − E + F = 2" },
-        { delayMs: 700, formulaLine: "Cube: 8 − 12 + 6 = 2 ✓" },
+        { formulaLine: "V − E + F = 2" },
+        { formulaLine: "Cube: 8 − 12 + 6 = 2 ✓" },
       ],
       backSpeechText: "Euler's formula states V minus E plus F equals 2 for any convex polyhedron", color,
     },
@@ -839,7 +840,7 @@ function make3DFormulaCards(): GeometryCard[] {
       frontSvg: { shape: "prism", dimensions: { l: "l", w: "w", h: "h", labelMode: "variable", unknown: "V" }, labelMode: "variable" },
       frontSpeechText: "Find the volume of a rectangular prism.",
       backFormula: "V = l × w × h",
-      backSteps: [{ delayMs: 0, formulaLine: "V = l × w × h" }],
+      backSteps: [{ formulaLine: "V = l × w × h" }],
       backSpeechText: "V equals l times w times h", color,
     },
     {
@@ -847,7 +848,7 @@ function make3DFormulaCards(): GeometryCard[] {
       frontSvg: { shape: "cylinder", dimensions: { r: "r", h: "h", labelMode: "variable", unknown: "V" }, labelMode: "variable" },
       frontSpeechText: "Find the volume of a cylinder.",
       backFormula: "V = πr²h",
-      backSteps: [{ delayMs: 0, formulaLine: "V = π × r² × h" }, { delayMs: 700, formulaLine: "V = πr²h" }],
+      backSteps: [{ formulaLine: "V = π × r² × h" }, { formulaLine: "V = πr²h" }],
       backSpeechText: "V equals pi r squared h", color,
     },
     {
@@ -855,7 +856,7 @@ function make3DFormulaCards(): GeometryCard[] {
       frontSvg: { shape: "cone", dimensions: { r: "r", h: "h", labelMode: "variable", unknown: "V" }, labelMode: "variable" },
       frontSpeechText: "Find the volume of a cone.",
       backFormula: "V = ⅓πr²h",
-      backSteps: [{ delayMs: 0, formulaLine: "V = ⅓ × π × r² × h" }, { delayMs: 700, formulaLine: "V = ⅓πr²h" }],
+      backSteps: [{ formulaLine: "V = ⅓ × π × r² × h" }, { formulaLine: "V = ⅓πr²h" }],
       backSpeechText: "V equals one third pi r squared h", color,
     },
     {
@@ -863,7 +864,7 @@ function make3DFormulaCards(): GeometryCard[] {
       frontSvg: { shape: "sphere", dimensions: { r: "r", labelMode: "variable", unknown: "V" }, labelMode: "variable" },
       frontSpeechText: "Find the volume of a sphere.",
       backFormula: "V = ⁴⁄₃πr³",
-      backSteps: [{ delayMs: 0, formulaLine: "V = ⁴⁄₃ × π × r³" }, { delayMs: 700, formulaLine: "V = ⁴⁄₃πr³" }],
+      backSteps: [{ formulaLine: "V = ⁴⁄₃ × π × r³" }, { formulaLine: "V = ⁴⁄₃πr³" }],
       backSpeechText: "V equals four thirds pi r cubed", color,
     },
     {
@@ -871,7 +872,7 @@ function make3DFormulaCards(): GeometryCard[] {
       frontSvg: { shape: "sphere", dimensions: { r: "r", labelMode: "variable", unknown: "SA" }, labelMode: "variable" },
       frontSpeechText: "Find the surface area of a sphere.",
       backFormula: "SA = 4πr²",
-      backSteps: [{ delayMs: 0, formulaLine: "SA = 4 × π × r²" }, { delayMs: 700, formulaLine: "SA = 4πr²" }],
+      backSteps: [{ formulaLine: "SA = 4 × π × r²" }, { formulaLine: "SA = 4πr²" }],
       backSpeechText: "S A equals 4 pi r squared", color,
     },
   ];
@@ -890,9 +891,9 @@ function make3DCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "prism", dimensions: { l, w, h, labelMode: "numeric", unknown: "V" }, labelMode: "numeric" },
       frontSpeechText: `l = ${l}, w = ${w}, h = ${h}. Find the volume.`,
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("lhs","V"), eq(), tok("rhs","l \u00d7 w \u00d7 h")], reason: "Rectangular prism volume" },
-        { delayMs: 600, equationTokens: [tok("lhs","V"), eq(), tok("rhs",`${l} \u00d7 ${w} \u00d7 ${h}`)], reason: `Substitute l = ${l}, w = ${w}, h = ${h}` },
-        { delayMs: 1200, equationTokens: [tok("lhs","V"), eq(), tok("rhs",`${V}${u}\u00b3`)], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","V"), eq(), tok("rhs","l \u00d7 w \u00d7 h")], reason: "Rectangular prism volume" },
+        { equationTokens: [tok("lhs","V"), eq(), tok("rhs",`${l} \u00d7 ${w} \u00d7 ${h}`)], reason: `Substitute l = ${l}, w = ${w}, h = ${h}` },
+        { equationTokens: [tok("lhs","V"), eq(), tok("rhs",`${V}${u}\u00b3`)], reason: "Evaluate" },
       ],
       backSpeechText: `V equals ${V}`, numericAnswer: V, color,
     };
@@ -904,9 +905,9 @@ function make3DCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "cylinder", dimensions: { r, h, labelMode: "numeric", unknown: "V" }, labelMode: "numeric" },
       frontSpeechText: `r = ${r}, h = ${h}. Find the volume.`,
       backSteps: [
-        { delayMs: 0, equationTokens: [tok("lhs","V"), eq(), tok("rhs","\u03c0r\u00b2h")], reason: "Cylinder volume formula" },
-        { delayMs: 600, equationTokens: [tok("lhs","V"), eq(), tok("rhs",`\u03c0 \u00d7 ${r}\u00b2 \u00d7 ${h}`)], reason: `Substitute r = ${r}, h = ${h}` },
-        { delayMs: 1200, equationTokens: [tok("lhs","V"), eq(), tok("rhs",`${r * r * h}\u03c0${u}\u00b3`)], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","V"), eq(), tok("rhs","\u03c0r\u00b2h")], reason: "Cylinder volume formula" },
+        { equationTokens: [tok("lhs","V"), eq(), tok("rhs",`\u03c0 \u00d7 ${r}\u00b2 \u00d7 ${h}`)], reason: `Substitute r = ${r}, h = ${h}` },
+        { equationTokens: [tok("lhs","V"), eq(), tok("rhs",`${r * r * h}\u03c0${u}\u00b3`)], reason: "Evaluate" },
       ],
       backSpeechText: `V equals ${r * r * h} pi`, numericAnswer: r * r * h, color,
     };
@@ -917,10 +918,10 @@ function make3DCalcCard(settings: GeneratorSettings): GeometryCard {
     frontSvg: { shape: "prism", dimensions: { l: 2, w: 2, h: 2, labelMode: "numeric" }, labelMode: "numeric" },
     frontSpeechText: "A cube has 6 faces and 12 edges. How many vertices?",
     backSteps: [
-      { delayMs: 0, equationTokens: [tok("lhs","V \u2212 E + F"), eq(), tok("rhs","2")], reason: "Euler's formula" },
-      { delayMs: 600, equationTokens: [tok("lhs","V \u2212 12 + 6"), eq(), tok("rhs","2")], reason: "Substitute E = 12, F = 6" },
-      { delayMs: 1200, equationTokens: [tok("lhs","V \u2212 6"), eq(), tok("rhs","2")], reason: "Simplify" },
-      { delayMs: 1800, equationTokens: [tok("lhs","V"), eq(), tok("rhs","8 vertices")], reason: "Solve for V" },
+      { equationTokens: [tok("lhs","V \u2212 E + F"), eq(), tok("rhs","2")], reason: "Euler's formula" },
+      { equationTokens: [tok("lhs","V \u2212 12 + 6"), eq(), tok("rhs","2")], reason: "Substitute E = 12, F = 6" },
+      { equationTokens: [tok("lhs","V \u2212 6"), eq(), tok("rhs","2")], reason: "Simplify" },
+      { equationTokens: [tok("lhs","V"), eq(), tok("rhs","8 vertices")], reason: "Solve for V" },
     ],
     backSpeechText: "V minus E plus F equals 2. The cube has 8 vertices", numericAnswer: 8, color,
   };

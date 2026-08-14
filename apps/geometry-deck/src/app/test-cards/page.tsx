@@ -7,7 +7,6 @@
  * Query params:
  *   ?card=<id>          — render a specific card from TEST_CARDS
  *   &state=front|back   — which face to show (default: front)
- *   &step=<n>           — which back step to pin (-1 = none visible, default: -1)
  *
  * Omitting ?card shows an index of all catalogue entries with links.
  *
@@ -20,7 +19,7 @@
 import { notFound } from "next/navigation";
 import { TestCardView } from "./test-card-view";
 
-type SearchParams = Promise<{ card?: string; state?: string; step?: string }>;
+type SearchParams = Promise<{ card?: string; state?: string }>;
 
 export default async function TestCardsPage({
   searchParams,
@@ -35,7 +34,6 @@ export default async function TestCardsPage({
   const params = await searchParams;
 
   const state = (params.state === "back" ? "back" : "front") as "front" | "back";
-  const step = params.step !== undefined ? Number(params.step) : -1;
 
-  return <TestCardView cardId={params.card} state={state} step={step} />;
+  return <TestCardView cardId={params.card} state={state} />;
 }
