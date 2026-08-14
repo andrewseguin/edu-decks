@@ -12,15 +12,13 @@ const CX = 110;
 const STROKE_W = 2.5;
 
 export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExplorerProps) {
-  // Use even apex angles (30° to 120°, step 2) so base angles are always exact integers
+  // Even apex angles (30° to 120°, step 2) so base angles are always exact integers
   const [apexAngle, setApexAngle] = useState(50);
   const [isUserControlling, setIsUserControlling] = useState(false);
-  const [isDragging, setIsDragging] = useState(false);
 
   const animRef = useRef<number>(0);
   const startTimeRef = useRef<number | null>(null);
   const ucRef = useRef(false);
-  const svgRef = useRef<SVGSVGElement>(null);
 
   useEffect(() => {
     ucRef.current = isUserControlling;
@@ -31,7 +29,6 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
     if (ucRef.current) return;
     if (startTimeRef.current === null) startTimeRef.current = ts;
     const t = (Math.sin(((ts - startTimeRef.current) / 1000) * Math.PI * 0.25) + 1) / 2;
-    // Step by 2 for integer base angles
     const rawDeg = 34 + t * (110 - 34);
     const evenDeg = Math.round(rawDeg / 2) * 2;
     setApexAngle(evenDeg);
@@ -69,15 +66,12 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
 
   // Exact normal vectors (100% perpendicular to leg line at all angles)
   const tickHalfLen = 7;
-
-  // Left leg angle and normal vector
   const leftLegRad = Math.atan2(BASE_Y - apexY, x1 - apexX);
   const leftNormalX = -Math.sin(leftLegRad);
   const leftNormalY = Math.cos(leftLegRad);
   const tickLeft1 = { x: midLeftX - tickHalfLen * leftNormalX, y: midLeftY - tickHalfLen * leftNormalY };
   const tickLeft2 = { x: midLeftX + tickHalfLen * leftNormalX, y: midLeftY + tickHalfLen * leftNormalY };
 
-  // Right leg angle and normal vector
   const rightLegRad = Math.atan2(BASE_Y - apexY, x2 - apexX);
   const rightNormalX = -Math.sin(rightLegRad);
   const rightNormalY = Math.cos(rightLegRad);
@@ -86,15 +80,12 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
 
   // Base angle arcs strictly inside triangle polygon
   const arcR = 24;
-
-  // Left base vertex arc: from (x1 + arcR, BASE_Y) along left leg
   const leftArcEnd = {
     x: x1 + arcR * Math.cos(Math.atan2(BASE_Y - apexY, apexX - x1)),
     y: BASE_Y - arcR * Math.sin(Math.atan2(BASE_Y - apexY, apexX - x1)),
   };
   const leftArcPath = `M ${x1 + arcR} ${BASE_Y} A ${arcR} ${arcR} 0 0 0 ${leftArcEnd.x} ${leftArcEnd.y}`;
 
-  // Right base vertex arc: from (x2 - arcR, BASE_Y) along right leg
   const rightArcEnd = {
     x: x2 - arcR * Math.cos(Math.atan2(BASE_Y - apexY, x2 - apexX)),
     y: BASE_Y - arcR * Math.sin(Math.atan2(BASE_Y - apexY, x2 - apexX)),
@@ -102,7 +93,7 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
   const rightArcPath = `M ${x2 - arcR} ${BASE_Y} A ${arcR} ${arcR} 0 0 1 ${rightArcEnd.x} ${rightArcEnd.y}`;
 
   // Apex arc path
-  const apexArcR = 28;
+  const apexArcR = 26;
   const apexArcLeft = {
     x: apexX + apexArcR * Math.cos(leftLegRad),
     y: apexY + apexArcR * Math.sin(leftLegRad),
@@ -112,40 +103,6 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
     y: apexY + apexArcR * Math.sin(rightLegRad),
   };
   const apexArcPath = `M ${apexArcLeft.x} ${apexArcLeft.y} A ${apexArcR} ${apexArcR} 0 0 0 ${apexArcRight.x} ${apexArcRight.y}`;
-
-  // Pointer drag handling on Apex node
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsUserControlling(true);
-    setIsDragging(true);
-    if (animRef.current) cancelAnimationFrame(animRef.current);
-
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const scY = 190 / rect.height;
-
-    const onMove = (ev: PointerEvent) => {
-      const py = (ev.clientY - rect.top) * scY;
-      const clampedY = Math.max(20, Math.min(110, py));
-      const targetH = BASE_Y - clampedY;
-      const cosHalf = Math.max(0.1, Math.min(0.99, targetH / LEG_LEN));
-      const calcHalfRad = Math.acos(cosHalf);
-      const calcApexDeg = Math.round((calcHalfRad * 2 * 180) / Math.PI);
-      const evenApex = Math.round(Math.max(30, Math.min(120, calcApexDeg)) / 2) * 2;
-      setApexAngle(evenApex);
-    };
-
-    const onUp = () => {
-      setIsDragging(false);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-  }, []);
 
   const handleSlider = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     if (!isUserControlling) {
@@ -170,9 +127,8 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
       {/* SVG Diagram */}
       <div className="relative w-full max-w-[340px] aspect-[22/19] flex items-center justify-center">
         <svg
-          ref={svgRef}
           viewBox="0 0 220 190"
-          className="w-full h-full touch-none overflow-visible"
+          className="w-full h-full overflow-visible"
           aria-hidden
         >
           {/* Main Triangle Polygon */}
@@ -215,7 +171,7 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
             strokeLinecap="round"
           />
 
-          {/* Base Angle Value Labels (Positioned outside left & right corners so they NEVER overlap) */}
+          {/* Base Angle Value Labels (Positioned outside left & right corners) */}
           <text
             x={x1 - 6}
             y={BASE_Y + 3}
@@ -239,10 +195,10 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
             {baseAngle}°
           </text>
 
-          {/* Apex Angle Value Label (Floating OUTSIDE above apex node) */}
+          {/* Apex Angle Value Label (Floating OUTSIDE above apex vertex) */}
           <text
             x={apexX}
-            y={apexY - 14}
+            y={apexY - 10}
             textAnchor="middle"
             fontSize={12}
             fontWeight="800"
@@ -251,29 +207,6 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
           >
             {displayApexAngle}°
           </text>
-
-          {/* Draggable Apex Handle */}
-          <g
-            className="cursor-grab active:cursor-grabbing transition-transform duration-100"
-            onPointerDown={handlePointerDown}
-          >
-            <circle
-              cx={apexX}
-              cy={apexY}
-              r={16}
-              fill="rgba(255,212,94,0.25)"
-              className="animate-pulse"
-            />
-            <circle
-              cx={apexX}
-              cy={apexY}
-              r={7.5}
-              fill="#ffd45e"
-              stroke="#ffffff"
-              strokeWidth={2}
-              className={`transition-all ${isDragging ? "scale-125" : "hover:scale-110"}`}
-            />
-          </g>
         </svg>
       </div>
 
