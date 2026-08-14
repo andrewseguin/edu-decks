@@ -2,43 +2,43 @@
 
 import React, { useState, useEffect, useRef } from "react";
 
-type ScalenePreset = {
-  name: string;
+type ScaleneVariant = {
   apexX: number;
   apexY: number;
   sides: [number, number, number]; // [left, right, base]
   angles: [number, number, number]; // [left (Cyan), right (Rose), apex (Gold)]
 };
 
-// Hand-curated presets with 100% distinct whole integers (no decimals, no equal sides, no equal angles)
-const SCALENE_PRESETS: ScalenePreset[] = [
+type ScaleneCategory = {
+  name: string;
+  variants: ScaleneVariant[];
+};
+
+const SCALENE_CATEGORIES: ScaleneCategory[] = [
   {
     name: "Acute Scalene",
-    apexX: 92,
-    apexY: 55,
-    sides: [10, 13, 15],
-    angles: [42, 63, 75],
-  },
-  {
-    name: "Obtuse Scalene",
-    apexX: 68,
-    apexY: 82,
-    sides: [7, 12, 15],
-    angles: [26, 46, 108],
+    variants: [
+      { apexX: 92, apexY: 55, sides: [10, 13, 15], angles: [42, 63, 75] },
+      { apexX: 105, apexY: 45, sides: [12, 14, 13], angles: [52, 70, 58] },
+      { apexX: 78, apexY: 62, sides: [9, 13, 15], angles: [36, 60, 84] },
+      { apexX: 100, apexY: 50, sides: [11, 13, 15], angles: [46, 66, 68] },
+    ],
   },
   {
     name: "Right Scalene",
-    apexX: 89,
-    apexY: 73,
-    sides: [9, 12, 15],
-    angles: [37, 53, 90],
+    variants: [
+      { apexX: 89, apexY: 73, sides: [9, 12, 15], angles: [37, 53, 90] },
+      { apexX: 62, apexY: 68, sides: [8, 14, 15], angles: [30, 60, 90] },
+      { apexX: 108, apexY: 62, sides: [12, 10, 15], angles: [53, 37, 90] },
+    ],
   },
   {
-    name: "Wide Scalene",
-    apexX: 65,
-    apexY: 92,
-    sides: [6, 13, 16],
-    angles: [22, 35, 123],
+    name: "Obtuse Scalene",
+    variants: [
+      { apexX: 65, apexY: 92, sides: [6, 13, 16], angles: [22, 35, 123] },
+      { apexX: 58, apexY: 82, sides: [7, 14, 16], angles: [24, 38, 118] },
+      { apexX: 52, apexY: 88, sides: [6, 14, 15], angles: [21, 34, 125] },
+    ],
   },
 ];
 
@@ -48,25 +48,42 @@ const X2 = 185;
 const STROKE_W = 2.5;
 
 export function InteractiveScaleneExplorer({ color }: { color?: string }) {
-  const [presetIdx, setPresetIdx] = useState(0);
+  const [categoryIdx, setCategoryIdx] = useState(0);
+  const [variantIdx, setVariantIdx] = useState(0);
 
-  // Auto-cycle through presets every 3.5 seconds unless user manually interacts
   const [isUserInteracted, setIsUserInteracted] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
-  const nextPreset = () => {
-    setPresetIdx((prev) => (prev + 1) % SCALENE_PRESETS.length);
+  // Pick a random variant within a category (ensuring a different variant if available)
+  const getRandomVariant = (catIdx: number, currentVarIdx: number) => {
+    const category = SCALENE_CATEGORIES[catIdx];
+    if (category.variants.length <= 1) return 0;
+    let nextVar = currentVarIdx;
+    while (nextVar === currentVarIdx) {
+      nextVar = Math.floor(Math.random() * category.variants.length);
+    }
+    return nextVar;
   };
 
-  const handleManualNext = () => {
+  const handleSelectCategory = (cIdx: number) => {
     setIsUserInteracted(true);
-    nextPreset();
+    if (cIdx === categoryIdx) {
+      setVariantIdx((prev) => getRandomVariant(cIdx, prev));
+    } else {
+      setCategoryIdx(cIdx);
+      setVariantIdx(Math.floor(Math.random() * SCALENE_CATEGORIES[cIdx].variants.length));
+    }
   };
 
+  // Auto-cycle through categories and variants every 3.5 seconds
   useEffect(() => {
     if (!isUserInteracted) {
       timerRef.current = setInterval(() => {
-        setPresetIdx((prev) => (prev + 1) % SCALENE_PRESETS.length);
+        setCategoryIdx((prevCat) => {
+          const nextCat = (prevCat + 1) % SCALENE_CATEGORIES.length;
+          setVariantIdx(Math.floor(Math.random() * SCALENE_CATEGORIES[nextCat].variants.length));
+          return nextCat;
+        });
       }, 3500);
     }
     return () => {
@@ -74,13 +91,14 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
     };
   }, [isUserInteracted]);
 
-  const preset = SCALENE_PRESETS[presetIdx];
-  const { apexX, apexY, sides, angles } = preset;
+  const currentCategory = SCALENE_CATEGORIES[categoryIdx];
+  const variant = currentCategory.variants[variantIdx] || currentCategory.variants[0];
+  const { apexX, apexY, sides, angles } = variant;
 
   const [sideB, sideA, sideC] = sides; // [left leg, right leg, base]
   const [degA, degB, degC] = angles; // [left angle, right angle, apex angle]
 
-  // Midpoints for tick marks
+  // Midpoints for side labels
   const midLeftX = (X1 + apexX) / 2;
   const midLeftY = (BASE_Y + apexY) / 2;
 
@@ -89,44 +107,10 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
 
   const midBaseX = (X1 + X2) / 2;
 
-  // Tick mark vectors
-  const tickLen = 6;
-
-  // Left leg tick (1 tick |)
+  // Arc paths
   const radA = Math.atan2(BASE_Y - apexY, apexX - X1);
-  const leftNx = -Math.sin(radA);
-  const leftNy = Math.cos(radA);
-  const tickLeft1 = { x: midLeftX - tickLen * leftNx, y: midLeftY - tickLen * leftNy };
-  const tickLeft2 = { x: midLeftX + tickLen * leftNx, y: midLeftY + tickLen * leftNy };
-
-  // Right leg ticks (2 ticks ||)
   const radB = Math.atan2(BASE_Y - apexY, X2 - apexX);
-  const rightNx = -Math.sin(radB);
-  const rightNy = Math.cos(radB);
-  const rightAlongX = Math.cos(radB);
-  const rightAlongY = Math.sin(radB);
-  const rSpacing = 3.5;
 
-  const centerA = { x: midRightX - rSpacing * rightAlongX, y: midRightY - rSpacing * rightAlongY };
-  const tickRightA1 = { x: centerA.x - tickLen * rightNx, y: centerA.y - tickLen * rightNy };
-  const tickRightA2 = { x: centerA.x + tickLen * rightNx, y: centerA.y + tickLen * rightNy };
-
-  const centerB = { x: midRightX + rSpacing * rightAlongX, y: midRightY + rSpacing * rightAlongY };
-  const tickRightB1 = { x: centerB.x - tickLen * rightNx, y: centerB.y - tickLen * rightNy };
-  const tickRightB2 = { x: centerB.x + tickLen * rightNx, y: centerB.y + tickLen * rightNy };
-
-  // Base ticks (3 ticks |||)
-  const bGap = 4;
-  const tickBaseA1 = { x: midBaseX - bGap, y: BASE_Y - tickLen };
-  const tickBaseA2 = { x: midBaseX - bGap, y: BASE_Y + tickLen };
-
-  const tickBaseB1 = { x: midBaseX, y: BASE_Y - tickLen };
-  const tickBaseB2 = { x: midBaseX, y: BASE_Y + tickLen };
-
-  const tickBaseC1 = { x: midBaseX + bGap, y: BASE_Y - tickLen };
-  const tickBaseC2 = { x: midBaseX + bGap, y: BASE_Y + tickLen };
-
-  // Angle Arcs
   const arcRA = Math.min(22, Math.max(12, (apexX - X1) * 0.35));
   const arcAEnd = { x: X1 + arcRA * Math.cos(radA), y: BASE_Y - arcRA * Math.sin(radA) };
   const arcAPath = `M ${X1 + arcRA} ${BASE_Y} A ${arcRA} ${arcRA} 0 0 0 ${arcAEnd.x} ${arcAEnd.y}`;
@@ -142,14 +126,14 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
   const arcCEndR = { x: apexX + arcRC * Math.cos(radDownR), y: apexY + arcRC * Math.sin(radDownR) };
   const arcCPath = `M ${arcCEndL.x} ${arcCEndL.y} A ${arcRC} ${arcRC} 0 0 0 ${arcCEndR.x} ${arcCEndR.y}`;
 
-  // Outward normal vectors for side length labels (guarantees numbers float OUTSIDE the triangle)
+  // Outward normal vectors for side length labels
   const leftLegLenPx = Math.sqrt((apexX - X1) ** 2 + (BASE_Y - apexY) ** 2);
-  const leftOutwardNx = (apexY - BASE_Y) / leftLegLenPx; // negative (left)
-  const leftOutwardNy = (X1 - apexX) / leftLegLenPx; // negative (up)
+  const leftOutwardNx = (apexY - BASE_Y) / leftLegLenPx;
+  const leftOutwardNy = (X1 - apexX) / leftLegLenPx;
 
   const rightLegLenPx = Math.sqrt((X2 - apexX) ** 2 + (BASE_Y - apexY) ** 2);
-  const rightOutwardNx = (BASE_Y - apexY) / rightLegLenPx; // positive (right)
-  const rightOutwardNy = (apexX - X2) / rightLegLenPx; // negative (up)
+  const rightOutwardNx = (BASE_Y - apexY) / rightLegLenPx;
+  const rightOutwardNy = (apexX - X2) / rightLegLenPx;
 
   const sideLabelLeftX = midLeftX + 16 * leftOutwardNx;
   const sideLabelLeftY = midLeftY + 16 * leftOutwardNy;
@@ -165,7 +149,7 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
       <div className="relative w-full max-w-[340px] aspect-[22/14.5] flex items-center justify-center">
         <svg
           viewBox="0 20 220 145"
-          className="w-full h-full overflow-visible transition-all duration-500 ease-out"
+          className="w-full h-full overflow-visible"
           aria-hidden
         >
           {/* Main Triangle Polygon */}
@@ -175,10 +159,9 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
             stroke="rgba(255,255,255,0.95)"
             strokeWidth={STROKE_W}
             strokeLinejoin="round"
-            className="transition-all duration-500 ease-out"
           />
 
-          {/* Side Length Labels (Positioned OUTSIDE near each side with white fill and dark drop shadow) */}
+          {/* Side Length Labels (Positioned OUTSIDE near each side in white fill with dark drop shadow) */}
           <text
             x={sideLabelLeftX}
             y={sideLabelLeftY + 3}
@@ -188,7 +171,6 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
             fill="#ffffff"
             fontFamily="var(--font-heading, system-ui)"
             style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
-            className="transition-all duration-500 ease-out"
           >
             {sideB}
           </text>
@@ -201,7 +183,6 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
             fill="#ffffff"
             fontFamily="var(--font-heading, system-ui)"
             style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
-            className="transition-all duration-500 ease-out"
           >
             {sideA}
           </text>
@@ -219,11 +200,11 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
           </text>
 
           {/* Left Angle Arc A (Cyan) */}
-          <path d={arcAPath} fill="none" stroke="#5ee8ff" strokeWidth={2.5} strokeLinecap="round" className="transition-all duration-500 ease-out" />
-          {/* Right Angle Arc B (Lavender Purple - replaces red for high contrast) */}
-          <path d={arcBPath} fill="none" stroke="#c084fc" strokeWidth={2.5} strokeLinecap="round" className="transition-all duration-500 ease-out" />
+          <path d={arcAPath} fill="none" stroke="#5ee8ff" strokeWidth={2.5} strokeLinecap="round" />
+          {/* Right Angle Arc B (Lavender Purple) */}
+          <path d={arcBPath} fill="none" stroke="#c084fc" strokeWidth={2.5} strokeLinecap="round" />
           {/* Apex Angle Arc C (Gold) */}
-          <path d={arcCPath} fill="none" stroke="#ffd45e" strokeWidth={2.5} strokeLinecap="round" className="transition-all duration-500 ease-out" />
+          <path d={arcCPath} fill="none" stroke="#ffd45e" strokeWidth={2.5} strokeLinecap="round" />
 
           {/* Angle Value Labels (With crisp dark drop-shadow for maximum contrast) */}
           <text
@@ -259,40 +240,28 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
             fill="#ffd45e"
             fontFamily="var(--font-heading, system-ui)"
             style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
-            className="transition-all duration-500 ease-out"
           >
             {degC}°
           </text>
         </svg>
       </div>
 
-      {/* Legend / Status Badges */}
-      <div className="flex flex-wrap justify-center items-center gap-2 my-2 text-xs font-mono">
-        <span className="px-3 py-1 rounded-full bg-black/40 text-emerald-300 border border-emerald-500/40 font-bold shadow-sm backdrop-blur">
-          Sides: <span className="text-emerald-200">{sideB} • {sideA} • {sideC}</span> (All Different)
-        </span>
-        <span className="px-3 py-1 rounded-full bg-black/40 text-purple-300 border border-purple-500/40 font-bold shadow-sm backdrop-blur">
-          Angles: <span className="text-purple-200">{degA}° • {degB}° • {degC}°</span> (All Different)
-        </span>
-      </div>
-
-      {/* Interactive Preset Chips / Randomizer Button */}
+      {/* Interactive Category Chips (Clicking generates a new random variation) */}
       <div className="flex items-center gap-2 mt-1">
-        {SCALENE_PRESETS.map((p, idx) => (
+        {SCALENE_CATEGORIES.map((c, idx) => (
           <button
-            key={p.name}
+            key={c.name}
             onClick={(e) => {
               e.stopPropagation();
-              setIsUserInteracted(true);
-              setPresetIdx(idx);
+              handleSelectCategory(idx);
             }}
             className={`px-3 py-1 rounded-lg text-xs font-bold transition-all border ${
-              idx === presetIdx
-                ? "bg-emerald-500/20 text-emerald-300 border-emerald-400 shadow-sm"
-                : "bg-black/30 text-white/60 border-white/10 hover:border-white/30 hover:text-white"
+              idx === categoryIdx
+                ? "bg-white text-emerald-950 font-black border-white shadow-md scale-105"
+                : "bg-black/40 text-white/70 border-white/20 hover:bg-black/60 hover:text-white"
             }`}
           >
-            {p.name}
+            {c.name}
           </button>
         ))}
       </div>
