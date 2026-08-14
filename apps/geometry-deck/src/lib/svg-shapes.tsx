@@ -605,22 +605,30 @@ function Triangle({ dims, mutation }: { dims: Record<string, number | string>; m
   const cx = 110;
   const baseY = 155, topY = 40;
   let x1: number, x2: number, x3: number;
+  let actualTopY = topY;
 
   if (style === "equilateral") {
     const hw = 75;
     x1 = cx - hw; x2 = cx + hw; x3 = cx;
+  } else if (style === "isosceles-wide") {
+    const hw = 80;
+    actualTopY = 85;
+    x1 = cx - hw; x2 = cx + hw; x3 = cx;
   } else if (style === "isosceles") {
-    x1 = cx - 70; x2 = cx + 70; x3 = cx;
+    x1 = cx - 55; x2 = cx + 55; x3 = cx;
+  } else if (style === "scalene-obtuse") {
+    actualTopY = 80;
+    x1 = 25; x2 = 195; x3 = 55;
   } else {
     // scalene
     x1 = 30; x2 = 185; x3 = cx - 20;
   }
 
-  const pts = `${x1},${baseY} ${x2},${baseY} ${x3},${topY}`;
+  const pts = `${x1},${baseY} ${x2},${baseY} ${x3},${actualTopY}`;
 
   // Side lengths for labeling
   const bLen = Math.round(x2 - x1);
-  const hLen = Math.round(baseY - topY);
+  const hLen = Math.round(baseY - actualTopY);
 
   return (
     <svg viewBox="0 0 220 190" className="w-full h-full" aria-hidden>
@@ -630,15 +638,17 @@ function Triangle({ dims, mutation }: { dims: Record<string, number | string>; m
       {/* Tick marks for equilateral/isosceles */}
       {style === "equilateral" && (
         <>
-          <TickMark x={(x1 + x3) / 2} y={(baseY + topY) / 2} angle={-50} />
-          <TickMark x={(x2 + x3) / 2} y={(baseY + topY) / 2} angle={50} />
+          <TickMark x={(x1 + x3) / 2} y={(baseY + actualTopY) / 2} angle={-50} />
+          <TickMark x={(x2 + x3) / 2} y={(baseY + actualTopY) / 2} angle={50} />
           <TickMark x={(x1 + x2) / 2} y={baseY} angle={0} />
         </>
       )}
-      {style === "isosceles" && (
+      {(style === "isosceles" || style === "isosceles-wide") && (
         <>
-          <TickMark x={(x1 + x3) / 2} y={(baseY + topY) / 2} angle={-50} />
-          <TickMark x={(x2 + x3) / 2} y={(baseY + topY) / 2} angle={50} />
+          <TickMark x={(x1 + x3) / 2} y={(baseY + actualTopY) / 2} angle={style === "isosceles-wide" ? -30 : -55} />
+          <TickMark x={(x2 + x3) / 2} y={(baseY + actualTopY) / 2} angle={style === "isosceles-wide" ? 30 : 55} />
+          <path d={`M ${x1 + 18} ${baseY} A 18 18 0 0 0 ${x1 + 14} ${baseY - 12}`} fill="none" stroke="rgba(94,232,255,0.85)" strokeWidth={2} />
+          <path d={`M ${x2 - 18} ${baseY} A 18 18 0 0 1 ${x2 - 14} ${baseY - 12}`} fill="none" stroke="rgba(94,232,255,0.85)" strokeWidth={2} />
         </>
       )}
 

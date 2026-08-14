@@ -8,6 +8,7 @@ import { InteractiveAngleExplorer } from "./interactive-angle-explorer";
 import { InteractiveAnglePair } from "./interactive-angle-pair";
 import { InteractiveVerticalAngles } from "./interactive-vertical-angles";
 import { InteractiveParallelAngles } from "./interactive-parallel-angles";
+import { InteractiveIsoscelesExplorer } from "./interactive-isosceles-explorer";
 import type {
   GeometryCard as GeometryCardType,
   SvgMutation,
@@ -22,6 +23,7 @@ type GeometryCardProps = {
   onCardTap?: () => void;
   onTap?: () => void;
   className?: string;
+  showDebugOutlines?: boolean;
 };
 
 // ── Interactive angle range configs for term cards ──────────────────────────
@@ -69,6 +71,7 @@ export function GeometryCard({
   onCardTap,
   onTap,
   className,
+  showDebugOutlines,
 }: GeometryCardProps) {
 
   const handleSpeak = (e: React.MouseEvent) => {
@@ -101,6 +104,9 @@ export function GeometryCard({
           return <InteractiveParallelAngles mode={relational.mode} color={card.color} />;
         }
       }
+      if (card.frontLabel === "Isosceles triangles") {
+        return <InteractiveIsoscelesExplorer color={card.color} />;
+      }
       if (hasSvg) {
         return (
           <div className={cn("flex gap-3 justify-center w-full shrink-0", multiSvg ? "flex-row items-center" : "flex-col items-center")}>
@@ -122,6 +128,7 @@ export function GeometryCard({
         slideDirection={slideDirection}
         backgroundColor={card.color}
         className={cn("w-[90vw] max-w-[700px] border-none", className)}
+        showDebugOutlines={showDebugOutlines}
         onCardTap={onCardTap || onTap}
         frontContent={
           <div className="flex flex-col items-center justify-center px-6 py-4 gap-1">
@@ -184,6 +191,7 @@ export function GeometryCard({
       slideDirection={slideDirection}
       backgroundColor={card.color}
       className={cn("w-[90vw] max-w-[700px] border-none", className)}
+      showDebugOutlines={showDebugOutlines}
       onCardTap={onCardTap || onTap}
       frontContent={
         <div className="flex flex-col items-center justify-center px-4">
