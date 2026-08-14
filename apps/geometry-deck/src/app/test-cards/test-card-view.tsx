@@ -3,7 +3,7 @@
 /**
  * TestCardView — Client Component
  *
- * Index view: streamlined interactive card catalogue (click card or toggle button to flip between Primary and Reveal).
+ * Index view: streamlined interactive card catalogue with Primary/Reveal flip controls and Desktop/Mobile viewport toggles.
  * Single-card view: full-page rendering of one card at a specific state (used by visual regression tests).
  */
 
@@ -26,21 +26,25 @@ const CARD_TYPE_LABELS: Record<CardType, string> = { term: "Terms", formula: "Fo
 // ─────────────────────────────────────────────────────────────────────────────
 // InteractiveCardItem
 // Renders the actual card directly. Tapping the card or state buttons toggles
-// between Primary (Front) and Reveal (Back).
+// between Primary (Front) and Reveal (Back). Supports Desktop vs Mobile viewports.
 // ─────────────────────────────────────────────────────────────────────────────
 function InteractiveCardItem({
   card,
   id,
   overrideState,
+  globalViewport,
 }: {
   card: GeometryCardType;
   id: string;
   overrideState: "front" | "back" | null;
+  globalViewport: "desktop" | "mobile";
 }) {
   const [localFlipped, setLocalFlipped] = useState<boolean | null>(null);
+  const [localViewport, setLocalViewport] = useState<"desktop" | "mobile" | null>(null);
 
-  // Use local toggle if user explicitly clicked, otherwise follow global override
+  // Use local toggle if user explicitly clicked, otherwise follow global overrides
   const isFlipped = localFlipped !== null ? localFlipped : overrideState === "back";
+  const viewport = localViewport ?? globalViewport;
 
   const typeTag = card.cardType === "term" ? "Term" : card.cardType === "formula" ? "Formula" : "Calculation";
   const typeBadgeColor =
@@ -61,50 +65,87 @@ function InteractiveCardItem({
           <span className="text-sm font-mono text-gray-200 font-bold">{id}</span>
         </div>
 
-        {/* State Toggle Pills */}
-        <div className="flex items-center gap-1.5 bg-gray-950/80 p-1 rounded-xl border border-gray-800 text-xs font-mono">
-          <button
-            type="button"
-            onClick={() => setLocalFlipped(false)}
-            className={`px-3 py-1 rounded-lg transition-all ${
-              !isFlipped
-                ? "bg-emerald-600 text-white font-bold shadow-sm"
-                : "text-gray-400 hover:text-white hover:bg-gray-800"
-            }`}
-          >
-            Primary (Front)
-          </button>
-          <button
-            type="button"
-            onClick={() => setLocalFlipped(true)}
-            className={`px-3 py-1 rounded-lg transition-all ${
-              isFlipped
-                ? "bg-emerald-600 text-white font-bold shadow-sm"
-                : "text-gray-400 hover:text-white hover:bg-gray-800"
-            }`}
-          >
-            Reveal (Back)
-          </button>
-          <Link
-            href={`/test-cards?card=${id}&state=${isFlipped ? "back" : "front"}`}
-            target="_blank"
-            className="ml-1 px-2 py-1 text-gray-500 hover:text-gray-300 text-[11px] rounded hover:bg-gray-800"
-            title="Open isolated view in new tab"
-          >
-            ↗
-          </Link>
+        {/* Controls Bar: Viewport + State */}
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Viewport Toggle */}
+          <div className="flex items-center bg-gray-950/80 p-1 rounded-xl border border-gray-800 text-[11px] font-mono">
+            <button
+              type="button"
+              onClick={() => setLocalViewport("desktop")}
+              className={`px-2.5 py-0.5 rounded-lg transition-all ${
+                viewport === "desktop"
+                  ? "bg-blue-600 text-white font-bold shadow-sm"
+                  : "text-gray-400 hover:text-white hover:bg-gray-800"
+              }`}
+            >
+              Desktop
+            </button>
+            <button
+              type="button"
+              onClick={() => setLocalViewport("mobile")}
+              className={`px-2.5 py-0.5 rounded-lg transition-all ${
+                viewport === "mobile"
+                  ? "bg-blue-600 text-white font-bold shadow-sm"
+                  : "text-gray-400 hover:text-white hover:bg-gray-800"
+              }`}
+            >
+              Mobile
+            </button>
+          </div>
+
+          {/* State Toggle Pills */}
+          <div className="flex items-center gap-1.5 bg-gray-950/80 p-1 rounded-xl border border-gray-800 text-xs font-mono">
+            <button
+              type="button"
+              onClick={() => setLocalFlipped(false)}
+              className={`px-3 py-1 rounded-lg transition-all ${
+                !isFlipped
+                  ? "bg-emerald-600 text-white font-bold shadow-sm"
+                  : "text-gray-400 hover:text-white hover:bg-gray-800"
+              }`}
+            >
+              Primary (Front)
+            </button>
+            <button
+              type="button"
+              onClick={() => setLocalFlipped(true)}
+              className={`px-3 py-1 rounded-lg transition-all ${
+                isFlipped
+                  ? "bg-emerald-600 text-white font-bold shadow-sm"
+                  : "text-gray-400 hover:text-white hover:bg-gray-800"
+              }`}
+            >
+              Reveal (Back)
+            </button>
+            <Link
+              href={`/test-cards?card=${id}&state=${isFlipped ? "back" : "front"}`}
+              target="_blank"
+              className="ml-1 px-2 py-1 text-gray-500 hover:text-gray-300 text-[11px] rounded hover:bg-gray-800"
+              title="Open isolated view in new tab"
+            >
+              ↗
+            </Link>
+          </div>
         </div>
       </div>
 
       {/* Direct Interactive Card Component */}
-      <div className="flex items-center justify-center py-2">
-        <GeometryCard
-          card={card}
-          isFlipped={isFlipped}
-          slideDirection="next"
-          onSpeak={() => {}}
-          onTap={() => setLocalFlipped(!isFlipped)}
-        />
+      <div className="flex items-center justify-center py-2 transition-all">
+        <div
+          className={`transition-all duration-300 ${
+            viewport === "mobile"
+              ? "w-[360px] max-w-full p-2.5 bg-gray-950/70 rounded-3xl border border-gray-800/80 shadow-2xl"
+              : "w-full max-w-[700px]"
+          }`}
+        >
+          <GeometryCard
+            card={card}
+            isFlipped={isFlipped}
+            slideDirection="next"
+            onSpeak={() => {}}
+            onTap={() => setLocalFlipped(!isFlipped)}
+          />
+        </div>
       </div>
     </div>
   );
@@ -200,6 +241,7 @@ function GalleryView() {
   const [activeTopics, setActiveTopics] = useState<TopicType[]>(ALL_TOPICS);
   const [activeCardTypes, setActiveCardTypes] = useState<CardType[]>(ALL_CARD_TYPES);
   const [globalState, setGlobalState] = useState<"front" | "back" | null>(null);
+  const [globalViewport, setGlobalViewport] = useState<"desktop" | "mobile">("desktop");
 
   function toggleTopic(t: TopicType) {
     setActiveTopics((prev) =>
@@ -226,7 +268,7 @@ function GalleryView() {
 
   return (
     <main className="h-screen overflow-y-auto bg-gray-950 text-white">
-      {/* Sticky filter bar */}
+      {/* Sticky filter & control bar */}
       <div className="sticky top-0 z-20 bg-gray-950/95 backdrop-blur border-b border-gray-800 px-6 sm:px-8 py-4 flex flex-wrap gap-6 items-start shadow-md">
         <div>
           <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Topics</p>
@@ -269,6 +311,34 @@ function GalleryView() {
         </div>
 
         <div>
+          <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Viewport</p>
+          <div className="flex gap-1.5 font-mono text-xs">
+            <button
+              type="button"
+              onClick={() => setGlobalViewport("desktop")}
+              className={`px-2.5 py-1 rounded-md transition-colors ${
+                globalViewport === "desktop"
+                  ? "bg-blue-600 text-white font-bold"
+                  : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
+              }`}
+            >
+              Desktop
+            </button>
+            <button
+              type="button"
+              onClick={() => setGlobalViewport("mobile")}
+              className={`px-2.5 py-1 rounded-md transition-colors ${
+                globalViewport === "mobile"
+                  ? "bg-blue-600 text-white font-bold"
+                  : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
+              }`}
+            >
+              Mobile
+            </button>
+          </div>
+        </div>
+
+        <div>
           <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Bulk Flip</p>
           <div className="flex gap-1.5 font-mono text-xs">
             <button
@@ -304,7 +374,7 @@ function GalleryView() {
       <div className="p-6 sm:p-8 max-w-7xl mx-auto">
         <h1 className="text-2xl font-bold mb-1">Geometry Deck — Test Card Catalogue</h1>
         <p className="text-gray-400 text-sm mb-8">
-          Interactive live card catalogue · Click any card or toggle Primary/Reveal state directly
+          Interactive live card catalogue · Click any card or toggle Primary/Reveal and Desktop/Mobile viewports
         </p>
 
         {filteredIds.length === 0 ? (
@@ -326,6 +396,7 @@ function GalleryView() {
                         card={card}
                         id={id}
                         overrideState={globalState}
+                        globalViewport={globalViewport}
                       />
                     );
                   })}
