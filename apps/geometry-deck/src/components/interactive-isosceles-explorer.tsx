@@ -67,40 +67,49 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
   const midRightX = (x2 + apexX) / 2;
   const midRightY = (BASE_Y + apexY) / 2;
 
-  // Tick mark angles (perpendicular to leg)
-  const leftLegAngleDeg = (Math.atan2(BASE_Y - apexY, x1 - apexX) * 180) / Math.PI;
-  const rightLegAngleDeg = (Math.atan2(BASE_Y - apexY, x2 - apexX) * 180) / Math.PI;
+  // Exact normal vectors (100% perpendicular to leg line at all angles)
+  const tickHalfLen = 7;
+
+  // Left leg angle and normal vector
+  const leftLegRad = Math.atan2(BASE_Y - apexY, x1 - apexX);
+  const leftNormalX = -Math.sin(leftLegRad);
+  const leftNormalY = Math.cos(leftLegRad);
+  const tickLeft1 = { x: midLeftX - tickHalfLen * leftNormalX, y: midLeftY - tickHalfLen * leftNormalY };
+  const tickLeft2 = { x: midLeftX + tickHalfLen * leftNormalX, y: midLeftY + tickHalfLen * leftNormalY };
+
+  // Right leg angle and normal vector
+  const rightLegRad = Math.atan2(BASE_Y - apexY, x2 - apexX);
+  const rightNormalX = -Math.sin(rightLegRad);
+  const rightNormalY = Math.cos(rightLegRad);
+  const tickRight1 = { x: midRightX - tickHalfLen * rightNormalX, y: midRightY - tickHalfLen * rightNormalY };
+  const tickRight2 = { x: midRightX + tickHalfLen * rightNormalX, y: midRightY + tickHalfLen * rightNormalY };
 
   // Base angle arcs strictly inside triangle polygon
   const arcR = 24;
 
   // Left base vertex arc: from (x1 + arcR, BASE_Y) along left leg
-  const leftLegRad = Math.atan2(BASE_Y - apexY, apexX - x1); // angle above horizontal east
   const leftArcEnd = {
-    x: x1 + arcR * Math.cos(leftLegRad),
-    y: BASE_Y - arcR * Math.sin(leftLegRad),
+    x: x1 + arcR * Math.cos(Math.atan2(BASE_Y - apexY, apexX - x1)),
+    y: BASE_Y - arcR * Math.sin(Math.atan2(BASE_Y - apexY, apexX - x1)),
   };
   const leftArcPath = `M ${x1 + arcR} ${BASE_Y} A ${arcR} ${arcR} 0 0 0 ${leftArcEnd.x} ${leftArcEnd.y}`;
 
   // Right base vertex arc: from (x2 - arcR, BASE_Y) along right leg
-  const rightLegRad = Math.atan2(BASE_Y - apexY, x2 - apexX); // angle above horizontal west
   const rightArcEnd = {
-    x: x2 - arcR * Math.cos(rightLegRad),
-    y: BASE_Y - arcR * Math.sin(rightLegRad),
+    x: x2 - arcR * Math.cos(Math.atan2(BASE_Y - apexY, x2 - apexX)),
+    y: BASE_Y - arcR * Math.sin(Math.atan2(BASE_Y - apexY, x2 - apexX)),
   };
   const rightArcPath = `M ${x2 - arcR} ${BASE_Y} A ${arcR} ${arcR} 0 0 1 ${rightArcEnd.x} ${rightArcEnd.y}`;
 
   // Apex arc path
   const apexArcR = 28;
-  const leftLegDownRad = Math.atan2(BASE_Y - apexY, x1 - apexX);
-  const rightLegDownRad = Math.atan2(BASE_Y - apexY, x2 - apexX);
   const apexArcLeft = {
-    x: apexX + apexArcR * Math.cos(leftLegDownRad),
-    y: apexY + apexArcR * Math.sin(leftLegDownRad),
+    x: apexX + apexArcR * Math.cos(leftLegRad),
+    y: apexY + apexArcR * Math.sin(leftLegRad),
   };
   const apexArcRight = {
-    x: apexX + apexArcR * Math.cos(rightLegDownRad),
-    y: apexY + apexArcR * Math.sin(rightLegDownRad),
+    x: apexX + apexArcR * Math.cos(rightLegRad),
+    y: apexY + apexArcR * Math.sin(rightLegRad),
   };
   const apexArcPath = `M ${apexArcLeft.x} ${apexArcLeft.y} A ${apexArcR} ${apexArcR} 0 0 0 ${apexArcRight.x} ${apexArcRight.y}`;
 
@@ -175,20 +184,10 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
             strokeLinejoin="round"
           />
 
-          {/* Equal Legs Tick Marks */}
-          <g stroke="rgba(255,255,255,0.95)" strokeWidth={2}>
-            <line
-              x1={midLeftX - 6 * Math.cos((leftLegAngleDeg * Math.PI) / 180)}
-              y1={midLeftY + 6 * Math.sin((leftLegAngleDeg * Math.PI) / 180)}
-              x2={midLeftX + 6 * Math.cos((leftLegAngleDeg * Math.PI) / 180)}
-              y2={midLeftY - 6 * Math.sin((leftLegAngleDeg * Math.PI) / 180)}
-            />
-            <line
-              x1={midRightX - 6 * Math.cos((rightLegAngleDeg * Math.PI) / 180)}
-              y1={midRightY + 6 * Math.sin((rightLegAngleDeg * Math.PI) / 180)}
-              x2={midRightX + 6 * Math.cos((rightLegAngleDeg * Math.PI) / 180)}
-              y2={midRightY - 6 * Math.sin((rightLegAngleDeg * Math.PI) / 180)}
-            />
+          {/* Equal Legs Tick Marks (Strictly Orthogonal to leg at every angle) */}
+          <g stroke="rgba(255,255,255,0.95)" strokeWidth={2} strokeLinecap="round">
+            <line x1={tickLeft1.x} y1={tickLeft1.y} x2={tickLeft2.x} y2={tickLeft2.y} />
+            <line x1={tickRight1.x} y1={tickRight1.y} x2={tickRight2.x} y2={tickRight2.y} />
           </g>
 
           {/* Base Angle Arcs (Cyan) */}
