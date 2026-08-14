@@ -24,12 +24,12 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
     ucRef.current = isUserControlling;
   }, [isUserControlling]);
 
-  // Smooth continuous auto-pulse loop
+  // Smooth continuous auto-pulse loop across 6° to 172°
   const animate = useCallback((ts: number) => {
     if (ucRef.current) return;
     if (startTimeRef.current === null) startTimeRef.current = ts;
-    const t = (Math.sin(((ts - startTimeRef.current) / 1000) * Math.PI * 0.25) + 1) / 2;
-    const rawDeg = 34 + t * (110 - 34);
+    const t = (Math.sin(((ts - startTimeRef.current) / 1000) * Math.PI * 0.2) + 1) / 2;
+    const rawDeg = 8 + t * (172 - 8);
     const evenDeg = Math.round(rawDeg / 2) * 2;
     setApexAngle(evenDeg);
     animRef.current = requestAnimationFrame(animate);
@@ -79,7 +79,7 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
   const tickRight2 = { x: midRightX + tickHalfLen * rightNormalX, y: midRightY + tickHalfLen * rightNormalY };
 
   // Base angle arcs strictly inside triangle polygon
-  const arcR = 24;
+  const arcR = Math.min(24, Math.max(10, hw * 0.4));
   const leftArcEnd = {
     x: x1 + arcR * Math.cos(Math.atan2(BASE_Y - apexY, apexX - x1)),
     y: BASE_Y - arcR * Math.sin(Math.atan2(BASE_Y - apexY, apexX - x1)),
@@ -93,7 +93,7 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
   const rightArcPath = `M ${x2 - arcR} ${BASE_Y} A ${arcR} ${arcR} 0 0 1 ${rightArcEnd.x} ${rightArcEnd.y}`;
 
   // Apex arc path
-  const apexArcR = 26;
+  const apexArcR = Math.min(26, Math.max(12, h * 0.4));
   const apexArcLeft = {
     x: apexX + apexArcR * Math.cos(leftLegRad),
     y: apexY + apexArcR * Math.sin(leftLegRad),
@@ -214,14 +214,14 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
       {/* Range Slider Control */}
       <div className="w-full max-w-[280px] px-2 flex flex-col gap-1.5 items-center">
         <div className="w-full flex justify-between text-[11px] font-mono font-semibold text-white/80">
-          <span>Tall (30°)</span>
+          <span>2°</span>
           <span className="text-amber-300 font-bold text-xs">{displayApexAngle}°</span>
-          <span>Wide (120°)</span>
+          <span>178°</span>
         </div>
         <input
           type="range"
-          min={30}
-          max={120}
+          min={2}
+          max={178}
           step={2}
           value={displayApexAngle}
           onChange={handleSlider}
