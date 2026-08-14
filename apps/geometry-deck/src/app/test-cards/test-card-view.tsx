@@ -40,11 +40,10 @@ function InteractiveCardItem({
   globalViewport: "desktop" | "mobile";
 }) {
   const [localFlipped, setLocalFlipped] = useState<boolean | null>(null);
-  const [localViewport, setLocalViewport] = useState<"desktop" | "mobile" | null>(null);
 
-  // Use local toggle if user explicitly clicked, otherwise follow global overrides
+  // Use local toggle if user explicitly clicked, otherwise follow global override
   const isFlipped = localFlipped !== null ? localFlipped : overrideState === "back";
-  const viewport = localViewport ?? globalViewport;
+  const viewport = globalViewport;
 
   const typeTag = card.cardType === "term" ? "Term" : card.cardType === "formula" ? "Formula" : "Calculation";
   const typeBadgeColor =
@@ -65,67 +64,38 @@ function InteractiveCardItem({
           <span className="text-sm font-mono text-gray-200 font-bold">{id}</span>
         </div>
 
-        {/* Controls Bar: Viewport + State */}
-        <div className="flex flex-wrap items-center gap-2">
-          {/* Viewport Toggle */}
-          <div className="flex items-center bg-gray-950/80 p-1 rounded-xl border border-gray-800 text-[11px] font-mono">
-            <button
-              type="button"
-              onClick={() => setLocalViewport("desktop")}
-              className={`px-2.5 py-0.5 rounded-lg transition-all ${
-                viewport === "desktop"
-                  ? "bg-blue-600 text-white font-bold shadow-sm"
-                  : "text-gray-400 hover:text-white hover:bg-gray-800"
-              }`}
-            >
-              Desktop
-            </button>
-            <button
-              type="button"
-              onClick={() => setLocalViewport("mobile")}
-              className={`px-2.5 py-0.5 rounded-lg transition-all ${
-                viewport === "mobile"
-                  ? "bg-blue-600 text-white font-bold shadow-sm"
-                  : "text-gray-400 hover:text-white hover:bg-gray-800"
-              }`}
-            >
-              Mobile
-            </button>
-          </div>
-
-          {/* State Toggle Pills */}
-          <div className="flex items-center gap-1.5 bg-gray-950/80 p-1 rounded-xl border border-gray-800 text-xs font-mono">
-            <button
-              type="button"
-              onClick={() => setLocalFlipped(false)}
-              className={`px-3 py-1 rounded-lg transition-all ${
-                !isFlipped
-                  ? "bg-emerald-600 text-white font-bold shadow-sm"
-                  : "text-gray-400 hover:text-white hover:bg-gray-800"
-              }`}
-            >
-              Primary (Front)
-            </button>
-            <button
-              type="button"
-              onClick={() => setLocalFlipped(true)}
-              className={`px-3 py-1 rounded-lg transition-all ${
-                isFlipped
-                  ? "bg-emerald-600 text-white font-bold shadow-sm"
-                  : "text-gray-400 hover:text-white hover:bg-gray-800"
-              }`}
-            >
-              Reveal (Back)
-            </button>
-            <Link
-              href={`/test-cards?card=${id}&state=${isFlipped ? "back" : "front"}`}
-              target="_blank"
-              className="ml-1 px-2 py-1 text-gray-500 hover:text-gray-300 text-[11px] rounded hover:bg-gray-800"
-              title="Open isolated view in new tab"
-            >
-              ↗
-            </Link>
-          </div>
+        {/* State Toggle Pills */}
+        <div className="flex items-center gap-1.5 bg-gray-950/80 p-1 rounded-xl border border-gray-800 text-xs font-mono">
+          <button
+            type="button"
+            onClick={() => setLocalFlipped(false)}
+            className={`px-3 py-1 rounded-lg transition-all ${
+              !isFlipped
+                ? "bg-emerald-600 text-white font-bold shadow-sm"
+                : "text-gray-400 hover:text-white hover:bg-gray-800"
+            }`}
+          >
+            Primary (Front)
+          </button>
+          <button
+            type="button"
+            onClick={() => setLocalFlipped(true)}
+            className={`px-3 py-1 rounded-lg transition-all ${
+              isFlipped
+                ? "bg-emerald-600 text-white font-bold shadow-sm"
+                : "text-gray-400 hover:text-white hover:bg-gray-800"
+            }`}
+          >
+            Reveal (Back)
+          </button>
+          <Link
+            href={`/test-cards?card=${id}&state=${isFlipped ? "back" : "front"}`}
+            target="_blank"
+            className="ml-1 px-2 py-1 text-gray-500 hover:text-gray-300 text-[11px] rounded hover:bg-gray-800"
+            title="Open isolated view in new tab"
+          >
+            ↗
+          </Link>
         </div>
       </div>
 
