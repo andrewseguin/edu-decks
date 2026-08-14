@@ -24,37 +24,12 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
     ucRef.current = isUserControlling;
   }, [isUserControlling]);
 
-  // Smooth auto-showcase loop with intentional pauses at key milestones (60° Equilateral & 90° Right)
+  // Smooth continuous auto-pulse loop
   const animate = useCallback((ts: number) => {
     if (ucRef.current) return;
     if (startTimeRef.current === null) startTimeRef.current = ts;
-    const elapsed = ((ts - startTimeRef.current) / 1000) % 10; // 10-second loop cycle
-
-    let rawDeg = 34;
-    if (elapsed < 2.0) {
-      // Smooth rise 34° -> 60°
-      const t = elapsed / 2.0;
-      rawDeg = 34 + (1 - Math.cos(t * Math.PI)) * 0.5 * (60 - 34);
-    } else if (elapsed < 3.2) {
-      // Dwell at 60° (Equilateral)
-      rawDeg = 60;
-    } else if (elapsed < 5.0) {
-      // Smooth rise 60° -> 90°
-      const t = (elapsed - 3.2) / 1.8;
-      rawDeg = 60 + (1 - Math.cos(t * Math.PI)) * 0.5 * (90 - 60);
-    } else if (elapsed < 6.2) {
-      // Dwell at 90° (Right Isosceles)
-      rawDeg = 90;
-    } else if (elapsed < 8.0) {
-      // Smooth rise 90° -> 114°
-      const t = (elapsed - 6.2) / 1.8;
-      rawDeg = 90 + (1 - Math.cos(t * Math.PI)) * 0.5 * (114 - 90);
-    } else {
-      // Smooth return 114° -> 34°
-      const t = (elapsed - 8.0) / 2.0;
-      rawDeg = 114 - (1 - Math.cos(t * Math.PI)) * 0.5 * (114 - 34);
-    }
-
+    const t = (Math.sin(((ts - startTimeRef.current) / 1000) * Math.PI * 0.25) + 1) / 2;
+    const rawDeg = 34 + t * (110 - 34);
     const evenDeg = Math.round(rawDeg / 2) * 2;
     setApexAngle(evenDeg);
     animRef.current = requestAnimationFrame(animate);
@@ -137,21 +112,6 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
     const val = Number(e.target.value);
     setApexAngle(Math.round(val / 2) * 2);
   }, [isUserControlling]);
-
-  const selectPreset = (targetDeg: number) => {
-    setIsUserControlling(true);
-    if (animRef.current) cancelAnimationFrame(animRef.current);
-    setApexAngle(targetDeg);
-  };
-
-  const isoscelesTypeLabel =
-    displayApexAngle === 60
-      ? "Equilateral Triangle (All 60°)"
-      : displayApexAngle === 90
-      ? "Right Isosceles Triangle (90°, 45°, 45°)"
-      : displayApexAngle > 90
-      ? "Obtuse Isosceles Triangle (Apex > 90°)"
-      : "Acute Isosceles Triangle (Apex < 90°)";
 
   return (
     <div className="w-full flex flex-col items-center select-none pb-3">
@@ -249,44 +209,6 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
         <span className="px-3 py-1 rounded-full bg-black/40 text-amber-300 border border-amber-500/40 font-bold shadow-sm backdrop-blur">
           Apex: <span className="text-amber-200">{displayApexAngle}°</span>
         </span>
-      </div>
-
-      <p className="text-xs font-mono text-white/90 mb-2 font-bold drop-shadow-sm transition-all duration-300">
-        {isoscelesTypeLabel}
-      </p>
-
-      {/* Milestone Preset Quick Buttons */}
-      <div className="flex items-center gap-1.5 mb-2 text-[10px] font-mono">
-        <button
-          onClick={() => selectPreset(60)}
-          className={`px-2 py-0.5 rounded border transition-all ${
-            displayApexAngle === 60
-              ? "bg-amber-400 text-black border-amber-300 font-bold shadow-sm"
-              : "bg-black/30 text-gray-300 border-white/20 hover:bg-black/50"
-          }`}
-        >
-          60° Equilateral
-        </button>
-        <button
-          onClick={() => selectPreset(90)}
-          className={`px-2 py-0.5 rounded border transition-all ${
-            displayApexAngle === 90
-              ? "bg-amber-400 text-black border-amber-300 font-bold shadow-sm"
-              : "bg-black/30 text-gray-300 border-white/20 hover:bg-black/50"
-          }`}
-        >
-          90° Right
-        </button>
-        <button
-          onClick={() => selectPreset(110)}
-          className={`px-2 py-0.5 rounded border transition-all ${
-            displayApexAngle === 110
-              ? "bg-amber-400 text-black border-amber-300 font-bold shadow-sm"
-              : "bg-black/30 text-gray-300 border-white/20 hover:bg-black/50"
-          }`}
-        >
-          110° Obtuse
-        </button>
       </div>
 
       {/* Range Slider Control */}
