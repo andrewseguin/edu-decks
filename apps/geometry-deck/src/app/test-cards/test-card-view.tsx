@@ -3,80 +3,110 @@
 /**
  * TestCardView — Client Component
  *
- * Index view: live thumbnail gallery of every card × every state.
- * Single-card view: full-page rendering of one card at a specific state.
+ * Index view: streamlined interactive card catalogue (click card or toggle button to flip between Primary and Reveal).
+ * Single-card view: full-page rendering of one card at a specific state (used by visual regression tests).
  */
 
+import { useState } from "react";
 import Link from "next/link";
 import { GeometryCard } from "@/components/geometry-card";
 import { TEST_CARDS, TEST_CARD_IDS } from "@/lib/test-card-catalogue";
-import type { GeometryCard as GeometryCardType } from "@/lib/types";
+import { TOPIC_LABELS } from "@/lib/colors";
+import type { GeometryCard as GeometryCardType, TopicType, CardType } from "@/lib/types";
 
 type Props = {
   cardId: string | undefined;
   state: "front" | "back";
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Thumbnail constants
-// The card renders at 700 × 360 in a Desktop-width viewport.
-// We scale it down to a thumbnail size for the gallery.
-// ─────────────────────────────────────────────────────────────────────────────
-const CARD_W = 700;
-const CARD_H = 360;
-const SCALE = 0.27;
-const THUMB_W = Math.round(CARD_W * SCALE); // ~189px
-const THUMB_H = Math.round(CARD_H * SCALE); // ~97px
+const ALL_TOPICS: TopicType[] = ["angles", "triangles", "quadrilaterals", "circles", "polygons", "3d-shapes"];
+const ALL_CARD_TYPES: CardType[] = ["term", "formula", "calculation"];
+const CARD_TYPE_LABELS: Record<CardType, string> = { term: "Terms", formula: "Formulas", calculation: "Calculations" };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CardThumbnail
-// Uses position:absolute + scale so the full-size card renders at pixel-perfect
-// quality and is visually clipped to thumbnail size by overflow:hidden.
+// InteractiveCardItem
+// Renders the actual card directly. Tapping the card or state buttons toggles
+// between Primary (Front) and Reveal (Back).
 // ─────────────────────────────────────────────────────────────────────────────
-function CardThumbnail({
+function InteractiveCardItem({
   card,
-  isFlipped,
-  label,
-  href,
+  id,
+  overrideState,
 }: {
   card: GeometryCardType;
-  isFlipped: boolean;
-  label: string;
-  href: string;
+  id: string;
+  overrideState: "front" | "back" | null;
 }) {
+  const [localFlipped, setLocalFlipped] = useState<boolean | null>(null);
+
+  // Use local toggle if user explicitly clicked, otherwise follow global override
+  const isFlipped = localFlipped !== null ? localFlipped : overrideState === "back";
+
+  const typeTag = card.cardType === "term" ? "Term" : card.cardType === "formula" ? "Formula" : "Calculation";
+  const typeBadgeColor =
+    card.cardType === "term"
+      ? "bg-cyan-950/80 text-cyan-300 border-cyan-800/60"
+      : card.cardType === "formula"
+      ? "bg-purple-950/80 text-purple-300 border-purple-800/60"
+      : "bg-amber-950/80 text-amber-300 border-amber-800/60";
+
   return (
-    <Link href={href} className="flex flex-col gap-1 group">
-      <div
-        className="relative overflow-hidden rounded-lg"
-        style={{ width: THUMB_W, height: THUMB_H }}
-      >
-        <div
-          className="absolute top-0 left-0"
-          style={{
-            width: CARD_W,
-            height: CARD_H,
-            transform: `scale(${SCALE})`,
-            transformOrigin: "top left",
-            pointerEvents: "none",
-            userSelect: "none",
-          }}
-        >
-          {/* Centering wrapper so the card component is visible */}
-          <div className="flex items-center justify-center w-full h-full bg-gray-950">
-            <GeometryCard
-              card={card}
-              isFlipped={isFlipped}
-              slideDirection="next"
-              onSpeak={() => {}}
-              onTap={() => {}}
-            />
-          </div>
+    <div className="flex flex-col gap-3 p-4 sm:p-6 rounded-2xl bg-gray-900/60 border border-gray-800/80 hover:border-gray-700/80 transition-all shadow-lg">
+      {/* Header Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-800/60 pb-3">
+        <div className="flex items-center gap-3">
+          <span className={`px-2.5 py-0.5 rounded text-[11px] font-mono font-semibold uppercase border ${typeBadgeColor}`}>
+            {typeTag}
+          </span>
+          <span className="text-sm font-mono text-gray-200 font-bold">{id}</span>
+        </div>
+
+        {/* State Toggle Pills */}
+        <div className="flex items-center gap-1.5 bg-gray-950/80 p-1 rounded-xl border border-gray-800 text-xs font-mono">
+          <button
+            type="button"
+            onClick={() => setLocalFlipped(false)}
+            className={`px-3 py-1 rounded-lg transition-all ${
+              !isFlipped
+                ? "bg-emerald-600 text-white font-bold shadow-sm"
+                : "text-gray-400 hover:text-white hover:bg-gray-800"
+            }`}
+          >
+            Primary (Front)
+          </button>
+          <button
+            type="button"
+            onClick={() => setLocalFlipped(true)}
+            className={`px-3 py-1 rounded-lg transition-all ${
+              isFlipped
+                ? "bg-emerald-600 text-white font-bold shadow-sm"
+                : "text-gray-400 hover:text-white hover:bg-gray-800"
+            }`}
+          >
+            Reveal (Back)
+          </button>
+          <Link
+            href={`/test-cards?card=${id}&state=${isFlipped ? "back" : "front"}`}
+            target="_blank"
+            className="ml-1 px-2 py-1 text-gray-500 hover:text-gray-300 text-[11px] rounded hover:bg-gray-800"
+            title="Open isolated view in new tab"
+          >
+            ↗
+          </Link>
         </div>
       </div>
-      <span className="text-gray-500 text-[10px] font-mono text-center leading-tight group-hover:text-gray-300 transition-colors">
-        {label}
-      </span>
-    </Link>
+
+      {/* Direct Interactive Card Component */}
+      <div className="flex items-center justify-center py-2">
+        <GeometryCard
+          card={card}
+          isFlipped={isFlipped}
+          slideDirection="next"
+          onSpeak={() => {}}
+          onTap={() => setLocalFlipped(!isFlipped)}
+        />
+      </div>
+    </div>
   );
 }
 
@@ -84,8 +114,7 @@ function CardThumbnail({
 // Main export
 // ─────────────────────────────────────────────────────────────────────────────
 export function TestCardView({ cardId, state }: Props) {
-
-  // ── Single-card view ────────────────────────────────────────────────────
+  // ── Single-card view (used by Playwright visual regression tests) ────────
   if (cardId) {
     const card = TEST_CARDS[cardId];
 
@@ -165,19 +194,12 @@ export function TestCardView({ cardId, state }: Props) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// GalleryView — separate component so it can use hooks
+// GalleryView
 // ─────────────────────────────────────────────────────────────────────────────
-import { useState } from "react";
-import { TOPIC_LABELS } from "@/lib/colors";
-import type { TopicType, CardType } from "@/lib/types";
-
-const ALL_TOPICS: TopicType[] = ["angles", "triangles", "quadrilaterals", "circles", "polygons", "3d-shapes"];
-const ALL_CARD_TYPES: CardType[] = ["term", "formula", "calculation"];
-const CARD_TYPE_LABELS: Record<CardType, string> = { term: "Terms", formula: "Formulas", calculation: "Calculations" };
-
 function GalleryView() {
   const [activeTopics, setActiveTopics] = useState<TopicType[]>(ALL_TOPICS);
   const [activeCardTypes, setActiveCardTypes] = useState<CardType[]>(ALL_CARD_TYPES);
+  const [globalState, setGlobalState] = useState<"front" | "back" | null>(null);
 
   function toggleTopic(t: TopicType) {
     setActiveTopics((prev) =>
@@ -205,17 +227,18 @@ function GalleryView() {
   return (
     <main className="h-screen overflow-y-auto bg-gray-950 text-white">
       {/* Sticky filter bar */}
-      <div className="sticky top-0 z-10 bg-gray-950/95 backdrop-blur border-b border-gray-800 px-8 py-4 flex flex-wrap gap-6 items-start">
+      <div className="sticky top-0 z-20 bg-gray-950/95 backdrop-blur border-b border-gray-800 px-6 sm:px-8 py-4 flex flex-wrap gap-6 items-start shadow-md">
         <div>
           <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Topics</p>
           <div className="flex flex-wrap gap-1.5">
             {ALL_TOPICS.map((t) => (
               <button
                 key={t}
+                type="button"
                 onClick={() => toggleTopic(t)}
                 className={`px-2.5 py-1 rounded-md text-xs font-mono transition-colors ${
                   activeTopics.includes(t)
-                    ? "bg-emerald-700 text-white"
+                    ? "bg-emerald-700 text-white font-semibold"
                     : "bg-gray-800 text-gray-500 hover:bg-gray-700"
                 }`}
               >
@@ -224,16 +247,18 @@ function GalleryView() {
             ))}
           </div>
         </div>
+
         <div>
           <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Card Types</p>
           <div className="flex gap-1.5">
             {ALL_CARD_TYPES.map((t) => (
               <button
                 key={t}
+                type="button"
                 onClick={() => toggleCardType(t)}
                 className={`px-2.5 py-1 rounded-md text-xs font-mono transition-colors ${
                   activeCardTypes.includes(t)
-                    ? "bg-emerald-700 text-white"
+                    ? "bg-emerald-700 text-white font-semibold"
                     : "bg-gray-800 text-gray-500 hover:bg-gray-700"
                 }`}
               >
@@ -242,15 +267,44 @@ function GalleryView() {
             ))}
           </div>
         </div>
+
+        <div>
+          <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Bulk Flip</p>
+          <div className="flex gap-1.5 font-mono text-xs">
+            <button
+              type="button"
+              onClick={() => setGlobalState("front")}
+              className={`px-2.5 py-1 rounded-md transition-colors ${
+                globalState === "front"
+                  ? "bg-emerald-600 text-white font-bold"
+                  : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
+              }`}
+            >
+              All Primary
+            </button>
+            <button
+              type="button"
+              onClick={() => setGlobalState("back")}
+              className={`px-2.5 py-1 rounded-md transition-colors ${
+                globalState === "back"
+                  ? "bg-emerald-600 text-white font-bold"
+                  : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
+              }`}
+            >
+              All Reveal
+            </button>
+          </div>
+        </div>
+
         <div className="ml-auto self-center text-right">
-          <p className="text-xs text-gray-500 font-mono">{filteredIds.length} / {TEST_CARD_IDS.length} cards</p>
+          <p className="text-xs text-gray-400 font-mono">{filteredIds.length} / {TEST_CARD_IDS.length} cards</p>
         </div>
       </div>
 
-      <div className="p-8">
+      <div className="p-6 sm:p-8 max-w-7xl mx-auto">
         <h1 className="text-2xl font-bold mb-1">Geometry Deck — Test Card Catalogue</h1>
-        <p className="text-gray-400 text-sm mb-10">
-          Click any thumbnail to open full view · development only
+        <p className="text-gray-400 text-sm mb-8">
+          Interactive live card catalogue · Click any card or toggle Primary/Reveal state directly
         </p>
 
         {filteredIds.length === 0 ? (
@@ -259,27 +313,20 @@ function GalleryView() {
           <div className="space-y-12">
             {Object.entries(grouped).map(([topic, ids]) => (
               <section key={topic}>
-                <h2 className="text-base font-semibold uppercase tracking-widest mb-4 text-gray-400 border-b border-gray-800 pb-2">
-                  {topic}
+                <h2 className="text-base font-semibold uppercase tracking-widest mb-6 text-gray-400 border-b border-gray-800 pb-2">
+                  {TOPIC_LABELS[topic as TopicType] || topic}
                 </h2>
 
-                <div className="flex flex-col gap-8">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                   {ids.map((id) => {
                     const card = TEST_CARDS[id];
-                    const typeTag = card.cardType === "term" ? "T" : card.cardType === "formula" ? "F" : "C";
-
                     return (
-                      <div key={id} className="flex items-start gap-5">
-                        <div className="w-48 shrink-0 pt-1">
-                          <span className="text-[10px] font-mono text-gray-600 uppercase">{typeTag}</span>
-                          <p className="text-xs font-mono text-gray-300 break-all leading-snug mt-0.5">{id}</p>
-                        </div>
-
-                        <div className="flex flex-wrap gap-3">
-                          <CardThumbnail card={card} isFlipped={false} label="front" href={`/test-cards?card=${id}&state=front`} />
-                          <CardThumbnail card={card} isFlipped={true} label="back" href={`/test-cards?card=${id}&state=back`} />
-                        </div>
-                      </div>
+                      <InteractiveCardItem
+                        key={id}
+                        card={card}
+                        id={id}
+                        overrideState={globalState}
+                      />
                     );
                   })}
                 </div>
