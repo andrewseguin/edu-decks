@@ -6,6 +6,10 @@ import { renderShapeSvg } from "@/lib/svg-shapes";
 import { EquationDisplay } from "./equation-display";
 import { ProofRow } from "./proof-row";
 import { StepNav } from "./step-nav";
+import { InteractiveAngleExplorer } from "./interactive-angle-explorer";
+import { InteractiveAnglePair } from "./interactive-angle-pair";
+import { InteractiveVerticalAngles } from "./interactive-vertical-angles";
+import { InteractiveParallelAngles } from "./interactive-parallel-angles";
 import type {
   GeometryCard as GeometryCardType,
   AnimationStep,
@@ -26,6 +30,27 @@ type GeometryCardProps = {
    * this prop; Playwright uses it to render deterministic step states.
    */
   forcedStepIndex?: number;
+};
+
+// ── Interactive angle range configs for term cards ──────────────────────────
+// Maps the card's frontLabel to the angle explorer props.
+const ANGLE_RANGE_TERMS: Record<string, { minAngle: number; maxAngle: number; label: string }> = {
+  "Acute angles":  { minAngle: 0,   maxAngle: 90,  label: "acute" },
+  "Obtuse angles": { minAngle: 90,  maxAngle: 180, label: "obtuse" },
+  "Reflex angles": { minAngle: 180, maxAngle: 360, label: "reflex" },
+};
+
+// Maps relational angle term cards to their interactive component config.
+const RELATIONAL_ANGLE_TERMS: Record<string, 
+  | { type: "pair"; targetSum: 90 | 180 }
+  | { type: "vertical" }
+  | { type: "parallel"; mode: "alternate" | "co-interior" }
+> = {
+  "Complementary angles":        { type: "pair", targetSum: 90 },
+  "Supplementary angles":        { type: "pair", targetSum: 180 },
+  "Vertically opposite angles":  { type: "vertical" },
+  "Alternate angles":            { type: "parallel", mode: "alternate" },
+  "Co-interior angles":          { type: "parallel", mode: "co-interior" },
 };
 
 // Full "Find the …" labels for every unknown dimension
@@ -139,9 +164,6 @@ export function GeometryCard({
         tall && "max-sm:portrait:h-[88vw] max-sm:portrait:min-h-[340px] max-sm:portrait:max-h-[min(450px,76svh)]",
       )}
       onCardTap={onCardTap || onTap}
-      onSpeak={handleSpeak}
-      speakerAriaLabel="Listen to card"
-      speakerSize="md"
     >
       {children}
     </FlashCardShell>
@@ -153,6 +175,39 @@ export function GeometryCard({
   if (card.cardType === "term") {
     const hasSvg = card.backSvgExamples && card.backSvgExamples.length > 0;
     const multiSvg = hasSvg && card.backSvgExamples!.length > 1;
+    const angleRange = card.frontLabel ? ANGLE_RANGE_TERMS[card.frontLabel] : undefined;
+    const relational = card.frontLabel ? RELATIONAL_ANGLE_TERMS[card.frontLabel] : undefined;
+
+    // Render the interactive visual for the reveal content
+    const renderInteractive = () => {
+      if (angleRange) {
+        return <InteractiveAngleExplorer minAngle={angleRange.minAngle} maxAngle={angleRange.maxAngle} label={angleRange.label} color={card.color} />;
+      }
+      if (relational) {
+        if (relational.type === "pair") {
+          return <InteractiveAnglePair targetSum={relational.targetSum} label={card.frontLabel!} color={card.color} />;
+        }
+        if (relational.type === "vertical") {
+          return <InteractiveVerticalAngles color={card.color} />;
+        }
+        if (relational.type === "parallel") {
+          return <InteractiveParallelAngles mode={relational.mode} color={card.color} />;
+        }
+      }
+      if (hasSvg) {
+        return (
+          <div className={cn("flex gap-3 justify-center w-full shrink-0", multiSvg ? "flex-row items-center" : "flex-col items-center")}>
+            {card.backSvgExamples!.map((ex, i) => (
+              <div key={i} className={cn("aspect-[11/9]", multiSvg ? "w-full max-w-[160px]" : "w-full max-w-[240px] sm:max-w-[280px]")}>
+                {renderShapeSvg(ex, activeMutation)}
+              </div>
+            ))}
+          </div>
+        );
+      }
+      return null;
+    };
+
     return (
       <FlashCardShell
         key={card.id}
@@ -161,16 +216,11 @@ export function GeometryCard({
         backgroundColor={card.color}
         className="w-[90vw] max-w-[700px] border-none"
         onCardTap={onCardTap || onTap}
-        onSpeak={handleSpeak}
-        speakerAriaLabel="Listen to card"
-        speakerSize="md"
         frontContent={
-          <div className="flex flex-col items-center justify-center px-6 gap-1">
+          <div className="flex flex-col items-center justify-center px-6 py-4 gap-1">
             <span
               className={cn(
-                "font-headline font-bold text-white text-center leading-tight",
-                "transition-all duration-500 ease-in-out",
-                isFlipped ? "text-xl sm:text-2xl" : "text-3xl sm:text-4xl"
+                "font-headline font-bold text-white text-center leading-tight text-3xl sm:text-4xl",
               )}
             >
               {card.frontLabel}
@@ -193,27 +243,7 @@ export function GeometryCard({
                 {card.backDefinition}
               </p>
             )}
-
-            {hasSvg && (
-              <div
-                className={cn(
-                  "flex gap-3 justify-center w-full shrink-0",
-                  multiSvg ? "flex-row items-center" : "flex-col items-center"
-                )}
-              >
-                {card.backSvgExamples!.map((ex, i) => (
-                  <div
-                    key={i}
-                    className={cn(
-                      "aspect-[11/9]",
-                      multiSvg ? "w-full max-w-[160px]" : "w-full max-w-[240px] sm:max-w-[280px]"
-                    )}
-                  >
-                    {renderShapeSvg(ex, activeMutation)}
-                  </div>
-                ))}
-              </div>
-            )}
+            {renderInteractive()}
           </div>
         }
       />
@@ -236,9 +266,6 @@ export function GeometryCard({
       backgroundColor={card.color}
       className="w-[90vw] max-w-[700px] border-none"
       onCardTap={onCardTap || onTap}
-      onSpeak={handleSpeak}
-      speakerAriaLabel="Listen to card"
-      speakerSize="md"
       frontContent={
         <div className="flex flex-col items-center justify-center gap-1.5 px-4">
           {card.frontSvg && (
