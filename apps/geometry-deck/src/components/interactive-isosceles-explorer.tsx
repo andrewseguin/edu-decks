@@ -30,8 +30,7 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
     if (startTimeRef.current === null) startTimeRef.current = ts;
     const t = (Math.sin(((ts - startTimeRef.current) / 1000) * Math.PI * 0.2) + 1) / 2;
     const rawDeg = 15 + t * (165 - 15);
-    const evenDeg = Math.round(rawDeg / 2) * 2;
-    setApexAngle(evenDeg);
+    setApexAngle(Math.round(rawDeg));
     animRef.current = requestAnimationFrame(animate);
   }, []);
 
@@ -45,9 +44,9 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
     };
   }, [animate, isUserControlling]);
 
-  // Geometry calculations (exact even integer degrees)
-  const displayApexAngle = Math.round(apexAngle / 2) * 2;
-  const baseAngle = (180 - displayApexAngle) / 2;
+  // Geometry calculations (whole integer degrees with zero decimals)
+  const displayApexAngle = Math.round(apexAngle);
+  const baseAngle = Math.round((180 - displayApexAngle) / 2);
 
   const halfApexRad = ((displayApexAngle / 2) * Math.PI) / 180;
   const hw = LEG_LEN * Math.sin(halfApexRad);
@@ -110,7 +109,7 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
       if (animRef.current) cancelAnimationFrame(animRef.current);
     }
     const val = Number(e.target.value);
-    setApexAngle(Math.round(val / 2) * 2);
+    setApexAngle(val);
   }, [isUserControlling]);
 
   return (
@@ -211,13 +210,13 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
         </span>
       </div>
 
-      {/* Range Slider Control (No labels) */}
+      {/* Range Slider Control (No labels, 1° step from 1° to 179°) */}
       <div className="w-full max-w-[280px] px-2 flex flex-col gap-1.5 items-center mt-1">
         <input
           type="range"
           min={1}
           max={179}
-          step={2}
+          step={1}
           value={displayApexAngle}
           onChange={handleSlider}
           className="w-full h-2 bg-black/30 rounded-lg appearance-none cursor-pointer accent-amber-400 focus:outline-none border border-white/20"
