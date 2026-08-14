@@ -650,7 +650,7 @@ function Triangle({ dims, mutation }: { dims: Record<string, number | string>; m
       {/* Labels */}
       {lm === "numeric" && (
         <>
-          {unknownDim === "A" ? <UnknownPill x={cx} y={topY - 14} /> : <SvgLabel x={cx} y={topY - 14} text={`A = ?`} />}
+          {unknownDim === "A" && <UnknownPill x={cx} y={topY - 14} />}
           {b !== undefined && <SvgLabel x={(x1 + x2) / 2} y={baseY + 16} text={`b = ${b}`} />}
           {h !== undefined && <SvgLabel x={x3 + 22} y={(baseY + topY) / 2 + 5} text={`h = ${h}`} />}
           {a !== undefined && <SvgLabel x={x1 - 12} y={(baseY + topY) / 2} text={`${a}`} />}
@@ -661,7 +661,7 @@ function Triangle({ dims, mutation }: { dims: Record<string, number | string>; m
         <>
           <SvgLabel x={(x1 + x2) / 2} y={baseY + 16} text="b" />
           <SvgLabel x={x3 + 22} y={(baseY + topY) / 2 + 5} text="h" />
-          {unknownDim === "A" ? <UnknownPill x={cx + 30} y={topY - 5} /> : <SvgLabel x={cx + 30} y={topY - 5} text="A = ?" />}
+          {unknownDim === "A" && <UnknownPill x={cx + 30} y={topY - 5} />}
         </>
       )}
 
@@ -672,7 +672,7 @@ function Triangle({ dims, mutation }: { dims: Record<string, number | string>; m
           <SvgLabel x={x2 - 16} y={baseY - 10} text={`${dims.angB}°`} size={12} />
           {unknownDim === "C"
             ? <UnknownPill x={x3} y={topY + 18} />
-            : <SvgLabel x={x3} y={topY + 18} text={`C = ?`} size={12} />}
+            : (dims.angC !== undefined ? <SvgLabel x={x3} y={topY + 18} text={`${dims.angC}°`} size={12} /> : null)}
         </>
       )}
     </svg>
@@ -716,7 +716,7 @@ function RightTriangle({ dims, mutation }: { dims: Record<string, number | strin
         <>
           <SvgLabel x={x1 - 10} y={(y1 + y3) / 2} text="a" />
           <SvgLabel x={(x1 + x2) / 2} y={y1 + 16} text="b" />
-          {unknownDim === "c" ? <UnknownPill x={(x2 + x3) / 2 + 14} y={(y2 + y3) / 2} /> : <SvgLabel x={(x2 + x3) / 2 + 14} y={(y2 + y3) / 2} text="c = ?" />}
+          {unknownDim === "c" && <UnknownPill x={(x2 + x3) / 2 + 14} y={(y2 + y3) / 2} />}
         </>
       )}
     </svg>
@@ -763,8 +763,8 @@ function Rectangle({ dims, mutation }: { dims: Record<string, number | string>; 
         <>
           <SvgLabel x={(x1 + x2) / 2} y={y1 - 14} text="l" />
           <SvgLabel x={x2 + 14} y={(y1 + y2) / 2} text="w" />
-          {unknownDim === "A" ? <UnknownPill x={(x1 + x2) / 2} y={(y1 + y2) / 2} /> : <SvgLabel x={(x1 + x2) / 2} y={(y1 + y2) / 2 + 4} text="A = ?" />}
-          {unknownDim === "P" ? <UnknownPill x={(x1 + x2) / 2} y={(y1 + y2) / 2} /> : null}
+          {unknownDim === "A" && <UnknownPill x={(x1 + x2) / 2} y={(y1 + y2) / 2} />}
+          {unknownDim === "P" && <UnknownPill x={(x1 + x2) / 2} y={(y1 + y2) / 2} />}
         </>
       )}
     </svg>
@@ -803,7 +803,7 @@ function Parallelogram({ dims, mutation }: { dims: Record<string, number | strin
         <>
           <SvgLabel x={(x1 + x1 + bw) / 2} y={y1 + 16} text="b" />
           <SvgLabel x={x1 + skew - 20} y={y1 - bh / 2 + 5} text="h" />
-          {unknownDim === "A" ? <UnknownPill x={x1 + skew + bw / 2} y={y1 - bh / 2} /> : <SvgLabel x={x1 + skew + bw / 2} y={y1 - bh / 2} text="A = ?" />}
+          {unknownDim === "A" && <UnknownPill x={x1 + skew + bw / 2} y={y1 - bh / 2} />}
         </>
       )}
     </svg>
@@ -844,7 +844,7 @@ function Trapezoid({ dims, mutation }: { dims: Record<string, number | string>; 
           <SvgLabel x={(xTop1 + xTop2) / 2} y={topY - 14} text="a" />
           <SvgLabel x={(xBase1 + xBase2) / 2} y={baseY + 16} text="b" />
           <SvgLabel x={xTop2 + 28} y={(topY + baseY) / 2} text="h" />
-          {unknownDim === "A" ? <UnknownPill x={110} y={(topY + baseY) / 2} /> : <SvgLabel x={110} y={(topY + baseY) / 2} text="A = ?" />}
+          {unknownDim === "A" && <UnknownPill x={110} y={(topY + baseY) / 2} />}
         </>
       )}
     </svg>
@@ -991,7 +991,6 @@ function Prism({ dims }: { dims: Record<string, number | string> }) {
       <SvgLabel x={fr.x + (br.x - fr.x) / 2 + 16} y={(fr.y + ftr.y) / 2 + (br.y - fr.y) / 4} text={lv ? "w" : `w = ${dims.w}`} />
       <SvgLabel x={ftl.x - 18} y={(ftl.y + fl.y) / 2} text={lv ? "h" : `h = ${dims.h}`} />
       {dims.unknown === "V" && <UnknownPill x={110} y={135} />}
-      {!dims.unknown && !lv && <SvgLabel x={110} y={135} text="V = ?" size={12} opacity={0.6} />}
     </svg>
   );
 }
