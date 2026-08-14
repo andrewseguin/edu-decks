@@ -11,12 +11,14 @@ type ScaleneVariant = {
 
 type ScaleneCategory = {
   name: string;
+  description: string;
   variants: ScaleneVariant[];
 };
 
 const SCALENE_CATEGORIES: ScaleneCategory[] = [
   {
     name: "Acute Scalene",
+    description: "3 unequal sides • All 3 angles acute (< 90°)",
     variants: [
       { apexX: 92, apexY: 55, sides: [10, 13, 15], angles: [42, 63, 75] },
       { apexX: 105, apexY: 45, sides: [12, 14, 13], angles: [52, 70, 58] },
@@ -26,6 +28,7 @@ const SCALENE_CATEGORIES: ScaleneCategory[] = [
   },
   {
     name: "Right Scalene",
+    description: "3 unequal sides • Has 1 right angle (= 90°)",
     variants: [
       { apexX: 89, apexY: 73, sides: [9, 12, 15], angles: [37, 53, 90] },
       { apexX: 62, apexY: 68, sides: [8, 14, 15], angles: [30, 60, 90] },
@@ -34,6 +37,7 @@ const SCALENE_CATEGORIES: ScaleneCategory[] = [
   },
   {
     name: "Obtuse Scalene",
+    description: "3 unequal sides • Has 1 obtuse angle (> 90°)",
     variants: [
       { apexX: 65, apexY: 92, sides: [6, 13, 16], angles: [22, 35, 123] },
       { apexX: 58, apexY: 82, sides: [7, 14, 16], angles: [24, 38, 118] },
@@ -246,8 +250,13 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
         </svg>
       </div>
 
+      {/* Active Category Definition Caption (Clean text readout, no pill background or border) */}
+      <p className="my-1.5 text-xs text-center font-medium text-emerald-100/90 tracking-tight">
+        {currentCategory.description}
+      </p>
+
       {/* Interactive Category Chips (Clicking generates a new random variation) */}
-      <div className="flex items-center gap-2 mt-1">
+      <div className="flex items-center gap-2 mt-0.5">
         {SCALENE_CATEGORIES.map((c, idx) => (
           <button
             key={c.name}
