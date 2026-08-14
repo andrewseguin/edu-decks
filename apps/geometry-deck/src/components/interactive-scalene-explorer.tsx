@@ -50,13 +50,13 @@ export function InteractiveScaleneExplorer({ color }: InteractiveScaleneExplorer
   const apexX = X1 + 25 + (skew / 100) * 85; // 60 to 145 (never 110 exact center)
   const apexY = 52 + Math.sin((skew / 100) * Math.PI) * 18;
 
-  // Side lengths (rounded for display)
+  // Side lengths (formatted to 1 decimal place so they are 100% distinct)
   const leftLegLen = Math.sqrt((apexX - X1) ** 2 + (BASE_Y - apexY) ** 2);
   const rightLegLen = Math.sqrt((X2 - apexX) ** 2 + (BASE_Y - apexY) ** 2);
 
-  const sideA = Math.round(rightLegLen / 10);
-  const sideB = Math.round(leftLegLen / 10);
-  const sideC = Math.round(BASE_LEN / 10);
+  const sideB = (leftLegLen / 10).toFixed(1);
+  const sideA = (rightLegLen / 10).toFixed(1);
+  const sideC = (BASE_LEN / 10).toFixed(1);
 
   // Interior angles
   const radA = Math.atan2(BASE_Y - apexY, apexX - X1);
@@ -84,23 +84,21 @@ export function InteractiveScaleneExplorer({ color }: InteractiveScaleneExplorer
   const tickLeft1 = { x: midLeftX - tickLen * leftNormalX, y: midLeftY - tickLen * leftNormalY };
   const tickLeft2 = { x: midLeftX + tickLen * leftNormalX, y: midLeftY + tickLen * leftNormalY };
 
-  // Right leg ticks (2 tick marks ||)
-  const rightNormalX = -Math.sin(radB);
-  const rightNormalY = Math.cos(rightLegRad(BASE_Y, apexY, X2, apexX));
-  function rightLegRad(by: number, ay: number, x2: number, ax: number) {
-    return Math.atan2(by - ay, x2 - ax);
-  }
-  const rRad = rightLegRad(BASE_Y, apexY, X2, apexX);
+  // Right leg ticks (2 tick marks ||) - parallel & orthogonal to right leg line
+  const rRad = Math.atan2(BASE_Y - apexY, X2 - apexX);
   const rNx = -Math.sin(rRad);
   const rNy = Math.cos(rRad);
-  const rDx = Math.cos(rRad) * 4;
-  const rDy = Math.sin(rRad) * 4;
+  const rAlongX = Math.cos(rRad);
+  const rAlongY = Math.sin(rRad);
+  const rSpacing = 3.5;
 
-  const tickRightA1 = { x: midRightX - rDx - tickLen * rNx, y: midRightY + rDy - tickLen * rNy };
-  const tickRightA2 = { x: midRightX - rDx + tickLen * rNx, y: midRightY + rDy + tickLen * rNy };
+  const centerA = { x: midRightX - rSpacing * rAlongX, y: midRightY - rSpacing * rAlongY };
+  const tickRightA1 = { x: centerA.x - tickLen * rNx, y: centerA.y - tickLen * rNy };
+  const tickRightA2 = { x: centerA.x + tickLen * rNx, y: centerA.y + tickLen * rNy };
 
-  const tickRightB1 = { x: midRightX + rDx - tickLen * rNx, y: midRightY - rDy - tickLen * rNy };
-  const tickRightB2 = { x: midRightX + rDx + tickLen * rNx, y: midRightY - rDy + tickLen * rNy };
+  const centerB = { x: midRightX + rSpacing * rAlongX, y: midRightY + rSpacing * rAlongY };
+  const tickRightB1 = { x: centerB.x - tickLen * rNx, y: centerB.y - tickLen * rNy };
+  const tickRightB2 = { x: centerB.x + tickLen * rNx, y: centerB.y + tickLen * rNy };
 
   // Base ticks (3 tick marks |||)
   const bGap = 4;
