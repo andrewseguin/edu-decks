@@ -170,7 +170,7 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
             className="transition-all duration-500 ease-out"
           />
 
-          {/* Side Length Labels (Positioned OUTSIDE near each side) */}
+          {/* Side Length Labels (Positioned OUTSIDE near each side with drop shadow) */}
           <text
             x={sideLabelLeftX}
             y={sideLabelLeftY + 3}
@@ -179,6 +179,7 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
             fontWeight="800"
             fill="#6ee7b7"
             fontFamily="var(--font-heading, system-ui)"
+            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
             className="transition-all duration-500 ease-out"
           >
             {sideB}
@@ -191,6 +192,7 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
             fontWeight="800"
             fill="#6ee7b7"
             fontFamily="var(--font-heading, system-ui)"
+            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
             className="transition-all duration-500 ease-out"
           >
             {sideA}
@@ -203,25 +205,54 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
             fontWeight="800"
             fill="#6ee7b7"
             fontFamily="var(--font-heading, system-ui)"
+            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
           >
             {sideC}
           </text>
 
           {/* Left Angle Arc A (Cyan) */}
           <path d={arcAPath} fill="none" stroke="#5ee8ff" strokeWidth={2.5} strokeLinecap="round" className="transition-all duration-500 ease-out" />
-          {/* Right Angle Arc B (Rose) */}
-          <path d={arcBPath} fill="none" stroke="#ff6b8b" strokeWidth={2.5} strokeLinecap="round" className="transition-all duration-500 ease-out" />
+          {/* Right Angle Arc B (Lavender Purple - replaces red for high contrast) */}
+          <path d={arcBPath} fill="none" stroke="#c084fc" strokeWidth={2.5} strokeLinecap="round" className="transition-all duration-500 ease-out" />
           {/* Apex Angle Arc C (Gold) */}
           <path d={arcCPath} fill="none" stroke="#ffd45e" strokeWidth={2.5} strokeLinecap="round" className="transition-all duration-500 ease-out" />
 
-          {/* Angle Value Labels */}
-          <text x={X1 - 8} y={BASE_Y + 3} textAnchor="end" fontSize={12} fontWeight="800" fill="#5ee8ff" fontFamily="var(--font-heading, system-ui)">
+          {/* Angle Value Labels (With crisp dark drop-shadow for maximum contrast) */}
+          <text
+            x={X1 - 8}
+            y={BASE_Y + 3}
+            textAnchor="end"
+            fontSize={12}
+            fontWeight="800"
+            fill="#5ee8ff"
+            fontFamily="var(--font-heading, system-ui)"
+            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
+          >
             {degA}°
           </text>
-          <text x={X2 + 8} y={BASE_Y + 3} textAnchor="start" fontSize={12} fontWeight="800" fill="#ff6b8b" fontFamily="var(--font-heading, system-ui)">
+          <text
+            x={X2 + 8}
+            y={BASE_Y + 3}
+            textAnchor="start"
+            fontSize={12}
+            fontWeight="800"
+            fill="#c084fc"
+            fontFamily="var(--font-heading, system-ui)"
+            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
+          >
             {degB}°
           </text>
-          <text x={apexX} y={apexY - 10} textAnchor="middle" fontSize={12} fontWeight="800" fill="#ffd45e" fontFamily="var(--font-heading, system-ui)" className="transition-all duration-500 ease-out">
+          <text
+            x={apexX}
+            y={apexY - 10}
+            textAnchor="middle"
+            fontSize={12}
+            fontWeight="800"
+            fill="#ffd45e"
+            fontFamily="var(--font-heading, system-ui)"
+            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
+            className="transition-all duration-500 ease-out"
+          >
             {degC}°
           </text>
         </svg>
