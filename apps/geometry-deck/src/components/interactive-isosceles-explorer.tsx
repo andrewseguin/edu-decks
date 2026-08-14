@@ -114,11 +114,11 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
   }, [isUserControlling]);
 
   return (
-    <div className="w-full flex flex-col items-center select-none pb-3">
+    <div className="w-full flex flex-col items-center select-none pb-1">
       {/* SVG Diagram */}
-      <div className="relative w-full max-w-[340px] aspect-[22/19] flex items-center justify-center">
+      <div className="relative w-full max-w-[340px] aspect-[22/13.5] flex items-center justify-center">
         <svg
-          viewBox="0 0 220 190"
+          viewBox="0 25 220 135"
           className="w-full h-full overflow-visible"
           aria-hidden
         >
