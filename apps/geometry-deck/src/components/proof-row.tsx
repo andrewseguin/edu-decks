@@ -48,8 +48,8 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
   })();
 
   return (
-    <div className="grid w-full items-center grid-cols-[1fr_1px_1fr] gap-x-0 py-1">
-      <div className="flex items-center justify-end pr-3">
+    <div className="grid w-full items-center grid-cols-[1fr_1px_1fr] gap-x-0 py-1 min-w-0">
+      <div className="flex items-center justify-end pr-3 min-w-0">
         <span
           className={cn(
             "leading-tight italic text-right",
@@ -64,7 +64,7 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
 
       <div className="self-stretch bg-white/15 min-h-[20px]" />
 
-      <div className="flex justify-start pl-3">
+      <div className="flex justify-start pl-3 min-w-0">
         {equationNode}
       </div>
     </div>
