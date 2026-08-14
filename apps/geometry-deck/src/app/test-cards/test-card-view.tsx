@@ -142,6 +142,7 @@ function InteractiveCardItem({
             card={card}
             isFlipped={isFlipped}
             slideDirection="next"
+            className="w-full border-none"
             onSpeak={() => {}}
             onTap={() => setLocalFlipped(!isFlipped)}
           />
@@ -371,7 +372,7 @@ function GalleryView() {
         </div>
       </div>
 
-      <div className="p-6 sm:p-8 max-w-7xl mx-auto">
+      <div className="p-6 sm:p-8 max-w-5xl mx-auto">
         <h1 className="text-2xl font-bold mb-1">Geometry Deck — Test Card Catalogue</h1>
         <p className="text-gray-400 text-sm mb-8">
           Interactive live card catalogue · Click any card or toggle Primary/Reveal and Desktop/Mobile viewports
@@ -387,17 +388,18 @@ function GalleryView() {
                   {TOPIC_LABELS[topic as TopicType] || topic}
                 </h2>
 
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="flex flex-col items-center gap-8">
                   {ids.map((id) => {
                     const card = TEST_CARDS[id];
                     return (
-                      <InteractiveCardItem
-                        key={id}
-                        card={card}
-                        id={id}
-                        overrideState={globalState}
-                        globalViewport={globalViewport}
-                      />
+                      <div key={id} className="w-full max-w-[750px]">
+                        <InteractiveCardItem
+                          card={card}
+                          id={id}
+                          overrideState={globalState}
+                          globalViewport={globalViewport}
+                        />
+                      </div>
                     );
                   })}
                 </div>

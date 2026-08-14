@@ -21,6 +21,7 @@ type GeometryCardProps = {
   onSpeak: (text: string) => void;
   onCardTap?: () => void;
   onTap?: () => void;
+  className?: string;
 };
 
 // ── Interactive angle range configs for term cards ──────────────────────────
@@ -67,6 +68,7 @@ export function GeometryCard({
   onSpeak,
   onCardTap,
   onTap,
+  className,
 }: GeometryCardProps) {
 
   const handleSpeak = (e: React.MouseEvent) => {
@@ -119,7 +121,7 @@ export function GeometryCard({
         isFlipped={isFlipped}
         slideDirection={slideDirection}
         backgroundColor={card.color}
-        className="w-[90vw] max-w-[700px] border-none"
+        className={cn("w-[90vw] max-w-[700px] border-none", className)}
         onCardTap={onCardTap || onTap}
         frontContent={
           <div className="flex flex-col items-center justify-center px-6 py-4 gap-1">
@@ -181,7 +183,7 @@ export function GeometryCard({
       isFlipped={isFlipped}
       slideDirection={slideDirection}
       backgroundColor={card.color}
-      className="w-[90vw] max-w-[700px] border-none"
+      className={cn("w-[90vw] max-w-[700px] border-none", className)}
       onCardTap={onCardTap || onTap}
       frontContent={
         <div className="flex flex-col items-center justify-center px-4">
