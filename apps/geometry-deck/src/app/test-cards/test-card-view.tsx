@@ -7,7 +7,7 @@
  * Single-card view: full-page rendering of one card at a specific state (used by visual regression tests).
  */
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { GeometryCard } from "@/components/geometry-card";
 import { TEST_CARDS, TEST_CARD_IDS } from "@/lib/test-card-catalogue";
@@ -208,11 +208,130 @@ export function TestCardView({ cardId, state }: Props) {
 // ─────────────────────────────────────────────────────────────────────────────
 // GalleryView
 // ─────────────────────────────────────────────────────────────────────────────
+const LOCAL_STORAGE_KEY = "edu-decks-geometry-catalogue-view";
+
 function GalleryView() {
   const [activeTopics, setActiveTopics] = useState<TopicType[]>(ALL_TOPICS);
   const [activeCardTypes, setActiveCardTypes] = useState<CardType[]>(ALL_CARD_TYPES);
   const [globalState, setGlobalState] = useState<"front" | "back" | null>(null);
   const [globalViewport, setGlobalViewport] = useState<"desktop" | "mobile">("desktop");
+  const [isInitialized, setIsInitialized] = useState(false);
+
+  // ── 1. Load initial view state from URL query params or localStorage ───────
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const urlTopics = params.get("topics");
+    const urlTypes = params.get("types");
+    const urlViewport = params.get("viewport");
+    const urlFlip = params.get("flip");
+
+    let topics = ALL_TOPICS;
+    let types = ALL_CARD_TYPES;
+    let viewport: "desktop" | "mobile" = "desktop";
+    let flip: "front" | "back" | null = null;
+
+    if (urlTopics || urlTypes || urlViewport || urlFlip) {
+      if (urlTopics) {
+        const parsed = urlTopics.split(",").filter((t) => ALL_TOPICS.includes(t as TopicType)) as TopicType[];
+        if (parsed.length > 0) topics = parsed;
+      }
+      if (urlTypes) {
+        const parsed = urlTypes.split(",").filter((t) => ALL_CARD_TYPES.includes(t as CardType)) as CardType[];
+        if (parsed.length > 0) types = parsed;
+      }
+      if (urlViewport === "desktop" || urlViewport === "mobile") {
+        viewport = urlViewport;
+      }
+      if (urlFlip === "front" || urlFlip === "back") {
+        flip = urlFlip;
+      }
+    } else {
+      try {
+        const cached = localStorage.getItem(LOCAL_STORAGE_KEY);
+        if (cached) {
+          const data = JSON.parse(cached);
+          if (Array.isArray(data.topics) && data.topics.length > 0) {
+            topics = data.topics.filter((t: string) => ALL_TOPICS.includes(t as TopicType));
+          }
+          if (Array.isArray(data.types) && data.types.length > 0) {
+            types = data.types.filter((t: string) => ALL_CARD_TYPES.includes(t as CardType));
+          }
+          if (data.viewport === "desktop" || data.viewport === "mobile") {
+            viewport = data.viewport;
+          }
+          if (data.flip === "front" || data.flip === "back") {
+            flip = data.flip;
+          }
+        }
+      } catch {
+        // Ignore
+      }
+    }
+
+    setActiveTopics(topics);
+    setActiveCardTypes(types);
+    setGlobalViewport(viewport);
+    setGlobalState(flip);
+    setIsInitialized(true);
+  }, []);
+
+  // ── 2. Sync state changes to URL query params and localStorage ─────────────
+  useEffect(() => {
+    if (!isInitialized || typeof window === "undefined") return;
+
+    const isDefaultTopics = activeTopics.length === ALL_TOPICS.length;
+    const isDefaultTypes = activeCardTypes.length === ALL_CARD_TYPES.length;
+    const isDefaultViewport = globalViewport === "desktop";
+    const isDefaultFlip = globalState === null;
+
+    try {
+      localStorage.setItem(
+        LOCAL_STORAGE_KEY,
+        JSON.stringify({
+          topics: activeTopics,
+          types: activeCardTypes,
+          viewport: globalViewport,
+          flip: globalState,
+        })
+      );
+    } catch {
+      // Ignore
+    }
+
+    const params = new URLSearchParams();
+    if (!isDefaultTopics) params.set("topics", activeTopics.join(","));
+    if (!isDefaultTypes) params.set("types", activeCardTypes.join(","));
+    if (!isDefaultViewport) params.set("viewport", globalViewport);
+    if (!isDefaultFlip) params.set("flip", globalState);
+
+    const newQuery = params.toString();
+    const newUrl = newQuery ? `${window.location.pathname}?${newQuery}` : window.location.pathname;
+    window.history.replaceState(null, "", newUrl);
+  }, [activeTopics, activeCardTypes, globalViewport, globalState, isInitialized]);
+
+  // ── 3. Reset filters ───────────────────────────────────────────────────────
+  const isCustomized =
+    activeTopics.length !== ALL_TOPICS.length ||
+    activeCardTypes.length !== ALL_CARD_TYPES.length ||
+    globalViewport !== "desktop" ||
+    globalState !== null;
+
+  function resetFilters() {
+    setActiveTopics(ALL_TOPICS);
+    setActiveCardTypes(ALL_CARD_TYPES);
+    setGlobalViewport("desktop");
+    setGlobalState(null);
+    try {
+      localStorage.removeItem(LOCAL_STORAGE_KEY);
+    } catch {
+      // Ignore
+    }
+    if (typeof window !== "undefined") {
+      window.history.replaceState(null, "", window.location.pathname);
+    }
+  }
 
   function toggleTopic(t: TopicType) {
     setActiveTopics((prev) =>
@@ -335,6 +454,22 @@ function GalleryView() {
               All Reveal
             </button>
           </div>
+        </div>
+
+        <div>
+          <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Reset</p>
+          <button
+            type="button"
+            onClick={resetFilters}
+            disabled={!isCustomized}
+            className={`px-3 py-1 rounded-md text-xs font-mono font-semibold transition-all flex items-center gap-1.5 ${
+              isCustomized
+                ? "bg-amber-600 text-white hover:bg-amber-500 shadow-sm"
+                : "bg-gray-800/60 text-gray-600 cursor-not-allowed opacity-50"
+            }`}
+          >
+            ↺ Reset View
+          </button>
         </div>
 
         <div className="ml-auto self-center text-right">
