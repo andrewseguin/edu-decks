@@ -142,12 +142,21 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
   const arcCEndR = { x: apexX + arcRC * Math.cos(radDownR), y: apexY + arcRC * Math.sin(radDownR) };
   const arcCPath = `M ${arcCEndL.x} ${arcCEndL.y} A ${arcRC} ${arcRC} 0 0 0 ${arcCEndR.x} ${arcCEndR.y}`;
 
+  // Side length label positions
+  const sideLabelLeftX = midLeftX - 16 * leftNx;
+  const sideLabelLeftY = midLeftY - 16 * leftNy;
+
+  const sideLabelRightX = midRightX - 16 * rightNx;
+  const sideLabelRightY = midRightY - 16 * rightNy;
+
+  const sideLabelBaseY = BASE_Y + 16;
+
   return (
     <div className="w-full flex flex-col items-center select-none pb-1">
       {/* SVG Diagram */}
-      <div className="relative w-full max-w-[340px] aspect-[22/13.5] flex items-center justify-center">
+      <div className="relative w-full max-w-[340px] aspect-[22/14.5] flex items-center justify-center">
         <svg
-          viewBox="0 25 220 135"
+          viewBox="0 20 220 145"
           className="w-full h-full overflow-visible transition-all duration-500 ease-out"
           aria-hidden
         >
@@ -161,18 +170,42 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
             className="transition-all duration-500 ease-out"
           />
 
-          {/* Equal Legs Tick Marks */}
-          <g stroke="rgba(255,255,255,0.95)" strokeWidth={2} strokeLinecap="round" className="transition-all duration-500 ease-out">
-            {/* Left Leg: 1 tick */}
-            <line x1={tickLeft1.x} y1={tickLeft1.y} x2={tickLeft2.x} y2={tickLeft2.y} />
-            {/* Right Leg: 2 ticks */}
-            <line x1={tickRightA1.x} y1={tickRightA1.y} x2={tickRightA2.x} y2={tickRightA2.y} />
-            <line x1={tickRightB1.x} y1={tickRightB1.y} x2={tickRightB2.x} y2={tickRightB2.y} />
-            {/* Base: 3 ticks */}
-            <line x1={tickBaseA1.x} y1={tickBaseA1.y} x2={tickBaseA2.x} y2={tickBaseA2.y} />
-            <line x1={tickBaseB1.x} y1={tickBaseB1.y} x2={tickBaseB2.x} y2={tickBaseB2.y} />
-            <line x1={tickBaseC1.x} y1={tickBaseC1.y} x2={tickBaseC2.x} y2={tickBaseC2.y} />
-          </g>
+          {/* Side Length Labels (Positioned OUTSIDE near each side) */}
+          <text
+            x={sideLabelLeftX}
+            y={sideLabelLeftY + 3}
+            textAnchor="end"
+            fontSize={11}
+            fontWeight="800"
+            fill="#6ee7b7"
+            fontFamily="var(--font-heading, system-ui)"
+            className="transition-all duration-500 ease-out"
+          >
+            {sideB}
+          </text>
+          <text
+            x={sideLabelRightX}
+            y={sideLabelRightY + 3}
+            textAnchor="start"
+            fontSize={11}
+            fontWeight="800"
+            fill="#6ee7b7"
+            fontFamily="var(--font-heading, system-ui)"
+            className="transition-all duration-500 ease-out"
+          >
+            {sideA}
+          </text>
+          <text
+            x={midBaseX}
+            y={sideLabelBaseY}
+            textAnchor="middle"
+            fontSize={11}
+            fontWeight="800"
+            fill="#6ee7b7"
+            fontFamily="var(--font-heading, system-ui)"
+          >
+            {sideC}
+          </text>
 
           {/* Left Angle Arc A (Cyan) */}
           <path d={arcAPath} fill="none" stroke="#5ee8ff" strokeWidth={2.5} strokeLinecap="round" className="transition-all duration-500 ease-out" />
