@@ -9,6 +9,7 @@ import { InteractiveAnglePair } from "./interactive-angle-pair";
 import { InteractiveVerticalAngles } from "./interactive-vertical-angles";
 import { InteractiveParallelAngles } from "./interactive-parallel-angles";
 import { InteractiveIsoscelesExplorer } from "./interactive-isosceles-explorer";
+import { InteractiveScaleneExplorer } from "./interactive-scalene-explorer";
 import type {
   GeometryCard as GeometryCardType,
   SvgMutation,
@@ -106,6 +107,9 @@ export function GeometryCard({
       }
       if (card.frontLabel === "Isosceles triangles") {
         return <InteractiveIsoscelesExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "Scalene triangles") {
+        return <InteractiveScaleneExplorer color={card.color} />;
       }
       if (hasSvg) {
         return (
