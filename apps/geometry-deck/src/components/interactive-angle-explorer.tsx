@@ -85,10 +85,12 @@ function computeLayout(minAngle: number, maxAngle: number) {
   // Degree label (at ARC_R + 22 from vertex, positioned at angle/2 capped at 85°)
   sampleAt(Math.min(maxAngle / 2, 85), ARC_R + 26);
 
-  const vx = -xMin + PAD;
-  const vy = -yMin + PAD;
-  const svgW = xMax - xMin + PAD * 2;
-  const svgH = yMax - yMin + PAD * 2;
+  const topPad = 14;
+  const sidePad = 16;
+  const vx = -xMin + sidePad;
+  const vy = -yMin + topPad;
+  const svgW = xMax - xMin + sidePad * 2;
+  const svgH = yMax - yMin + topPad + 16;
 
   return { vx, vy, svgW, svgH };
 }

@@ -38,10 +38,12 @@ export function InteractiveAnglePair({ targetSum, label, color }: InteractiveAng
 
   // Layout: complementary vertex at left, supplementary vertex at center
   const totalR = RAY_LEN + HANDLE_R;
-  const vx = is180 ? totalR + PAD : PAD + 8;
-  const vy = totalR + PAD;
-  const svgW = is180 ? totalR * 2 + PAD * 2 : totalR + PAD * 2 + 8;
-  const svgH = totalR + PAD + 30;
+  const topPad = 14;
+  const sidePad = 16;
+  const vx = is180 ? totalR + sidePad : sidePad + 4;
+  const vy = RAY_LEN + topPad;
+  const svgW = is180 ? (totalR + sidePad) * 2 : totalR + sidePad * 2 + 4;
+  const svgH = vy + 18;
 
   const [angleA, setAngleA] = useState(targetSum / 3);
   const [isUserControlling, setIsUserControlling] = useState(false);
