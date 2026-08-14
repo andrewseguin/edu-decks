@@ -142,12 +142,20 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
   const arcCEndR = { x: apexX + arcRC * Math.cos(radDownR), y: apexY + arcRC * Math.sin(radDownR) };
   const arcCPath = `M ${arcCEndL.x} ${arcCEndL.y} A ${arcRC} ${arcRC} 0 0 0 ${arcCEndR.x} ${arcCEndR.y}`;
 
-  // Side length label positions
-  const sideLabelLeftX = midLeftX - 16 * leftNx;
-  const sideLabelLeftY = midLeftY - 16 * leftNy;
+  // Outward normal vectors for side length labels (guarantees numbers float OUTSIDE the triangle)
+  const leftLegLenPx = Math.sqrt((apexX - X1) ** 2 + (BASE_Y - apexY) ** 2);
+  const leftOutwardNx = (apexY - BASE_Y) / leftLegLenPx; // negative (left)
+  const leftOutwardNy = (X1 - apexX) / leftLegLenPx; // negative (up)
 
-  const sideLabelRightX = midRightX - 16 * rightNx;
-  const sideLabelRightY = midRightY - 16 * rightNy;
+  const rightLegLenPx = Math.sqrt((X2 - apexX) ** 2 + (BASE_Y - apexY) ** 2);
+  const rightOutwardNx = (BASE_Y - apexY) / rightLegLenPx; // positive (right)
+  const rightOutwardNy = (apexX - X2) / rightLegLenPx; // negative (up)
+
+  const sideLabelLeftX = midLeftX + 16 * leftOutwardNx;
+  const sideLabelLeftY = midLeftY + 16 * leftOutwardNy;
+
+  const sideLabelRightX = midRightX + 16 * rightOutwardNx;
+  const sideLabelRightY = midRightY + 16 * rightOutwardNy;
 
   const sideLabelBaseY = BASE_Y + 16;
 
@@ -170,14 +178,14 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
             className="transition-all duration-500 ease-out"
           />
 
-          {/* Side Length Labels (Positioned OUTSIDE near each side with drop shadow) */}
+          {/* Side Length Labels (Positioned OUTSIDE near each side with white fill and dark drop shadow) */}
           <text
             x={sideLabelLeftX}
             y={sideLabelLeftY + 3}
             textAnchor="end"
             fontSize={11}
             fontWeight="800"
-            fill="#6ee7b7"
+            fill="#ffffff"
             fontFamily="var(--font-heading, system-ui)"
             style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
             className="transition-all duration-500 ease-out"
@@ -190,7 +198,7 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
             textAnchor="start"
             fontSize={11}
             fontWeight="800"
-            fill="#6ee7b7"
+            fill="#ffffff"
             fontFamily="var(--font-heading, system-ui)"
             style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
             className="transition-all duration-500 ease-out"
@@ -203,7 +211,7 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
             textAnchor="middle"
             fontSize={11}
             fontWeight="800"
-            fill="#6ee7b7"
+            fill="#ffffff"
             fontFamily="var(--font-heading, system-ui)"
             style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
           >
@@ -273,7 +281,8 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
         {SCALENE_PRESETS.map((p, idx) => (
           <button
             key={p.name}
-            onClick={() => {
+            onClick={(e) => {
+              e.stopPropagation();
               setIsUserInteracted(true);
               setPresetIdx(idx);
             }}
