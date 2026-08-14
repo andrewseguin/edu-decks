@@ -27,22 +27,22 @@ type GeometryCardProps = {
 // ── Interactive angle range configs for term cards ──────────────────────────
 // Maps the card's frontLabel to the angle explorer props.
 const ANGLE_RANGE_TERMS: Record<string, { minAngle: number; maxAngle: number; label: string }> = {
-  "Acute angles":  { minAngle: 0,   maxAngle: 90,  label: "acute" },
-  "Obtuse angles": { minAngle: 90,  maxAngle: 180, label: "obtuse" },
+  "Acute angles": { minAngle: 0, maxAngle: 90, label: "acute" },
+  "Obtuse angles": { minAngle: 90, maxAngle: 180, label: "obtuse" },
   "Reflex angles": { minAngle: 180, maxAngle: 360, label: "reflex" },
 };
 
 // Maps relational angle term cards to their interactive component config.
-const RELATIONAL_ANGLE_TERMS: Record<string, 
+const RELATIONAL_ANGLE_TERMS: Record<string,
   | { type: "pair"; targetSum: 90 | 180 }
   | { type: "vertical" }
   | { type: "parallel"; mode: "alternate" | "co-interior" }
 > = {
-  "Complementary angles":        { type: "pair", targetSum: 90 },
-  "Supplementary angles":        { type: "pair", targetSum: 180 },
-  "Vertically opposite angles":  { type: "vertical" },
-  "Alternate angles":            { type: "parallel", mode: "alternate" },
-  "Co-interior angles":          { type: "parallel", mode: "co-interior" },
+  "Complementary angles": { type: "pair", targetSum: 90 },
+  "Supplementary angles": { type: "pair", targetSum: 180 },
+  "Vertically opposite angles": { type: "vertical" },
+  "Alternate angles": { type: "parallel", mode: "alternate" },
+  "Co-interior angles": { type: "parallel", mode: "co-interior" },
 };
 
 
@@ -144,9 +144,9 @@ export function GeometryCard({
           </div>
         }
         revealContent={
-          <div className="min-h-0 overflow-y-auto flex flex-col gap-3 items-center px-5 py-2">
+          <div className="min-h-0 overflow-y-auto flex flex-col gap-1.5 items-center px-4 py-1">
             {card.backDefinition && (
-              <p className="text-white text-center font-semibold leading-snug text-base sm:text-lg shrink-0">
+              <p className="text-white text-center font-semibold leading-snug text-sm sm:text-base shrink-0">
                 {card.backDefinition}
               </p>
             )}

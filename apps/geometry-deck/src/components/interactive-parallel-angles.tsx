@@ -164,9 +164,9 @@ export function InteractiveParallelAngles({ mode, color }: InteractiveParallelAn
   }
 
   return (
-    <div className="flex flex-col items-center gap-2 w-full pb-4" onClick={stop} onPointerDown={stop}>
+    <div className="flex flex-col items-center gap-1.5 w-full pb-1" onClick={stop} onPointerDown={stop}>
       <svg ref={svgRef} viewBox={`0 0 ${SVG_W} ${SVG_H}`}
-        className="w-full max-w-[300px] sm:max-w-[340px] touch-none select-none"
+        className="w-full max-w-[240px] sm:max-w-[270px] touch-none select-none"
         style={{ cursor: isDragging ? "grabbing" : "default" }}>
 
         {/* Upper parallel line */}
@@ -245,7 +245,7 @@ export function InteractiveParallelAngles({ mode, color }: InteractiveParallelAn
       )}
 
       {/* Slider */}
-      <div className="w-full max-w-[260px] sm:max-w-[300px] px-2" onClick={stop}>
+      <div className="w-full max-w-[220px] sm:max-w-[260px] px-2" onClick={stop}>
         <input type="range" min={sweepMin} max={sweepMax} step={1}
           value={Math.round(theta)} onChange={handleSlider}
           className="angle-slider w-full"

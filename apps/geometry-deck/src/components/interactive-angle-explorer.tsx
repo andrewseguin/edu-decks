@@ -17,10 +17,10 @@ type InteractiveAngleExplorerProps = {
 // SVG geometry helpers (vertex-relative)
 // ─────────────────────────────────────────────────────────────────────────────
 
-const RAY_LEN = 130;
-const ARC_R = 44;
-const HANDLE_R = 14;
-const PAD = 24; // padding around bounding box
+const RAY_LEN = 85;
+const ARC_R = 30;
+const HANDLE_R = 10;
+const PAD = 16; // padding around bounding box
 
 /** Convert angle (degrees, 0 = along +x axis, CCW positive) to SVG point */
 function toPoint(vx: number, vy: number, angleDeg: number, length: number) {
@@ -224,7 +224,7 @@ export function InteractiveAngleExplorer({
 
   return (
     <div
-      className="flex flex-col items-center gap-2 w-full pb-4"
+      className="flex flex-col items-center gap-1.5 w-full pb-1"
       onClick={stopPropagation}
       onPointerDown={stopPropagation}
     >
@@ -232,7 +232,7 @@ export function InteractiveAngleExplorer({
       <svg
         ref={svgRef}
         viewBox={`0 0 ${svgW} ${svgH}`}
-        className="w-full max-w-[300px] sm:max-w-[340px] touch-none select-none"
+        className="w-full max-w-[210px] sm:max-w-[240px] touch-none select-none"
         style={{ cursor: isDragging ? "grabbing" : "default" }}
       >
         {/* Boundary lines (dashed, subtle) */}
@@ -322,7 +322,7 @@ export function InteractiveAngleExplorer({
 
       {/* Slider */}
       <div
-        className="w-full max-w-[260px] sm:max-w-[300px] px-2"
+        className="w-full max-w-[220px] sm:max-w-[260px] px-2"
         onClick={stopPropagation}
       >
         <input
