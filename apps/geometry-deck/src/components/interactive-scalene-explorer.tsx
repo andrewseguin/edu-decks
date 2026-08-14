@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useRef } from "react";
 
 type ScaleneVariant = {
+  x1: number;
+  x2: number;
   apexX: number;
   apexY: number;
   sides: [number, number, number]; // [left, right, base]
@@ -20,35 +22,33 @@ const SCALENE_CATEGORIES: ScaleneCategory[] = [
     name: "Acute Scalene",
     description: "3 unequal sides • All 3 angles acute (< 90°)",
     variants: [
-      { apexX: 92, apexY: 55, sides: [10, 13, 15], angles: [42, 63, 75] },
-      { apexX: 105, apexY: 45, sides: [12, 14, 13], angles: [52, 70, 58] },
-      { apexX: 78, apexY: 62, sides: [9, 13, 15], angles: [36, 60, 84] },
-      { apexX: 100, apexY: 50, sides: [11, 13, 15], angles: [46, 66, 68] },
+      { x1: 50, x2: 170, apexX: 95, apexY: 48, sides: [10, 11, 12], angles: [48, 57, 75] },
+      { x1: 40, x2: 180, apexX: 110, apexY: 45, sides: [12, 13, 14], angles: [52, 68, 60] },
+      { x1: 60, x2: 160, apexX: 98, apexY: 58, sides: [8, 9, 10], angles: [44, 58, 78] },
+      { x1: 30, x2: 190, apexX: 105, apexY: 40, sides: [13, 14, 16], angles: [50, 64, 66] },
     ],
   },
   {
     name: "Right Scalene",
     description: "3 unequal sides • Has 1 right angle (= 90°)",
     variants: [
-      { apexX: 89, apexY: 73, sides: [9, 12, 15], angles: [37, 53, 90] },
-      { apexX: 62, apexY: 68, sides: [8, 14, 15], angles: [30, 60, 90] },
-      { apexX: 108, apexY: 62, sides: [12, 10, 15], angles: [53, 37, 90] },
+      { x1: 60, x2: 160, apexX: 96, apexY: 72, sides: [6, 8, 10], angles: [37, 53, 90] },
+      { x1: 40, x2: 180, apexX: 88, apexY: 65, sides: [8, 12, 14], angles: [32, 58, 90] },
+      { x1: 30, x2: 190, apexX: 110, apexY: 55, sides: [12, 10, 16], angles: [53, 37, 90] },
     ],
   },
   {
     name: "Obtuse Scalene",
     description: "3 unequal sides • Has 1 obtuse angle (> 90°)",
     variants: [
-      { apexX: 65, apexY: 92, sides: [6, 13, 16], angles: [22, 35, 123] },
-      { apexX: 58, apexY: 82, sides: [7, 14, 16], angles: [24, 38, 118] },
-      { apexX: 52, apexY: 88, sides: [6, 14, 15], angles: [21, 34, 125] },
+      { x1: 40, x2: 180, apexX: 70, apexY: 90, sides: [6, 12, 14], angles: [24, 38, 118] },
+      { x1: 50, x2: 170, apexX: 75, apexY: 95, sides: [5, 10, 12], angles: [22, 35, 123] },
+      { x1: 30, x2: 190, apexX: 62, apexY: 85, sides: [7, 14, 16], angles: [25, 40, 115] },
     ],
   },
 ];
 
 const BASE_Y = 145;
-const X1 = 35;
-const X2 = 185;
 const STROKE_W = 2.5;
 
 export function InteractiveScaleneExplorer({ color }: { color?: string }) {
@@ -97,7 +97,7 @@ export function InteractiveScaleneExplorer({ color }: { color?: string }) {
 
   const currentCategory = SCALENE_CATEGORIES[categoryIdx];
   const variant = currentCategory.variants[variantIdx] || currentCategory.variants[0];
-  const { apexX, apexY, sides, angles } = variant;
+  const { x1: X1, x2: X2, apexX, apexY, sides, angles } = variant;
 
   const [sideB, sideA, sideC] = sides; // [left leg, right leg, base]
   const [degA, degB, degC] = angles; // [left angle, right angle, apex angle]
