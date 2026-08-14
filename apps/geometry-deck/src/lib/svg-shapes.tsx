@@ -411,8 +411,13 @@ function AngleVerticallyOpposite({ dims, mutation }: { dims: Record<string, numb
   const aAngle = typeof dims.A === "number" ? dims.A : 42;
   const bAngle = 180 - aAngle;
   const unknownDim = dims.unknown as string | undefined;
-  const vx = 110, vy = 90, rayLen = 85;
+
+  const COLOR_A = "#5ee8ff";
+  const COLOR_B = "#ffd45e";
+
+  const vx = 110, vy = 62, rayLen = 65;
   const rad = (aAngle * Math.PI) / 180;
+
   // Four ray endpoints
   const ends = [
     { x: vx + rayLen, y: vy },                                          // east
@@ -420,41 +425,76 @@ function AngleVerticallyOpposite({ dims, mutation }: { dims: Record<string, numb
     { x: vx + rayLen * Math.cos(-rad), y: vy + rayLen * Math.sin(-rad) }, // upper-right
     { x: vx - rayLen * Math.cos(-rad), y: vy - rayLen * Math.sin(-rad) }, // lower-left
   ];
-  const arcR = 28;
-  // Arc points on each ray at distance arcR
-  const eArcX = vx + arcR, eArcY = vy;                               // east
-  const wArcX = vx - arcR, wArcY = vy;                               // west
-  const urArcX = vx + arcR * Math.cos(-rad), urArcY = vy + arcR * Math.sin(-rad); // upper-right
-  const llArcX = vx - arcR * Math.cos(-rad), llArcY = vy - arcR * Math.sin(-rad); // lower-left
+  const arcR = 24;
+  const eArcX = vx + arcR, eArcY = vy;
+  const wArcX = vx - arcR, wArcY = vy;
+  const urArcX = vx + arcR * Math.cos(-rad), urArcY = vy + arcR * Math.sin(-rad);
+  const llArcX = vx - arcR * Math.cos(-rad), llArcY = vy - arcR * Math.sin(-rad);
   const la = aAngle > 180 ? 1 : 0, lb = bAngle > 180 ? 1 : 0;
-  // A arcs: east→upper-right (sweep=0, CCW=upward) and west→lower-left (sweep=0, CCW=downward)
+
+  // A arcs: east→upper-right and west→lower-left
   const arcAPath1 = `M ${eArcX} ${eArcY} A ${arcR} ${arcR} 0 ${la} 0 ${urArcX} ${urArcY}`;
   const arcAPath2 = `M ${wArcX} ${wArcY} A ${arcR} ${arcR} 0 ${la} 0 ${llArcX} ${llArcY}`;
-  // B arcs: upper-right→west (sweep=0, CCW=through north) and lower-left→east (sweep=0, CW=through south)
+  // B arcs: upper-right→west and lower-left→east
   const arcBPath1 = `M ${urArcX} ${urArcY} A ${arcR} ${arcR} 0 ${lb} 0 ${wArcX} ${wArcY}`;
   const arcBPath2 = `M ${llArcX} ${llArcY} A ${arcR} ${arcR} 0 ${lb} 0 ${eArcX} ${eArcY}`;
+
+  // Letter label positions inside/near diagram arcs
+  const letterR = arcR + 12;
+  const aMid = aAngle / 2;
+  const aLx = vx + letterR * Math.cos((-aMid * Math.PI) / 180);
+  const aLy = vy + letterR * Math.sin((-aMid * Math.PI) / 180);
+
+  const bMid = aAngle + bAngle / 2;
+  const bLx = vx + letterR * Math.cos((-bMid * Math.PI) / 180);
+  const bLy = vy + letterR * Math.sin((-bMid * Math.PI) / 180);
+
+  const cMid = 180 + aAngle / 2;
+  const cLx = vx + letterR * Math.cos((-cMid * Math.PI) / 180);
+  const cLy = vy + letterR * Math.sin((-cMid * Math.PI) / 180);
+
+  const dMid = 180 + aAngle + bAngle / 2;
+  const dLx = vx + letterR * Math.cos((-dMid * Math.PI) / 180);
+  const dLy = vy + letterR * Math.sin((-dMid * Math.PI) / 180);
+
+  const legendY = 118;
+
   return (
-    <svg viewBox="0 0 220 180" className="w-full h-full" aria-hidden>
+    <svg viewBox="0 0 220 140" className="w-full h-full" aria-hidden>
       <line x1={ends[0].x} y1={ends[0].y} x2={ends[1].x} y2={ends[1].y} stroke={WHITE70} strokeWidth={STROKE_W} strokeLinecap="round" />
       <line x1={ends[2].x} y1={ends[2].y} x2={ends[3].x} y2={ends[3].y} stroke={WHITE70} strokeWidth={STROKE_W} strokeLinecap="round" />
       <circle cx={vx} cy={vy} r={3} fill={WHITE90} />
-      <path d={arcAPath1} fill="none" stroke="rgba(255,220,100,0.9)" strokeWidth={2.5} strokeLinecap="round" />
-      <path d={arcAPath2} fill="none" stroke="rgba(255,220,100,0.9)" strokeWidth={2.5} strokeLinecap="round" />
-      <path d={arcBPath1} fill="none" stroke="rgba(180,220,255,0.75)" strokeWidth={2.5} strokeLinecap="round" />
-      <path d={arcBPath2} fill="none" stroke="rgba(180,220,255,0.75)" strokeWidth={2.5} strokeLinecap="round" />
-      <SvgLabel x={vx + arcR + 20} y={vy - 8} text={`A = ${aAngle}°`} />
-      {unknownDim === "C" ? (
-        <UnknownPill x={vx - arcR - 22} y={vy + 12} label="C" unit="°" revealValue={mutation?.revealAnswer} />
-      ) : (
-        <SvgLabel x={vx - arcR - 22} y={vy + 16} text={`C = ${aAngle}°`} />
-      )}
-      {!unknownDim && (
-        <>
-          <SvgLabel x={vx - arcR - 22} y={vy - 8} text={`B = ${bAngle}°`} />
-          <SvgLabel x={vx + arcR + 20} y={vy + 16} text={`D = ${bAngle}°`} />
-          <text x={110} y={175} textAnchor="middle" fontSize={11} fill={WHITE50} fontFamily={LABEL_FONT}>A = C,  B = D</text>
-        </>
-      )}
+
+      <path d={arcAPath1} fill="none" stroke={COLOR_A} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
+      <path d={arcAPath2} fill="none" stroke={COLOR_A} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
+      <path d={arcBPath1} fill="none" stroke={COLOR_B} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
+      <path d={arcBPath2} fill="none" stroke={COLOR_B} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
+
+      {/* Letter labels inside diagram arcs */}
+      <SvgLabel x={aLx} y={aLy} text="A" size={11} color={COLOR_A} />
+      <SvgLabel x={bLx} y={bLy} text="B" size={11} color={COLOR_B} />
+      <SvgLabel x={cLx} y={cLy} text="C" size={11} color={COLOR_A} />
+      <SvgLabel x={dLx} y={dLy} text="D" size={11} color={COLOR_B} />
+
+      {/* Visually centered legend row below diagram */}
+      <LegendValueToken
+        x={60}
+        y={legendY}
+        label="A"
+        value={aAngle}
+        isUnknown={unknownDim === "A"}
+        revealValue={mutation?.revealAnswer}
+        color={COLOR_A}
+      />
+      <LegendValueToken
+        x={148}
+        y={legendY}
+        label={unknownDim === "B" || unknownDim === "D" ? "B" : "C"}
+        value={unknownDim === "B" || unknownDim === "D" ? bAngle : aAngle}
+        isUnknown={Boolean(unknownDim && (unknownDim === "C" || unknownDim === "B" || unknownDim === "D"))}
+        revealValue={mutation?.revealAnswer}
+        color={unknownDim === "B" || unknownDim === "D" ? COLOR_B : COLOR_A}
+      />
     </svg>
   );
 }
