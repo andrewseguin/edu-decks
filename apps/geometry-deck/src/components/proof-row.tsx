@@ -49,16 +49,10 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
 
   return (
     <div className="grid w-full items-center grid-cols-[1fr_1px_1fr] gap-x-0 py-1">
-      <div className="flex justify-end pr-3">
-        {equationNode}
-      </div>
-
-      <div className="self-stretch bg-white/15 min-h-[20px]" />
-
-      <div className="flex items-center pl-3">
+      <div className="flex items-center justify-end pr-3">
         <span
           className={cn(
-            "leading-tight italic",
+            "leading-tight italic text-right",
             isAnswer
               ? "text-white/80 text-xs sm:text-sm font-semibold not-italic"
               : "text-white/55 text-[11px] sm:text-xs",
@@ -66,6 +60,12 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
         >
           {reason}
         </span>
+      </div>
+
+      <div className="self-stretch bg-white/15 min-h-[20px]" />
+
+      <div className="flex justify-start pl-3">
+        {equationNode}
       </div>
     </div>
   );
