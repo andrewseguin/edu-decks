@@ -5,7 +5,7 @@ import { MathProblem, OPERATION_COLORS } from "@/lib/types";
 import { VisualMath } from "./visual-math";
 import { FractionDisplay } from "./fraction-display";
 import { MathSymbol } from "./math-symbol";
-import { FlashCardShell, FrostedBadge, CardCornerButton, CardRevealLayout } from "@decks/core";
+import { FlashCardShell, FrostedBadge, CardCornerButton } from "@decks/core";
 import { Lightbulb } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -46,10 +46,7 @@ export function MathCard({
       isFlipped={isFlipped}
       slideDirection={slideDirection}
       backgroundColor={opInfo.hex}
-      className={cn(
-        "border-none",
-      )}
-      tall={isDiagramVisible}
+      className={cn("border-none")}
       onCardTap={onCardTap}
       onSpeak={handleSpeak}
       speakerAriaLabel="Listen to equation"
@@ -65,175 +62,133 @@ export function MathCard({
           />
         ) : undefined
       }
-    >
-      <CardRevealLayout
-        isRevealed={isDiagramVisible}
-        primaryRevealedTopClass={
-          problem.hasConversion
-            ? "top-[24%] sm:top-[23%]"
-            : "top-[30%] sm:top-[29%] md:top-[28%]"
-        }
-        detailTopClass={
-          problem.hasConversion
-            ? "top-[52%] sm:top-[50%] [@media(max-height:640px)]:top-[50%]"
-            : "top-[44%] sm:top-[42%] [@media(max-height:640px)]:top-[44%]"
-        }
-        primaryClassName="p-2 sm:p-4"
-        detailClassName="p-1 sm:p-2 items-center justify-center"
-        primary={
-          /* Main Equation Line */
-          <div
-            className={cn(
-              "relative flex items-center justify-center whitespace-nowrap text-center transition-all duration-500 ease-in-out origin-center",
-              isDiagramVisible
-                ? problem.isFraction
-                  ? "scale-[0.88] sm:scale-[0.85] [@media(max-height:640px)]:scale-[0.80] [@media(orientation:landscape)_and_(max-height:640px)]:scale-[0.88]"
-                  : "scale-[0.92] sm:scale-[0.90] [@media(max-height:640px)]:scale-[0.82] [@media(orientation:landscape)_and_(max-height:640px)]:scale-[0.92]"
-                : "scale-100"
-            )}
-          >
-            {/* First Number / Fraction */}
-            {problem.isFraction && problem.frac1 ? (
-              <FractionDisplay
-                fraction={problem.frac1}
-                colorClass={cn(
-                  "transition-colors duration-500",
-                  isFlipped ? "text-cyan-300" : "text-white"
-                )}
-                size="lg"
-              />
-            ) : (
-              <span
-                className={cn(
-                  "font-headline font-bold leading-none select-none transition-colors duration-500 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-5xl sm:[@media(max-height:640px)]:text-6xl [@media(orientation:landscape)_and_(max-height:640px)]:text-6xl",
-                  isFlipped
-                    ? "text-cyan-300 [text-shadow:0_2px_10px_rgba(0,0,0,0.4)]"
-                    : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]"
-                )}
-              >
-                {problem.num1}
-              </span>
-            )}
-
-            {/* Operator (+, -, ×, ÷) */}
-            <MathSymbol
-              symbol={problem.operation}
-              isFraction={problem.isFraction}
-              className="text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] mx-2 sm:mx-3.5 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-5xl sm:[@media(max-height:640px)]:text-6xl [@media(orientation:landscape)_and_(max-height:640px)]:text-6xl"
-            />
-
-            {/* Second Number / Fraction */}
-            {problem.isFraction && problem.frac2 ? (
-              <FractionDisplay
-                fraction={problem.frac2}
-                colorClass={cn(
-                  "transition-colors duration-500",
-                  isFlipped ? "text-amber-300" : "text-white"
-                )}
-                size="lg"
-              />
-            ) : (
-              <span
-                className={cn(
-                  "font-headline font-bold leading-none select-none transition-colors duration-500 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-5xl sm:[@media(max-height:640px)]:text-6xl [@media(orientation:landscape)_and_(max-height:640px)]:text-6xl",
-                  isFlipped
-                    ? "text-amber-300 [text-shadow:0_2px_10px_rgba(0,0,0,0.4)]"
-                    : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]"
-                )}
-              >
-                {problem.num2}
-              </span>
-            )}
-
-            {/* Equals Symbol */}
-            <MathSymbol
-              symbol="="
-              isFraction={problem.isFraction}
-              className="text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] ml-2 sm:ml-3.5 mr-2 sm:mr-3.5 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-5xl sm:[@media(max-height:640px)]:text-6xl [@media(orientation:landscape)_and_(max-height:640px)]:text-6xl"
-            />
-
-            {/* Answer Digit / Fraction / Frosted Question Mark Badge */}
-            <div className="relative inline-flex items-center justify-center px-1">
-              {problem.isFraction && problem.fracAnswer ? (
-                <div
-                  className={cn(
-                    "transition-all",
-                    isFlipped ? "opacity-100 scale-100 delay-200 duration-500 ease-out" : "opacity-0 scale-75 delay-0 duration-300 ease-in"
-                  )}
-                >
-                  <FractionDisplay
-                    fraction={problem.fracAnswer}
-                    colorClass="text-white"
-                    size="lg"
-                  />
-                </div>
-              ) : (
-                <span
-                  className={cn(
-                    "font-headline font-bold leading-none select-none text-white transition-all text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-5xl sm:[@media(max-height:640px)]:text-6xl [@media(orientation:landscape)_and_(max-height:640px)]:text-6xl",
-                    isFlipped
-                      ? "[text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] opacity-100 scale-100 delay-200 duration-500 ease-out"
-                      : "opacity-0 scale-75 delay-0 duration-300 ease-in"
-                  )}
-                >
-                  {problem.answerText}
-                </span>
+      frontContent={
+        /* Main Equation Line — animates smaller smoothly via transform scale */
+        <div
+          className={cn(
+            "relative flex items-center justify-center whitespace-nowrap text-center transition-all duration-500 ease-in-out origin-center p-1 sm:p-2",
+            isDiagramVisible
+              ? problem.isFraction
+                ? "scale-[0.80] sm:scale-[0.78] [@media(max-height:640px)]:scale-[0.72]"
+                : "scale-[0.88] sm:scale-[0.85] [@media(max-height:640px)]:scale-[0.78]"
+              : "scale-100"
+          )}
+        >
+          {/* First Number / Fraction */}
+          {problem.isFraction && problem.frac1 ? (
+            <FractionDisplay
+              fraction={problem.frac1}
+              colorClass={cn(
+                "transition-colors duration-500",
+                isFlipped ? "text-cyan-300" : "text-white"
               )}
+              size="lg"
+            />
+          ) : (
+            <span
+              className={cn(
+                "font-headline font-bold leading-none select-none transition-colors duration-500 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-5xl sm:[@media(max-height:640px)]:text-6xl [@media(orientation:landscape)_and_(max-height:640px)]:text-6xl",
+                isFlipped
+                  ? "text-cyan-300 [text-shadow:0_2px_10px_rgba(0,0,0,0.4)]"
+                  : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]"
+              )}
+            >
+              {problem.num1}
+            </span>
+          )}
 
-              {/* Obscuring Frosted Glass Pill Badge when Unrevealed */}
-              <FrostedBadge isFlipped={isFlipped} />
-            </div>
+          {/* Operator (+, -, ×, ÷) */}
+          <MathSymbol
+            symbol={problem.operation}
+            isFraction={problem.isFraction}
+            className="text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] mx-2 sm:mx-3.5 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-5xl sm:[@media(max-height:640px)]:text-6xl [@media(orientation:landscape)_and_(max-height:640px)]:text-6xl"
+          />
 
-            {/* Subtitle Conversion Pill Badge */}
-            {problem.hasConversion && problem.convertedFrac1 && problem.convertedFrac2 && (
+          {/* Second Number / Fraction */}
+          {problem.isFraction && problem.frac2 ? (
+            <FractionDisplay
+              fraction={problem.frac2}
+              colorClass={cn(
+                "transition-colors duration-500",
+                isFlipped ? "text-amber-300" : "text-white"
+              )}
+              size="lg"
+            />
+          ) : (
+            <span
+              className={cn(
+                "font-headline font-bold leading-none select-none transition-colors duration-500 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-5xl sm:[@media(max-height:640px)]:text-6xl [@media(orientation:landscape)_and_(max-height:640px)]:text-6xl",
+                isFlipped
+                  ? "text-amber-300 [text-shadow:0_2px_10px_rgba(0,0,0,0.4)]"
+                  : "text-white [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]"
+              )}
+            >
+              {problem.num2}
+            </span>
+          )}
+
+          {/* Equals Symbol */}
+          <MathSymbol
+            symbol="="
+            isFraction={problem.isFraction}
+            className="text-white/90 [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] ml-2 sm:ml-3.5 mr-2 sm:mr-3.5 text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-5xl sm:[@media(max-height:640px)]:text-6xl [@media(orientation:landscape)_and_(max-height:640px)]:text-6xl"
+          />
+
+          {/* Answer Digit / Fraction / Frosted Question Mark Badge */}
+          <div className="relative inline-flex items-center justify-center px-1">
+            {problem.isFraction && problem.fracAnswer ? (
               <div
                 className={cn(
-                  "absolute top-full left-1/2 -translate-x-1/2 mt-1 sm:mt-2 px-3 sm:px-3.5 py-0.5 sm:py-1 rounded-full bg-black/25 border border-white/20 backdrop-blur-xs flex items-center justify-center gap-1.5 text-white/90 font-headline font-bold shadow-sm transition-all pointer-events-none shrink-0",
-                  isDiagramVisible
-                    ? "opacity-100 translate-y-0 scale-100 delay-200 duration-500 ease-out"
-                    : "opacity-0 -translate-y-2 scale-75 delay-0 duration-300 ease-in pointer-events-none"
+                  "transition-all",
+                  isFlipped ? "opacity-100 scale-100 delay-200 duration-500 ease-out" : "opacity-0 scale-75 delay-0 duration-300 ease-in"
                 )}
               >
-                <FractionDisplay fraction={problem.convertedFrac1} colorClass="text-cyan-300" size="pill" />
-                <MathSymbol symbol={problem.operation} isFraction={true} className="text-lg sm:text-xl font-normal mx-0.5" />
-                <FractionDisplay fraction={problem.convertedFrac2} colorClass="text-amber-300" size="pill" />
-                <MathSymbol symbol="=" isFraction={true} className="text-lg sm:text-xl font-normal mx-0.5" />
-                <div className="relative inline-flex items-center justify-center min-w-[1.2rem] h-[1.6rem] px-0.5">
-                  <div
-                    className={cn(
-                      "transition-all flex items-center justify-center",
-                      isFlipped
-                        ? "opacity-100 scale-100 delay-200 duration-500 ease-out"
-                        : "opacity-0 scale-75 delay-0 duration-300 ease-in"
-                    )}
-                  >
-                    <FractionDisplay
-                      fraction={{
-                        n: problem.convertedFrac1.n + (problem.operation === '+' ? problem.convertedFrac2.n : -problem.convertedFrac2.n),
-                        d: problem.convertedFrac1.d,
-                      }}
-                      colorClass="text-white"
-                      size="pill"
-                    />
-                  </div>
-                  <FrostedBadge
-                    isFlipped={isFlipped}
-                    className="inset-0 rounded-md border border-white/40 p-0"
-                    textClassName="text-sm font-bold leading-none"
-                  >
-                    ?
-                  </FrostedBadge>
-                </div>
+                <FractionDisplay
+                  fraction={problem.fracAnswer}
+                  colorClass="text-white"
+                  size="lg"
+                />
               </div>
+            ) : (
+              <span
+                className={cn(
+                  "font-headline font-bold leading-none select-none text-white transition-all text-5xl sm:text-7xl md:text-8xl [@media(max-height:640px)]:text-5xl sm:[@media(max-height:640px)]:text-6xl [@media(orientation:landscape)_and_(max-height:640px)]:text-6xl",
+                  isFlipped
+                    ? "[text-shadow:3px_3px_6px_rgba(0,0,0,0.25)] opacity-100 scale-100 delay-200 duration-500 ease-out"
+                    : "opacity-0 scale-75 delay-0 duration-300 ease-in"
+                )}
+              >
+                {problem.answerText}
+              </span>
             )}
+
+            {/* Obscuring Frosted Glass Pill Badge when Unrevealed */}
+            <FrostedBadge isFlipped={isFlipped} />
           </div>
-        }
-        detail={
-          <div className="flex-1 flex items-center justify-center p-1 sm:p-2">
-            <VisualMath problem={problem} isFlipped={isDiagramVisible} />
-          </div>
-        }
-      />
-    </FlashCardShell>
+        </div>
+      }
+      revealContent={
+        <div className="flex flex-col items-center justify-center p-1 sm:p-2 gap-1.5">
+          {/* Conversion LCD Pill Badge shown in reveal content */}
+          {problem.hasConversion && problem.convertedFrac1 && problem.convertedFrac2 && (
+            <div className="px-3 py-0.5 sm:py-1 rounded-full bg-black/25 border border-white/20 backdrop-blur-xs flex items-center justify-center gap-1.5 text-white/90 font-headline font-bold shadow-sm pointer-events-none shrink-0 animate-fade-in-zoom">
+              <FractionDisplay fraction={problem.convertedFrac1} colorClass="text-cyan-300" size="pill" />
+              <MathSymbol symbol={problem.operation} isFraction={true} className="text-lg sm:text-xl font-normal mx-0.5" />
+              <FractionDisplay fraction={problem.convertedFrac2} colorClass="text-amber-300" size="pill" />
+              <MathSymbol symbol="=" isFraction={true} className="text-lg sm:text-xl font-normal mx-0.5" />
+              <FractionDisplay
+                fraction={{
+                  n: problem.convertedFrac1.n + (problem.operation === '+' ? problem.convertedFrac2.n : -problem.convertedFrac2.n),
+                  d: problem.convertedFrac1.d,
+                }}
+                colorClass="text-white"
+                size="pill"
+              />
+            </div>
+          )}
+          <VisualMath problem={problem} isFlipped={isDiagramVisible} />
+        </div>
+      }
+    />
   );
 }

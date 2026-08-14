@@ -49,7 +49,7 @@ export function FractionVisualizer({
 
             return (
               <div key={`pie-${pIdx}`} className="flex flex-col items-center justify-center">
-                <svg width={130} height={130} viewBox="0 0 130 130" className="drop-shadow-md w-[85px] h-[85px] sm:w-[105px] sm:h-[105px] [@media(max-height:640px)]:w-[65px] [@media(max-height:640px)]:h-[65px]">
+                <svg width={130} height={130} viewBox="0 0 130 130" className="drop-shadow-md w-[78px] h-[78px] sm:w-[92px] sm:h-[92px] [@media(max-height:640px)]:w-[60px] [@media(max-height:640px)]:h-[60px]">
                   {Array.from({ length: commonD }).map((_, i) => {
                     const globalSlotIndex = pieStartSlot + i;
                     const isCyanSlot = globalSlotIndex < c1;
@@ -148,7 +148,7 @@ export function FractionVisualizer({
 
             return (
               <div key={`pie-${pIdx}`} className="flex flex-col items-center justify-center">
-                <svg width={130} height={130} viewBox="0 0 130 130" className="drop-shadow-md w-[85px] h-[85px] sm:w-[105px] sm:h-[105px] [@media(max-height:640px)]:w-[65px] [@media(max-height:640px)]:h-[65px]">
+                <svg width={130} height={130} viewBox="0 0 130 130" className="drop-shadow-md w-[78px] h-[78px] sm:w-[92px] sm:h-[92px] [@media(max-height:640px)]:w-[60px] [@media(max-height:640px)]:h-[60px]">
                   {Array.from({ length: commonD }).map((_, i) => {
                     const globalSlotIndex = pieStartSlot + i;
                     const isCyanSlot = globalSlotIndex < c1;

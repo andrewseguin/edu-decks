@@ -480,106 +480,44 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
     <FlashCardShell
       key={content.key}
       backgroundColor={content.color}
-      className="animate-fade-in-zoom w-[90vw] max-w-[700px] h-[55vw] max-h-[min(420px,68svh)] [@media(orientation:landscape)_and_(max-height:500px)]:h-[72vh] [@media(orientation:landscape)_and_(max-height:500px)]:max-h-[72vh] border-none" // Responsive card size
-      contentClassName="p-0 h-full flex items-center justify-center"
+      className="animate-fade-in-zoom w-[90vw] max-w-[700px] h-[55vw] max-h-[min(420px,68svh)] [@media(orientation:landscape)_and_(max-height:500px)]:h-[72vh] [@media(orientation:landscape)_and_(max-height:500px)]:max-h-[72vh] border-none"
+      contentClassName="p-0"
       showSpeaker={false}
-      frontContent={
-        <>
-          {enableTracing && content.type === "letter" && (
-            <>
-              <CardCornerButton
-                position="top-left"
-                isActive={isTracingMode}
-                onClick={() => setIsTracingMode(!isTracingMode)}
-                title={isTracingMode ? "Exit Tracing Mode" : "Trace Letters"}
-                ariaLabel={isTracingMode ? "Exit Tracing Mode" : "Trace Letters"}
-                icon={<Paintbrush className="h-5 w-5 sm:h-6 sm:w-6" />}
-              />
-              {isTracingMode && <TracingCanvas contentKey={content.key} />}
-            </>
-          )}
-
-          {content.type === "word" && content.isHardWord && (
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-40 text-white opacity-70">
-                    <Star className="h-6 w-6" />
-                  </div>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Hard Word</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          )}
-          {isWord ? (
-            <div className={cn(
-              "font-headline font-normal leading-none",
-              "select-none [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]",
-              "text-6xl sm:text-8xl md:text-[10rem] [@media(max-height:500px)]:text-5xl [@media(max-height:500px)]:sm:text-7xl"
-            )} style={{
-              color: content.textColor || 'white',
-              transform: `translateY(${letterCase === 'lower' ? (content.verticalOffset || 0) : 0}em)`,
-              transition: 'transform 0.2s ease-out'
-            }}>
-              {splitIntoPhonicsSegments(content.value).map((segment, index) => {
-                const displaySegment = segment.toLowerCase();
-
-                return (
-                  <span key={index} className={cn(
-                    "inline-block transition-all duration-300 ease-in-out",
-                    highlightedIndex !== null && highlightedIndex !== index && "opacity-60",
-                    highlightedIndex === index && "scale-110 brightness-110 [text-shadow:0_0_10px_rgba(255,255,255,0.4)]",
-                    highlightedIndex === null && "opacity-100 scale-100 transition-opacity duration-300"
-                  )}>
-                    {displaySegment}
-                  </span>
-                );
-              })}
-            </div>
-          ) : (() => {
-            let displayText = content.value;
-            const isDigraph = content.value.length > 1;
-            const upperText = isDigraph 
-              ? content.value.charAt(0).toUpperCase() + content.value.slice(1).toLowerCase() 
-              : content.value.toUpperCase();
-
-            if (letterCase === 'upper') {
-              displayText = upperText;
-            } else if (letterCase === 'mixed') {
-              displayText = isDigraph 
-                ? `${upperText} ${content.value.toLowerCase()}` 
-                : upperText + content.value.toLowerCase();
-            } else {
-              displayText = content.value.toLowerCase();
-            }
-
-            return (
-              <span
-                className={cn(
-                  "font-headline font-normal leading-none flex items-baseline justify-center gap-0",
-                  "select-none [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] transition-opacity duration-300",
-                  letterCase === 'mixed'
-                    ? "text-8xl sm:text-[11rem] md:text-[14rem] [@media(max-height:500px)]:text-7xl [@media(max-height:500px)]:sm:text-8xl"
-                    : "text-9xl sm:text-[14rem] md:text-[17.5rem] [@media(max-height:500px)]:text-[8.5rem] [@media(max-height:500px)]:sm:text-[10rem]",
-                  isTracingMode && "opacity-40"
-                )}
-                style={{
-                  color: content.textColor || 'white',
-                  transform: `translateY(${letterCase === 'lower' ? (content.verticalOffset || 0) : 0}em)`,
-                  transition: 'transform 0.2s ease-out'
-                }}
-              >
-                {displayText}
-              </span>
-            );
-          })()}
-          <div className={cn(
-            "transition-opacity duration-300",
-            isTracingMode && "opacity-0 pointer-events-none"
-          )}>
-            {enableRecordings && (localAudioUrl ? (
+      topLeft={
+        enableTracing && content.type === "letter" ? (
+          <>
+            <CardCornerButton
+              position="top-left"
+              isActive={isTracingMode}
+              onClick={() => setIsTracingMode(!isTracingMode)}
+              title={isTracingMode ? "Exit Tracing Mode" : "Trace Letters"}
+              ariaLabel={isTracingMode ? "Exit Tracing Mode" : "Trace Letters"}
+              icon={<Paintbrush className="h-5 w-5 sm:h-6 sm:w-6" />}
+            />
+            {isTracingMode && <TracingCanvas contentKey={content.key} />}
+          </>
+        ) : null
+      }
+      topRight={
+        content.type === "word" && content.isHardWord ? (
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="absolute top-3 right-3 sm:top-4 sm:right-4 z-40 text-white opacity-70">
+                  <Star className="h-6 w-6" />
+                </div>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Hard Word</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        ) : null
+      }
+      bottomLeft={
+        <div className={cn("transition-opacity duration-300", isTracingMode && "opacity-0 pointer-events-none")}>
+          {enableRecordings &&
+            (localAudioUrl ? (
               <CardCornerButton
                 position="bottom-left"
                 onClick={handleDeleteRecording}
@@ -597,32 +535,45 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
                 title={isRecording ? "Stop Recording" : "Record your own voice"}
                 ariaLabel={isRecording ? "Stop Recording" : "Record your own voice"}
                 data-recording-button="true"
-                icon={isRecording ? <StopCircle className="h-5 w-5 sm:h-6 sm:w-6 fill-current" /> : <Mic className="h-5 w-5 sm:h-6 sm:w-6" />}
+                icon={
+                  isRecording ? (
+                    <StopCircle className="h-5 w-5 sm:h-6 sm:w-6 fill-current" />
+                  ) : (
+                    <Mic className="h-5 w-5 sm:h-6 sm:w-6" />
+                  )
+                }
               />
             ))}
-          </div>
-
-          {content.type === "letter" && (content.value.length === 1 || !!buffers?.[getSoundKeyForSegment(content.value)] || (localAudioUrl && enableRecordings)) && (
-            <CardCornerButton
-              position="bottom-right"
-              className={cn(
-                isPlaying ? "scale-110 opacity-100 text-white" : "text-white opacity-75 hover:opacity-100",
-                isTracingMode && "opacity-0 pointer-events-none"
-              )}
-              onClick={(e) => speakLetter(e)}
-              title="Listen to sound"
-              ariaLabel="Listen to sound"
-              icon={
-                <Volume2
-                  className="h-5 w-5 sm:h-7 sm:w-7"
-                  style={{
-                    filter: isPlaying ? 'drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(0 0 12px rgba(255,255,255,0.4))' : 'none'
-                  }}
-                />
-              }
-            />
-          )}
-          {content.type === "word" && (content.isHardWord ? (localAudioUrl && enableRecordings) : true) && (
+        </div>
+      }
+      bottomRight={
+        <>
+          {content.type === "letter" &&
+            (content.value.length === 1 ||
+              !!buffers?.[getSoundKeyForSegment(content.value)] ||
+              (localAudioUrl && enableRecordings)) && (
+              <CardCornerButton
+                position="bottom-right"
+                className={cn(
+                  isPlaying ? "scale-110 opacity-100 text-white" : "text-white opacity-75 hover:opacity-100",
+                  isTracingMode && "opacity-0 pointer-events-none"
+                )}
+                onClick={(e) => speakLetter(e)}
+                title="Listen to sound"
+                ariaLabel="Listen to sound"
+                icon={
+                  <Volume2
+                    className="h-5 w-5 sm:h-7 sm:w-7"
+                    style={{
+                      filter: isPlaying
+                        ? "drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(0 0 12px rgba(255,255,255,0.4))"
+                        : "none",
+                    }}
+                  />
+                }
+              />
+            )}
+          {content.type === "word" && (content.isHardWord ? localAudioUrl && enableRecordings : true) && (
             <CardCornerButton
               position="bottom-right"
               className={cn(
@@ -636,11 +587,88 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
                 <Volume2
                   className="h-5 w-5 sm:h-7 sm:w-7"
                   style={{
-                    filter: isPlaying ? 'drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(0 0 12px rgba(255,255,255,0.4))' : 'none'
+                    filter: isPlaying
+                      ? "drop-shadow(0 0 8px rgba(255,255,255,0.8)) drop-shadow(0 0 12px rgba(255,255,255,0.4))"
+                      : "none",
                   }}
                 />
               }
             />
+          )}
+        </>
+      }
+      frontContent={
+        <>
+          {isWord ? (
+            <div
+              className={cn(
+                "font-headline font-normal leading-none",
+                "select-none [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)]",
+                "text-6xl sm:text-8xl md:text-[10rem] [@media(max-height:500px)]:text-5xl [@media(max-height:500px)]:sm:text-7xl"
+              )}
+              style={{
+                color: content.textColor || "white",
+                transform: `translateY(${letterCase === "lower" ? content.verticalOffset || 0 : 0}em)`,
+                transition: "transform 0.2s ease-out",
+              }}
+            >
+              {splitIntoPhonicsSegments(content.value).map((segment, index) => {
+                const displaySegment = segment.toLowerCase();
+
+                return (
+                  <span
+                    key={index}
+                    className={cn(
+                      "inline-block transition-all duration-300 ease-in-out",
+                      highlightedIndex !== null && highlightedIndex !== index && "opacity-60",
+                      highlightedIndex === index &&
+                        "scale-110 brightness-110 [text-shadow:0_0_10px_rgba(255,255,255,0.4)]",
+                      highlightedIndex === null && "opacity-100 scale-100 transition-opacity duration-300"
+                    )}
+                  >
+                    {displaySegment}
+                  </span>
+                );
+              })}
+            </div>
+          ) : (
+            (() => {
+              let displayText = content.value;
+              const isDigraph = content.value.length > 1;
+              const upperText = isDigraph
+                ? content.value.charAt(0).toUpperCase() + content.value.slice(1).toLowerCase()
+                : content.value.toUpperCase();
+
+              if (letterCase === "upper") {
+                displayText = upperText;
+              } else if (letterCase === "mixed") {
+                displayText = isDigraph
+                  ? `${upperText} ${content.value.toLowerCase()}`
+                  : upperText + content.value.toLowerCase();
+              } else {
+                displayText = content.value.toLowerCase();
+              }
+
+              return (
+                <span
+                  className={cn(
+                    "font-headline font-normal leading-none flex items-baseline justify-center gap-0",
+                    "select-none [text-shadow:3px_3px_6px_rgba(0,0,0,0.2)] transition-opacity duration-300",
+                    letterCase === "mixed"
+                      ? "text-8xl sm:text-[11rem] md:text-[14rem] [@media(max-height:500px)]:text-7xl [@media(max-height:500px)]:sm:text-8xl"
+                      : "text-9xl sm:text-[14rem] md:text-[17.5rem] [@media(max-height:500px)]:text-[8.5rem] [@media(max-height:500px)]:sm:text-[10rem]",
+                    isTracingMode && "opacity-40"
+                  )}
+                  style={{
+                    color: content.textColor || "white",
+                    transform: `translateY(${letterCase === "lower" ? content.verticalOffset || 0 : 0}em)`,
+                    transition: "transform 0.2s ease-out",
+                  }}
+                >
+                  {displayText}
+                </span>
+              );
+            })()
           )}
           {isRecording && <AudioVisualizer stream={stream} />}
         </>
@@ -648,4 +676,3 @@ export function LetterDisplay({ content, enableRecordings, enableTracing = true,
     />
   );
 }
-

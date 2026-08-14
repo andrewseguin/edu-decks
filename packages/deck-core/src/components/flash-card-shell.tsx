@@ -3,6 +3,7 @@
 import * as React from "react";
 import { Volume2 } from "lucide-react";
 import { cn } from "../lib/utils";
+import { CardRevealLayout } from "./card-reveal-layout";
 
 export interface CardCornerButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -78,7 +79,12 @@ export function CardCornerButton({
 
 export type FlashCardShellProps = {
   children?: React.ReactNode;
+  /** Primary front content shown initially vertically centered on the card. */
+  front?: React.ReactNode;
   frontContent?: React.ReactNode;
+  /** Revealed detail content shown when card is flipped/revealed. */
+  reveal?: React.ReactNode;
+  revealContent?: React.ReactNode;
   backContent?: React.ReactNode;
   topLeft?: React.ReactNode;
   topRight?: React.ReactNode;
@@ -98,11 +104,21 @@ export type FlashCardShellProps = {
   speakerAriaLabel?: string;
   speakerSize?: "md" | "lg";
   /**
-   * When true, the card grows taller on mobile portrait to accommodate
-   * diagrams, fraction models, or other content that needs more vertical room.
-   * Mirrors the `isDiagramVisible` expansion used in arithmetic-deck.
+   * @deprecated Optional override flag for tall cards; container height now auto-adjusts dynamically.
    */
   tall?: boolean;
+  /**
+   * @deprecated Optional override flag; height expansion now happens automatically as needed.
+   */
+  autoTallOnReveal?: boolean;
+  /**
+   * When true (default), automatically watches internal content height changes and balances layout.
+   */
+  autoMeasureHeight?: boolean;
+  /**
+   * Optional developer debug outlines for card front and reveal content boundaries.
+   */
+  showDebugOutlines?: boolean;
 };
 
 export function FrostedBadge({
@@ -140,7 +156,10 @@ export function FrostedBadge({
 
 export function FlashCardShell({
   children,
+  front,
   frontContent,
+  reveal,
+  revealContent,
   backContent,
   topLeft,
   topRight,
@@ -160,8 +179,48 @@ export function FlashCardShell({
   speakerAriaLabel = "Listen to card",
   speakerSize = "lg",
   tall = false,
+  autoTallOnReveal = false,
+  autoMeasureHeight = true,
+  showDebugOutlines,
 }: FlashCardShellProps) {
   const animClass = "animate-fade-in-zoom";
+  const innerRef = React.useRef<HTMLDivElement>(null);
+  const [measuredHeight, setMeasuredHeight] = React.useState<number | null>(null);
+
+  const primaryNode = frontContent || front;
+  const detailNode = revealContent || reveal || backContent;
+
+  // Compute safe zone insets based on which corners actually have buttons.
+  // Derived from the shell's responsive inner padding + button size:
+  //   Mobile:  p-3 (12px) + w-10 (40px) = 52px
+  //   sm+:     p-5 (20px) + w-12 (48px) = 68px
+  const BUTTON_SIZE_MOBILE = 40;
+  const BUTTON_SIZE_SM = 48;
+  const [cornerInset, setCornerInset] = React.useState(52); // mobile default
+  React.useEffect(() => {
+    const inner = innerRef.current;
+    if (!inner) return;
+    const padding = parseFloat(getComputedStyle(inner).paddingTop);
+    const buttonSize = padding >= 20 ? BUTTON_SIZE_SM : BUTTON_SIZE_MOBILE;
+    setCornerInset(Math.round(padding + buttonSize));
+  }, []);
+
+  const hasSpeaker = showSpeaker && !!onSpeak;
+  const hasTopCorner = Boolean(topLeft || topRight || (hasSpeaker && speakerPosition === "top-right"));
+  const hasBottomCorner = Boolean(bottomLeft || bottomRight || (hasSpeaker && speakerPosition === "bottom-right"));
+  const topInset = hasTopCorner ? cornerInset : 0;
+  const bottomInset = hasBottomCorner ? cornerInset : 0;
+
+  const handleHeightChange = React.useCallback((reqHeight: number | null) => {
+    setMeasuredHeight((prev) => (prev === reqHeight ? prev : reqHeight));
+  }, []);
+
+  // Clear expansion when card is unflipped so height transition starts immediately.
+  React.useEffect(() => {
+    if (!isFlipped) setMeasuredHeight(null);
+  }, [isFlipped]);
+
+  const applyHeight = autoMeasureHeight && isFlipped && measuredHeight;
 
   const defaultStyle: React.CSSProperties = {
     backgroundColor: backgroundColor || "#000000",
@@ -169,6 +228,9 @@ export function FlashCardShell({
       "0 1px 1px rgba(0,0,0,0.12), 0 2px 2px rgba(0,0,0,0.12), 0 4px 4px rgba(0,0,0,0.12), 0 8px 8px rgba(0,0,0,0.12), 0 16px 16px rgba(0,0,0,0.12)",
     borderTop: "1px solid rgba(255,255,255,0.2)",
     borderLeft: "1px solid rgba(255,255,255,0.1)",
+    ...(applyHeight
+      ? { height: `${measuredHeight}px` }
+      : {}),
     ...style,
   };
 
@@ -181,6 +243,7 @@ export function FlashCardShell({
     showSpeaker && onSpeak ? (
       <button
         type="button"
+        data-card-corner={speakerPosition === "top-right" ? "top" : "bottom"}
         className={cn(
           "absolute z-40 inline-flex items-center justify-center text-white/80 hover:text-white hover:bg-white/20 rounded-full transition-all active:scale-95 outline-none pointer-events-auto",
           speakerPosition === "top-right"
@@ -202,25 +265,44 @@ export function FlashCardShell({
         "relative select-none [-webkit-touch-callout:none] border-none rounded-3xl overflow-hidden cursor-pointer",
         // Standard shared size — all decks use this baseline
         "w-[90vw] max-w-[700px]",
-        "transition-all duration-500 ease-in-out",
-        "h-[55vw] max-h-[min(420px,68svh)] min-h-[220px]",
+        "transition-[height] duration-500 ease-in-out",
+        // Card height: single computed value = rendered value (no max-height cap).
+        // This prevents CSS transition from animating from the uncapped h-[55vw] value
+        // when an inline height override is applied for card expansion.
+        "h-[min(55vw,420px,68svh)] min-h-[220px]",
         "[@media(orientation:landscape)_and_(max-height:500px)]:h-[72vh]",
-        "[@media(orientation:landscape)_and_(max-height:500px)]:max-h-[72vh]",
-        // Expand on mobile portrait when content needs more room (diagrams, fraction models, etc.)
-        tall && "max-sm:portrait:h-[88vw] max-sm:portrait:min-h-[340px] max-sm:portrait:max-h-[min(450px,76svh)]",
         animClass,
         className
       )}
       style={defaultStyle}
       onClick={onCardTap}
     >
-      <div className={cn("p-3 sm:p-5 md:p-6 h-full w-full relative overflow-hidden", contentClassName)}>
-        {topLeft}
-        {topRight || (speakerPosition === "top-right" ? speakerButton : null)}
-        {bottomLeft}
-        {frontContent || children}
-        {backContent}
-        {bottomRight || (speakerPosition === "bottom-right" ? speakerButton : null)}
+      <div ref={innerRef} className={cn("p-3 sm:p-5 md:p-6 h-full w-full relative overflow-hidden", contentClassName)}>
+        {topLeft && <div data-card-corner="top">{topLeft}</div>}
+        {topRight ? (
+          <div data-card-corner="top">{topRight}</div>
+        ) : speakerPosition === "top-right" ? (
+          speakerButton
+        ) : null}
+        {bottomLeft && <div data-card-corner="bottom">{bottomLeft}</div>}
+        {children ? (
+          children
+        ) : (
+          <CardRevealLayout
+            primary={primaryNode}
+            detail={detailNode}
+            isRevealed={isFlipped}
+            topInset={topInset}
+            bottomInset={bottomInset}
+            onHeightChange={handleHeightChange}
+            showDebugOutlines={showDebugOutlines}
+          />
+        )}
+        {bottomRight ? (
+          <div data-card-corner="bottom">{bottomRight}</div>
+        ) : speakerPosition === "bottom-right" ? (
+          speakerButton
+        ) : null}
       </div>
     </div>
   );

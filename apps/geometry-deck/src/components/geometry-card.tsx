@@ -18,6 +18,8 @@ type GeometryCardProps = {
   isFlipped: boolean;
   slideDirection: "next" | "prev";
   onSpeak: (text: string) => void;
+  onCardTap?: () => void;
+  onTap?: () => void;
   /**
    * TEST-ONLY: when provided, bypasses the animation-timer sequencing and
    * immediately pins the card to this step index. The real app never passes
@@ -65,6 +67,8 @@ export function GeometryCard({
   isFlipped,
   slideDirection,
   onSpeak,
+  onCardTap,
+  onTap,
   forcedStepIndex,
 }: GeometryCardProps) {
   const [currentStepIndex, setCurrentStepIndex] = useState(-1);
@@ -134,6 +138,7 @@ export function GeometryCard({
         // On mobile portrait, expand when there's a diagram to show
         tall && "max-sm:portrait:h-[88vw] max-sm:portrait:min-h-[340px] max-sm:portrait:max-h-[min(450px,76svh)]",
       )}
+      onCardTap={onCardTap || onTap}
       onSpeak={handleSpeak}
       speakerAriaLabel="Listen to card"
       speakerSize="md"
@@ -148,35 +153,41 @@ export function GeometryCard({
   if (card.cardType === "term") {
     const hasSvg = card.backSvgExamples && card.backSvgExamples.length > 0;
     const multiSvg = hasSvg && card.backSvgExamples!.length > 1;
-    return wrap(// tall whenever this card has an SVG — pre-sized regardless of flip state
-      /* tall= */ !!hasSvg,
-      <CardRevealLayout
-        isRevealed={isFlipped}
-        primaryRevealedTopClass="top-[14%] sm:top-[12%]"
-        detailTopClass="top-[28%] sm:top-[26%]"
-        primaryClassName="px-6 gap-1"
-        detailClassName="px-5 py-2"
-        primary={
-          <>
-            <span className={cn(
-              "font-headline font-bold text-white text-center leading-tight",
-              "transition-all duration-500 ease-in-out",
-              isFlipped ? "text-xl sm:text-2xl" : "text-3xl sm:text-4xl",
-            )}>
+    return (
+      <FlashCardShell
+        key={card.id}
+        isFlipped={isFlipped}
+        slideDirection={slideDirection}
+        backgroundColor={card.color}
+        className="w-[90vw] max-w-[700px] border-none"
+        onCardTap={onCardTap || onTap}
+        onSpeak={handleSpeak}
+        speakerAriaLabel="Listen to card"
+        speakerSize="md"
+        frontContent={
+          <div className="flex flex-col items-center justify-center px-6 gap-1">
+            <span
+              className={cn(
+                "font-headline font-bold text-white text-center leading-tight",
+                "transition-all duration-500 ease-in-out",
+                isFlipped ? "text-xl sm:text-2xl" : "text-3xl sm:text-4xl"
+              )}
+            >
               {card.frontLabel}
             </span>
-            {/* Keep in DOM; collapse smoothly so -translate-y-1/2 doesn't snap */}
-            <span className={cn(
-              "italic text-white/60 text-center text-xl sm:text-2xl block overflow-hidden",
-              "transition-all duration-500 ease-in-out",
-              isFlipped ? "max-h-0 opacity-0" : "max-h-[60px] opacity-100",
-            )}>
+            <span
+              className={cn(
+                "italic text-white/60 text-center text-xl sm:text-2xl block overflow-hidden",
+                "transition-all duration-500 ease-in-out",
+                isFlipped ? "max-h-0 opacity-0" : "max-h-[60px] opacity-100"
+              )}
+            >
               {card.frontPrompt}
             </span>
-          </>
+          </div>
         }
-        detail={
-          <div className="flex-1 min-h-0 overflow-y-auto flex flex-col gap-3 items-center">
+        revealContent={
+          <div className="min-h-0 overflow-y-auto flex flex-col gap-3 items-center px-5 py-2">
             {card.backDefinition && (
               <p className="text-white text-center font-semibold leading-snug text-base sm:text-lg shrink-0">
                 {card.backDefinition}
@@ -184,16 +195,18 @@ export function GeometryCard({
             )}
 
             {hasSvg && (
-              <div className={cn(
-                "flex gap-3 justify-center w-full shrink-0",
-                multiSvg ? "flex-row items-center" : "flex-col items-center",
-              )}>
+              <div
+                className={cn(
+                  "flex gap-3 justify-center w-full shrink-0",
+                  multiSvg ? "flex-row items-center" : "flex-col items-center"
+                )}
+              >
                 {card.backSvgExamples!.map((ex, i) => (
                   <div
                     key={i}
                     className={cn(
                       "aspect-[11/9]",
-                      multiSvg ? "w-full max-w-[160px]" : "w-full max-w-[240px] sm:max-w-[280px]",
+                      multiSvg ? "w-full max-w-[160px]" : "w-full max-w-[240px] sm:max-w-[280px]"
                     )}
                   >
                     {renderShapeSvg(ex, activeMutation)}
@@ -207,7 +220,6 @@ export function GeometryCard({
     );
   }
 
-
   // ─────────────────────────────────────────────────────────────────────────────
   // CALCULATION + FORMULA CARDS
   // ─────────────────────────────────────────────────────────────────────────────
@@ -216,38 +228,38 @@ export function GeometryCard({
     ? (FIND_LABELS[card.frontSvg.unknownDimension] ?? `Find ${card.frontSvg.unknownDimension}`)
     : null;
 
-  return wrap(// tall when card has a shape diagram (always true for formula/calculation)
-    /* tall= */ !!card.frontSvg,
-    <CardRevealLayout
-      isRevealed={isFlipped}
-      primaryRevealedTopClass="top-[22%] sm:top-[20%]"
-      detailTopClass="top-[44%] sm:top-[42%]"
-      primaryClassName="gap-1.5 px-4"
-      detailClassName="px-4"
-      primary={
-        <>
-          {/* Shape SVG — fixed aspect-ratio width; no height-% jank */}
+  return (
+    <FlashCardShell
+      key={card.id}
+      isFlipped={isFlipped}
+      slideDirection={slideDirection}
+      backgroundColor={card.color}
+      className="w-[90vw] max-w-[700px] border-none"
+      onCardTap={onCardTap || onTap}
+      onSpeak={handleSpeak}
+      speakerAriaLabel="Listen to card"
+      speakerSize="md"
+      frontContent={
+        <div className="flex flex-col items-center justify-center gap-1.5 px-4">
           {card.frontSvg && (
-            <div className={cn(
-              "aspect-[11/9] transition-all duration-500 ease-in-out",
-              isFlipped
-                ? "w-[42%] max-w-[180px]"
-                : "w-[56%] max-w-[240px]",
-            )}>
+            <div
+              className={cn(
+                "aspect-[11/9] transition-all duration-500 ease-in-out",
+                isFlipped ? "w-[42%] max-w-[180px]" : "w-[56%] max-w-[240px]"
+              )}
+            >
               {renderShapeSvg(card.frontSvg, activeMutation)}
             </div>
           )}
-          {/* "Find …" prompt — only on front */}
           {!isFlipped && findLabel && (
             <p className="text-white/80 text-sm sm:text-base font-semibold text-center">
               {findLabel}
             </p>
           )}
-        </>
+        </div>
       }
-      detail={
-        <div className="flex-1 min-h-0 flex flex-col">
-          {/* Proof rows — vertically centered in available space */}
+      revealContent={
+        <div className="flex-1 min-h-0 flex flex-col px-4">
           <div className="flex-1 min-h-0 overflow-y-auto flex flex-col items-center justify-center py-1">
             {currentStepIndex >= 0 && (
               <div className="flex flex-col w-full">
@@ -267,7 +279,6 @@ export function GeometryCard({
             )}
           </div>
 
-          {/* StepNav — always at bottom of detail area */}
           {isFlipped && steps.length > 1 && (
             <div className="shrink-0 pb-3 pt-1 flex justify-center">
               <StepNav

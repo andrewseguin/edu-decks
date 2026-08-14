@@ -98,4 +98,30 @@ describe("deck-core: FlashCardShell & Subcomponents", () => {
     fireEvent.click(btn);
     expect(onClick).toHaveBeenCalledTimes(1);
   });
+
+  it("handles autoMeasureHeight prop gracefully when revealed", () => {
+    const { container } = render(
+      <FlashCardShell isFlipped={true} autoMeasureHeight={true}>
+        <div className="absolute top-10">
+          <div>Dynamic Item List</div>
+        </div>
+      </FlashCardShell>
+    );
+
+    expect(container.firstChild).toBeInTheDocument();
+  });
+
+  it("marks debug badges with data-card-debug-badge so measurement ignores them", () => {
+    render(
+      <FlashCardShell
+        isFlipped={false}
+        showDebugOutlines={true}
+        frontContent={<div data-testid="front">Z</div>}
+      />
+    );
+
+    const badge = screen.getByText("FRONT CONTAINER");
+    expect(badge).toBeInTheDocument();
+    expect(badge).toHaveAttribute("data-card-debug-badge", "true");
+  });
 });

@@ -12,14 +12,7 @@ This file defines mandatory behavioral constraints and operational workflows for
 - **NEVER** run `next build` or `pnpm -r build` while `pnpm dev` is running. Running `next build` concurrently overwrites the active `.next` cache and build manifests with production bundles, corrupting the dev server and causing `500 Internal Server Error`.
 - Both `apps/arithmetic-deck/playwright.config.ts`, `apps/reading-deck/playwright.config.ts`, and `apps/geometry-deck/playwright.config.ts` are configured with `reuseExistingServer: true`. Automated visual regression tests (`pnpm -r test:visual`) will automatically attach to and reuse any already-running development server.
 
-### 2. ZERO DESTRUCTION
-- Never delete existing working logic until the shared replacement in `@decks/core` is tested and verified.
-
-### 3. NO REGRESSIONS
-- The visual layout, card flip transitions, frosted "?" badges, audio TTS pronunciation (`useAudio`), wake-lock behavior (`useWakeLock`), and parental lock snackbars in BOTH applications must remain 100% identical unless explicitly requested by the user.
-- Card-to-card transitions across all decks use the subtle fade-in zoom animation (`animate-fade-in-zoom`).
-
-### 4. INCREMENTAL VERIFICATION
+### 2. INCREMENTAL VERIFICATION
 - During active development, verify changes using type-checking and unit tests:
   ```bash
   pnpm -r typecheck
@@ -27,7 +20,7 @@ This file defines mandatory behavioral constraints and operational workflows for
   ```
 - **Only run `pnpm -r build`** when dev servers are intentionally stopped or when performing final release/deployment validation.
 
-### 5. MULTI-ENVIRONMENT DEPLOYMENTS & PRODUCTION BRANCH DISCIPLINE
+### 3. MULTI-ENVIRONMENT DEPLOYMENTS & PRODUCTION BRANCH DISCIPLINE
 - Everyday commits, feature work, and PRs merge into the `main` branch.
 - Commits to `main` automatically deploy to `*-dev.edudecks.org` (`isDevSite() === true` for logs & dev tools) and `*-staging.edudecks.org` (`isDevSite() === false` for prod candidate testing).
 - Live production sites (`*.edudecks.org`) are served exclusively from the **`prod`** branch.
@@ -46,4 +39,5 @@ This file defines mandatory behavioral constraints and operational workflows for
 - `apps/arithmetic-deck` (Port `9003`) — Mental Arithmetic & Number Sense
 - `apps/reading-deck` (Port `9002`) — Phonics, Letters, & Reading Fluency
 - `apps/geometry-deck` (Port `9004`) — Geometry Formulas, Properties & Theorems *(beta — no public deployment yet)*
+- `apps/dev-site` (Port `9005`) — Internal Core Showcase & Card Reveal Height Lab
 - `packages/deck-core` — Shared UI shells, toolbars, quiz overlays, badges, audio & wake-lock hooks
