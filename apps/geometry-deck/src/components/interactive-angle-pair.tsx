@@ -9,12 +9,12 @@ type InteractiveAnglePairProps = {
   color: string;
 };
 
-const RAY_LEN = 80;
-const ARC_R_A = 26;
-const ARC_R_B = 36;
-const HANDLE_R = 10;
-const PAD = 16;
-const SQ = 10;
+const RAY_LEN = 110;
+const ARC_R_A = 34;
+const ARC_R_B = 46;
+const HANDLE_R = 12;
+const PAD = 24;
+const SQ = 12;
 
 function toPoint(vx: number, vy: number, deg: number, len: number) {
   const rad = (deg * Math.PI) / 180;
@@ -125,9 +125,9 @@ export function InteractiveAnglePair({ targetSum, label, color }: InteractiveAng
   const labelBPos = toPoint(vx, vy, labelBMid, labelR);
 
   return (
-    <div className="flex flex-col items-center gap-1.5 w-full pb-1" onClick={stop} onPointerDown={stop}>
+    <div className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
       <svg ref={svgRef} viewBox={`0 0 ${svgW} ${svgH}`}
-        className="w-full max-w-[210px] sm:max-w-[240px] touch-none select-none"
+        className="w-full max-w-[280px] sm:max-w-[320px] touch-none select-none"
         style={{ cursor: isDragging ? "grabbing" : "default" }}>
 
         {/* Right-angle square (complementary only) */}
@@ -216,7 +216,7 @@ export function InteractiveAnglePair({ targetSum, label, color }: InteractiveAng
       </div>
 
       {/* Slider */}
-      <div className="w-full max-w-[220px] sm:max-w-[260px] px-2" onClick={stop}>
+      <div className="w-full max-w-[260px] sm:max-w-[300px] px-2" onClick={stop}>
         <input type="range" min={sliderMin} max={sliderMax} step={1}
           value={Math.round(angleA)} onChange={handleSlider}
           className="angle-slider w-full"

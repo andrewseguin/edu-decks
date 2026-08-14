@@ -118,9 +118,9 @@ export function InteractiveVerticalAngles({ color }: InteractiveVerticalAnglesPr
   const COLOR_B = "#ffd45e"; // gold — for the equal pair B & D
 
   return (
-    <div className="flex flex-col items-center gap-1.5 w-full pb-1" onClick={stop} onPointerDown={stop}>
+    <div className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
       <svg ref={svgRef} viewBox={`0 0 ${svgW} ${svgH}`}
-        className="w-full max-w-[200px] sm:max-w-[230px] touch-none select-none"
+        className="w-full max-w-[240px] sm:max-w-[280px] touch-none select-none"
         style={{ cursor: isDragging ? "grabbing" : "default" }}>
 
         {/* Arc A (top-right) */}
@@ -184,7 +184,7 @@ export function InteractiveVerticalAngles({ color }: InteractiveVerticalAnglesPr
       </div>
 
       {/* Slider */}
-      <div className="w-full max-w-[220px] sm:max-w-[260px] px-2" onClick={stop}>
+      <div className="w-full max-w-[260px] sm:max-w-[300px] px-2" onClick={stop}>
         <input type="range" min={sweepMin} max={sweepMax} step={1}
           value={Math.round(angleA)} onChange={handleSlider}
           className="angle-slider w-full"

@@ -144,9 +144,9 @@ export function GeometryCard({
           </div>
         }
         revealContent={
-          <div className="min-h-0 overflow-y-auto flex flex-col gap-1.5 items-center px-4 py-1">
+          <div className="min-h-0 overflow-y-auto flex flex-col gap-2 items-center px-4 pt-1 pb-6">
             {card.backDefinition && (
-              <p className="text-white text-center font-semibold leading-snug text-sm sm:text-base shrink-0">
+              <p className="text-white text-center font-semibold leading-snug text-base sm:text-lg shrink-0">
                 {card.backDefinition}
               </p>
             )}
