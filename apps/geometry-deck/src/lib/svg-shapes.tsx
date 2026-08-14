@@ -427,12 +427,12 @@ function AngleVerticallyOpposite({ dims, mutation }: { dims: Record<string, numb
   const urArcX = vx + arcR * Math.cos(-rad), urArcY = vy + arcR * Math.sin(-rad); // upper-right
   const llArcX = vx - arcR * Math.cos(-rad), llArcY = vy - arcR * Math.sin(-rad); // lower-left
   const la = aAngle > 180 ? 1 : 0, lb = bAngle > 180 ? 1 : 0;
-  // A arcs: east→upper-right (sweep=0, CCW=upward) and west→lower-left (sweep=1, CW=downward)
+  // A arcs: east→upper-right (sweep=0, CCW=upward) and west→lower-left (sweep=0, CCW=downward)
   const arcAPath1 = `M ${eArcX} ${eArcY} A ${arcR} ${arcR} 0 ${la} 0 ${urArcX} ${urArcY}`;
-  const arcAPath2 = `M ${wArcX} ${wArcY} A ${arcR} ${arcR} 0 ${la} 1 ${llArcX} ${llArcY}`;
-  // B arcs: upper-right→west (sweep=0, CCW=through north) and lower-left→east (sweep=1, CW=through south)
+  const arcAPath2 = `M ${wArcX} ${wArcY} A ${arcR} ${arcR} 0 ${la} 0 ${llArcX} ${llArcY}`;
+  // B arcs: upper-right→west (sweep=0, CCW=through north) and lower-left→east (sweep=0, CW=through south)
   const arcBPath1 = `M ${urArcX} ${urArcY} A ${arcR} ${arcR} 0 ${lb} 0 ${wArcX} ${wArcY}`;
-  const arcBPath2 = `M ${llArcX} ${llArcY} A ${arcR} ${arcR} 0 ${lb} 1 ${eArcX} ${eArcY}`;
+  const arcBPath2 = `M ${llArcX} ${llArcY} A ${arcR} ${arcR} 0 ${lb} 0 ${eArcX} ${eArcY}`;
   return (
     <svg viewBox="0 0 220 180" className="w-full h-full" aria-hidden>
       <line x1={ends[0].x} y1={ends[0].y} x2={ends[1].x} y2={ends[1].y} stroke={WHITE70} strokeWidth={STROKE_W} strokeLinecap="round" />
@@ -448,9 +448,13 @@ function AngleVerticallyOpposite({ dims, mutation }: { dims: Record<string, numb
       ) : (
         <SvgLabel x={vx - arcR - 22} y={vy + 16} text={`C = ${aAngle}°`} />
       )}
-      <SvgLabel x={vx - arcR - 22} y={vy - 8} text={`B = ${bAngle}°`} />
-      <SvgLabel x={vx + arcR + 20} y={vy + 16} text={`D = ${bAngle}°`} />
-      <text x={110} y={175} textAnchor="middle" fontSize={11} fill={WHITE50} fontFamily={LABEL_FONT}>A = C,  B = D</text>
+      {!unknownDim && (
+        <>
+          <SvgLabel x={vx - arcR - 22} y={vy - 8} text={`B = ${bAngle}°`} />
+          <SvgLabel x={vx + arcR + 20} y={vy + 16} text={`D = ${bAngle}°`} />
+          <text x={110} y={175} textAnchor="middle" fontSize={11} fill={WHITE50} fontFamily={LABEL_FONT}>A = C,  B = D</text>
+        </>
+      )}
     </svg>
   );
 }

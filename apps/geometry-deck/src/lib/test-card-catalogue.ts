@@ -164,7 +164,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-angle-vertically-opp": {
     id: "calc-angle-vertically-opp", topic: "angles", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.angles,
-    frontSvg: { shape: "angle-vertically-opposite", dimensions: { A: 75 }, labelMode: "numeric", unknownDimension: "C" },
+    frontSvg: { shape: "angle-vertically-opposite", dimensions: { A: 75, unknown: "C" }, labelMode: "numeric", unknownDimension: "C" },
     frontSpeechText: "A is 75 degrees. Find vertically opposite angle C.",
     backSteps: [
       { formulaLine: "Vertically opposite angles are equal", reason: "Theorem" },

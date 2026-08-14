@@ -151,7 +151,7 @@ function makeAnglesCalcCard(): GeometryCard {
   const A = randInt(15, 80);
   return {
     id: nextId(), topic: "angles", cardType: "calculation", variant: "compute",
-    frontSvg: { shape: "angle-vertically-opposite", dimensions: { A }, labelMode: "numeric", unknownDimension: "C" },
+    frontSvg: { shape: "angle-vertically-opposite", dimensions: { A, unknown: "C" }, labelMode: "numeric", unknownDimension: "C" },
     frontSpeechText: `A is ${A} degrees. Find vertically opposite angle C.`,
     backSteps: [
       { formulaLine: "Vertically opposite angles are equal", reason: "Theorem" },
