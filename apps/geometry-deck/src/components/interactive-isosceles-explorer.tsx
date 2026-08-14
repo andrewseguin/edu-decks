@@ -24,13 +24,14 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
     ucRef.current = isUserControlling;
   }, [isUserControlling]);
 
-  // Smooth continuous auto-pulse loop across 15° to 165°
+  // Smooth continuous auto-pulse loop across 12° to 158°
   const animate = useCallback((ts: number) => {
     if (ucRef.current) return;
     if (startTimeRef.current === null) startTimeRef.current = ts;
     const t = (Math.sin(((ts - startTimeRef.current) / 1000) * Math.PI * 0.2) + 1) / 2;
-    const rawDeg = 15 + t * (165 - 15);
-    setApexAngle(Math.round(rawDeg));
+    const rawDeg = 12 + t * (158 - 12);
+    const evenDeg = Math.round(rawDeg / 2) * 2;
+    setApexAngle(evenDeg);
     animRef.current = requestAnimationFrame(animate);
   }, []);
 
@@ -44,9 +45,9 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
     };
   }, [animate, isUserControlling]);
 
-  // Geometry calculations (whole integer degrees with zero decimals)
-  const displayApexAngle = Math.round(apexAngle);
-  const baseAngle = Math.round((180 - displayApexAngle) / 2);
+  // Geometry calculations (even integer apex angles guarantee baseAngle is an exact whole integer and apex + 2*base = 180° exactly)
+  const displayApexAngle = Math.round(apexAngle / 2) * 2;
+  const baseAngle = (180 - displayApexAngle) / 2;
 
   const halfApexRad = ((displayApexAngle / 2) * Math.PI) / 180;
   const hw = LEG_LEN * Math.sin(halfApexRad);
@@ -109,7 +110,7 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
       if (animRef.current) cancelAnimationFrame(animRef.current);
     }
     const val = Number(e.target.value);
-    setApexAngle(val);
+    setApexAngle(Math.round(val / 2) * 2);
   }, [isUserControlling]);
 
   return (
@@ -161,9 +162,9 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
             strokeLinecap="round"
           />
 
-          {/* Base Angle Value Labels (Positioned outside left & right corners) */}
+          {/* Base Angle Value Labels (Positioned outside left & right corners with generous 10px offset) */}
           <text
-            x={x1 - 6}
+            x={x1 - 10}
             y={BASE_Y + 3}
             textAnchor="end"
             fontSize={12}
@@ -174,7 +175,7 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
             {baseAngle}°
           </text>
           <text
-            x={x2 + 6}
+            x={x2 + 10}
             y={BASE_Y + 3}
             textAnchor="start"
             fontSize={12}
@@ -210,13 +211,13 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
         </span>
       </div>
 
-      {/* Range Slider Control (No labels, 1° step from 1° to 179°) */}
+      {/* Range Slider Control (Capped 10° to 160° to avoid degenerate straight line triangles) */}
       <div className="w-full max-w-[280px] px-2 flex flex-col gap-1.5 items-center mt-1">
         <input
           type="range"
-          min={1}
-          max={179}
-          step={1}
+          min={10}
+          max={160}
+          step={2}
           value={displayApexAngle}
           onChange={handleSlider}
           className="w-full h-2 bg-black/30 rounded-lg appearance-none cursor-pointer accent-amber-400 focus:outline-none border border-white/20"
