@@ -340,40 +340,109 @@ export function WholeNumberVisualizer({
     const rawBlockSize = Math.floor(availWForBlocks / total);
     const blockSize = Math.max(12, Math.min(24, rawBlockSize));
 
+    // Pre-compute layout for both states so the container is pre-sized
+    // and dots animate between flat and grouped positions.
+    const pad = 6; // container padding (p-1.5)
+    const flatGap = 2;
+    const grpInternalGap = 2;
+    const grpPad = 4;
+    const outerGap = 8;
+
+    // Grouped layout dimensions
+    const groupW = itemsPerGroup * blockSize + (itemsPerGroup - 1) * grpInternalGap + 2 * grpPad;
+    const groupH = blockSize + 2 * grpPad;
+    const innerW = maxW - 2 * pad;
+    const groupsPerRow = Math.max(1, Math.floor((innerW + outerGap) / (groupW + outerGap)));
+    const numRows = Math.ceil(groupCount / groupsPerRow);
+    const groupsInWidestRow = Math.min(groupCount, groupsPerRow);
+    const groupedGridW = groupsInWidestRow * groupW + (groupsInWidestRow - 1) * outerGap;
+    const groupedGridH = numRows * groupH + (numRows - 1) * outerGap;
+    const groupXOffset = Math.round((innerW - groupedGridW) / 2);
+
+    // Flat layout dimensions
+    const flatDotsPerRow = Math.max(1, Math.floor((innerW + flatGap) / (blockSize + flatGap)));
+    const flatRows = Math.ceil(total / flatDotsPerRow);
+    const flatGridW = Math.min(total, flatDotsPerRow) * (blockSize + flatGap) - flatGap;
+    const flatGridH = flatRows * (blockSize + flatGap) - flatGap;
+    const flatXOffset = Math.round((innerW - flatGridW) / 2);
+    const flatYOffset = Math.round((groupedGridH - flatGridH) / 2);
+
+    // Compute each dot's position in both layouts.
+    // Flat positions are arranged in row strips that match grouped rows,
+    // so dots only move horizontally (not diagonally) when separating.
+    const dotPositions = Array.from({ length: total }, (_, i) => {
+      // Grouped position — center each row independently
+      const groupIdx = Math.floor(i / itemsPerGroup);
+      const indexInGroup = i % itemsPerGroup;
+      const gRow = Math.floor(groupIdx / groupsPerRow);
+      const gCol = groupIdx % groupsPerRow;
+      const groupsInThisRow = Math.min(groupsPerRow, groupCount - gRow * groupsPerRow);
+      const thisRowW = groupsInThisRow * groupW + (groupsInThisRow - 1) * outerGap;
+      const thisRowXOffset = Math.round((innerW - thisRowW) / 2);
+      const gX = thisRowXOffset + gCol * (groupW + outerGap) + grpPad + indexInGroup * (blockSize + grpInternalGap);
+      const gY = gRow * (groupH + outerGap) + grpPad;
+
+      // Flat position: continuous row strips matching group rows
+      const firstGroupInRow = gRow * groupsPerRow;
+      const firstDotInRow = firstGroupInRow * itemsPerGroup;
+      const posInRow = i - firstDotInRow;
+      const dotsInThisRow = Math.min(groupsInThisRow * itemsPerGroup, total - firstDotInRow);
+      const flatRowW = dotsInThisRow * (blockSize + flatGap) - flatGap;
+      const flatRowXOffset = Math.round((innerW - flatRowW) / 2);
+      const flatX = flatRowXOffset + posInRow * (blockSize + flatGap);
+      // Vertically centered within the grouped row band
+      const flatY = gRow * (groupH + outerGap) + (groupH - blockSize) / 2;
+
+      return { flatX, flatY, groupedX: gX, groupedY: gY };
+    });
+
+    const containerH = groupedGridH + 2 * pad;
+
     return (
       <div className="flex flex-col items-center justify-center gap-1.5 [@media(max-height:640px)]:scale-85">
         <div
-          className={cn(
-            "flex flex-wrap justify-center items-center rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs transition-all duration-500 ease-out p-1.5 sm:p-2",
-            isSeparated ? "gap-2 sm:gap-2.5" : "gap-0.5 sm:gap-1"
-          )}
+          className="rounded-2xl bg-white/10 border border-white/20 max-w-full backdrop-blur-xs relative overflow-hidden"
+          style={{ height: `${containerH}px`, width: `${maxW}px` }}
         >
+          {/* Group backgrounds — rendered behind dots */}
           {Array.from({ length: groupCount }).map((_, gIdx) => {
-            const groupStartIndex = gIdx * itemsPerGroup;
-            const groupSlots = Array.from({ length: itemsPerGroup }).map((_, i) => groupStartIndex + i);
-
+            const gRow = Math.floor(gIdx / groupsPerRow);
+            const gCol = gIdx % groupsPerRow;
+            const groupsInThisRow = Math.min(groupsPerRow, groupCount - gRow * groupsPerRow);
+            const thisRowW = groupsInThisRow * groupW + (groupsInThisRow - 1) * outerGap;
+            const thisRowXOffset = Math.round((innerW - thisRowW) / 2);
+            const gX = pad + thisRowXOffset + gCol * (groupW + outerGap);
+            const gY = pad + gRow * (groupH + outerGap);
             return (
               <div
-                key={`div-group-${gIdx}`}
-                className={cn(
-                  "flex items-center justify-center rounded-xl transition-all duration-500 ease-out whitespace-nowrap shrink-0 p-1 sm:p-1.5 gap-0.5 sm:gap-1",
-                  isSeparated ? "bg-white/15 border border-white/30 shadow-xs" : "bg-transparent border border-transparent"
-                )}
-              >
-                {groupSlots.map((slotIndex) => {
-                  if (slotIndex >= total) return null;
-
-                  return (
-                    <div
-                      key={`div-slot-${slotIndex}`}
-                      className="rounded-md bg-cyan-300 border border-cyan-400 shadow-xs cursor-pointer hover:scale-125 transition-all duration-500 shrink-0"
-                      style={{ width: `${blockSize}px`, height: `${blockSize}px` }}
-                    />
-                  );
-                })}
-              </div>
+                key={`div-grp-bg-${gIdx}`}
+                className="absolute rounded-xl transition-all duration-500 ease-out"
+                style={{
+                  left: `${gX}px`,
+                  top: `${gY}px`,
+                  width: `${groupW}px`,
+                  height: `${groupH}px`,
+                  opacity: isSeparated ? 1 : 0,
+                  background: isSeparated ? 'rgba(255,255,255,0.15)' : 'transparent',
+                  border: isSeparated ? '1px solid rgba(255,255,255,0.3)' : '1px solid transparent',
+                }}
+              />
             );
           })}
+
+          {/* Dots — animate between flat and grouped positions */}
+          {dotPositions.map((pos, i) => (
+            <div
+              key={`div-dot-${i}`}
+              className="absolute rounded-md bg-cyan-300 border border-cyan-400 shadow-xs transition-all duration-700 ease-out"
+              style={{
+                width: `${blockSize}px`,
+                height: `${blockSize}px`,
+                left: `${pad + (isSeparated ? pos.groupedX : pos.flatX)}px`,
+                top: `${pad + (isSeparated ? pos.groupedY : pos.flatY)}px`,
+              }}
+            />
+          ))}
         </div>
 
         <StepControls

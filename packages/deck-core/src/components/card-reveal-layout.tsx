@@ -37,8 +37,7 @@ export interface CardRevealLayoutProps {
   showDebugOutlines?: boolean;
 }
 
-/** Minimum gap between prompt and reveal sections. Content provides its own visual spacing. */
-const MIN_PADDING = 0;
+
 
 /**
  * Layout engine for flash card reveal transitions.
@@ -118,17 +117,25 @@ export function CardRevealLayout({
       return;
     }
 
-    // Single-gap layout: prompt flush at top inset, reveal flush at bottom inset.
-    // The only gap is whatever space remains between prompt bottom and reveal top.
-    const primaryTop = topInset;
-    let detailTop = baseH - bottomInset - detailH;
-    let gap = detailTop - primaryTop - primaryH;
+    // Hybrid layout:
+    // - Fits: 3-way equal padding for a balanced, centered look.
+    // - Doesn't fit: flush to insets, expand the card.
+    const contentZone = baseH - topInset - bottomInset;
+    const slack = contentZone - primaryH - detailH;
+    let primaryTop: number;
+    let detailTop: number;
     let requiredHeight: number | null = null;
 
-    if (gap < MIN_PADDING) {
-      gap = MIN_PADDING;
-      detailTop = primaryTop + primaryH + gap;
-      requiredHeight = Math.round(topInset + primaryH + gap + detailH + bottomInset);
+    if (slack >= 0) {
+      // Content fits — distribute space as 3-way equal padding.
+      const P = Math.round(slack / 3);
+      primaryTop = topInset + P;
+      detailTop = primaryTop + primaryH + P;
+    } else {
+      // Content overflows — flush to insets, request expansion.
+      primaryTop = topInset;
+      detailTop = primaryTop + primaryH;
+      requiredHeight = Math.round(topInset + primaryH + detailH + bottomInset);
     }
 
     setPrimaryStyle({ top: `${primaryTop}px` });
