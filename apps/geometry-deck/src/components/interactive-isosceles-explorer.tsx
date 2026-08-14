@@ -24,12 +24,12 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
     ucRef.current = isUserControlling;
   }, [isUserControlling]);
 
-  // Smooth continuous auto-pulse loop across 6° to 172°
+  // Smooth continuous auto-pulse loop across 15° to 165°
   const animate = useCallback((ts: number) => {
     if (ucRef.current) return;
     if (startTimeRef.current === null) startTimeRef.current = ts;
     const t = (Math.sin(((ts - startTimeRef.current) / 1000) * Math.PI * 0.2) + 1) / 2;
-    const rawDeg = 8 + t * (172 - 8);
+    const rawDeg = 15 + t * (165 - 15);
     const evenDeg = Math.round(rawDeg / 2) * 2;
     setApexAngle(evenDeg);
     animRef.current = requestAnimationFrame(animate);
@@ -211,17 +211,12 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
         </span>
       </div>
 
-      {/* Range Slider Control */}
-      <div className="w-full max-w-[280px] px-2 flex flex-col gap-1.5 items-center">
-        <div className="w-full flex justify-between text-[11px] font-mono font-semibold text-white/80">
-          <span>2°</span>
-          <span className="text-amber-300 font-bold text-xs">{displayApexAngle}°</span>
-          <span>178°</span>
-        </div>
+      {/* Range Slider Control (No labels) */}
+      <div className="w-full max-w-[280px] px-2 flex flex-col gap-1.5 items-center mt-1">
         <input
           type="range"
-          min={2}
-          max={178}
+          min={1}
+          max={179}
           step={2}
           value={displayApexAngle}
           onChange={handleSlider}
