@@ -412,8 +412,10 @@ function AngleVerticallyOpposite({ dims, mutation }: { dims: Record<string, numb
   const bAngle = 180 - aAngle;
   const unknownDim = dims.unknown as string | undefined;
 
-  const COLOR_A = "#5ee8ff";
-  const COLOR_B = "#ffd45e";
+  const COLOR_A = "#5ee8ff"; // cyan
+  const COLOR_B = "#ffd45e"; // gold
+  // In calculation mode for C, use gold for C so A and C have unique colors!
+  const COLOR_C = unknownDim ? COLOR_B : COLOR_A;
 
   const vx = 110, vy = 62, rayLen = 65;
   const rad = (aAngle * Math.PI) / 180;
@@ -465,16 +467,25 @@ function AngleVerticallyOpposite({ dims, mutation }: { dims: Record<string, numb
       <line x1={ends[2].x} y1={ends[2].y} x2={ends[3].x} y2={ends[3].y} stroke={WHITE70} strokeWidth={STROKE_W} strokeLinecap="round" />
       <circle cx={vx} cy={vy} r={3} fill={WHITE90} />
 
+      {/* Arcs: in calculation mode, only show the given angle A and target angle C in unique colors */}
       <path d={arcAPath1} fill="none" stroke={COLOR_A} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
-      <path d={arcAPath2} fill="none" stroke={COLOR_A} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
-      <path d={arcBPath1} fill="none" stroke={COLOR_B} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
-      <path d={arcBPath2} fill="none" stroke={COLOR_B} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
+      <path d={arcAPath2} fill="none" stroke={COLOR_C} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
+      {!unknownDim && (
+        <>
+          <path d={arcBPath1} fill="none" stroke={COLOR_B} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
+          <path d={arcBPath2} fill="none" stroke={COLOR_B} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
+        </>
+      )}
 
       {/* Letter labels inside diagram arcs */}
       <SvgLabel x={aLx} y={aLy} text="A" size={11} color={COLOR_A} />
-      <SvgLabel x={bLx} y={bLy} text="B" size={11} color={COLOR_B} />
-      <SvgLabel x={cLx} y={cLy} text="C" size={11} color={COLOR_A} />
-      <SvgLabel x={dLx} y={dLy} text="D" size={11} color={COLOR_B} />
+      <SvgLabel x={cLx} y={cLy} text="C" size={11} color={COLOR_C} />
+      {!unknownDim && (
+        <>
+          <SvgLabel x={bLx} y={bLy} text="B" size={11} color={COLOR_B} />
+          <SvgLabel x={dLx} y={dLy} text="D" size={11} color={COLOR_B} />
+        </>
+      )}
 
       {/* Visually centered legend row below diagram */}
       <LegendValueToken
@@ -493,7 +504,7 @@ function AngleVerticallyOpposite({ dims, mutation }: { dims: Record<string, numb
         value={unknownDim === "B" || unknownDim === "D" ? bAngle : aAngle}
         isUnknown={Boolean(unknownDim && (unknownDim === "C" || unknownDim === "B" || unknownDim === "D"))}
         revealValue={mutation?.revealAnswer}
-        color={unknownDim === "B" || unknownDim === "D" ? COLOR_B : COLOR_A}
+        color={COLOR_C}
       />
     </svg>
   );
