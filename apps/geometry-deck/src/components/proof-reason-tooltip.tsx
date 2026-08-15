@@ -52,12 +52,12 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
           onPointerDown={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
           className={cn(
-            "z-[100] w-[calc(100vw-2rem)] max-w-xs p-3.5 rounded-xl text-left shadow-2xl animate-fade-in select-none pointer-events-auto",
-            "bg-slate-950/95 backdrop-blur-xl border border-white/20 text-white",
+            "z-[100] w-[calc(100vw-2rem)] max-w-xs p-3.5 rounded-xl text-left shadow-2xl animate-fade-in select-none pointer-events-auto border-none",
+            "bg-slate-950/95 text-white",
           )}
         >
           {/* Tooltip Header */}
-          <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-white/15">
+          <div className="flex items-center justify-between gap-2 pb-1">
             <h4 className="font-bold text-xs sm:text-sm text-cyan-300 tracking-wide truncate min-w-0">
               {reason}
             </h4>
@@ -75,13 +75,13 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
           </div>
 
           {/* Explanation */}
-          <p className="pt-2 text-xs text-white/90 leading-relaxed not-italic font-normal">
+          <p className="pt-1.5 text-xs text-white/90 leading-relaxed not-italic font-normal">
             {entry.explanation}
           </p>
 
           {/* Formula (if defined) */}
           {entry.formula && (
-            <div className="mt-2.5 pt-2 border-t border-white/10 flex flex-col gap-0.5">
+            <div className="mt-2.5 pt-1.5 flex flex-col gap-0.5">
               <span className="text-[10px] uppercase font-mono font-semibold tracking-wider" style={{ color: "#ffd45e" }}>
                 Formula:
               </span>
