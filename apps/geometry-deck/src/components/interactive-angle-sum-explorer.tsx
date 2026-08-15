@@ -239,41 +239,27 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
         className="w-full max-w-[280px] sm:max-w-[320px] touch-none select-none"
         style={{ cursor: isDragging ? "grabbing" : "default" }}
       >
-        {p === 0 ? (
-          /* ── Unfolded State (Step 1): Clean single solid triangle with zero interior lines ── */
-          <polygon
-            points={`${V1.x},${V1.y} ${V2.x},${V2.y} ${V3.x},${V3.y}`}
-            fill="rgba(255,255,255,0.08)"
-            stroke="rgba(255,255,255,0.85)"
-            strokeWidth={1.5}
-            strokeLinejoin="round"
-          />
-        ) : (
-          /* ── Folded / Folding State (Step 2): Crisp origami fold with dotted crease lines ── */
+        {/* ── Base Triangle (dim background fill always present across all steps) ── */}
+        <polygon
+          points={`${V1.x},${V1.y} ${V2.x},${V2.y} ${V3.x},${V3.y}`}
+          fill="rgba(255,255,255,0.08)"
+          stroke={p === 0 ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.25)"}
+          strokeWidth={p === 0 ? 1.5 : 1}
+          strokeDasharray={p === 0 ? undefined : "4 3"}
+          strokeLinejoin="round"
+        />
+
+        {/* ── Folding Geometry (Step 2) ── */}
+        {p > 0 && (
           <>
-            {/* Ghost reference of original unfolded triangle */}
-            <polygon
-              points={`${V1.x},${V1.y} ${V2.x},${V2.y} ${V3.x},${V3.y}`}
-              fill="none"
-              stroke="rgba(255,255,255,0.25)"
-              strokeWidth={1}
-              strokeDasharray="4 3"
-            />
-
-            {/* Central static piece fill */}
-            <polygon
-              points={`${ML.x},${ML.y} ${V3.x},${V3.y} ${MR.x},${MR.y} ${BM.x},${BM.y}`}
-              fill="rgba(255,255,255,0.08)"
-            />
-
-            {/* Left folding flap fill */}
+            {/* Left folding flap highlight fill */}
             <polygon
               points={`${ML.x},${ML.y} ${V1f.x},${V1f.y} ${BMfL.x},${BMfL.y}`}
               fill="rgba(255,255,255,0.12)"
               opacity={flapOpacity}
             />
 
-            {/* Right folding flap fill */}
+            {/* Right folding flap highlight fill */}
             <polygon
               points={`${MR.x},${MR.y} ${V2f.x},${V2f.y} ${BMfR.x},${BMfR.y}`}
               fill="rgba(255,255,255,0.12)"
