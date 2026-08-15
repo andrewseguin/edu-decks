@@ -32,6 +32,8 @@ type DotInfo = {
   tgtX: number; tgtY: number;
   color: string;
   delay: number;
+  extrudeOrder: number;
+  side: "a" | "b";
 };
 
 function buildDots(t: Triple): DotInfo[] {
@@ -47,29 +49,34 @@ function buildDots(t: Triple): DotInfo[] {
     y: rnd(apexY + aPx * (i + 0.5) / c + (-bPx) * (j + 0.5) / c),
   });
 
-  // ── Cyan dots: explicit mapping that preserves grid topology ──
+  // ── Cyan dots: side a extrudes outward leftward from the vertical leg ──
   for (let row = 0; row < a; row++) {
     for (let col = 0; col < a; col++) {
       const idx = row * a + col;
       const tgt = cPos(col, c - 1 - row);
+      // col 0 is leftmost, col a-1 is rightmost (closest to leg x=OX)
+      // Extrude starts at leg (col a-1) and sweeps leftward
+      const extrudeOrder = (a - 1 - col) / Math.max(1, a - 1);
       dots.push({
         srcX: rnd(OX - aPx + (col + 0.5) * unit),
         srcY: rnd(apexY + (row + 0.5) * unit),
         tgtX: tgt.x, tgtY: tgt.y,
         color: COLOR_A,
         delay: (idx / Math.max(1, totalDots - 1)) * 0.35,
+        extrudeOrder,
+        side: "a",
       });
     }
   }
 
-  // ── Gold dots: sort-matched to minimize crossing ──
+  // ── Gold dots: side b extrudes outward downward from the base leg ──
   const byYX = (p: { x: number; y: number }, q: { x: number; y: number }) =>
     Math.abs(p.y - q.y) > 0.5 ? p.y - q.y : p.x - q.x;
 
-  const goldSrcs: { x: number; y: number }[] = [];
+  const goldSrcs: { x: number; y: number; row: number; col: number }[] = [];
   for (let row = 0; row < b; row++)
     for (let col = 0; col < b; col++)
-      goldSrcs.push({ x: rnd(OX + (col + 0.5) * unit), y: rnd(OY + (row + 0.5) * unit) });
+      goldSrcs.push({ x: rnd(OX + (col + 0.5) * unit), y: rnd(OY + (row + 0.5) * unit), row, col });
 
   const goldTgts: { x: number; y: number }[] = [];
   for (let j = 0; j < c; j++)
@@ -80,11 +87,15 @@ function buildDots(t: Triple): DotInfo[] {
   goldTgts.sort(byYX);
 
   for (let idx = 0; idx < goldSrcs.length; idx++) {
+    const src = goldSrcs[idx];
+    const extrudeOrder = src.row / Math.max(1, b - 1);
     dots.push({
-      srcX: goldSrcs[idx].x, srcY: goldSrcs[idx].y,
+      srcX: src.x, srcY: src.y,
       tgtX: goldTgts[idx].x, tgtY: goldTgts[idx].y,
       color: COLOR_B,
       delay: ((a * a + idx) / Math.max(1, totalDots - 1)) * 0.35,
+      extrudeOrder,
+      side: "b",
     });
   }
 
@@ -266,22 +277,75 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
           </>
         )}
 
-        {/* ── Unit squares ──────────────────────────────────────────── */}
-        {gp > 0.8 && dots.map((dot, i) => {
+        {/* ── 1D Unit ticks along sides a & b ────────────────────────── */}
+        {gp > 0.02 && (
+          <g opacity={rnd(Math.min(1, gp * 2.5))}>
+            {Array.from({ length: a - 1 }).map((_, k) => {
+              const y = apexY + (k + 1) * unit;
+              return (
+                <line
+                  key={`tick-a-${k}`}
+                  x1={OX - 3}
+                  y1={y}
+                  x2={OX + 3}
+                  y2={y}
+                  stroke={COLOR_A}
+                  strokeWidth={1.5}
+                />
+              );
+            })}
+            {Array.from({ length: b - 1 }).map((_, k) => {
+              const x = OX + (k + 1) * unit;
+              return (
+                <line
+                  key={`tick-b-${k}`}
+                  x1={x}
+                  y1={OY - 3}
+                  x2={x}
+                  y2={OY + 3}
+                  stroke={COLOR_B}
+                  strokeWidth={1.5}
+                />
+              );
+            })}
+          </g>
+        )}
+
+        {/* ── Unit squares (1D length -> 2D area extrusion) ─────────── */}
+        {gp > 0.05 && dots.map((dot, i) => {
+          // Extrusion progress during Step 2: grows outward from triangle edge
+          const extrudeStart = 0.08 + dot.extrudeOrder * 0.62;
+          const extrudeProgress = clamp01((gp - extrudeStart) / 0.3);
+          const extrudeScale = ease(extrudeProgress);
+
+          // Migration progress during Step 3: glides into square c
           const dotMp = clamp01((mp - dot.delay) / (1 - 0.4));
           const transP = ease(dotMp);
           const cx = rnd(lerp(dot.srcX, dot.tgtX, transP));
           const cy = rnd(lerp(dot.srcY, dot.tgtY, transP));
           const rotP = ease(dotMp);
           const rot = rnd(lerp(0, cAngleDeg, rotP));
-          const opacity = rnd(Math.min(1, (gp - 0.8) * 5));
+
+          const opacity = rnd(extrudeScale * 0.95);
           const hs = cellSize / 2;
+
+          if (extrudeScale <= 0.01) return null;
+
           return (
-            <rect key={i}
-              x={-hs} y={-hs} width={cellSize} height={cellSize} rx={1}
-              fill={dot.color} fillOpacity={0.7} opacity={opacity}
-              stroke={dot.color} strokeWidth={0.5} strokeOpacity={0.3}
-              transform={`translate(${cx},${cy}) rotate(${rot})`}
+            <rect
+              key={i}
+              x={-hs}
+              y={-hs}
+              width={cellSize}
+              height={cellSize}
+              rx={1}
+              fill={dot.color}
+              fillOpacity={0.7}
+              opacity={opacity}
+              stroke={dot.color}
+              strokeWidth={0.5}
+              strokeOpacity={0.3}
+              transform={`translate(${cx},${cy}) rotate(${rot}) scale(${extrudeScale})`}
             />
           );
         })}
