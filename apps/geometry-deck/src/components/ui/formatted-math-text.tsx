@@ -72,17 +72,19 @@ export function FormattedMathText({
   const pattern = /(A \+ B \+ C|½|⅓|⅔|¼|¾|⅕|⅖|⅗|⅘|⅙|⅚|⅛|⅜|⅝|⅞|⁴⁄₃|base angles|base \(b\)|height \(h\)|hypotenuse \(c\)|base|height|a²|b²|c²|∠A|∠B|∠C|[Aa]ngle [ABC]|\ba\b|\bb\b|\bc\b|\bh\b)/g;
   const parts = text.split(pattern);
 
+  const tokenShadow = { filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" };
+
   return (
     <span className={className}>
       {parts.map((part, idx) => {
         if (part === "A + B + C") {
           return (
             <React.Fragment key={idx}>
-              <span style={{ color: "#5ee8ff" }} className="font-bold">A</span>
+              <span style={{ color: "#5ee8ff", ...tokenShadow }} className="font-bold">A</span>
               {" + "}
-              <span style={{ color: "#ffd45e" }} className="font-bold">B</span>
+              <span style={{ color: "#ffd45e", ...tokenShadow }} className="font-bold">B</span>
               {" + "}
-              <span style={{ color: "#d8b4fe" }} className="font-bold">C</span>
+              <span style={{ color: "#d8b4fe", ...tokenShadow }} className="font-bold">C</span>
             </React.Fragment>
           );
         }
@@ -90,7 +92,7 @@ export function FormattedMathText({
           const prefix = part.startsWith("A") ? "Angle " : "angle ";
           return (
             <React.Fragment key={idx}>
-              {prefix}<span style={{ color: "#5ee8ff" }} className="font-bold">A</span>
+              {prefix}<span style={{ color: "#5ee8ff", ...tokenShadow }} className="font-bold">A</span>
             </React.Fragment>
           );
         }
@@ -98,7 +100,7 @@ export function FormattedMathText({
           const prefix = part.startsWith("A") ? "Angle " : "angle ";
           return (
             <React.Fragment key={idx}>
-              {prefix}<span style={{ color: "#ffd45e" }} className="font-bold">B</span>
+              {prefix}<span style={{ color: "#ffd45e", ...tokenShadow }} className="font-bold">B</span>
             </React.Fragment>
           );
         }
@@ -106,7 +108,7 @@ export function FormattedMathText({
           const prefix = part.startsWith("A") ? "Angle " : "angle ";
           return (
             <React.Fragment key={idx}>
-              {prefix}<span style={{ color: "#d8b4fe" }} className="font-bold">C</span>
+              {prefix}<span style={{ color: "#d8b4fe", ...tokenShadow }} className="font-bold">C</span>
             </React.Fragment>
           );
         }
@@ -123,7 +125,7 @@ export function FormattedMathText({
         const tokenColor = COLOR_KEYWORDS[part];
         if (tokenColor) {
           return (
-            <span key={idx} style={{ color: tokenColor }} className="font-bold">
+            <span key={idx} style={{ color: tokenColor, ...tokenShadow }} className="font-bold">
               {part}
             </span>
           );
