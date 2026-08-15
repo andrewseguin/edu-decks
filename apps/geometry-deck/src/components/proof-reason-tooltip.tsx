@@ -32,8 +32,8 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
           onMouseEnter={() => setIsOpen(true)}
           onMouseLeave={() => setIsOpen(false)}
           className={cn(
-            "text-right cursor-help transition-all duration-150 inline-flex items-center gap-1",
-            "underline decoration-dotted decoration-white/50 underline-offset-4 hover:decoration-white focus:outline-none",
+            "text-right cursor-help transition-all duration-150 inline-flex items-center gap-1 no-focus-ring",
+            "underline decoration-dotted decoration-white/50 underline-offset-4 hover:decoration-white focus:outline-none focus-visible:outline-none",
             "-my-1 py-1 -mx-0.5 px-0.5 touch-manipulation",
             className,
           )}
@@ -52,7 +52,7 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
           onPointerDown={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
           className={cn(
-            "z-[100] w-[calc(100vw-2rem)] max-w-xs p-3.5 rounded-xl text-left shadow-2xl animate-fade-in select-none pointer-events-auto",
+            "z-[100] w-[calc(100vw-2rem)] max-w-xs p-3.5 rounded-xl text-left shadow-2xl animate-fade-in select-none pointer-events-auto no-focus-ring",
             "border-0 border-none outline-none focus:outline-none focus-visible:outline-none ring-0 focus:ring-0 focus-visible:ring-0",
             "bg-slate-950/95 text-white",
           )}

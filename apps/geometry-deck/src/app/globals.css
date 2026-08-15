@@ -82,9 +82,10 @@
     box-shadow: none;
   }
 
-  button:focus-visible, *:focus-visible {
-    outline: 2px solid hsl(var(--primary)) !important;
-    outline-offset: 2px !important;
+  button:focus-visible:not(.no-focus-ring):not([data-radix-popper-content-wrapper]):not([data-radix-popper-content-wrapper] *),
+  *:focus-visible:not(.no-focus-ring):not([data-radix-popper-content-wrapper]):not([data-radix-popper-content-wrapper] *) {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
   }
 }
 
