@@ -32,6 +32,7 @@ export type SvgShape =
   | "rectangle"
   | "parallelogram"
   | "trapezoid"
+  | "rhombus"
   | "circle"
   | "polygon"
   | "prism"

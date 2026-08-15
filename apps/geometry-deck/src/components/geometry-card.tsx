@@ -16,6 +16,20 @@ import { InteractiveAngleSumExplorer } from "./interactive-angle-sum-explorer";
 import { InteractivePythagorasExplorer } from "./interactive-pythagoras-explorer";
 import { InteractiveTriangleAreaExplorer } from "./interactive-triangle-area-explorer";
 import { InteractiveTrianglePerimeterExplorer } from "./interactive-triangle-perimeter-explorer";
+import { InteractiveRectangleAreaExplorer } from "./interactive-rectangle-area-explorer";
+import { InteractiveParallelogramExplorer } from "./interactive-parallelogram-explorer";
+import { InteractiveTrapezoidExplorer } from "./interactive-trapezoid-explorer";
+import { InteractiveRhombusExplorer } from "./interactive-rhombus-explorer";
+import { InteractiveCircleCircumferenceExplorer } from "./interactive-circle-circumference-explorer";
+import { InteractiveCircleAreaExplorer } from "./interactive-circle-area-explorer";
+import { InteractiveRadiusExplorer } from "./interactive-radius-explorer";
+import { InteractivePolygonInteriorSumExplorer } from "./interactive-polygon-interior-sum-explorer";
+import { InteractivePolygonExteriorSumExplorer } from "./interactive-polygon-exterior-sum-explorer";
+import { InteractiveRegularPolygonExplorer } from "./interactive-regular-polygon-explorer";
+import { InteractiveEulerExplorer } from "./interactive-euler-explorer";
+import { InteractivePrismVolumeExplorer } from "./interactive-prism-volume-explorer";
+import { InteractiveCylinderVolumeExplorer } from "./interactive-cylinder-volume-explorer";
+import { InteractiveSolidFeatureExplorer } from "./interactive-solid-feature-explorer";
 import { FormattedMathText } from "./ui/formatted-math-text";
 import type {
   GeometryCard as GeometryCardType,
@@ -135,6 +149,60 @@ export function GeometryCard({
       }
       if (card.frontLabel === "Perimeter of a triangle") {
         return <InteractiveTrianglePerimeterExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "Area of a rectangle" || card.frontLabel === "Perimeter of a rectangle") {
+        return <InteractiveRectangleAreaExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "Parallelograms" || card.frontLabel === "Area of a parallelogram") {
+        return <InteractiveParallelogramExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "Trapezoids" || card.frontLabel === "Area of a trapezoid") {
+        return <InteractiveTrapezoidExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "Rhombuses") {
+        return <InteractiveRhombusExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "Circumference of a circle") {
+        return <InteractiveCircleCircumferenceExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "Area of a circle") {
+        return <InteractiveCircleAreaExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "The radius") {
+        return <InteractiveRadiusExplorer mode="radius" color={card.color} />;
+      }
+      if (card.frontLabel === "The diameter") {
+        return <InteractiveRadiusExplorer mode="diameter" color={card.color} />;
+      }
+      if (card.frontLabel === "π (pi)") {
+        return <InteractiveRadiusExplorer mode="pi" color={card.color} />;
+      }
+      if (card.frontLabel === "Regular polygons") {
+        return <InteractiveRegularPolygonExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "Interior angle sum of an n-gon") {
+        return <InteractivePolygonInteriorSumExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "Exterior angle sum of any polygon") {
+        return <InteractivePolygonExteriorSumExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "Euler's formula (V − E + F = 2)" || card.frontLabel === "Euler's formula") {
+        return <InteractiveEulerExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "Volume of a prism") {
+        return <InteractivePrismVolumeExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "Volume of a cylinder") {
+        return <InteractiveCylinderVolumeExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "A face") {
+        return <InteractiveSolidFeatureExplorer feature="face" color={card.color} />;
+      }
+      if (card.frontLabel === "An edge") {
+        return <InteractiveSolidFeatureExplorer feature="edge" color={card.color} />;
+      }
+      if (card.frontLabel === "A vertex") {
+        return <InteractiveSolidFeatureExplorer feature="vertex" color={card.color} />;
       }
       if (hasSvg) {
         return (

@@ -11,7 +11,7 @@ import {
   AngleParallelAlternate, AngleParallelCointerior,
 } from "./angle-shapes";
 import { Triangle, RightTriangle } from "./triangle-shapes";
-import { Rectangle, Parallelogram, Trapezoid } from "./quadrilateral-shapes";
+import { Rectangle, Parallelogram, Trapezoid, Rhombus } from "./quadrilateral-shapes";
 import { Circle } from "./circle-shapes";
 import { Polygon } from "./polygon-shapes";
 import { Prism, Cylinder, Cone, Sphere } from "./solid-shapes";
@@ -45,6 +45,7 @@ export function renderShapeSvg(descriptor: SvgDescriptor, mutation?: SvgMutation
     case "rectangle":     return <Rectangle dims={dims} mutation={mutation} />;
     case "parallelogram": return <Parallelogram dims={dims} mutation={mutation} />;
     case "trapezoid":     return <Trapezoid dims={dims} mutation={mutation} />;
+    case "rhombus":       return <Rhombus dims={dims} />;
     // Circles
     case "circle":        return <Circle dims={dims} mutation={mutation} />;
     // Polygons

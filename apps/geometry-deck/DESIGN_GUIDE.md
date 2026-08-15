@@ -1,7 +1,7 @@
 # Geometry Deck — Design & Interaction Guide
 
 > [!NOTE]
-> **Living Document**: This design specification is actively evolving as we progress card-by-card through the deck. The core layout hierarchy (frosted hero banner, open live equations, white-bordered answers, zero auto-play) is universal, while semantic color palettes, diagram layouts, and interactive paradigms will expand to accommodate new topics (e.g. Quadrilaterals, Circles, Polygons, and 3D Shapes) as each topic is reviewed. Always update this document when introducing or refining new visual patterns.
+> **Living Document**: This design specification is actively evolving as we progress card-by-card through the deck. The core layout hierarchy (frosted hero banner, open live equations, white-bordered answers, ambient auto-play that yields to touch) is universal, while semantic color palettes, diagram layouts, and interactive paradigms will expand to accommodate new topics (e.g. Quadrilaterals, Circles, Polygons, and 3D Shapes) as each topic is reviewed. Always update this document when introducing or refining new visual patterns.
 
 ---
 
@@ -24,7 +24,7 @@ The geometry deck is built on the principle that **true mathematical understandi
      - **Circle Area ($A = \pi r²$)**: Unrolling circular sectors into an equivalent parallelogram of base $\pi r$ and height $r$.
 
 3. **Simplicity Over Clutter (Low Cognitive Load)**:
-   - **Zero Auto-Play Loops**: Cards must remain completely stationary until the user decides to interact. Auto-playing loops distract the user and remove agency.
+   - **Ambient Interactivity on Reveal (Auto-Pulse / Ambient Motion)**: Explorer cards feature gentle ambient motion on initial reveal (e.g. subtle Lissajous orbit, slow rotation, height breathing) to immediately show learners that the diagram is dynamic and interactive. The instant the user touches or drags any handle, the animation cancels permanently, yielding 100% direct control.
    - **No Decimal Noise**: Dragging is continuous and smooth in 2D, while displayed numbers ($b, h, A, \text{degrees}$) are cleanly rounded to whole integers so learners focus on conceptual relationships rather than floating-point decimals.
    - **Minimalist Controls**: Use subtle, translucent controls (frosted pills, clear slider tracks) that keep the focus entirely on the geometric figure.
 
@@ -65,7 +65,7 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
 ### 2.2 Interactive Diagram (Center)
 - Clean SVG canvas with aspect ratio ~ `22/13.5` or `viewBox="0 0 240 170"`.
 - Draggable vertices with `touch-none` and continuous 2D pointer dragging.
-- **Zero auto-play**: Card stays completely stationary until the user drags or clicks a control.
+- **Ambient motion on reveal**: Explorer cards feature gentle ambient motion on reveal that immediately yields 100% control the instant the user drags or touches any control.
 
 ### 2.3 Bottom Frosted Equation Banner (Unboxed Typographic Flow)
 - Live calculations are wrapped in a frosted glass banner matching the top hero banner (`px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md flex items-center gap-2 text-base sm:text-lg font-bold font-headline select-none`).
@@ -198,11 +198,56 @@ Colors on Angles cards follow a strict **progressive allocation order**:
 | **Shape Fills** | Soft Luminous White | `rgba(255,255,255,0.15)` | Interior fill of geometric shapes |
 | **Shape Outlines** | Solid White | `rgba(255,255,255,0.95)` | Primary polygon boundary edges (`strokeWidth={2.5}`) |
 
-### 3.3 Upcoming Topic Palettes *(To be formalized as we build)*
-- **Quadrilaterals**: Parallel side pairs, diagonals, base/height, trapezoid bases ($a, b$).
-- **Circles**: Radius ($r$), Diameter ($d$), Circumference ($C$), Area ($A$), $\pi$.
-- **Polygons**: Side length ($s$), Interior angle sum $(n-2)\times 180^\circ$, Number of sides ($n$).
-- **3D Shapes**: Surface Area ($SA$), Volume ($V$), Radius ($r$), Height ($h$), Slant height ($l$).
+### 3.3 Quadrilaterals Topic Palette *(Optimized for `#6366f1` Indigo)*
+
+| Concept | Token / Color | Hex | Usage |
+| :--- | :--- | :--- | :--- |
+| **Side $a$ / Altitude $h$ / Width $w$ / Base $a$** | Electric Cyan | `#5ee8ff` | Vertical altitude $h$, width $w$, top parallel base $a$ on trapezoid |
+| **Side $b$ / Base $b$ / Length $l$** | Warm Gold | `#ffd45e` | Horizontal baseline $b$, length $l$, bottom parallel base $b$ on trapezoid |
+| **Diagonals / Parallel Markers** | Neon Lilac | `#d8b4fe` | Bisecting diagonals ($d_1, d_2$), opposite parallel arrow indicators |
+| **Right Angle ($90^\circ$)** | Cyan / White | `#5ee8ff` / `#ffffff` | Corner right-angle boxes ($\llcorner$) on rectangles & altitude base |
+| **Calculated Answer / Totals** | Bold White | `#ffffff` | Crisp bold white text inside the bottom frosted equation banner ($A$, $P$) |
+| **Grid Lines & Bounding Boxes** | Translucent White | `rgba(255,255,255,0.35)` | Unit square grid lines (`strokeDasharray="2 2"`), bounding boxes |
+| **Shape Fills** | Soft Luminous White | `rgba(255,255,255,0.15)` | Interior fill of geometric figures |
+| **Shape Outlines** | Solid White | `rgba(255,255,255,0.95)` | Primary quadrilateral perimeter boundary edges (`strokeWidth={2.5}`) |
+
+### 3.4 Circles Topic Palette *(Optimized for `#8b5cf6` Violet)*
+
+| Concept | Token / Color | Hex | Usage |
+| :--- | :--- | :--- | :--- |
+| **Radius ($r$)** | Electric Cyan | `#5ee8ff` | Center to perimeter line segment, radius dimension label |
+| **Diameter ($d$)** | Warm Gold | `#ffd45e` | Full edge-to-edge chord through center, diameter label |
+| **Circumference Boundary ($C$)** | Neon Lilac | `#d8b4fe` | Outer perimeter circle line, arc length |
+| **Center Point** | Crisp White | `#ffffff` | Center dot marker ($\odot$) |
+| **Constant $\pi$** | Muted Warm Gold | `#ffd45e` / `#ffffff` | $\pi \approx 3.14159\dots$ |
+| **Calculated Answer / Totals** | Bold White | `#ffffff` | Crisp bold white text inside bottom equation banner ($A = 25\pi$, $C = 8\pi$) |
+| **Shape Fills** | Soft Luminous White | `rgba(255,255,255,0.15)` | Interior disk surface fill |
+| **Shape Outlines** | Solid White | `rgba(255,255,255,0.95)` | Primary circle boundary line (`strokeWidth={2.5}`) |
+
+### 3.5 Polygons Topic Palette *(Optimized for `#ec4899` Pink)*
+
+| Concept | Token / Color | Hex | Usage |
+| :--- | :--- | :--- | :--- |
+| **Number of Sides ($n$)** | Warm Gold | `#ffd45e` | Vertex/side count ($n = 3, 4, 5, 6, 8\dots$) |
+| **Interior Angle ($\theta, A$)** | Electric Cyan | `#5ee8ff` | Interior vertex angle arcs and single interior angle values |
+| **Exterior Angle ($\phi, E$)** | Neon Lilac | `#d8b4fe` | Outer extended exterior angle arcs (summing to $360^\circ$) |
+| **Triangulation Diagonals** | Dashed Cyan | `#5ee8ff` | Internal diagonals fan from one vertex splitting into $(n-2)$ triangles |
+| **Total Angle Sum / Answer** | Bold White | `#ffffff` | Total interior sum $(n-2)\times 180^\circ$ inside equation banner |
+| **Shape Fills** | Soft Luminous White | `rgba(255,255,255,0.15)` | Interior polygon surface fill |
+| **Shape Outlines** | Solid White | `rgba(255,255,255,0.95)` | Polygon perimeter boundary edges (`strokeWidth={2.5}`) |
+
+### 3.6 3D Shapes Topic Palette *(Optimized for `#06b6d4` Cyan)*
+
+| Concept | Token / Color | Hex | Usage |
+| :--- | :--- | :--- | :--- |
+| **Vertices ($V$)** | Crisp White | `#ffffff` | Corner junction points where 3+ edges intersect |
+| **Edges ($E$)** | Warm Gold | `#ffd45e` | Line segments where faces meet (solid front, dashed back) |
+| **Faces ($F$) / Surface Area ($SA$)** | Luminous Frosted Fill | `rgba(255,255,255,0.22)` | Flat planar boundary polygon facets |
+| **Length / Radius / Base ($l, w, r, B$)** | Electric Cyan | `#5ee8ff` | Horizontal floor plane dimensions |
+| **Height ($h$)** | Warm Gold | `#ffd45e` | Vertical extrusion altitude |
+| **Volume ($V$) / Calculated Answer** | Bold White | `#ffffff` | Enclosed cubic units / final answer text |
+| **Shape Outlines** | Solid White | `rgba(255,255,255,0.95)` | Visible 3D silhouette edges (`strokeWidth={2.5}`) |
+| **Hidden / Internal Edges** | Dashed White/Gold | `rgba(255,255,255,0.35)` | Occluded rear perspective edges (`strokeDasharray="3 3"`) |
 
 ---
 
@@ -262,5 +307,5 @@ Before considering any geometry card complete:
 - [ ] Area cards display the neutral dashed unit grid across the bounding box and snap to integer unit cells.
 - [ ] Right angles feature a clean square box marker ($\llcorner$).
 - [ ] Drag handles move smoothly without jitter; numbers round cleanly to integers.
-- [ ] No auto-play loops are running in the background.
+- [ ] Single-step explorer cards gently animate on initial reveal and cleanly cancel/yield permanent control upon touch.
 - [ ] Card passes `pnpm -r typecheck` and `pnpm -r test`.

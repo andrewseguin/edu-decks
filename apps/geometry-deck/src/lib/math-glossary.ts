@@ -72,8 +72,13 @@ export const MATH_GLOSSARY: Record<string, GlossaryEntry> = {
     title: "Area",
     explanation: "The total number of unit square tiles needed to completely cover the interior surface of a shape.",
   },
+  "circle area": {
+    title: "Circle Area Formula",
+    explanation: "Multiply π by the square of the radius (r²).",
+    formula: "A = πr²",
+  },
   circumference: {
-    title: "Circumference",
+    title: "Circumference Formula",
     explanation: "The linear boundary distance all the way around the edge of a circle.",
     formula: "C = 2 × π × r",
   },
@@ -81,6 +86,56 @@ export const MATH_GLOSSARY: Record<string, GlossaryEntry> = {
     title: "Euler's Polyhedral Formula",
     explanation: "For any convex 3D polyhedron: Vertices minus Edges plus Faces always equals 2.",
     formula: "V − E + F = 2",
+  },
+  "rectangle area": {
+    title: "Rectangle Area Formula",
+    explanation: "Multiply length (l) by width (w) to find the total number of enclosed square units.",
+    formula: "A = l × w",
+  },
+  "rectangle perimeter": {
+    title: "Rectangle Perimeter Formula",
+    explanation: "Add all four sides or calculate 2 × (length + width) for the outer boundary distance.",
+    formula: "P = 2(l + w)",
+  },
+  "parallelogram area": {
+    title: "Parallelogram Area Formula",
+    explanation: "Multiply the base (b) by the vertical perpendicular height (h).",
+    formula: "A = b × h",
+  },
+  "trapezoid area": {
+    title: "Trapezoid Area Formula",
+    explanation: "Multiply half the sum of the parallel bases (a + b) by the vertical height (h).",
+    formula: "A = ½(a + b)h",
+  },
+  "polygon interior sum": {
+    title: "Polygon Interior Angle Sum Formula",
+    explanation: "Any n-sided polygon can be split into (n − 2) non-overlapping triangles, each totaling 180°.",
+    formula: "Sum = (n − 2) × 180°",
+  },
+  "polygon exterior sum": {
+    title: "Polygon Exterior Angle Sum",
+    explanation: "The sum of the exterior angles (one per vertex) of any convex polygon is always exactly 360°.",
+    formula: "Sum = 360°",
+  },
+  "regular polygon angle": {
+    title: "Regular Polygon Interior Angle",
+    explanation: "Divide the total interior angle sum by the number of equal sides (n).",
+    formula: "Each Angle = (n − 2) × 180° ÷ n",
+  },
+  "prism volume": {
+    title: "Rectangular Prism Volume Formula",
+    explanation: "Multiply base length by width by vertical height (l × w × h) or Base Area by height (B × h).",
+    formula: "V = l × w × h",
+  },
+  "cube surface area": {
+    title: "Cube Surface Area Formula",
+    explanation: "A cube has 6 identical square faces, each of area s².",
+    formula: "SA = 6s²",
+  },
+  "cylinder volume": {
+    title: "Cylinder Volume Formula",
+    explanation: "Multiply circular base area (πr²) by the vertical height (h).",
+    formula: "V = πr²h",
   },
   divide: {
     title: "Divide Both Sides",
@@ -101,11 +156,22 @@ export function lookupGlossary(reason: string): GlossaryEntry | null {
   if (lower.includes("supplementary")) return MATH_GLOSSARY.supplementary;
   if (lower.includes("complementary")) return MATH_GLOSSARY.complementary;
   if (lower.includes("vertically opposite")) return MATH_GLOSSARY["vertically opposite"];
+  if (lower.includes("rectangle area")) return MATH_GLOSSARY["rectangle area"];
+  if (lower.includes("rectangle perimeter")) return MATH_GLOSSARY["rectangle perimeter"];
+  if (lower.includes("parallelogram area")) return MATH_GLOSSARY["parallelogram area"];
+  if (lower.includes("trapezoid area")) return MATH_GLOSSARY["trapezoid area"];
   if (lower.includes("triangle perimeter")) return MATH_GLOSSARY["triangle perimeter"];
   if (lower.includes("perimeter")) return MATH_GLOSSARY.perimeter;
+  if (lower.includes("circle area")) return MATH_GLOSSARY["circle area"];
   if (lower.includes("triangle area")) return MATH_GLOSSARY["triangle area"];
   if (lower.includes("area")) return MATH_GLOSSARY.area;
+  if (lower.includes("polygon interior") || lower.includes("interior angle sum")) return MATH_GLOSSARY["polygon interior sum"];
+  if (lower.includes("exterior sum") || lower.includes("exterior angle sum")) return MATH_GLOSSARY["polygon exterior sum"];
+  if (lower.includes("regular polygon angle") || lower.includes("regular polygon interior angle") || lower.includes("regular polygon")) return MATH_GLOSSARY["regular polygon angle"];
   if (lower.includes("circumference")) return MATH_GLOSSARY.circumference;
+  if (lower.includes("prism volume") || lower.includes("volume of a prism")) return MATH_GLOSSARY["prism volume"];
+  if (lower.includes("cube surface area") || lower.includes("surface area of a cube")) return MATH_GLOSSARY["cube surface area"];
+  if (lower.includes("cylinder volume") || lower.includes("volume of a cylinder")) return MATH_GLOSSARY["cylinder volume"];
   if (lower.includes("euler")) return MATH_GLOSSARY.euler;
   if (lower.includes("divide")) return MATH_GLOSSARY.divide;
   return null;

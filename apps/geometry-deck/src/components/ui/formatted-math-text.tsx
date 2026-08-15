@@ -24,10 +24,29 @@ const COLOR_KEYWORDS: Record<string, string> = {
   "base (b)": "#ffd45e", // gold
   "height (h)": "#5ee8ff", // cyan
   "hypotenuse (c)": "#d8b4fe", // neon lilac
+  "length (l)": "#ffd45e", // gold
+  "width (w)": "#5ee8ff", // cyan
+  "length": "#ffd45e",
+  "width": "#5ee8ff",
+  "radius (r)": "#5ee8ff", // cyan
+  "radius²": "#5ee8ff",
+  "radius": "#5ee8ff",
+  "diameter (d)": "#ffd45e", // gold
+  "diameter": "#ffd45e",
+  "circumference (C)": "#d8b4fe", // neon lilac
+  "circumference": "#d8b4fe",
+  "vertices (V)": "#ffffff",
+  "vertices": "#ffffff",
+  "edges (E)": "#ffd45e",
+  "edges": "#ffd45e",
+  "faces (F)": "#5ee8ff",
+  "faces": "#5ee8ff",
   // Lowercase squared side lengths:
   "a²": "#5ee8ff", // cyan
   "b²": "#ffd45e", // gold
   "c²": "#d8b4fe", // neon lilac
+  "r²": "#5ee8ff", // cyan
+  "r³": "#5ee8ff", // cyan
   // Specific angle notations:
   "∠A": "#5ee8ff",
   "∠B": "#ffd45e",
@@ -63,12 +82,24 @@ export function FormattedMathText({
   className?: string;
 }) {
   // Regex to match fractions and specific math keywords in descending order of specificity
-  const pattern = /(A \+ B \+ C|½|⅓|⅔|¼|¾|⅕|⅖|⅗|⅘|⅙|⅚|⅛|⅜|⅝|⅞|⁴⁄₃|base angles|base \(b\)|height \(h\)|hypotenuse \(c\)|a²|b²|c²|∠A|∠B|∠C|[Aa]ngle [ABC])/g;
+  const pattern = /(V − E \+ F = 2|V − E \+ F|A \+ B \+ C|½|⅓|⅔|¼|¾|⅕|⅖|⅗|⅘|⅙|⅚|⅛|⅜|⅝|⅞|⁴⁄₃|base angles|base \(b\)|height \(h\)|hypotenuse \(c\)|length \(l\)|width \(w\)|length|width|radius \(r\)|radius²|radius|diameter \(d\)|diameter|circumference \(C\)|circumference|vertices \(V\)|vertices|edges \(E\)|edges|faces \(F\)|faces|a²|b²|c²|r²|r³|∠A|∠B|∠C|[Aa]ngle [ABC])/g;
   const parts = text.split(pattern);
 
   return (
     <span className={className}>
       {parts.map((part, idx) => {
+        if (part === "V − E + F = 2" || part === "V − E + F") {
+          return (
+            <React.Fragment key={idx}>
+              <span style={{ color: "#ffffff" }} className="font-bold">V</span>
+              {" − "}
+              <span style={{ color: "#ffd45e" }} className="font-bold">E</span>
+              {" + "}
+              <span style={{ color: "#5ee8ff" }} className="font-bold">F</span>
+              {part.includes("= 2") ? " = 2" : ""}
+            </React.Fragment>
+          );
+        }
         if (part === "A + B + C") {
           return (
             <React.Fragment key={idx}>
