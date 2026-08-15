@@ -234,7 +234,7 @@ export function GeometryCard({
           {card.frontPrompt && (
             <p
               className={cn(
-                "text-white text-center font-bold leading-tight text-lg sm:text-xl md:text-2xl tracking-wide transition-all duration-300",
+                "font-headline font-bold text-white text-center leading-tight text-lg sm:text-xl md:text-2xl tracking-wide transition-all duration-300",
                 isFlipped ? "max-h-0 opacity-0 overflow-hidden" : "max-h-[60px] opacity-100"
               )}
             >
