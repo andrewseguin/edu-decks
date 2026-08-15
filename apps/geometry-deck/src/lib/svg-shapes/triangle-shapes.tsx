@@ -283,14 +283,14 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
             {angB}°
           </text>
 
-          {/* Label C / Unknown (Orange) — clean unboxed typography matching A and B */}
+          {/* Label C / Unknown (Orange) — prominent bold typography matching A and B */}
           <text
             x={V3.x}
-            y={V3.y - 14}
+            y={unknownDim === "C" ? V3.y - 16 : V3.y - 14}
             textAnchor="middle"
             dominantBaseline="central"
-            fontSize={14}
-            fontWeight={800}
+            fontSize={unknownDim === "C" ? 20 : 13}
+            fontWeight={900}
             fill={COLOR_ORANGE}
             fontFamily={lblFont}
             style={lblStyle}
@@ -374,61 +374,49 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
       )}
 
       {/* ── Side a (Vertical Leg — Cyan) ─────────────────────────────────── */}
-      {unknownDim === "a" ? (
-        <UnknownPill x={V1.x - 22} y={(V1.y + V3.y) / 2} color={COLOR_CYAN} unit="" />
-      ) : a !== undefined ? (
-        <text
-          x={V1.x - 14}
-          y={(V1.y + V3.y) / 2}
-          textAnchor="end"
-          dominantBaseline="central"
-          fontSize={13}
-          fontWeight={800}
-          fill={COLOR_CYAN}
-          fontFamily={lblFont}
-          style={lblStyle}
-        >
-          {lm === "numeric" ? `${a}` : "a"}
-        </text>
-      ) : null}
+      <text
+        x={V1.x - 14}
+        y={(V1.y + V3.y) / 2}
+        textAnchor="end"
+        dominantBaseline="central"
+        fontSize={unknownDim === "a" ? 20 : 13}
+        fontWeight={900}
+        fill={COLOR_CYAN}
+        fontFamily={lblFont}
+        style={lblStyle}
+      >
+        {unknownDim === "a" ? "?" : (a !== undefined ? (lm === "numeric" ? `${a}` : "a") : "")}
+      </text>
 
       {/* ── Side b (Horizontal Leg — Gold) ───────────────────────────────── */}
-      {unknownDim === "b" ? (
-        <UnknownPill x={(V1.x + V2.x) / 2} y={V1.y + 18} color={COLOR_GOLD} unit="" />
-      ) : b !== undefined ? (
-        <text
-          x={(V1.x + V2.x) / 2}
-          y={V1.y + 18}
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontSize={13}
-          fontWeight={800}
-          fill={COLOR_GOLD}
-          fontFamily={lblFont}
-          style={lblStyle}
-        >
-          {lm === "numeric" ? `${b}` : "b"}
-        </text>
-      ) : null}
+      <text
+        x={(V1.x + V2.x) / 2}
+        y={V1.y + 18}
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize={unknownDim === "b" ? 20 : 13}
+        fontWeight={900}
+        fill={COLOR_GOLD}
+        fontFamily={lblFont}
+        style={lblStyle}
+      >
+        {unknownDim === "b" ? "?" : (b !== undefined ? (lm === "numeric" ? `${b}` : "b") : "")}
+      </text>
 
       {/* ── Side c (Hypotenuse — Orange) ─────────────────────────────────── */}
-      {unknownDim === "c" ? (
-        <UnknownPill x={hypMidX} y={hypMidY} color={COLOR_ORANGE} unit="" />
-      ) : c_val !== undefined ? (
-        <text
-          x={hypMidX}
-          y={hypMidY}
-          textAnchor="start"
-          dominantBaseline="central"
-          fontSize={13}
-          fontWeight={800}
-          fill={COLOR_ORANGE}
-          fontFamily={lblFont}
-          style={lblStyle}
-        >
-          {lm === "numeric" ? `${c_val}` : "c"}
-        </text>
-      ) : null}
+      <text
+        x={hypMidX}
+        y={hypMidY}
+        textAnchor="start"
+        dominantBaseline="central"
+        fontSize={unknownDim === "c" ? 20 : 13}
+        fontWeight={900}
+        fill={COLOR_ORANGE}
+        fontFamily={lblFont}
+        style={lblStyle}
+      >
+        {unknownDim === "c" ? "?" : (c_val !== undefined ? (lm === "numeric" ? `${c_val}` : "c") : "")}
+      </text>
 
       {/* ── Vertex Dots ──────────────────────────────────────────────────── */}
       <circle cx={V1.x} cy={V1.y} r={3} fill="white" />

@@ -180,9 +180,9 @@ export function GeometryCard({
           </div>
         }
         revealContent={
-          <div className="min-h-0 overflow-y-auto flex flex-col gap-2 items-center px-4 pt-1 pb-6">
+          <div className="min-h-0 overflow-y-auto flex flex-col gap-2 items-center w-full pt-1 pb-6">
             {card.backDefinition && (
-              <div className="w-[calc(100%+2rem)] -mx-4 sm:w-[calc(100%+3rem)] sm:-mx-6 px-4 py-2.5 my-1 bg-black/25 backdrop-blur-md border-y border-white/20 flex flex-col items-center justify-center gap-1">
+              <div className="w-[calc(100%+1.5rem)] -mx-3 sm:w-[calc(100%+2.5rem)] sm:-mx-5 md:w-[calc(100%+3rem)] md:-mx-6 px-4 py-2.5 my-1 bg-black/25 backdrop-blur-md border-y border-white/20 flex flex-col items-center justify-center gap-1">
                 <p className="text-white text-center font-bold leading-tight text-xl sm:text-2xl md:text-3xl shrink-0 tracking-wide">
                   <FormattedMathText text={card.backDefinition} />
                 </p>
@@ -239,22 +239,20 @@ export function GeometryCard({
         </div>
       }
       revealContent={
-        <div className="flex-1 min-h-0 flex flex-col px-4">
-          <div className="flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex flex-col items-center justify-center py-1">
-            {isFlipped && (
-              <div className="w-[calc(100%+2rem)] -mx-4 sm:w-[calc(100%+3rem)] sm:-mx-6 bg-black/25 backdrop-blur-md border-y border-white/20 px-4 sm:px-6 py-2 divide-y divide-white/10">
-                {steps.map((step, i) => (
-                  <ProofRow
-                    key={i}
-                    tokens={step.equationTokens ?? null}
-                    formulaLine={step.formulaLine ?? null}
-                    reason={step.reason ?? ""}
-                    isAnswer={i === steps.length - 1}
-                  />
-                ))}
-              </div>
-            )}
-          </div>
+        <div className="w-[calc(100%+1.5rem)] -mx-3 sm:w-[calc(100%+2.5rem)] sm:-mx-5 md:w-[calc(100%+3rem)] md:-mx-6 flex-1 min-h-0 flex flex-col items-center justify-center">
+          {isFlipped && (
+            <div className="w-full bg-black/25 backdrop-blur-md border-y border-white/20 px-4 sm:px-6 py-2 divide-y divide-white/10">
+              {steps.map((step, i) => (
+                <ProofRow
+                  key={i}
+                  tokens={step.equationTokens ?? null}
+                  formulaLine={step.formulaLine ?? null}
+                  reason={step.reason ?? ""}
+                  isAnswer={i === steps.length - 1}
+                />
+              ))}
+            </div>
+          )}
         </div>
       }
     />
