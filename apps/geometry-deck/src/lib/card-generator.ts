@@ -165,8 +165,8 @@ function makeAnglesCalcCard(): GeometryCard {
     frontSvg: { shape: "angle-vertically-opposite", dimensions: { A, unknown: "C" }, labelMode: "numeric", unknownDimension: "C" },
     frontSpeechText: `One angle is ${A} degrees. Find vertically opposite angle C.`,
     backSteps: [
-      { equationTokens: [tok("lhs","C","#5ee8ff"), eq(), tok("rhs","A","#5ee8ff")], reason: "Vertically opposite angles are equal" },
-      { equationTokens: [tok("lhs","C","#5ee8ff"), eq(), tok("rhs",`${A}°`,"#5ee8ff")], reason: `Substitute A = ${A}°` },
+      { equationTokens: [tok("lhs","C","#d8b4fe"), eq(), tok("rhs","A","#5ee8ff")], reason: "Vertically opposite angles are equal" },
+      { equationTokens: [tok("lhs","C","#d8b4fe"), eq(), tok("rhs",`${A}°`,"#d8b4fe")], reason: `Substitute A = ${A}°` },
     ],
     backSpeechText: `C equals ${A} degrees`, numericAnswer: A, color,
   };
