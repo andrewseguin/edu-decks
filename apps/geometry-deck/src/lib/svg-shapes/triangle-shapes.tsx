@@ -183,8 +183,8 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
     };
   };
 
-  const normA = getSideNormal(V1, V3, -14); // Left side outward normal
-  const normC = getSideNormal(V3, V2, -14); // Right side outward normal
+  const normA = getSideNormal(V1, V3, 14); // Left side outward normal
+  const normC = getSideNormal(V3, V2, 14); // Right side outward normal
 
   return (
     <svg viewBox="0 0 240 165" className="w-full h-full select-none" aria-hidden>
