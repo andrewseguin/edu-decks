@@ -34,10 +34,10 @@ const COLOR_KEYWORDS: Record<string, string> = {
   "b": "#ffd45e",
   "c": "#fb923c",
   "h": "#5ee8ff",
-  // Uppercase angles:
-  "A": "#5ee8ff",
-  "B": "#ffd45e",
-  "C": "#fb923c",
+  // Specific angle notations:
+  "∠A": "#5ee8ff",
+  "∠B": "#ffd45e",
+  "∠C": "#fb923c",
 };
 
 export function StackedFraction({
@@ -69,12 +69,23 @@ export function FormattedMathText({
   className?: string;
 }) {
   // Regex to match fractions and semantic keywords in descending order of specificity
-  const pattern = /(½|⅓|⅔|¼|¾|⅕|⅖|⅗|⅘|⅙|⅚|⅛|⅜|⅝|⅞|⁴⁄₃|base angles|base \(b\)|height \(h\)|hypotenuse \(c\)|base|height|a²|b²|c²|\ba\b|\bb\b|\bc\b|\bh\b|\bA\b|\bB\b|\bC\b)/g;
+  const pattern = /(A \+ B \+ C|½|⅓|⅔|¼|¾|⅕|⅖|⅗|⅘|⅙|⅚|⅛|⅜|⅝|⅞|⁴⁄₃|base angles|base \(b\)|height \(h\)|hypotenuse \(c\)|base|height|a²|b²|c²|∠A|∠B|∠C|\ba\b|\bb\b|\bc\b|\bh\b)/g;
   const parts = text.split(pattern);
 
   return (
     <span className={className}>
       {parts.map((part, idx) => {
+        if (part === "A + B + C") {
+          return (
+            <React.Fragment key={idx}>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">A</span>
+              {" + "}
+              <span style={{ color: "#ffd45e" }} className="font-bold">B</span>
+              {" + "}
+              <span style={{ color: "#fb923c" }} className="font-bold">C</span>
+            </React.Fragment>
+          );
+        }
         const frac = FRACTION_MAP[part];
         if (frac) {
           return (

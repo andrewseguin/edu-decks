@@ -31,11 +31,16 @@ export function InteractiveTriangleAreaExplorer({ color }: InteractiveTriangleAr
 
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const clampApex = (x: number, y: number) => {
-    // Restrict apex strictly within base segment [B1_X, B2_X] so the triangle is always inside the b x h box
-    const cx = Math.max(B1_X, Math.min(B2_X, x));
-    const cy = Math.max(20, Math.min(BASE_Y - 20, y));
-    return { x: rnd(cx), y: rnd(cy) };
+  const clampAndSnapApex = (x: number, y: number) => {
+    // Snap x to discrete grid columns [0..10]
+    const unitX = Math.max(0, Math.min(10, Math.round((x - B1_X) / PX_PER_UNIT)));
+    const snapX = B1_X + unitX * PX_PER_UNIT;
+
+    // Snap y to discrete grid rows [2..7] (height 2 to 7 units)
+    const unitY = Math.max(2, Math.min(7, Math.round((BASE_Y - y) / PX_PER_UNIT)));
+    const snapY = BASE_Y - unitY * PX_PER_UNIT;
+
+    return { x: rnd(snapX), y: rnd(snapY) };
   };
 
   // Pointer drag handler on apex
@@ -53,7 +58,7 @@ export function InteractiveTriangleAreaExplorer({ color }: InteractiveTriangleAr
     const onMove = (ev: PointerEvent) => {
       const px = (ev.clientX - rect.left) * scX;
       const py = (ev.clientY - rect.top) * scY;
-      setApex(clampApex(px, py));
+      setApex(clampAndSnapApex(px, py));
     };
 
     const onUp = () => {
@@ -72,7 +77,7 @@ export function InteractiveTriangleAreaExplorer({ color }: InteractiveTriangleAr
 
   // Exact integer numerical values
   const heightPx = BASE_Y - apexY;
-  const heightUnits = Math.max(2, Math.min(7, Math.round(heightPx / PX_PER_UNIT)));
+  const heightUnits = Math.round(heightPx / PX_PER_UNIT);
   const baseUnits = BASE_UNITS; // 10
   const areaUnits = (baseUnits * heightUnits) / 2; // Always integer (5 * h)
 
@@ -111,7 +116,6 @@ export function InteractiveTriangleAreaExplorer({ color }: InteractiveTriangleAr
           })}
           {Array.from({ length: Math.max(0, heightUnits - 1) }).map((_, j) => {
             const gy = BASE_Y - (j + 1) * PX_PER_UNIT;
-            if (gy <= apexY) return null;
             return (
               <line
                 key={`hg-${j}`}
