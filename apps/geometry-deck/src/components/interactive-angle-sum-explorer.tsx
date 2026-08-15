@@ -269,9 +269,9 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
               strokeLinejoin="round"
             />
 
-            {/* Crease lines */}
-            <line x1={ML.x} y1={ML.y} x2={BM.x} y2={BM.y} stroke="rgba(255,255,255,0.5)" strokeWidth={1.2} strokeDasharray="3 2" />
-            <line x1={MR.x} y1={MR.y} x2={BM.x} y2={BM.y} stroke="rgba(255,255,255,0.5)" strokeWidth={1.2} strokeDasharray="3 2" />
+            {/* Crease lines (dotted) */}
+            <line x1={ML.x} y1={ML.y} x2={BM.x} y2={BM.y} stroke="rgba(255,255,255,0.65)" strokeWidth={1.5} strokeDasharray="2 3" strokeLinecap="round" />
+            <line x1={MR.x} y1={MR.y} x2={BM.x} y2={BM.y} stroke="rgba(255,255,255,0.65)" strokeWidth={1.5} strokeDasharray="2 3" strokeLinecap="round" />
 
             {/* Left folding flap */}
             <polygon
