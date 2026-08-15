@@ -22,32 +22,38 @@ export { RightAngleMarker, SvgTriangle, computeRightTriangleVertices } from "./s
 // ── Main renderer ───────────────────────────────────────────────────────────
 
 export function renderShapeSvg(descriptor: SvgDescriptor, mutation?: SvgMutation): React.ReactElement {
-  const { shape, dimensions } = descriptor;
+  const { shape, dimensions, unknownDimension, labelMode } = descriptor;
+  const dims = {
+    ...dimensions,
+    labelMode: dimensions.labelMode ?? labelMode,
+    unknown: dimensions.unknown ?? unknownDimension,
+  };
+
   switch (shape) {
     // Angles
-    case "angle-single":              return <AngleSingle dims={dimensions} mutation={mutation} />;
-    case "angle-supplementary":       return <AngleSupplementary dims={dimensions} mutation={mutation} />;
-    case "angle-complementary":       return <AngleComplementary dims={dimensions} mutation={mutation} />;
-    case "angle-vertically-opposite": return <AngleVerticallyOpposite dims={dimensions} mutation={mutation} />;
-    case "angle-reflex":              return <AngleReflex dims={dimensions} />;
-    case "angle-parallel-alternate":  return <AngleParallelAlternate dims={dimensions} />;
-    case "angle-parallel-cointerior": return <AngleParallelCointerior dims={dimensions} />;
+    case "angle-single":              return <AngleSingle dims={dims} mutation={mutation} />;
+    case "angle-supplementary":       return <AngleSupplementary dims={dims} mutation={mutation} />;
+    case "angle-complementary":       return <AngleComplementary dims={dims} mutation={mutation} />;
+    case "angle-vertically-opposite": return <AngleVerticallyOpposite dims={dims} mutation={mutation} />;
+    case "angle-reflex":              return <AngleReflex dims={dims} />;
+    case "angle-parallel-alternate":  return <AngleParallelAlternate dims={dims} />;
+    case "angle-parallel-cointerior": return <AngleParallelCointerior dims={dims} />;
     // Triangles
-    case "triangle":      return <Triangle dims={dimensions} mutation={mutation} />;
-    case "right-triangle": return <RightTriangle dims={dimensions} mutation={mutation} />;
+    case "triangle":      return <Triangle dims={dims} mutation={mutation} />;
+    case "right-triangle": return <RightTriangle dims={dims} mutation={mutation} />;
     // Quadrilaterals
-    case "rectangle":     return <Rectangle dims={dimensions} mutation={mutation} />;
-    case "parallelogram": return <Parallelogram dims={dimensions} mutation={mutation} />;
-    case "trapezoid":     return <Trapezoid dims={dimensions} mutation={mutation} />;
+    case "rectangle":     return <Rectangle dims={dims} mutation={mutation} />;
+    case "parallelogram": return <Parallelogram dims={dims} mutation={mutation} />;
+    case "trapezoid":     return <Trapezoid dims={dims} mutation={mutation} />;
     // Circles
-    case "circle":        return <Circle dims={dimensions} mutation={mutation} />;
+    case "circle":        return <Circle dims={dims} mutation={mutation} />;
     // Polygons
-    case "polygon":       return <Polygon dims={dimensions} mutation={mutation} />;
+    case "polygon":       return <Polygon dims={dims} mutation={mutation} />;
     // 3D
-    case "prism":         return <Prism dims={dimensions} />;
-    case "cylinder":      return <Cylinder dims={dimensions} />;
-    case "cone":          return <Cone dims={dimensions} />;
-    case "sphere":        return <Sphere dims={dimensions} />;
+    case "prism":         return <Prism dims={dims} />;
+    case "cylinder":      return <Cylinder dims={dims} />;
+    case "cone":          return <Cone dims={dims} />;
+    case "sphere":        return <Sphere dims={dims} />;
     default:
       return (
         <svg viewBox="0 0 200 180" className="w-full h-full" aria-hidden>

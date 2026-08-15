@@ -517,12 +517,14 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
       {/* ── Side a (Vertical Leg — Cyan) ─────────────────────────────────── */}
       {unknownDim === "a" ? (
         <RevealText
-          x={V1.x - 16}
+          x={V1.x - 14}
           y={(V1.y + V3.y) / 2}
           variable="a"
           revealedValue={revealedAnswer}
           color={COLOR_CYAN}
           textAnchor="end"
+          fontSize={13}
+          fontWeight={800}
         />
       ) : a !== undefined ? (
         <text
@@ -544,11 +546,13 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
       {unknownDim === "b" ? (
         <RevealText
           x={(V1.x + V2.x) / 2}
-          y={V1.y + 20}
+          y={V1.y + 18}
           variable="b"
           revealedValue={revealedAnswer}
           color={COLOR_GOLD}
           textAnchor="middle"
+          fontSize={13}
+          fontWeight={800}
         />
       ) : b !== undefined ? (
         <text
@@ -569,12 +573,14 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
       {/* ── Side c (Hypotenuse — Orange) ─────────────────────────────────── */}
       {unknownDim === "c" ? (
         <RevealText
-          x={hypMidX + 2}
-          y={hypMidY - 2}
+          x={hypMidX}
+          y={hypMidY}
           variable="c"
           revealedValue={revealedAnswer}
           color={COLOR_ORANGE}
           textAnchor="start"
+          fontSize={13}
+          fontWeight={800}
         />
       ) : c_val !== undefined ? (
         <text
