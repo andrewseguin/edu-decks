@@ -137,6 +137,7 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
   const labelC = { x: rnd(cMx + (aPx / cPx) * 14), y: rnd(cMy + (-bPx / cPx) * 14) };
 
   const lblStyle = { filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" } as React.CSSProperties;
+  const lblAreaStyle = { filter: "drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.95))" } as React.CSSProperties;
   const lblFont = "var(--font-heading, system-ui)";
 
   /* ── animation ─────────────────────────────────────────────────────────── */
@@ -192,15 +193,30 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
       <svg viewBox="10 -15 200 210"
         className="w-full max-w-[300px] sm:max-w-[340px] touch-none select-none">
 
-        {/* ── Area squares ────────────────────────────────────────────── */}
+        {/* ── Area squares (Dark frosted backing for contrast) ───────── */}
         {gp > 0.01 && (
           <>
-            <polygon points={sqA} fill={`${COLOR_A}15`} stroke={COLOR_A}
-              strokeWidth={1.5} opacity={rnd(gp * 0.85)} />
-            <polygon points={sqB} fill={`${COLOR_B}15`} stroke={COLOR_B}
-              strokeWidth={1.5} opacity={rnd(gp * 0.85)} />
-            <polygon points={sqC} fill={`${COLOR_C}10`} stroke={COLOR_C}
-              strokeWidth={1.5} opacity={rnd(gp * 0.85)} />
+            <polygon
+              points={sqA}
+              fill="rgba(0, 0, 0, 0.45)"
+              stroke={COLOR_A}
+              strokeWidth={1.5}
+              opacity={rnd(gp * 0.95)}
+            />
+            <polygon
+              points={sqB}
+              fill="rgba(0, 0, 0, 0.45)"
+              stroke={COLOR_B}
+              strokeWidth={1.5}
+              opacity={rnd(gp * 0.95)}
+            />
+            <polygon
+              points={sqC}
+              fill="rgba(0, 0, 0, 0.45)"
+              stroke={COLOR_C}
+              strokeWidth={1.5}
+              opacity={rnd(gp * 0.95)}
+            />
           </>
         )}
 
@@ -290,10 +306,10 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
               textAnchor="middle"
               dominantBaseline="central"
               fontSize={presetIdx === 0 ? 12 : 10}
-              fontWeight={800}
+              fontWeight={900}
               fill={COLOR_A}
               fontFamily={lblFont}
-              style={lblStyle}
+              style={lblAreaStyle}
               opacity={rnd(Math.min(1, (gp - 0.2) * 1.5))}
             >
               {a}² = {aSq}
@@ -306,10 +322,10 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
               textAnchor="middle"
               dominantBaseline="central"
               fontSize={presetIdx === 0 ? 12 : 10}
-              fontWeight={800}
+              fontWeight={900}
               fill={COLOR_B}
               fontFamily={lblFont}
-              style={lblStyle}
+              style={lblAreaStyle}
               opacity={rnd(Math.min(1, (gp - 0.2) * 1.5))}
             >
               {b}² = {bSq}
@@ -322,10 +338,10 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
               textAnchor="middle"
               dominantBaseline="central"
               fontSize={presetIdx === 0 ? 12 : 10}
-              fontWeight={800}
+              fontWeight={900}
               fill={COLOR_C}
               fontFamily={lblFont}
-              style={lblStyle}
+              style={lblAreaStyle}
               transform={`rotate(${cAngleDeg}, ${rnd(cMx + offX * 0.5)}, ${rnd(cMy + offY * 0.5)})`}
               opacity={rnd(Math.min(1, (gp - 0.2) * 1.5))}
             >
