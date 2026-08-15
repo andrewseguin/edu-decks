@@ -475,10 +475,10 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
   const unknownDim = dims.unknown as string | undefined;
   const highlightHyp = mutation?.traceStroke === "hypotenuse";
 
-  // Standard Right Triangle Coordinates
-  const V1 = { x: 50, y: 140 }; // Right angle vertex
-  const V2 = { x: 195, y: 140 }; // Bottom-right vertex
-  const V3 = { x: 50, y: 45 };   // Top-left vertex
+  // Standard Right Triangle Coordinates (vertically centered in 240x155 viewBox)
+  const V1 = { x: 50, y: 130 }; // Right angle vertex
+  const V2 = { x: 195, y: 130 }; // Bottom-right vertex
+  const V3 = { x: 50, y: 35 };   // Top-left vertex
 
   // True perpendicular normal offset from exact hypotenuse midpoint
   const hMidX = (V2.x + V3.x) / 2;
@@ -493,7 +493,7 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
   const revealedAnswer = mutation?.revealAnswer;
 
   return (
-    <svg viewBox="0 0 240 170" className="w-full h-full select-none" aria-hidden>
+    <svg viewBox="0 0 240 155" className="w-full h-full select-none" aria-hidden>
       {/* ── Right Triangle Polygon ───────────────────────────────────────── */}
       <polygon
         points={`${V1.x},${V1.y} ${V2.x},${V2.y} ${V3.x},${V3.y}`}
