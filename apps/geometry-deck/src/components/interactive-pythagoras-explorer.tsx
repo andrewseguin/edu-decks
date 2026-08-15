@@ -238,11 +238,11 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
 
         {/* ── Side labels ───────────────────────────────────────────── */}
         <text x={labelA.x} y={labelA.y} textAnchor="end" dominantBaseline="central"
-          fontSize={14} fontWeight={800} fontStyle="italic" fill={COLOR_A} fontFamily={lblFont} style={lblStyle}>a</text>
+          fontSize={14} fontWeight={800} fill={COLOR_A} fontFamily={lblFont} style={lblStyle}>{a}</text>
         <text x={labelB.x} y={labelB.y} textAnchor="middle" dominantBaseline="hanging"
-          fontSize={14} fontWeight={800} fontStyle="italic" fill={COLOR_B} fontFamily={lblFont} style={lblStyle}>b</text>
+          fontSize={14} fontWeight={800} fill={COLOR_B} fontFamily={lblFont} style={lblStyle}>{b}</text>
         <text x={labelC.x} y={labelC.y} textAnchor="middle" dominantBaseline="central"
-          fontSize={14} fontWeight={800} fontStyle="italic" fill={COLOR_C} fontFamily={lblFont} style={lblStyle}>c</text>
+          fontSize={14} fontWeight={800} fill={COLOR_C} fontFamily={lblFont} style={lblStyle}>{c}</text>
       </svg>
 
       {/* ── Equation ──────────────────────────────────────────────────────── */}
