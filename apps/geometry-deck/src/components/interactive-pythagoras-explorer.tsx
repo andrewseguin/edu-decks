@@ -18,7 +18,7 @@ const OX = 75, OY = 115; // right-angle vertex (fixed)
 
 const COLOR_A = "#5ee8ff"; // cyan  – vertical leg (a)
 const COLOR_B = "#ffd45e"; // gold  – base (b)
-const COLOR_C = "#c084fc"; // lavender – hypotenuse (c)
+const COLOR_C = "#d8b4fe"; // neon lilac – hypotenuse (c)
 
 const rnd = (n: number) => Math.round(n * 10000) / 10000;
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;

@@ -10,7 +10,7 @@ import {
 // Semantic Color Tokens — tuned for high-contrast luminance against emerald cards
 const COLOR_CYAN = "#5ee8ff";
 const COLOR_GOLD = "#ffd45e";
-const COLOR_LAVENDER = "#c084fc";
+const COLOR_LAVENDER = "#d8b4fe";
 
 const lblStyle: React.CSSProperties = { filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" };
 const lblFont = "var(--font-heading, system-ui)";
