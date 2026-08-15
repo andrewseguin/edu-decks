@@ -63,6 +63,8 @@ export type EquationToken = {
   value: string;
   /** Operators and equals signs render dimmer */
   dim?: boolean;
+  /** Optional semantic text color (e.g. #5ee8ff, #ffd45e, #fb923c) */
+  color?: string;
 };
 
 export type SvgMutation = {

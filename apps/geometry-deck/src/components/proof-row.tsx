@@ -1,7 +1,9 @@
 "use client";
 
+import React from "react";
 import { cn } from "@/lib/utils";
 import type { EquationToken } from "@/lib/types";
+import { FormattedMathText } from "./ui/formatted-math-text";
 
 type ProofRowProps = {
   tokens: EquationToken[] | null;
@@ -23,8 +25,12 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
           )}
         >
           {tokens.map((t) => (
-            <span key={t.id} className={cn(t.dim ? "text-white/50" : undefined)}>
-              {t.value}
+            <span
+              key={t.id}
+              className={cn(t.dim ? "text-white/50" : undefined)}
+              style={t.color ? { color: t.color } : undefined}
+            >
+              {t.color || t.dim ? t.value : <FormattedMathText text={t.value} />}
             </span>
           ))}
         </span>
@@ -40,7 +46,7 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
               : "text-white/90 font-semibold text-sm sm:text-base",
           )}
         >
-          {formulaLine}
+          <FormattedMathText text={formulaLine} />
         </span>
       );
     }
@@ -48,8 +54,8 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
   })();
 
   return (
-    <div className="grid w-full items-center grid-cols-[1fr_1px_1fr] gap-x-0 py-1 min-w-0">
-      <div className="flex items-center justify-end pr-3 min-w-0">
+    <div className="grid w-full items-center grid-cols-[1fr_1px_1fr] gap-x-0 py-1.5 min-w-0">
+      <div className="flex items-center justify-end pr-4 min-w-0">
         <span
           className={cn(
             "leading-tight italic text-right",
@@ -64,7 +70,7 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
 
       <div className="self-stretch bg-white/15 min-h-[20px]" />
 
-      <div className="flex justify-start pl-3 min-w-0">
+      <div className="flex justify-start pl-4 min-w-0">
         {equationNode}
       </div>
     </div>

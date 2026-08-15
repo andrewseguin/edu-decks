@@ -13,7 +13,7 @@ import type { GeometryCard, EquationToken } from "./types";
 import { TOPIC_COLORS } from "./colors";
 
 // ── Local token helpers (mirrors the private helpers in card-generator) ───────
-const t = (id: string, value: string): EquationToken => ({ id, value });
+const t = (id: string, value: string, color?: string): EquationToken => ({ id, value, color });
 const d = (id: string, value: string): EquationToken => ({ id, value, dim: true });
 const eq = (id = "eq"): EquationToken => d(id, " = ");
 const op = (value: string): EquationToken => d("op", ` ${value} `);
@@ -43,7 +43,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontLabel: "Obtuse angles", frontPrompt: "are…?",
     frontSpeechText: "Obtuse angles are…?",
     backDefinition: "Greater than 90°, less than 180°",
-    backSvgExamples: [{ shape: "angle-single", dimensions: { angle: 130 }, labelMode: "numeric" }],
+    backSvgExamples: [{ shape: "angle-single", dimensions: { angle: 135 }, labelMode: "numeric" }],
     backSteps: [{ formulaLine: "90° < obtuse < 180°" }],
     backSpeechText: "Greater than 90 degrees, less than 180 degrees",
   },
@@ -54,7 +54,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontLabel: "Reflex angles", frontPrompt: "are…?",
     frontSpeechText: "Reflex angles are…?",
     backDefinition: "Greater than 180°, less than 360°",
-    backSvgExamples: [{ shape: "angle-reflex", dimensions: { angles: "200,270,330" }, labelMode: "numeric" }],
+    backSvgExamples: [{ shape: "angle-single", dimensions: { angle: 225 }, labelMode: "numeric" }],
     backSteps: [{ formulaLine: "180° < reflex < 360°" }],
     backSpeechText: "Greater than 180 degrees, less than 360 degrees",
   },
@@ -62,24 +62,21 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "term-angle-complementary": {
     id: "term-angle-complementary", topic: "angles", cardType: "term", variant: "definition",
     color: TOPIC_COLORS.angles,
-    frontLabel: "Complementary angles", frontPrompt: "are…?",
-    frontSpeechText: "Complementary angles are…?",
+    frontLabel: "Complementary angles", frontPrompt: "sum to…?",
+    frontSpeechText: "Complementary angles sum to…?",
     backDefinition: "Two angles that sum to 90°",
-    backSvgExamples: [{ shape: "angle-complementary", dimensions: { A: 30 }, labelMode: "numeric" }],
-    backSteps: [
-      { formulaLine: "A + B = 90°" },
-      { formulaLine: "e.g. 30° + 60° = 90°" },
-    ],
-    backSpeechText: "Two angles that sum to 90 degrees",
+    backSvgExamples: [{ shape: "angle-complementary", dimensions: { A: 40, B: 50 }, labelMode: "numeric" }],
+    backSteps: [{ formulaLine: "A + B = 90°" }],
+    backSpeechText: "Complementary angles sum to 90 degrees",
   },
 
   "term-angle-supplementary": {
     id: "term-angle-supplementary", topic: "angles", cardType: "term", variant: "definition",
     color: TOPIC_COLORS.angles,
-    frontLabel: "Supplementary angles", frontPrompt: "are…?",
-    frontSpeechText: "Supplementary angles are…?",
+    frontLabel: "Supplementary angles", frontPrompt: "sum to…?",
+    frontSpeechText: "Supplementary angles sum to…?",
     backDefinition: "Two angles that sum to 180°",
-    backSvgExamples: [{ shape: "angle-supplementary", dimensions: { A: 120 }, labelMode: "numeric" }],
+    backSvgExamples: [{ shape: "angle-supplementary", dimensions: { A: 65, B: 115 }, labelMode: "numeric" }],
     backSteps: [
       { formulaLine: "A + B = 180°" },
       { formulaLine: "e.g. 120° + 60° = 180°" },
@@ -139,10 +136,10 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontSvg: { shape: "angle-supplementary", dimensions: { A: 65, unknown: "B" }, labelMode: "numeric", unknownDimension: "B" },
     frontSpeechText: "A is 65 degrees. Find B.",
     backSteps: [
-      { equationTokens: [t("lhs","A"), op("+"), t("mid","B"), eq(), t("sum","180°")], reason: "Supplementary angles sum to 180°" },
-      { equationTokens: [t("lhs","65°"), op("+"), t("mid","B"), eq(), t("sum","180°")], reason: "Substitute A = 65°" },
-      { equationTokens: [t("lhs","B"), eq(), t("rhs1","180°"), op("−"), t("rhs2","65°")], reason: "Isolate B" },
-      { equationTokens: [t("lhs","B"), eq(), t("rhs","115°")], reason: "Evaluate" },
+      { equationTokens: [t("lhs","A","#5ee8ff"), op("+"), t("mid","B","#ffd45e"), eq(), t("sum","180°")], reason: "Supplementary angles sum to 180°" },
+      { equationTokens: [t("lhs","65°","#5ee8ff"), op("+"), t("mid","B","#ffd45e"), eq(), t("sum","180°")], reason: "Substitute A = 65°" },
+      { equationTokens: [t("lhs","B","#ffd45e"), eq(), t("rhs1","180°"), op("−"), t("rhs2","65°","#5ee8ff")], reason: "Isolate B" },
+      { equationTokens: [t("lhs","B","#ffd45e"), eq(), t("rhs","115°","#ffd45e")], reason: "Evaluate" },
     ],
     backSpeechText: "B equals 115 degrees", numericAnswer: 115,
   },
@@ -153,10 +150,10 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontSvg: { shape: "angle-complementary", dimensions: { A: 35, unknown: "B" }, labelMode: "numeric", unknownDimension: "B" },
     frontSpeechText: "A is 35 degrees. Find B.",
     backSteps: [
-      { equationTokens: [t("lhs","A"), op("+"), t("mid","B"), eq(), t("sum","90°")], reason: "Complementary angles sum to 90°" },
-      { equationTokens: [t("lhs","35°"), op("+"), t("mid","B"), eq(), t("sum","90°")], reason: "Substitute A = 35°" },
-      { equationTokens: [t("lhs","B"), eq(), t("rhs1","90°"), op("−"), t("rhs2","35°")], reason: "Isolate B" },
-      { equationTokens: [t("lhs","B"), eq(), t("rhs","55°")], reason: "Evaluate" },
+      { equationTokens: [t("lhs","A","#5ee8ff"), op("+"), t("mid","B","#ffd45e"), eq(), t("sum","90°")], reason: "Complementary angles sum to 90°" },
+      { equationTokens: [t("lhs","35°","#5ee8ff"), op("+"), t("mid","B","#ffd45e"), eq(), t("sum","90°")], reason: "Substitute A = 35°" },
+      { equationTokens: [t("lhs","B","#ffd45e"), eq(), t("rhs1","90°"), op("−"), t("rhs2","35°","#5ee8ff")], reason: "Isolate B" },
+      { equationTokens: [t("lhs","B","#ffd45e"), eq(), t("rhs","55°","#ffd45e")], reason: "Evaluate" },
     ],
     backSpeechText: "B equals 55 degrees", numericAnswer: 55,
   },
@@ -167,8 +164,8 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontSvg: { shape: "angle-vertically-opposite", dimensions: { A: 75, unknown: "C" }, labelMode: "numeric", unknownDimension: "C" },
     frontSpeechText: "A is 75 degrees. Find vertically opposite angle C.",
     backSteps: [
-      { equationTokens: [t("lhs","C"), eq(), t("rhs","A")], reason: "Vertically opposite angles are equal" },
-      { equationTokens: [t("lhs","C"), eq(), t("rhs","75°")], reason: "Substitute A = 75°" },
+      { equationTokens: [t("lhs","C","#5ee8ff"), eq(), t("rhs","A","#5ee8ff")], reason: "Vertically opposite angles are equal" },
+      { equationTokens: [t("lhs","C","#5ee8ff"), eq(), t("rhs","75°","#5ee8ff")], reason: "Substitute A = 75°" },
     ],
     backSpeechText: "C equals 75 degrees", numericAnswer: 75,
   },
@@ -292,10 +289,10 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontSvg: { shape: "triangle", dimensions: { angA: 40, angB: 65, unknown: "C", style: "scalene", labelMode: "numeric" }, labelMode: "numeric" },
     frontSpeechText: "A is 40 degrees, B is 65 degrees. Find C.",
     backSteps: [
-      { equationTokens: [t("A","A"), d("p1"," + "), t("B","B"), d("p2"," + "), t("C","C"), eq(), t("sum","180°")], reason: "Triangle angle sum theorem" },
-      { equationTokens: [t("A","40°"), d("p1"," + "), t("B","65°"), d("p2"," + "), t("C","C"), eq(), t("sum","180°")], reason: "Substitute A = 40°, B = 65°" },
-      { equationTokens: [t("lhs","C"), eq(), t("rhs","180° − 40° − 65°")], reason: "Isolate C" },
-      { equationTokens: [t("lhs","C"), eq(), t("rhs","75°")], reason: "Evaluate" },
+      { equationTokens: [t("A","A","#5ee8ff"), d("p1"," + "), t("B","B","#ffd45e"), d("p2"," + "), t("C","C","#fb923c"), eq(), t("sum","180°")], reason: "Triangle angle sum theorem" },
+      { equationTokens: [t("A","40°","#5ee8ff"), d("p1"," + "), t("B","65°","#ffd45e"), d("p2"," + "), t("C","C","#fb923c"), eq(), t("sum","180°")], reason: "Substitute A = 40°, B = 65°" },
+      { equationTokens: [t("lhs","C","#fb923c"), eq(), t("r1","180°"), op("−"), t("r2","40°","#5ee8ff"), op("−"), t("r3","65°","#ffd45e")], reason: "Isolate C" },
+      { equationTokens: [t("lhs","C","#fb923c"), eq(), t("rhs","75°","#fb923c")], reason: "Evaluate" },
     ],
     backSpeechText: "C equals 75 degrees", numericAnswer: 75,
   },

@@ -242,7 +242,7 @@ export function GeometryCard({
         <div className="flex-1 min-h-0 flex flex-col px-4">
           <div className="flex-1 min-h-0 overflow-y-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden flex flex-col items-center justify-center py-1">
             {isFlipped && (
-              <div className="bg-black/65 border border-white/10 rounded-xl px-3 py-1.5 w-full divide-y divide-white/[0.07]">
+              <div className="w-[calc(100%+2rem)] -mx-4 sm:w-[calc(100%+3rem)] sm:-mx-6 bg-black/25 backdrop-blur-md border-y border-white/20 px-4 sm:px-6 py-2 divide-y divide-white/10">
                 {steps.map((step, i) => (
                   <ProofRow
                     key={i}

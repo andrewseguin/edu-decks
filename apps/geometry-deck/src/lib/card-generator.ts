@@ -28,7 +28,7 @@ function uid(u: "none" | "cm" | "m" | "in"): string { return u === "none" ? "" :
 // dim()  = operator / equals sign (dimmer)
 // eq()   = shorthand for a single "=" operator
 // -------------------------------------------------------------------------------
-const tok = (id: string, value: string): EquationToken => ({ id, value });
+const tok = (id: string, value: string, color?: string): EquationToken => ({ id, value, color });
 const dim = (id: string, value: string): EquationToken => ({ id, value, dim: true });
 const eq = (id = "eq"): EquationToken => dim(id, " = ");
 const op = (value: string): EquationToken => dim("op", ` ${value} `);
@@ -125,10 +125,10 @@ function makeAnglesCalcCard(): GeometryCard {
       frontSvg: { shape: "angle-supplementary", dimensions: { A, unknown: "B" }, labelMode: "numeric", unknownDimension: "B" },
       frontSpeechText: `A is ${A} degrees. Find B.`,
       backSteps: [
-        { equationTokens: [tok("lhs","A"), op("+"), tok("mid","B"), eq(), tok("sum","180°")], reason: "Supplementary angles sum to 180°" },
-        { equationTokens: [tok("lhs",`${A}°`), op("+"), tok("mid","B"), eq(), tok("sum","180°")], reason: `Substitute A = ${A}°` },
-        { equationTokens: [tok("lhs","B"), eq(), tok("rhs1","180°"), op("−"), tok("rhs2",`${A}°`)], reason: "Isolate B" },
-        { equationTokens: [tok("lhs","B"), eq(), tok("rhs",`${B}°`)], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","A","#5ee8ff"), op("+"), tok("mid","B","#ffd45e"), eq(), tok("sum","180°")], reason: "Supplementary angles sum to 180°" },
+        { equationTokens: [tok("lhs",`${A}°`,"#5ee8ff"), op("+"), tok("mid","B","#ffd45e"), eq(), tok("sum","180°")], reason: `Substitute A = ${A}°` },
+        { equationTokens: [tok("lhs","B","#ffd45e"), eq(), tok("rhs1","180°"), op("−"), tok("rhs2",`${A}°`,"#5ee8ff")], reason: "Isolate B" },
+        { equationTokens: [tok("lhs","B","#ffd45e"), eq(), tok("rhs",`${B}°`,"#ffd45e")], reason: "Evaluate" },
       ],
       backSpeechText: `B equals ${B} degrees`, numericAnswer: B, color,
     };
@@ -140,10 +140,10 @@ function makeAnglesCalcCard(): GeometryCard {
       frontSvg: { shape: "angle-complementary", dimensions: { A, unknown: "B" }, labelMode: "numeric", unknownDimension: "B" },
       frontSpeechText: `A is ${A} degrees. Find B.`,
       backSteps: [
-        { equationTokens: [tok("lhs","A"), op("+"), tok("mid","B"), eq(), tok("sum","90°")], reason: "Complementary angles sum to 90°" },
-        { equationTokens: [tok("lhs",`${A}°`), op("+"), tok("mid","B"), eq(), tok("sum","90°")], reason: `Substitute A = ${A}°` },
-        { equationTokens: [tok("lhs","B"), eq(), tok("rhs1","90°"), op("−"), tok("rhs2",`${A}°`)], reason: "Isolate B" },
-        { equationTokens: [tok("lhs","B"), eq(), tok("rhs",`${B}°`)], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","A","#5ee8ff"), op("+"), tok("mid","B","#ffd45e"), eq(), tok("sum","90°")], reason: "Complementary angles sum to 90°" },
+        { equationTokens: [tok("lhs",`${A}°`,"#5ee8ff"), op("+"), tok("mid","B","#ffd45e"), eq(), tok("sum","90°")], reason: `Substitute A = ${A}°` },
+        { equationTokens: [tok("lhs","B","#ffd45e"), eq(), tok("rhs1","90°"), op("−"), tok("rhs2",`${A}°`,"#5ee8ff")], reason: "Isolate B" },
+        { equationTokens: [tok("lhs","B","#ffd45e"), eq(), tok("rhs",`${B}°`,"#ffd45e")], reason: "Evaluate" },
       ],
       backSpeechText: `B equals ${B} degrees`, numericAnswer: B, color,
     };
@@ -154,8 +154,8 @@ function makeAnglesCalcCard(): GeometryCard {
     frontSvg: { shape: "angle-vertically-opposite", dimensions: { A, unknown: "C" }, labelMode: "numeric", unknownDimension: "C" },
     frontSpeechText: `A is ${A} degrees. Find vertically opposite angle C.`,
     backSteps: [
-      { equationTokens: [tok("lhs","C"), eq(), tok("rhs","A")], reason: "Vertically opposite angles are equal" },
-      { equationTokens: [tok("lhs","C"), eq(), tok("rhs",`${A}°`)], reason: `Substitute A = ${A}°` },
+      { equationTokens: [tok("lhs","C","#5ee8ff"), eq(), tok("rhs","A","#5ee8ff")], reason: "Vertically opposite angles are equal" },
+      { equationTokens: [tok("lhs","C","#5ee8ff"), eq(), tok("rhs",`${A}°`,"#5ee8ff")], reason: `Substitute A = ${A}°` },
     ],
     backSpeechText: `C equals ${A} degrees`, numericAnswer: A, color,
   };
@@ -270,10 +270,10 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "triangle", dimensions: { angA: A, angB: B, unknown: "C", style: "scalene", labelMode: "numeric" }, labelMode: "numeric" },
       frontSpeechText: `A is ${A} degrees, B is ${B} degrees. Find C.`,
       backSteps: [
-        { equationTokens: [tok("A","A"), dim("p1"," + "), tok("B","B"), dim("p2"," + "), tok("C","C"), eq(), tok("sum","180\u00b0")], reason: "Triangle angle sum theorem" },
-        { equationTokens: [tok("A",`${A}\u00b0`), dim("p1"," + "), tok("B",`${B}\u00b0`), dim("p2"," + "), tok("C","C"), eq(), tok("sum","180\u00b0")], reason: `Substitute A = ${A}\u00b0, B = ${B}\u00b0` },
-        { equationTokens: [tok("lhs","C"), eq(), tok("rhs",`180\u00b0 \u2212 ${A}\u00b0 \u2212 ${B}\u00b0`)], reason: "Isolate C" },
-        { equationTokens: [tok("lhs","C"), eq(), tok("rhs",`${C}\u00b0`)], reason: "Evaluate" },
+        { equationTokens: [tok("A","A","#5ee8ff"), dim("p1"," + "), tok("B","B","#ffd45e"), dim("p2"," + "), tok("C","C","#fb923c"), eq(), tok("sum","180\u00b0")], reason: "Triangle angle sum theorem" },
+        { equationTokens: [tok("A",`${A}\u00b0`,"#5ee8ff"), dim("p1"," + "), tok("B",`${B}\u00b0`,"#ffd45e"), dim("p2"," + "), tok("C","C","#fb923c"), eq(), tok("sum","180\u00b0")], reason: `Substitute A = ${A}\u00b0, B = ${B}\u00b0` },
+        { equationTokens: [tok("lhs","C","#fb923c"), eq(), tok("r1","180\u00b0"), op("\u2212"), tok("r2",`${A}\u00b0`,"#5ee8ff"), op("\u2212"), tok("r3",`${B}\u00b0`,"#ffd45e")], reason: "Isolate C" },
+        { equationTokens: [tok("lhs","C","#fb923c"), eq(), tok("rhs",`${C}\u00b0`,"#fb923c")], reason: "Evaluate" },
       ],
       backSpeechText: `C equals ${C} degrees`, numericAnswer: C, color,
     };
