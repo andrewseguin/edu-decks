@@ -52,6 +52,10 @@ export const MATH_GLOSSARY: Record<string, GlossaryEntry> = {
     title: "Perimeter",
     explanation: "The total continuous distance around the outer boundary of a shape.",
   },
+  "triangle area": {
+    title: "Triangle Area Formula",
+    explanation: "Multiply half the base (b) by the vertical height (h) to find the enclosed surface area (A = ½ × base × height).",
+  },
   area: {
     title: "Area",
     explanation: "The total number of unit square tiles needed to completely cover the interior surface of a shape.",
@@ -84,6 +88,7 @@ export function lookupGlossary(reason: string): GlossaryEntry | null {
   if (lower.includes("complementary")) return MATH_GLOSSARY.complementary;
   if (lower.includes("vertically opposite")) return MATH_GLOSSARY["vertically opposite"];
   if (lower.includes("perimeter")) return MATH_GLOSSARY.perimeter;
+  if (lower.includes("triangle area")) return MATH_GLOSSARY["triangle area"];
   if (lower.includes("area")) return MATH_GLOSSARY.area;
   if (lower.includes("circumference")) return MATH_GLOSSARY.circumference;
   if (lower.includes("euler")) return MATH_GLOSSARY.euler;
