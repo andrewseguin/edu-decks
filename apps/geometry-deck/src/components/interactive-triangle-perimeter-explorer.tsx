@@ -203,13 +203,13 @@ export function InteractiveTrianglePerimeterExplorer({ color }: { color?: string
           y={midA.y}
           textAnchor="middle"
           dominantBaseline="central"
-          fontSize={12}
+          fontSize={13}
           fontWeight={800}
           fill={COLOR_A}
           fontFamily="var(--font-heading, system-ui)"
           style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
         >
-          a = {unitsA}
+          {unitsA}
         </text>
 
         {/* Side b Label */}
@@ -218,13 +218,13 @@ export function InteractiveTrianglePerimeterExplorer({ color }: { color?: string
           y={midB.y}
           textAnchor="middle"
           dominantBaseline="central"
-          fontSize={12}
+          fontSize={13}
           fontWeight={800}
           fill={COLOR_B}
           fontFamily="var(--font-heading, system-ui)"
           style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
         >
-          b = {unitsB}
+          {unitsB}
         </text>
 
         {/* Side c Label */}
@@ -233,13 +233,13 @@ export function InteractiveTrianglePerimeterExplorer({ color }: { color?: string
           y={midC.y}
           textAnchor="middle"
           dominantBaseline="central"
-          fontSize={12}
+          fontSize={13}
           fontWeight={800}
           fill={COLOR_C}
           fontFamily="var(--font-heading, system-ui)"
           style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
         >
-          c = {unitsC}
+          {unitsC}
         </text>
 
         {/* Draggable Apex handle (only active when closed) */}

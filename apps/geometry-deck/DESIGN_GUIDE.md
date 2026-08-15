@@ -154,6 +154,8 @@ Colors must be consistent and intuitive within each topic. As new topic categori
      - `A`, `a²`, `a`, `height (h)`, `height`, `h`, `base angles` $\rightarrow$ **Cyan (`#5ee8ff`)**
      - `B`, `b²`, `b`, `base (b)`, `base` $\rightarrow$ **Gold (`#ffd45e`)**
      - `C`, `c²`, `c`, `hypotenuse (c)` $\rightarrow$ **Orange (`#fb923c`)**
+6. **Diagram Simplicity & Pure Value Labels**:
+   - Because the top frosted hero banner explicitly explains variable names and color tokens (e.g. $b = \text{base}$, $h = \text{height}$, $a, b, c$), diagrams should display clean numeric values directly (`10`, `7`, `40°`) in their matching semantic color rather than redundant prefixes (`b = 10`, `h = 7`). This keeps diagrams uncluttered and modern.
 
 ---
 

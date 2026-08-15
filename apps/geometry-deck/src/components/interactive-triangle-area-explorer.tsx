@@ -202,34 +202,34 @@ export function InteractiveTriangleAreaExplorer({ color }: InteractiveTriangleAr
         <circle cx={B1_X} cy={BASE_Y} r={3.5} fill="white" />
         <circle cx={B2_X} cy={BASE_Y} r={3.5} fill="white" />
 
-        {/* Height label 'h' */}
+        {/* Height label */}
         <text
           x={altLabelX}
           y={apexY + heightPx / 2}
           textAnchor={altLabelAnchor}
           dominantBaseline="central"
-          fontSize={12}
+          fontSize={13}
           fontWeight={800}
           fill={COLOR_HEIGHT}
           fontFamily="var(--font-heading, system-ui)"
           style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
         >
-          h = {heightUnits}
+          {heightUnits}
         </text>
 
-        {/* Base label 'b' */}
+        {/* Base label */}
         <text
           x={(B1_X + B2_X) / 2}
-          y={BASE_Y + 16}
+          y={BASE_Y + 14}
           textAnchor="middle"
           dominantBaseline="central"
-          fontSize={12}
+          fontSize={13}
           fontWeight={800}
           fill={COLOR_BASE}
           fontFamily="var(--font-heading, system-ui)"
           style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
         >
-          b = {baseUnits}
+          {baseUnits}
         </text>
 
         {/* Draggable Apex handle */}
