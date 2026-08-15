@@ -173,6 +173,9 @@ Colors on Angles cards follow a strict **progressive allocation order**:
 > [!IMPORTANT]
 > **Text Drop Shadows on Cards**: Any text element rendered directly on top of the card background (without a frosted/dimmed banner container) must include `style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}` for maximum legibility and contrast.
 
+> [!IMPORTANT]
+> **Touch Points & Draggable Handles (Always White)**: All interactive drag handles, touch points, and vertex manipulation anchors must strictly remain **White** (`fill="white"`, outer grab ring `fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.5)"`). Semantic colors are strictly reserved for mathematical properties (angles, lengths, heights, areas), while white serves as the universal, consistent affordance for interactive touch control.
+
 ### 3.2 Triangles Topic Palette *(Optimized for `#10b981` Emerald/Green)*
 
 | Concept | Token / Color | Hex | Usage |

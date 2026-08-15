@@ -308,7 +308,7 @@ export function InteractiveAngleExplorer({
           cy={armEnd.y}
           r={HANDLE_R}
           fill="rgba(255,255,255,0.15)"
-          stroke="#5ee8ff"
+          stroke="rgba(255,255,255,0.5)"
           strokeWidth={2}
           style={{ cursor: isDragging ? "grabbing" : "grab", touchAction: "none" }}
           onPointerDown={handlePointerDown}
