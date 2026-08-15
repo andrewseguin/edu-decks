@@ -15,15 +15,30 @@ const COLOR_ORANGE = "#fb923c";
 const lblStyle: React.CSSProperties = { filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" };
 const lblFont = "var(--font-heading, system-ui)";
 
-/** Helper to draw an SVG arc path in math coords (0 = right, CCW positive, y-up) */
-function arcPathSvg(cx: number, cy: number, r: number, startDeg: number, endDeg: number): string {
-  const rad = (d: number) => (d * Math.PI) / 180;
-  const p1 = { x: cx + r * Math.cos(rad(startDeg)), y: cy - r * Math.sin(rad(startDeg)) };
-  const p2 = { x: cx + r * Math.cos(rad(endDeg)), y: cy - r * Math.sin(rad(endDeg)) };
-  let sweep = endDeg - startDeg;
-  while (sweep < 0) sweep += 360;
-  const largeArc = sweep > 180 ? 1 : 0;
-  return `M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} A ${r} ${r} 0 ${largeArc} 0 ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
+/**
+ * Robust vector-based corner arc helper.
+ * Computes exact edge-touching endpoints P1 and P2 at distance `r` from vertex `V`,
+ * then draws the smooth connecting circular arc along the interior.
+ */
+function cornerArcSvg(
+  V: { x: number; y: number },
+  V1: { x: number; y: number },
+  V2: { x: number; y: number },
+  r = 18
+): string {
+  const d1x = V1.x - V.x, d1y = V1.y - V.y;
+  const len1 = Math.hypot(d1x, d1y) || 1;
+  const p1 = { x: V.x + (d1x / len1) * r, y: V.y + (d1y / len1) * r };
+
+  const d2x = V2.x - V.x, d2y = V2.y - V.y;
+  const len2 = Math.hypot(d2x, d2y) || 1;
+  const p2 = { x: V.x + (d2x / len2) * r, y: V.y + (d2y / len2) * r };
+
+  // Cross product of v1 x v2 in screen coords to determine correct interior arc sweep
+  const cross = d1x * d2y - d1y * d2x;
+  const sweep = cross > 0 ? 1 : 0;
+
+  return `M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} A ${r} ${r} 0 0 ${sweep} ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -58,15 +73,24 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
     V3 = { x: 120, y: 75 };
   }
 
-  // If angA is provided, compute angle-sum geometry
+  // If angA is provided, compute angle-sum geometry dynamically so arcs align 100%
   const hasAngles = dims.angA !== undefined;
   const angA = hasAngles ? Number(dims.angA) : 0;
   const angB = hasAngles ? Number(dims.angB) : 0;
   const angC = hasAngles ? (dims.angC !== undefined ? Number(dims.angC) : 180 - angA - angB) : 0;
 
-  // Apex angle direction vectors for Arc C
-  const edgeAngleL = Math.round(Math.atan2(-(baseY - V3.y), V1.x - V3.x) * 180 / Math.PI);
-  const edgeAngleR = Math.round(Math.atan2(-(baseY - V3.y), V2.x - V3.x) * 180 / Math.PI);
+  if (hasAngles && angA > 0 && angB > 0) {
+    const radA = (angA * Math.PI) / 180;
+    const radB = (angB * Math.PI) / 180;
+    const tanA = Math.tan(radA);
+    const tanB = Math.tan(radB);
+    const baseW = V2.x - V1.x; // 170
+    // Height from baseline
+    const computedH = (baseW * tanA * tanB) / (tanA + tanB);
+    const apexX = V1.x + computedH / tanA;
+    const apexY = baseY - computedH;
+    V3 = { x: Math.round(apexX * 10) / 10, y: Math.round(apexY * 10) / 10 };
+  }
 
   // Perpendicular outward normal calculations for side length labels
   const getSideNormal = (p1: { x: number; y: number }, p2: { x: number; y: number }, dist = 14) => {
@@ -206,7 +230,7 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
         <>
           {/* Arc A at V1 (Cyan) */}
           <path
-            d={arcPathSvg(V1.x, V1.y, 18, 0, angA)}
+            d={cornerArcSvg(V1, V2, V3, 18)}
             fill="none"
             stroke={COLOR_CYAN}
             strokeWidth={2.5}
@@ -214,7 +238,7 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
           />
           {/* Arc B at V2 (Gold) */}
           <path
-            d={arcPathSvg(V2.x, V2.y, 18, 180 - angB, 180)}
+            d={cornerArcSvg(V2, V3, V1, 18)}
             fill="none"
             stroke={COLOR_GOLD}
             strokeWidth={2.5}
@@ -222,7 +246,7 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
           />
           {/* Arc C at V3 (Orange) */}
           <path
-            d={arcPathSvg(V3.x, V3.y, 18, edgeAngleL, edgeAngleR)}
+            d={cornerArcSvg(V3, V1, V2, 18)}
             fill="none"
             stroke={COLOR_ORANGE}
             strokeWidth={2.5}
@@ -318,8 +342,6 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
   const V2 = { x: 195, y: 140 }; // Bottom-right vertex
   const V3 = { x: 50, y: 45 };   // Top-left vertex
 
-  const hypLen = Math.hypot(V2.x - V3.x, V2.y - V3.y);
-  // Hypotenuse normal for label placement
   const hypMidX = (V2.x + V3.x) / 2 + 12;
   const hypMidY = (V2.y + V3.y) / 2 - 10;
 
