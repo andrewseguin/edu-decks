@@ -32,7 +32,8 @@ type DotInfo = {
   tgtX: number; tgtY: number;
   color: string;
   delay: number;
-  extrudeOrder: number;
+  tileStartGp: number;
+  tileFullGp: number;
   side: "a" | "b";
 };
 
@@ -49,27 +50,29 @@ function buildDots(t: Triple): DotInfo[] {
     y: rnd(apexY + aPx * (i + 0.5) / c + (-bPx) * (j + 0.5) / c),
   });
 
-  // ── Cyan dots: side a extrudes outward leftward from the vertical leg ──
+  // ── Cyan dots: side a extrudes outward leftward from vertical leg ──
   for (let row = 0; row < a; row++) {
     for (let col = 0; col < a; col++) {
       const idx = row * a + col;
       const tgt = cPos(col, c - 1 - row);
       // col 0 is leftmost, col a-1 is rightmost (closest to leg x=OX)
-      // Extrude starts at leg (col a-1) and sweeps leftward
-      const extrudeOrder = (a - 1 - col) / Math.max(1, a - 1);
+      // Outline passes from leg outward to left
+      const tileStartGp = (a - 1 - col) / a;
+      const tileFullGp = (a - col) / a;
       dots.push({
         srcX: rnd(OX - aPx + (col + 0.5) * unit),
         srcY: rnd(apexY + (row + 0.5) * unit),
         tgtX: tgt.x, tgtY: tgt.y,
         color: COLOR_A,
         delay: (idx / Math.max(1, totalDots - 1)) * 0.35,
-        extrudeOrder,
+        tileStartGp,
+        tileFullGp,
         side: "a",
       });
     }
   }
 
-  // ── Gold dots: side b extrudes outward downward from the base leg ──
+  // ── Gold dots: side b extrudes outward downward from base leg ──
   const byYX = (p: { x: number; y: number }, q: { x: number; y: number }) =>
     Math.abs(p.y - q.y) > 0.5 ? p.y - q.y : p.x - q.x;
 
@@ -88,13 +91,15 @@ function buildDots(t: Triple): DotInfo[] {
 
   for (let idx = 0; idx < goldSrcs.length; idx++) {
     const src = goldSrcs[idx];
-    const extrudeOrder = src.row / Math.max(1, b - 1);
+    const tileStartGp = src.row / b;
+    const tileFullGp = (src.row + 1) / b;
     dots.push({
       srcX: src.x, srcY: src.y,
       tgtX: goldTgts[idx].x, tgtY: goldTgts[idx].y,
       color: COLOR_B,
       delay: ((a * a + idx) / Math.max(1, totalDots - 1)) * 0.35,
-      extrudeOrder,
+      tileStartGp,
+      tileFullGp,
       side: "b",
     });
   }
@@ -311,11 +316,14 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
           </g>
         )}
 
-        {/* ── Unit squares (1D length -> 2D area extrusion) ─────────── */}
-        {gp > 0.05 && dots.map((dot, i) => {
-          // Extrusion progress during Step 2: grows outward from triangle edge
-          const extrudeStart = 0.08 + dot.extrudeOrder * 0.62;
-          const extrudeProgress = clamp01((gp - extrudeStart) / 0.3);
+        {/* ── Unit squares (1D length -> 2D area extrusion strictly behind outline) ─── */}
+        {gp > 0.01 && dots.map((dot, i) => {
+          // If outline has not reached tile yet, do not render
+          if (gp < dot.tileStartGp) return null;
+
+          // Extrusion progress during Step 2: grows as outline sweeps across this tile
+          const extrudeSpan = Math.max(0.01, dot.tileFullGp - dot.tileStartGp);
+          const extrudeProgress = clamp01((gp - dot.tileStartGp) / extrudeSpan);
           const extrudeScale = ease(extrudeProgress);
 
           // Migration progress during Step 3: glides into square c
@@ -406,7 +414,7 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
         </text>
 
         {/* ── Exponent Area Labels (3² = 9, 4² = 16, 5² = 25) ────────────── */}
-        {gp > 0.2 && (
+        {gp > 0.85 && (
           <>
             {/* Square a Area Label */}
             <text
@@ -419,7 +427,7 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
               fill={COLOR_A}
               fontFamily={lblFont}
               style={lblAreaStyle}
-              opacity={rnd(Math.min(1, (gp - 0.2) * 1.5))}
+              opacity={rnd(Math.min(1, (gp - 0.85) * 6.6))}
             >
               {a}² = {aSq}
             </text>
@@ -435,7 +443,7 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
               fill={COLOR_B}
               fontFamily={lblFont}
               style={lblAreaStyle}
-              opacity={rnd(Math.min(1, (gp - 0.2) * 1.5))}
+              opacity={rnd(Math.min(1, (gp - 0.85) * 6.6))}
             >
               {b}² = {bSq}
             </text>
@@ -452,7 +460,7 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
               fontFamily={lblFont}
               style={lblAreaStyle}
               transform={`rotate(${cAngleDeg}, ${rnd(cMx + offX * 0.5)}, ${rnd(cMy + offY * 0.5)})`}
-              opacity={rnd(Math.min(1, (gp - 0.2) * 1.5))}
+              opacity={rnd(Math.min(1, (gp - 0.85) * 6.6))}
             >
               {c}² = {cSq}
             </text>
