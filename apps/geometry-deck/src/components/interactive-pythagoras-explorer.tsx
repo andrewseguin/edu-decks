@@ -495,7 +495,7 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
       </div>
 
       {/* ── Step Controls (Triangle -> Squares -> Combined) ───────────── */}
-      <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5 bg-black/35 backdrop-blur-md px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border border-white/20 shadow-sm pointer-events-auto z-30 select-none">
+      <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5 bg-white/10 backdrop-blur-md px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border border-white/30 shadow-sm pointer-events-auto z-30 select-none">
         {STEPS.map((s) => (
           <button
             key={`step-btn-${s.step}`}
@@ -505,7 +505,7 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
               "px-2 sm:px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-headline font-bold transition-all duration-200 cursor-pointer border",
               activeStep === s.step
                 ? "bg-white/25 text-white border-white/60 shadow-sm"
-                : "bg-transparent text-white/70 border-transparent hover:text-white hover:bg-white/15"
+                : "bg-transparent text-white/80 border-transparent hover:text-white hover:bg-white/15"
             )}
           >
             {s.label}
@@ -517,7 +517,7 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
           onClick={handleReplay}
           title="Replay full animation"
           className={cn(
-            "p-1 rounded-full text-white/70 hover:text-white hover:bg-white/20 transition-all active:scale-95 cursor-pointer",
+            "p-1 rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-all active:scale-95 cursor-pointer",
             isAutoPlaying && "animate-spin text-white"
           )}
         >
@@ -538,7 +538,7 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
             className={`px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold tracking-wide transition-all border ${
               i === presetIdx
                 ? "bg-white/25 text-white border-white/60 shadow-sm"
-                : "bg-black/25 text-white/70 border-white/15 hover:bg-white/10 hover:text-white"
+                : "bg-white/10 text-white/80 border-white/25 hover:bg-white/20 hover:text-white"
             }`}
           >
             {p.a}, {p.b}, {p.c}
