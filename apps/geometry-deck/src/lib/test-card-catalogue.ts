@@ -139,7 +139,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-angle-supplementary": {
     id: "calc-angle-supplementary", topic: "angles", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.angles,
-    frontPrompt: "Solve for the unknown angle",
+    frontPrompt: "Solve for angle B",
     frontSvg: { shape: "angle-supplementary", dimensions: { A: 65, unknown: "B" }, labelMode: "numeric", unknownDimension: "B" },
     frontSpeechText: "One angle is 65 degrees. Find the unknown supplementary angle B.",
     backSteps: [
@@ -154,7 +154,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-angle-complementary": {
     id: "calc-angle-complementary", topic: "angles", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.angles,
-    frontPrompt: "Solve for the unknown angle",
+    frontPrompt: "Solve for angle B",
     frontSvg: { shape: "angle-complementary", dimensions: { A: 35, unknown: "B" }, labelMode: "numeric", unknownDimension: "B" },
     frontSpeechText: "One angle is 35 degrees. Find the unknown complementary angle B.",
     backSteps: [
@@ -169,7 +169,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-angle-vertically-opp": {
     id: "calc-angle-vertically-opp", topic: "angles", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.angles,
-    frontPrompt: "Solve for the unknown angle",
+    frontPrompt: "Solve for angle C",
     frontSvg: { shape: "angle-vertically-opposite", dimensions: { A: 75, unknown: "C" }, labelMode: "numeric", unknownDimension: "C" },
     frontSpeechText: "One angle is 75 degrees. Find vertically opposite angle C.",
     backSteps: [

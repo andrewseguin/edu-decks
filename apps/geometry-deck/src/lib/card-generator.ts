@@ -130,7 +130,7 @@ function makeAnglesCalcCard(): GeometryCard {
     const A = randInt(20, 155); const B = 180 - A;
     return {
       id: nextId(), topic: "angles", cardType: "calculation", variant: "compute",
-      frontPrompt: "Solve for the unknown angle",
+      frontPrompt: "Solve for angle B",
       frontSvg: { shape: "angle-supplementary", dimensions: { A, unknown: "B" }, labelMode: "numeric", unknownDimension: "B" },
       frontSpeechText: `One angle is ${A} degrees. Find the unknown supplementary angle B.`,
       backSteps: [
@@ -146,7 +146,7 @@ function makeAnglesCalcCard(): GeometryCard {
     const A = randInt(10, 79); const B = 90 - A;
     return {
       id: nextId(), topic: "angles", cardType: "calculation", variant: "compute",
-      frontPrompt: "Solve for the unknown angle",
+      frontPrompt: "Solve for angle B",
       frontSvg: { shape: "angle-complementary", dimensions: { A, unknown: "B" }, labelMode: "numeric", unknownDimension: "B" },
       frontSpeechText: `One angle is ${A} degrees. Find the unknown complementary angle B.`,
       backSteps: [
@@ -161,7 +161,7 @@ function makeAnglesCalcCard(): GeometryCard {
   const A = randInt(15, 80);
   return {
     id: nextId(), topic: "angles", cardType: "calculation", variant: "compute",
-    frontPrompt: "Solve for the unknown angle",
+    frontPrompt: "Solve for angle C",
     frontSvg: { shape: "angle-vertically-opposite", dimensions: { A, unknown: "C" }, labelMode: "numeric", unknownDimension: "C" },
     frontSpeechText: `One angle is ${A} degrees. Find vertically opposite angle C.`,
     backSteps: [

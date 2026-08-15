@@ -136,8 +136,10 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
   - Every justification reason has a subtle dotted underline (`decoration-dotted decoration-white/50`).
   - Hovering (desktop) or tapping (mobile) opens a frosted floating glossary card with ultra-accessible ELI5 explanations and clean unboxed examples (e.g. *Isolate*, *Substitute*, *Angle Sum*, *Evaluate*).
   - Built with `@radix-ui/react-popover` and React Portals to guarantee zero clipping from card overflow.
-- **Front Question Prompt Fading**:
-  - Action-verb prompt on the front (e.g. *"Solve for angle C"*) smoothly collapses and fades on flip (`opacity-0 max-h-0`) so learners focus entirely on the calculation proof.
+- **Front Prompts & Explicit Target Variable Naming**:
+  - Front prompts on calculation cards must explicitly name the specific target variable shown in the diagram (e.g. *"Solve for angle B"*, *"Solve for angle C"*, *"Solve for the triangle area"*, *"Solve for hypotenuse (c)"*).
+  - This establishes an immediate, unambiguous link between the question prompt and the corresponding target letter label on the canvas.
+  - On flip, the front prompt smoothly collapses and fades (`opacity-0 max-h-0`) so learners focus entirely on the calculation proof.
 ### 2.6 Standard Diagram Typography Scale
 All SVG vector diagrams and interactive explorer components adhere to a unified typographic scale:
 
