@@ -116,15 +116,47 @@ export function InteractiveAngleExplorer({
   const [angle, setAngle] = useState(
     Math.round(sweepMin + (sweepMax - sweepMin) * 0.4)
   );
+  const [isUserControlling, setIsUserControlling] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
+  const animRef = useRef<number>(0);
+  const startTimeRef = useRef<number | null>(null);
+  const ucRef = useRef(false);
+
+  useEffect(() => {
+    ucRef.current = isUserControlling;
+  }, [isUserControlling]);
+
+  const animate = useCallback(
+    (timestamp: number) => {
+      if (ucRef.current) return;
+      if (startTimeRef.current === null) startTimeRef.current = timestamp;
+      const elapsed = (timestamp - startTimeRef.current) / 1000;
+      const t = (Math.sin(elapsed * Math.PI * 0.25) + 1) / 2;
+      setAngle(sweepMin + t * (sweepMax - sweepMin));
+      animRef.current = requestAnimationFrame(animate);
+    },
+    [sweepMin, sweepMax]
+  );
+
+  useEffect(() => {
+    if (!isUserControlling) {
+      startTimeRef.current = null;
+      animRef.current = requestAnimationFrame(animate);
+    }
+    return () => {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+    };
+  }, [animate, isUserControlling]);
 
   // ── Pointer drag on arm endpoint ────────────────────────────────────────
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
       e.preventDefault();
       e.stopPropagation();
+      setIsUserControlling(true);
       setIsDragging(true);
+      if (animRef.current) cancelAnimationFrame(animRef.current);
 
       const svg = svgRef.current;
       if (!svg) return;

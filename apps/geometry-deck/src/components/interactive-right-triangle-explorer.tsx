@@ -37,13 +37,36 @@ export function InteractiveRightTriangleExplorer({ color }: InteractiveRightTria
   const sweepMax = 75;
 
   const [angA, setAngA] = useState(53);
+  const [isUserControlling, setIsUserControlling] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
+  const animRef = useRef<number>(0);
+  const startTimeRef = useRef<number | null>(null);
+  const ucRef = useRef(false);
+
+  useEffect(() => { ucRef.current = isUserControlling; }, [isUserControlling]);
+
+  const animate = useCallback((ts: number) => {
+    if (ucRef.current) return;
+    if (startTimeRef.current === null) startTimeRef.current = ts;
+    const t = (Math.sin(((ts - startTimeRef.current) / 1000) * Math.PI * 0.25) + 1) / 2;
+    setAngA(Math.round(sweepMin + t * (sweepMax - sweepMin)));
+    animRef.current = requestAnimationFrame(animate);
+  }, []);
+
+  useEffect(() => {
+    if (!isUserControlling) {
+      startTimeRef.current = null;
+      animRef.current = requestAnimationFrame(animate);
+    }
+    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
+  }, [animate, isUserControlling]);
 
   // Drag handler on apex
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault(); e.stopPropagation();
-    setIsDragging(true);
+    setIsUserControlling(true); setIsDragging(true);
+    if (animRef.current) cancelAnimationFrame(animRef.current);
     const svg = svgRef.current;
     if (!svg) return;
     const rect = svg.getBoundingClientRect();

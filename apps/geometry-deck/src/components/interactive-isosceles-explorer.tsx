@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { SvgTriangle } from "../lib/svg-shapes";
 
 type InteractiveIsoscelesExplorerProps = {
@@ -18,14 +18,44 @@ const r = (n: number) => Math.round(n * 10000) / 10000;
 export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExplorerProps) {
   // Even apex angles (30° to 120°, step 2) so base angles are always exact integers
   const [apexAngle, setApexAngle] = useState(50);
+  const [isUserControlling, setIsUserControlling] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
+  const animRef = useRef<number>(0);
+  const startTimeRef = useRef<number | null>(null);
+  const ucRef = useRef(false);
+
+  useEffect(() => {
+    ucRef.current = isUserControlling;
+  }, [isUserControlling]);
+
+  const animate = useCallback((ts: number) => {
+    if (ucRef.current) return;
+    if (startTimeRef.current === null) startTimeRef.current = ts;
+    const t = (Math.sin(((ts - startTimeRef.current) / 1000) * Math.PI * 0.2) + 1) / 2;
+    const rawDeg = 16 + t * (148 - 16);
+    const evenDeg = Math.round(rawDeg / 2) * 2;
+    setApexAngle(evenDeg);
+    animRef.current = requestAnimationFrame(animate);
+  }, []);
+
+  useEffect(() => {
+    if (!isUserControlling) {
+      startTimeRef.current = null;
+      animRef.current = requestAnimationFrame(animate);
+    }
+    return () => {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+    };
+  }, [animate, isUserControlling]);
 
   // Direct vertical drag on apex vertex
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setIsUserControlling(true);
     setIsDragging(true);
+    if (animRef.current) cancelAnimationFrame(animRef.current);
     const svg = svgRef.current;
     if (!svg) return;
     const rect = svg.getBoundingClientRect();

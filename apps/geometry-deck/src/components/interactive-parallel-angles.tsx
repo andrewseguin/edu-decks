@@ -47,13 +47,37 @@ export function InteractiveParallelAngles({ mode, color }: InteractiveParallelAn
   const midY = (LINE_Y1 + LINE_Y2) / 2;
 
   const [theta, setTheta] = useState(55);
+  const [isUserControlling, setIsUserControlling] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
+  const animRef = useRef<number>(0);
+  const startTimeRef = useRef<number | null>(null);
+  const ucRef = useRef(false);
+
+  useEffect(() => { ucRef.current = isUserControlling; }, [isUserControlling]);
+
+  const animate = useCallback((ts: number) => {
+    if (ucRef.current) return;
+    if (startTimeRef.current === null) startTimeRef.current = ts;
+    const t = (Math.sin((ts - startTimeRef.current) / 1000 * Math.PI * 0.25) + 1) / 2;
+    setTheta(sweepMin + t * (sweepMax - sweepMin));
+    animRef.current = requestAnimationFrame(animate);
+  }, [sweepMin, sweepMax]);
+
+  useEffect(() => {
+    if (!isUserControlling) {
+      startTimeRef.current = null;
+      animRef.current = requestAnimationFrame(animate);
+    }
+    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
+  }, [animate, isUserControlling]);
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setIsUserControlling(true);
     setIsDragging(true);
+    if (animRef.current) cancelAnimationFrame(animRef.current);
     const svg = svgRef.current;
     if (!svg) return;
     const rect = svg.getBoundingClientRect();

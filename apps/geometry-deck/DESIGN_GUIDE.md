@@ -126,8 +126,7 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
 - **Preset & Dimension Selectors** (e.g. `3, 4, 5`, `5, 12, 13`, `8, 15, 17`):
   - Compact borderless rounded pills for switching geometric scenarios:
     - **Active**: `bg-white/20 text-white shadow-none px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold border-none`
-    - **Inactive**: `bg-white/10 text-white/70 hover:bg-white/15 hover:text-white px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold border-none`
-- **No Autoplay Loops**: All animations must be user-triggered via step clicks or replay pills; never run looping timers in the background.
+- **Gentle Auto-Pulse on Reveal**: Single-step interactive explorer cards gently pulse on initial reveal to demonstrate dynamic interactivity, immediately canceling and yielding permanent 100% control the instant the user touches or drags any handle. Multi-step proofs (e.g. Pythagoras square dissection, triangle fold) are user-triggered via step clicks or replay pills.
 
 ### 2.5 Two-Column Calculation Proofs & Interactive Glossary
 - **Responsive Layout via CSS Container Queries (`.proof-table-container`)**:
