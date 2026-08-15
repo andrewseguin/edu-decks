@@ -21,9 +21,8 @@ const ALL_TOPICS: TopicType[] = [
 const IMPLEMENTED_TOPICS: TopicType[] = ["angles", "triangles", "quadrilaterals", "circles", "polygons", "3d-shapes"];
 
 const CARD_TYPES: { type: CardType; label: string; available: boolean }[] = [
-  { type: "term",        label: "Terms",        available: true },
-  { type: "formula",     label: "Formulas",     available: true },
-  { type: "calculation", label: "Calculations", available: true },
+  { type: "term",        label: "Terms & Formulas", available: true },
+  { type: "calculation", label: "Calculations",     available: true },
 ];
 
 type TopicSelectorProps = {

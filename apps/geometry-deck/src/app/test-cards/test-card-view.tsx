@@ -20,8 +20,8 @@ type Props = {
 };
 
 const ALL_TOPICS: TopicType[] = ["angles", "triangles", "quadrilaterals", "circles", "polygons", "3d-shapes"];
-const ALL_CARD_TYPES: CardType[] = ["term", "formula", "calculation"];
-const CARD_TYPE_LABELS: Record<CardType, string> = { term: "Terms", formula: "Formulas", calculation: "Calculations" };
+const ALL_CARD_TYPES: CardType[] = ["term", "calculation"];
+const CARD_TYPE_LABELS: Record<CardType, string> = { term: "Terms & Formulas", calculation: "Calculations" };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // InteractiveCardItem
@@ -48,12 +48,10 @@ function InteractiveCardItem({
   const isFlipped = localFlipped !== null ? localFlipped : overrideState === "back";
   const viewport = globalViewport;
 
-  const typeTag = card.cardType === "term" ? "Term" : card.cardType === "formula" ? "Formula" : "Calculation";
+  const typeTag = card.cardType === "term" ? "Term" : "Calculation";
   const typeBadgeColor =
     card.cardType === "term"
       ? "bg-cyan-950/80 text-cyan-300 border-cyan-800/60"
-      : card.cardType === "formula"
-      ? "bg-purple-950/80 text-purple-300 border-purple-800/60"
       : "bg-amber-950/80 text-amber-300 border-amber-800/60";
 
   return (
@@ -217,6 +215,7 @@ const LOCAL_STORAGE_KEY = "edu-decks-geometry-catalogue-view";
 function GalleryView() {
   const [activeTopics, setActiveTopics] = useState<TopicType[]>(ALL_TOPICS);
   const [activeCardTypes, setActiveCardTypes] = useState<CardType[]>(ALL_CARD_TYPES);
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [globalState, setGlobalState] = useState<"front" | "back" | null>(null);
   const [globalViewport, setGlobalViewport] = useState<"desktop" | "mobile">("desktop");
   const [showOutlines, setShowOutlines] = useState<boolean>(false);
@@ -229,17 +228,19 @@ function GalleryView() {
     const params = new URLSearchParams(window.location.search);
     const urlTopics = params.get("topics");
     const urlTypes = params.get("types");
+    const urlSearch = params.get("q") || params.get("search");
     const urlViewport = params.get("viewport");
     const urlFlip = params.get("flip");
     const urlOutlines = params.get("outlines");
 
     let topics = ALL_TOPICS;
     let types = ALL_CARD_TYPES;
+    let search = "";
     let viewport: "desktop" | "mobile" = "desktop";
     let flip: "front" | "back" | null = null;
     let outlines = false;
 
-    if (urlTopics || urlTypes || urlViewport || urlFlip || urlOutlines !== null) {
+    if (urlTopics || urlTypes || urlSearch || urlViewport || urlFlip || urlOutlines !== null) {
       if (urlTopics) {
         const parsed = urlTopics.split(",").filter((t) => ALL_TOPICS.includes(t as TopicType)) as TopicType[];
         if (parsed.length > 0) topics = parsed;
@@ -247,6 +248,9 @@ function GalleryView() {
       if (urlTypes) {
         const parsed = urlTypes.split(",").filter((t) => ALL_CARD_TYPES.includes(t as CardType)) as CardType[];
         if (parsed.length > 0) types = parsed;
+      }
+      if (urlSearch) {
+        search = urlSearch;
       }
       if (urlViewport === "desktop" || urlViewport === "mobile") {
         viewport = urlViewport;
@@ -268,6 +272,9 @@ function GalleryView() {
           if (Array.isArray(data.types) && data.types.length > 0) {
             types = data.types.filter((t: string) => ALL_CARD_TYPES.includes(t as CardType));
           }
+          if (typeof data.search === "string") {
+            search = data.search;
+          }
           if (data.viewport === "desktop" || data.viewport === "mobile") {
             viewport = data.viewport;
           }
@@ -285,6 +292,7 @@ function GalleryView() {
 
     setActiveTopics(topics);
     setActiveCardTypes(types);
+    setSearchQuery(search);
     setGlobalViewport(viewport);
     setGlobalState(flip);
     setShowOutlines(outlines);
@@ -297,6 +305,7 @@ function GalleryView() {
 
     const isDefaultTopics = activeTopics.length === ALL_TOPICS.length;
     const isDefaultTypes = activeCardTypes.length === ALL_CARD_TYPES.length;
+    const isDefaultSearch = !searchQuery.trim();
     const isDefaultViewport = globalViewport === "desktop";
     const isDefaultFlip = globalState === null;
     const isDefaultOutlines = showOutlines === false;
@@ -307,6 +316,7 @@ function GalleryView() {
         JSON.stringify({
           topics: activeTopics,
           types: activeCardTypes,
+          search: searchQuery,
           viewport: globalViewport,
           flip: globalState,
           outlines: showOutlines,
@@ -319,6 +329,7 @@ function GalleryView() {
     const params = new URLSearchParams();
     if (!isDefaultTopics) params.set("topics", activeTopics.join(","));
     if (!isDefaultTypes) params.set("types", activeCardTypes.join(","));
+    if (!isDefaultSearch) params.set("q", searchQuery.trim());
     if (!isDefaultViewport) params.set("viewport", globalViewport);
     if (!isDefaultFlip) params.set("flip", globalState);
     if (!isDefaultOutlines) params.set("outlines", "true");
@@ -326,12 +337,13 @@ function GalleryView() {
     const newQuery = params.toString();
     const newUrl = newQuery ? `${window.location.pathname}?${newQuery}` : window.location.pathname;
     window.history.replaceState(null, "", newUrl);
-  }, [activeTopics, activeCardTypes, globalViewport, globalState, showOutlines, isInitialized]);
+  }, [activeTopics, activeCardTypes, searchQuery, globalViewport, globalState, showOutlines, isInitialized]);
 
   // ── 3. Reset filters ───────────────────────────────────────────────────────
   const isCustomized =
     activeTopics.length !== ALL_TOPICS.length ||
     activeCardTypes.length !== ALL_CARD_TYPES.length ||
+    searchQuery.trim() !== "" ||
     globalViewport !== "desktop" ||
     globalState !== null ||
     showOutlines !== false;
@@ -339,6 +351,7 @@ function GalleryView() {
   function resetFilters() {
     setActiveTopics(ALL_TOPICS);
     setActiveCardTypes(ALL_CARD_TYPES);
+    setSearchQuery("");
     setGlobalViewport("desktop");
     setGlobalState(null);
     setShowOutlines(false);
@@ -365,7 +378,18 @@ function GalleryView() {
 
   const filteredIds = TEST_CARD_IDS.filter((id) => {
     const card = TEST_CARDS[id];
-    return activeTopics.includes(card.topic as TopicType) && activeCardTypes.includes(card.cardType as CardType);
+    const matchesTopic = activeTopics.includes(card.topic as TopicType);
+    const matchesType = activeCardTypes.includes(card.cardType as CardType);
+    if (!matchesTopic || !matchesType) return false;
+
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase().trim();
+    return (
+      id.toLowerCase().includes(q) ||
+      (card.frontLabel && card.frontLabel.toLowerCase().includes(q)) ||
+      (card.backDefinition && card.backDefinition.toLowerCase().includes(q)) ||
+      (card.frontPrompt && card.frontPrompt.toLowerCase().includes(q))
+    );
   });
 
   const grouped = filteredIds.reduce<Record<string, string[]>>((acc, id) => {
@@ -379,6 +403,29 @@ function GalleryView() {
     <main className="h-screen overflow-y-auto bg-gray-950 text-white">
       {/* Sticky filter & control bar */}
       <div className="sticky top-0 z-20 bg-gray-950/95 backdrop-blur border-b border-gray-800 px-6 sm:px-8 py-4 flex flex-wrap gap-6 items-start shadow-md">
+        <div className="w-full sm:w-auto sm:min-w-[220px] sm:max-w-[280px]">
+          <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Search / Jump to Card</p>
+          <div className="relative">
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="e.g. term-tri-area or triangle..."
+              className="w-full bg-gray-900/90 border border-gray-700/80 hover:border-gray-600 focus:border-emerald-500 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none font-mono transition-colors shadow-inner"
+            />
+            {searchQuery && (
+              <button
+                type="button"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xs px-1"
+                title="Clear search"
+              >
+                ✕
+              </button>
+            )}
+          </div>
+        </div>
+
         <div>
           <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Topics</p>
           <div className="flex flex-wrap gap-1.5">

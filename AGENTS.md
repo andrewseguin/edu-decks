@@ -31,6 +31,19 @@ This file defines mandatory behavioral constraints and operational workflows for
   ```
 - Always use `isDevSite()` from `@decks/core` to guard developer debug overlays, verbose logging, or diagnostic tools.
 
+### 4. COMMUNICATION & FORMATTING
+- **NEVER use LaTeX** (such as `$...$`, `$$...$$`, `\frac{...}{...}`, `\times`, etc.) in responses or chat messages. The user cannot read LaTeX. Use plain text, standard unicode symbols (e.g. ½, ×, ², √, °, ⟂), or standard HTML/markdown formatting instead.
+
+### 5. GEOMETRY DECK — AREA FORMULA STANDARDS
+- **Unit Grid Visualization**: All area formula cards must visualize area using subtle, neutral unit grid lines (e.g. dashed 1×1 square cells) across the enclosing bounding box to concretely ground the concept of square units.
+- **Semantic Color Coding**:
+  - **Cyan (`#5ee8ff`)**: Height / vertical altitude ($h$)
+  - **Gold (`#ffd45e`)**: Base / horizontal dimensions ($b$, $l$, $w$)
+  - **Emerald (`#34d399`)**: Computed Area ($A$)
+  - **Neutral Translucent White**: Grid lines, bounding boxes, and shape fills (do not introduce extra conflicting colors for shape regions).
+- **Interaction & Numbers**: Allow smooth, continuous dragging on handles/vertices while cleanly rounding displayed numbers ($b, h, A$) to whole integers to avoid decimal clutter.
+- **Stacked Fractions**: Use `FormattedMathText` / `StackedFraction` for formulas to ensure textbook-quality typography rather than squished raw unicode fraction glyphs (e.g. `½`).
+
 ---
 
 

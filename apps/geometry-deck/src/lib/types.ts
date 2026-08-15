@@ -8,12 +8,11 @@ export type TopicType =
   | "polygons"
   | "3d-shapes";
 
-export type CardType = "term" | "formula" | "calculation";
+export type CardType = "term" | "calculation";
 
 /** Sub-variant within a CardType */
 export type CardVariant =
-  | "definition"        // term card: "X are…?"
-  | "formula-recall"    // formula card: variable SVG → formula
+  | "definition"        // term / formula card: "X are…?" / "X is…?"
   | "compute"           // calculation card: numeric SVG → number
   | "reverse"           // calculation card: given answer, find dimension
   | "true-false";       // quiz only
@@ -120,6 +119,8 @@ export type GeometryCard = {
   // Back face (revealed on flip)
   /** Term cards: the definition text */
   backDefinition?: string;
+  /** Optional subtitle explaining the definition in words/expanded format */
+  backDefinitionSubtitle?: string;
   /** Formula/calculation cards: primary formula line (shown immediately on flip) */
   backFormula?: string;
   /** Term cards: one or more SVG examples shown on the back */

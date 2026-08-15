@@ -10,10 +10,14 @@ export function useGeometrySettings() {
     "geometry-deck-topics",
     ["angles", "triangles", "quadrilaterals", "circles", "polygons", "3d-shapes"]
   );
-  const [activeCardTypes, setActiveCardTypes] = useLocalStorage<CardType[]>(
+  const [rawActiveCardTypes, setActiveCardTypes] = useLocalStorage<CardType[]>(
     "geometry-deck-card-types",
-    ["term", "formula", "calculation"]
+    ["term", "calculation"]
   );
+  const activeCardTypes = (
+    rawActiveCardTypes.filter((t) => t === "term" || t === "calculation")
+  );
+  const safeActiveCardTypes: CardType[] = activeCardTypes.length > 0 ? activeCardTypes : ["term", "calculation"];
   const [measurementUnit, setMeasurementUnit] = useLocalStorage<MeasurementUnit>(
     "geometry-deck-unit",
     "cm"
@@ -59,11 +63,11 @@ export function useGeometrySettings() {
 
   // ── Card type toggle ────────────────────────────────────────────────────────
   function handleCardTypeToggle(type: CardType) {
-    if (activeCardTypes.includes(type)) {
-      if (activeCardTypes.length === 1) return; // always keep at least one
-      setActiveCardTypes(activeCardTypes.filter((t) => t !== type));
+    if (safeActiveCardTypes.includes(type)) {
+      if (safeActiveCardTypes.length === 1) return; // always keep at least one
+      setActiveCardTypes(safeActiveCardTypes.filter((t) => t !== type));
     } else {
-      setActiveCardTypes([...activeCardTypes, type]);
+      setActiveCardTypes([...safeActiveCardTypes, type]);
     }
   }
 
@@ -71,7 +75,7 @@ export function useGeometrySettings() {
     activeTopics,
     handleTopicToggle,
     handleTopicSelectExclusive,
-    activeCardTypes,
+    activeCardTypes: safeActiveCardTypes,
     handleCardTypeToggle,
     measurementUnit,
     setMeasurementUnit,

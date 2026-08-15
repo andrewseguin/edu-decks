@@ -226,44 +226,29 @@ function makeTrianglesTermCards(): GeometryCard[] {
       ],
       backSpeechText: "The Pythagorean theorem states a squared plus b squared equals c squared", color,
     },
-  ];
-}
-
-function makeTrianglesFormulaCards(): GeometryCard[] {
-  const color = TOPIC_COLORS.triangles;
-  return [
     {
-      id: nextId(), topic: "triangles", cardType: "formula", variant: "formula-recall",
-      frontSvg: { shape: "triangle", dimensions: { b: "b", h: "h", style: "scalene", labelMode: "variable" }, labelMode: "variable", unknownDimension: "A" },
-      frontSpeechText: "Find the formula for the area of a triangle with base b and height h.",
-      backFormula: "A = ½bh",
+      id: nextId(), topic: "triangles", cardType: "term", variant: "definition",
+      frontLabel: "Area of a triangle", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the area of a triangle is…?",
+      backDefinition: "A = ½ · b · h",
+      backDefinitionSubtitle: "Area = ½ · base · height",
+      backSvgExamples: [{ shape: "triangle", dimensions: { b: "b", h: "h", style: "scalene", labelMode: "variable" }, labelMode: "variable" }],
       backSteps: [
-        { equationTokens: [tok("lhs","A"), eq(), tok("rhs","\u00bd \u00d7 base \u00d7 height")], svgMutation: { fillInterior: true }, reason: "Triangle area formula" },
-        { equationTokens: [tok("lhs","A"), eq(), tok("rhs","\u00bdbh")], reason: "Simplify" },
+        { formulaLine: "A = ½ · b · h" },
+        { formulaLine: "Area = ½ · base · height" },
       ],
-      backSpeechText: "A equals one half base times height", color,
+      backSpeechText: "Area equals one half base times height", color,
     },
     {
-      id: nextId(), topic: "triangles", cardType: "formula", variant: "formula-recall",
-      frontSvg: { shape: "triangle", dimensions: { a: "a", b: "b", c: "c", style: "scalene", labelMode: "variable" }, labelMode: "variable", unknownDimension: "P" },
-      frontSpeechText: "Find the formula for the perimeter of a triangle with sides a, b, c.",
-      backFormula: "P = a + b + c",
+      id: nextId(), topic: "triangles", cardType: "term", variant: "definition",
+      frontLabel: "Perimeter of a triangle", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the perimeter of a triangle is…?",
+      backDefinition: "P = a + b + c",
+      backSvgExamples: [{ shape: "triangle", dimensions: { a: "a", b: "b", c: "c", style: "scalene", labelMode: "variable" }, labelMode: "variable" }],
       backSteps: [
-        { equationTokens: [tok("lhs","P"), eq(), tok("rhs","a + b + c")], svgMutation: { traceStroke: "perimeter" } },
+        { formulaLine: "P = a + b + c (sum of all 3 sides)" },
       ],
-      backSpeechText: "P equals a plus b plus c", color,
-    },
-    {
-      id: nextId(), topic: "triangles", cardType: "formula", variant: "formula-recall",
-      frontSvg: { shape: "right-triangle", dimensions: { a: "a", b: "b", labelMode: "variable" }, labelMode: "variable", unknownDimension: "c" },
-      frontSpeechText: "Find the hypotenuse c of a right triangle with legs a and b.",
-      backFormula: "c = √(a² + b²)",
-      backSteps: [
-        { equationTokens: [tok("lhs","a\u00b2 + b\u00b2"), eq(), tok("rhs","c\u00b2")] },
-        { equationTokens: [tok("lhs","a\u00b2 + b\u00b2"), eq(), tok("rhs","c\u00b2")], svgMutation: { traceStroke: "hypotenuse" } },
-        { equationTokens: [tok("lhs","c"), eq(), tok("rhs","\u221a(a\u00b2 + b\u00b2)")] },
-      ],
-      backSpeechText: "c equals the square root of a squared plus b squared", color,
+      backSpeechText: "Perimeter equals a plus b plus c", color,
     },
   ];
 }
@@ -391,43 +376,44 @@ function makeQuadTermCards(): GeometryCard[] {
       backSteps: [{ formulaLine: "Exactly 1 pair of parallel sides" }],
       backSpeechText: "Trapezoids have exactly one pair of parallel sides", color,
     },
-  ];
-}
-
-function makeQuadFormulaCards(): GeometryCard[] {
-  const color = TOPIC_COLORS.quadrilaterals;
-  return [
     {
-      id: nextId(), topic: "quadrilaterals", cardType: "formula", variant: "formula-recall",
-      frontSvg: { shape: "rectangle", dimensions: { labelMode: "variable" }, labelMode: "variable", unknownDimension: "A" },
-      frontSpeechText: "Find the area of a rectangle with length l and width w.",
-      backFormula: "A = l × w",
-      backSteps: [{ formulaLine: "A = l × w", svgMutation: { fillInterior: true } }],
-      backSpeechText: "A equals l times w", color,
+      id: nextId(), topic: "quadrilaterals", cardType: "term", variant: "definition",
+      frontLabel: "Area of a rectangle", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the area of a rectangle is…?",
+      backDefinition: "A = l × w",
+      backSvgExamples: [{ shape: "rectangle", dimensions: { l: "l", w: "w", labelMode: "variable" }, labelMode: "variable" }],
+      backSteps: [{ formulaLine: "A = length × width" }],
+      backSpeechText: "Area equals length times width", color,
     },
     {
-      id: nextId(), topic: "quadrilaterals", cardType: "formula", variant: "formula-recall",
-      frontSvg: { shape: "rectangle", dimensions: { labelMode: "variable" }, labelMode: "variable", unknownDimension: "P" },
-      frontSpeechText: "Find the perimeter of a rectangle with length l and width w.",
-      backFormula: "P = 2(l + w)",
-      backSteps: [{ formulaLine: "P = 2(l + w)", svgMutation: { traceStroke: "perimeter" } }],
-      backSpeechText: "P equals 2 times l plus w", color,
+      id: nextId(), topic: "quadrilaterals", cardType: "term", variant: "definition",
+      frontLabel: "Perimeter of a rectangle", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the perimeter of a rectangle is…?",
+      backDefinition: "P = 2(l + w)",
+      backSvgExamples: [{ shape: "rectangle", dimensions: { l: "l", w: "w", labelMode: "variable" }, labelMode: "variable" }],
+      backSteps: [
+        { formulaLine: "P = 2l + 2w" },
+        { formulaLine: "P = 2(l + w)" },
+      ],
+      backSpeechText: "Perimeter equals 2 times length plus width", color,
     },
     {
-      id: nextId(), topic: "quadrilaterals", cardType: "formula", variant: "formula-recall",
-      frontSvg: { shape: "parallelogram", dimensions: { b: "b", h: "h", labelMode: "variable" }, labelMode: "variable", unknownDimension: "A" },
-      frontSpeechText: "Find the area of a parallelogram with base b and height h.",
-      backFormula: "A = b × h",
-      backSteps: [{ formulaLine: "A = b × h", svgMutation: { fillInterior: true } }],
-      backSpeechText: "A equals b times h", color,
+      id: nextId(), topic: "quadrilaterals", cardType: "term", variant: "definition",
+      frontLabel: "Area of a parallelogram", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the area of a parallelogram is…?",
+      backDefinition: "A = b × h",
+      backSvgExamples: [{ shape: "parallelogram", dimensions: { b: "b", h: "h", labelMode: "variable" }, labelMode: "variable" }],
+      backSteps: [{ formulaLine: "A = base × perpendicular height" }],
+      backSpeechText: "Area equals base times height", color,
     },
     {
-      id: nextId(), topic: "quadrilaterals", cardType: "formula", variant: "formula-recall",
-      frontSvg: { shape: "trapezoid", dimensions: { a: "a", b: "b", h: "h", labelMode: "variable" }, labelMode: "variable", unknownDimension: "A" },
-      frontSpeechText: "Find the area of a trapezoid with parallel sides a and b, and height h.",
-      backFormula: "A = ½(a + b)h",
-      backSteps: [{ formulaLine: "A = ½(a + b)h", svgMutation: { fillInterior: true } }],
-      backSpeechText: "A equals one half a plus b times h", color,
+      id: nextId(), topic: "quadrilaterals", cardType: "term", variant: "definition",
+      frontLabel: "Area of a trapezoid", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the area of a trapezoid is…?",
+      backDefinition: "A = ½(a + b)h",
+      backSvgExamples: [{ shape: "trapezoid", dimensions: { a: "a", b: "b", h: "h", labelMode: "variable" }, labelMode: "variable" }],
+      backSteps: [{ formulaLine: "A = ½ × (sum of parallel sides) × height" }],
+      backSpeechText: "Area equals one half a plus b times height", color,
     },
   ];
 }
@@ -527,12 +513,27 @@ function makeCirclesTermCards(): GeometryCard[] {
   return [
     {
       id: nextId(), topic: "circles", cardType: "term", variant: "definition",
-      frontLabel: "Circumference", frontPrompt: "is…?",
-      frontSpeechText: "Circumference is…?",
-      backDefinition: "The distance around a circle",
-      backSvgExamples: [{ shape: "circle", dimensions: { r: 5, labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ formulaLine: "C = distance around the circle", svgMutation: { traceStroke: "circumference" } }],
-      backSpeechText: "Circumference is the distance around a circle", color,
+      frontLabel: "Circumference of a circle", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the circumference of a circle is…?",
+      backDefinition: "C = 2πr",
+      backSvgExamples: [{ shape: "circle", dimensions: { r: "r", labelMode: "variable" }, labelMode: "variable" }],
+      backSteps: [
+        { formulaLine: "C = 2 × π × r" },
+        { formulaLine: "C = 2πr (or C = πd)" },
+      ],
+      backSpeechText: "Circumference equals 2 pi r", color,
+    },
+    {
+      id: nextId(), topic: "circles", cardType: "term", variant: "definition",
+      frontLabel: "Area of a circle", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the area of a circle is…?",
+      backDefinition: "A = πr²",
+      backSvgExamples: [{ shape: "circle", dimensions: { r: "r", labelMode: "variable" }, labelMode: "variable" }],
+      backSteps: [
+        { formulaLine: "A = π × r²" },
+        { formulaLine: "A = πr²" },
+      ],
+      backSpeechText: "Area equals pi r squared", color,
     },
     {
       id: nextId(), topic: "circles", cardType: "term", variant: "definition",
@@ -560,42 +561,6 @@ function makeCirclesTermCards(): GeometryCard[] {
       backSvgExamples: [{ shape: "circle", dimensions: { r: 5, showDiameter: 1, labelMode: "numeric" }, labelMode: "numeric" }],
       backSteps: [{ formulaLine: "d = 2r" }, { formulaLine: "diameter = 2 × radius" }],
       backSpeechText: "The diameter is twice the radius", color,
-    },
-  ];
-}
-
-function makeCirclesFormulaCards(): GeometryCard[] {
-  const color = TOPIC_COLORS.circles;
-  return [
-    {
-      id: nextId(), topic: "circles", cardType: "formula", variant: "formula-recall",
-      frontSvg: { shape: "circle", dimensions: { labelMode: "variable" }, labelMode: "variable", unknownDimension: "C" },
-      frontSpeechText: "Find the formula for the circumference of a circle.",
-      backFormula: "C = 2πr",
-      backSteps: [
-        { formulaLine: "C = 2π × radius", svgMutation: { traceStroke: "circumference" } },
-        { formulaLine: "C = 2πr" },
-      ],
-      backSpeechText: "C equals 2 pi r", color,
-    },
-    {
-      id: nextId(), topic: "circles", cardType: "formula", variant: "formula-recall",
-      frontSvg: { shape: "circle", dimensions: { labelMode: "variable" }, labelMode: "variable", unknownDimension: "A" },
-      frontSpeechText: "Find the formula for the area of a circle.",
-      backFormula: "A = πr²",
-      backSteps: [
-        { formulaLine: "A = π × r²", svgMutation: { fillInterior: true } },
-        { formulaLine: "A = πr²" },
-      ],
-      backSpeechText: "A equals pi r squared", color,
-    },
-    {
-      id: nextId(), topic: "circles", cardType: "formula", variant: "formula-recall",
-      frontSvg: { shape: "circle", dimensions: { showDiameter: 1, labelMode: "variable" }, labelMode: "variable" },
-      frontSpeechText: "What is the relationship between diameter and radius?",
-      backFormula: "d = 2r",
-      backSteps: [{ formulaLine: "d = 2r" }, { formulaLine: "r = d ÷ 2" }],
-      backSpeechText: "d equals 2 r", color,
     },
   ];
 }
@@ -690,40 +655,36 @@ function makePolygonsTermCards(): GeometryCard[] {
       backSteps: [{ formulaLine: "Sum of exterior angles = 360°" }, { formulaLine: "Always, for any convex polygon" }],
       backSpeechText: "Exterior angles of any convex polygon always sum to 360 degrees", color,
     },
-  ];
-}
-
-function makePolygonsFormulaCards(): GeometryCard[] {
-  const color = TOPIC_COLORS.polygons;
-  return [
     {
-      id: nextId(), topic: "polygons", cardType: "formula", variant: "formula-recall",
-      frontSvg: { shape: "polygon", dimensions: { n: 5, s: "s", labelMode: "variable" }, labelMode: "variable", unknownDimension: "P" },
-      frontSpeechText: "Find the perimeter of a regular polygon with n sides of length s.",
-      backFormula: "P = n × s",
-      backSteps: [{ formulaLine: "P = n × s", svgMutation: { traceStroke: "perimeter" } }],
-      backSpeechText: "P equals n times s", color,
-    },
-    {
-      id: nextId(), topic: "polygons", cardType: "formula", variant: "formula-recall",
-      frontSvg: { shape: "polygon", dimensions: { n: 6, labelMode: "variable" }, labelMode: "variable", unknownDimension: "Sum" },
-      frontSpeechText: "Find the interior angle sum of a regular polygon with n sides.",
-      backFormula: "Sum = (n − 2) × 180°",
-      backSteps: [
-        { formulaLine: "Interior angle sum = (n − 2) × 180°" },
-        { formulaLine: "Each triangle in the partition = 180°" },
-      ],
-      backSpeechText: "Interior angle sum equals n minus 2 times 180 degrees", color,
-    },
-    {
-      id: nextId(), topic: "polygons", cardType: "formula", variant: "formula-recall",
-      frontSvg: { shape: "polygon", dimensions: { n: 8, labelMode: "variable" }, labelMode: "variable", unknownDimension: "Each" },
-      frontSpeechText: "Find each interior angle of a regular polygon with n sides.",
-      backFormula: "Each = (n − 2) × 180° ÷ n",
+      id: nextId(), topic: "polygons", cardType: "term", variant: "definition",
+      frontLabel: "Polygon interior angle sum", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the interior angle sum of a polygon is…?",
+      backDefinition: "Sum = (n − 2) × 180°",
+      backSvgExamples: [{ shape: "polygon", dimensions: { n: 6, labelMode: "variable" }, labelMode: "variable" }],
       backSteps: [
         { formulaLine: "Sum = (n − 2) × 180°" },
-        { formulaLine: "Each = Sum ÷ n" },
-        { formulaLine: "Each = (n − 2) × 180° ÷ n" },
+        { formulaLine: "n = number of sides" },
+      ],
+      backSpeechText: "The interior angle sum equals n minus 2 times 180 degrees", color,
+    },
+    {
+      id: nextId(), topic: "polygons", cardType: "term", variant: "definition",
+      frontLabel: "Perimeter of a regular polygon", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the perimeter of a regular polygon is…?",
+      backDefinition: "P = n × s",
+      backSvgExamples: [{ shape: "polygon", dimensions: { n: 5, s: "s", labelMode: "variable" }, labelMode: "variable" }],
+      backSteps: [{ formulaLine: "P = n × s (number of sides × side length)" }],
+      backSpeechText: "Perimeter equals n times s", color,
+    },
+    {
+      id: nextId(), topic: "polygons", cardType: "term", variant: "definition",
+      frontLabel: "Regular polygon interior angle", frontPrompt: "formula is…?",
+      frontSpeechText: "Each interior angle of a regular polygon is…?",
+      backDefinition: "Each = (n − 2) × 180° ÷ n",
+      backSvgExamples: [{ shape: "polygon", dimensions: { n: 6, labelMode: "variable" }, labelMode: "variable" }],
+      backSteps: [
+        { formulaLine: "Sum = (n − 2) × 180°" },
+        { formulaLine: "Each angle = Sum ÷ n" },
       ],
       backSpeechText: "Each interior angle equals n minus 2 times 180 degrees divided by n", color,
     },
@@ -829,51 +790,50 @@ function make3DTermCards(): GeometryCard[] {
       ],
       backSpeechText: "Euler's formula states V minus E plus F equals 2 for any convex polyhedron", color,
     },
-  ];
-}
-
-function make3DFormulaCards(): GeometryCard[] {
-  const color = TOPIC_COLORS["3d-shapes"];
-  return [
     {
-      id: nextId(), topic: "3d-shapes", cardType: "formula", variant: "formula-recall",
-      frontSvg: { shape: "prism", dimensions: { l: "l", w: "w", h: "h", labelMode: "variable", unknown: "V" }, labelMode: "variable" },
-      frontSpeechText: "Find the volume of a rectangular prism.",
-      backFormula: "V = l × w × h",
-      backSteps: [{ formulaLine: "V = l × w × h" }],
-      backSpeechText: "V equals l times w times h", color,
+      id: nextId(), topic: "3d-shapes", cardType: "term", variant: "definition",
+      frontLabel: "Volume of a rectangular prism", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the volume of a rectangular prism is…?",
+      backDefinition: "V = l × w × h",
+      backSvgExamples: [{ shape: "prism", dimensions: { l: "l", w: "w", h: "h", labelMode: "variable" }, labelMode: "variable" }],
+      backSteps: [{ formulaLine: "V = length × width × height" }],
+      backSpeechText: "Volume equals length times width times height", color,
     },
     {
-      id: nextId(), topic: "3d-shapes", cardType: "formula", variant: "formula-recall",
-      frontSvg: { shape: "cylinder", dimensions: { r: "r", h: "h", labelMode: "variable", unknown: "V" }, labelMode: "variable" },
-      frontSpeechText: "Find the volume of a cylinder.",
-      backFormula: "V = πr²h",
-      backSteps: [{ formulaLine: "V = π × r² × h" }, { formulaLine: "V = πr²h" }],
-      backSpeechText: "V equals pi r squared h", color,
+      id: nextId(), topic: "3d-shapes", cardType: "term", variant: "definition",
+      frontLabel: "Volume of a cylinder", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the volume of a cylinder is…?",
+      backDefinition: "V = πr²h",
+      backSvgExamples: [{ shape: "cylinder", dimensions: { r: "r", h: "h", labelMode: "variable" }, labelMode: "variable" }],
+      backSteps: [{ formulaLine: "V = (base area) × height = πr²h" }],
+      backSpeechText: "Volume equals pi r squared h", color,
     },
     {
-      id: nextId(), topic: "3d-shapes", cardType: "formula", variant: "formula-recall",
-      frontSvg: { shape: "cone", dimensions: { r: "r", h: "h", labelMode: "variable", unknown: "V" }, labelMode: "variable" },
-      frontSpeechText: "Find the volume of a cone.",
-      backFormula: "V = ⅓πr²h",
-      backSteps: [{ formulaLine: "V = ⅓ × π × r² × h" }, { formulaLine: "V = ⅓πr²h" }],
-      backSpeechText: "V equals one third pi r squared h", color,
+      id: nextId(), topic: "3d-shapes", cardType: "term", variant: "definition",
+      frontLabel: "Volume of a cone", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the volume of a cone is…?",
+      backDefinition: "V = ⅓πr²h",
+      backSvgExamples: [{ shape: "cone", dimensions: { r: "r", h: "h", labelMode: "variable" }, labelMode: "variable" }],
+      backSteps: [{ formulaLine: "V = ⅓ × πr²h (⅓ of cylinder)" }],
+      backSpeechText: "Volume equals one third pi r squared h", color,
     },
     {
-      id: nextId(), topic: "3d-shapes", cardType: "formula", variant: "formula-recall",
-      frontSvg: { shape: "sphere", dimensions: { r: "r", labelMode: "variable", unknown: "V" }, labelMode: "variable" },
-      frontSpeechText: "Find the volume of a sphere.",
-      backFormula: "V = ⁴⁄₃πr³",
-      backSteps: [{ formulaLine: "V = ⁴⁄₃ × π × r³" }, { formulaLine: "V = ⁴⁄₃πr³" }],
-      backSpeechText: "V equals four thirds pi r cubed", color,
+      id: nextId(), topic: "3d-shapes", cardType: "term", variant: "definition",
+      frontLabel: "Volume of a sphere", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the volume of a sphere is…?",
+      backDefinition: "V = ⁴⁄₃πr³",
+      backSvgExamples: [{ shape: "sphere", dimensions: { r: "r", labelMode: "variable" }, labelMode: "variable" }],
+      backSteps: [{ formulaLine: "V = ⁴⁄₃ × π × r³" }],
+      backSpeechText: "Volume equals four thirds pi r cubed", color,
     },
     {
-      id: nextId(), topic: "3d-shapes", cardType: "formula", variant: "formula-recall",
-      frontSvg: { shape: "sphere", dimensions: { r: "r", labelMode: "variable", unknown: "SA" }, labelMode: "variable" },
-      frontSpeechText: "Find the surface area of a sphere.",
-      backFormula: "SA = 4πr²",
-      backSteps: [{ formulaLine: "SA = 4 × π × r²" }, { formulaLine: "SA = 4πr²" }],
-      backSpeechText: "S A equals 4 pi r squared", color,
+      id: nextId(), topic: "3d-shapes", cardType: "term", variant: "definition",
+      frontLabel: "Surface area of a sphere", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the surface area of a sphere is…?",
+      backDefinition: "SA = 4πr²",
+      backSvgExamples: [{ shape: "sphere", dimensions: { r: "r", labelMode: "variable" }, labelMode: "variable" }],
+      backSteps: [{ formulaLine: "SA = 4 × π × r²" }],
+      backSpeechText: "Surface area equals 4 pi r squared", color,
     },
   ];
 }
@@ -937,32 +897,26 @@ export function generateGeometryCard(settings: GeneratorSettings): GeometryCard 
 
   if (topic === "angles") {
     if (cardType === "calculation") return makeAnglesCalcCard();
-    const termCards = makeAnglesTermCards();
-    return pick(termCards);
+    return pick(makeAnglesTermCards());
   }
   if (topic === "triangles") {
     if (cardType === "calculation") return makeTrianglesCalcCard(settings);
-    if (cardType === "formula") return pick(makeTrianglesFormulaCards());
     return pick(makeTrianglesTermCards());
   }
   if (topic === "quadrilaterals") {
     if (cardType === "calculation") return makeQuadCalcCard(settings);
-    if (cardType === "formula") return pick(makeQuadFormulaCards());
     return pick(makeQuadTermCards());
   }
   if (topic === "circles") {
     if (cardType === "calculation") return makeCirclesCalcCard(settings);
-    if (cardType === "formula") return pick(makeCirclesFormulaCards());
     return pick(makeCirclesTermCards());
   }
   if (topic === "polygons") {
     if (cardType === "calculation") return makePolygonsCalcCard();
-    if (cardType === "formula") return pick(makePolygonsFormulaCards());
     return pick(makePolygonsTermCards());
   }
   if (topic === "3d-shapes") {
     if (cardType === "calculation") return make3DCalcCard(settings);
-    if (cardType === "formula") return pick(make3DFormulaCards());
     return pick(make3DTermCards());
   }
 
