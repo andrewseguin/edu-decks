@@ -116,8 +116,8 @@ export function UnknownPill({
           width={pillW}
           height={pillH}
           rx={pillH / 2}
-          fill={color ? `${color}25` : "rgba(255,255,255,0.22)"}
-          stroke={color ? `${color}99` : "rgba(255,255,255,0.65)"}
+          fill="rgba(0, 0, 0, 0.45)"
+          stroke={color ?? "rgba(255,255,255,0.65)"}
           strokeWidth={1.5}
         />
         <text
@@ -128,7 +128,7 @@ export function UnknownPill({
           fontWeight="800"
           fill={labelColor}
           fontFamily={LABEL_FONT}
-          style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
+          style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
         >
           ?
         </text>
