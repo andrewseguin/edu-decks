@@ -270,8 +270,8 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "triangle", dimensions: { angA: A, angB: B, unknown: "C", style: "scalene", labelMode: "numeric" }, labelMode: "numeric" },
       frontSpeechText: `A is ${A} degrees, B is ${B} degrees. Find C.`,
       backSteps: [
-        { equationTokens: [tok("A","A"), dim("p1","+"), tok("B","B"), dim("p2","+"), tok("C","C"), eq(), tok("sum","180\u00b0")], reason: "Triangle angle sum theorem" },
-        { equationTokens: [tok("A",`${A}\u00b0`), dim("p1","+"), tok("B",`${B}\u00b0`), dim("p2","+"), tok("C","C"), eq(), tok("sum","180\u00b0")], reason: `Substitute A = ${A}\u00b0, B = ${B}\u00b0` },
+        { equationTokens: [tok("A","A"), dim("p1"," + "), tok("B","B"), dim("p2"," + "), tok("C","C"), eq(), tok("sum","180\u00b0")], reason: "Triangle angle sum theorem" },
+        { equationTokens: [tok("A",`${A}\u00b0`), dim("p1"," + "), tok("B",`${B}\u00b0`), dim("p2"," + "), tok("C","C"), eq(), tok("sum","180\u00b0")], reason: `Substitute A = ${A}\u00b0, B = ${B}\u00b0` },
         { equationTokens: [tok("lhs","C"), eq(), tok("rhs",`180\u00b0 \u2212 ${A}\u00b0 \u2212 ${B}\u00b0`)], reason: "Isolate C" },
         { equationTokens: [tok("lhs","C"), eq(), tok("rhs",`${C}\u00b0`)], reason: "Evaluate" },
       ],

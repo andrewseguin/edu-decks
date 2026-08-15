@@ -292,8 +292,8 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontSvg: { shape: "triangle", dimensions: { angA: 40, angB: 65, unknown: "C", style: "scalene", labelMode: "numeric" }, labelMode: "numeric" },
     frontSpeechText: "A is 40 degrees, B is 65 degrees. Find C.",
     backSteps: [
-      { equationTokens: [t("A","A"), d("p1","+"), t("B","B"), d("p2","+"), t("C","C"), eq(), t("sum","180°")], reason: "Triangle angle sum theorem" },
-      { equationTokens: [t("A","40°"), d("p1","+"), t("B","65°"), d("p2","+"), t("C","C"), eq(), t("sum","180°")], reason: "Substitute A = 40°, B = 65°" },
+      { equationTokens: [t("A","A"), d("p1"," + "), t("B","B"), d("p2"," + "), t("C","C"), eq(), t("sum","180°")], reason: "Triangle angle sum theorem" },
+      { equationTokens: [t("A","40°"), d("p1"," + "), t("B","65°"), d("p2"," + "), t("C","C"), eq(), t("sum","180°")], reason: "Substitute A = 40°, B = 65°" },
       { equationTokens: [t("lhs","C"), eq(), t("rhs","180° − 40° − 65°")], reason: "Isolate C" },
       { equationTokens: [t("lhs","C"), eq(), t("rhs","75°")], reason: "Evaluate" },
     ],
