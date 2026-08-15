@@ -61,7 +61,7 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
             "leading-tight text-right",
             isAnswer
               ? "text-white font-bold text-xs sm:text-sm"
-              : "text-white/90 font-medium text-xs sm:text-sm italic",
+              : "text-white font-medium text-xs sm:text-sm italic",
           )}
         >
           {reason}

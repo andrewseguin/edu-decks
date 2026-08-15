@@ -41,7 +41,7 @@ This file defines mandatory behavioral constraints and operational workflows for
 - **Semantic Color Coding**:
   - **Cyan (`#5ee8ff`)**: Height / vertical altitude ($h$), Side $a$, Angle $A$, Base angles.
   - **Gold (`#ffd45e`)**: Base / horizontal dimensions ($b$, $l$, $w$), Side $b$, Angle $B$, Apex angle.
-  - **Frosted Equation Banners**: Live calculations are wrapped in a matching frosted banner (`bg-black/25 backdrop-blur-md border-white/20`) with clean unboxed typographic flow.
+  - **Frosted Equation Banners**: Live calculations are wrapped in a matching frosted banner (`bg-black/45 backdrop-blur-md border-white/20`) with clean unboxed typographic flow.
   - **Neutral Translucent White**: Grid lines, bounding boxes, and shape fills.
 - **Interaction & Numbers**: Allow smooth, continuous dragging on handles/vertices while cleanly rounding displayed numbers to whole integers. No auto-play loops.
 - **Stacked Fractions**: Use `FormattedMathText` / `StackedFraction` for formulas to ensure textbook-quality typography rather than squished raw unicode fraction glyphs (e.g. `½`).

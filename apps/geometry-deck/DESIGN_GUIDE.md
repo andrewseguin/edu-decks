@@ -57,7 +57,7 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
 ```
 
 ### 2.1 Top Full-Bleed Frosted Definition Banner (Hero)
-- **Container**: `w-[calc(100%+2rem)] -mx-4 sm:w-[calc(100%+3rem)] sm:-mx-6 px-4 py-2.5 my-1 bg-black/25 backdrop-blur-md border-y border-white/20 flex flex-col items-center justify-center gap-1`
+- **Container**: `w-[calc(100%+1.5rem)] -mx-3 sm:w-[calc(100%+2.5rem)] sm:-mx-5 md:w-[calc(100%+3rem)] md:-mx-6 px-4 py-2.5 my-1 bg-black/45 backdrop-blur-md border-y border-white/20 flex flex-col items-center justify-center gap-1`
 - **Full Bleed Design**: Spans horizontally from edge to edge of the card container, anchored cleanly with flat top and bottom borders (`border-y border-white/20`) and no side/drop shadows.
 - **Primary Line**: Bold, prominent formula (e.g. `A = ½ · b · h`, `a² + b² = c²`, `2 equal sides, 2 equal base angles`).
 - **Optional Secondary Subtitle**: Smaller plain English translation (e.g. `Area = ½ · base · height`, `Interior angles always sum to 180°`).
@@ -68,16 +68,16 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
 - **Zero auto-play**: Card stays completely stationary until the user drags or clicks a control.
 
 ### 2.3 Bottom Frosted Equation Banner (Unboxed Typographic Flow)
-- Live calculations are wrapped in a frosted glass banner matching the top hero banner (`px-5 py-1.5 rounded-2xl bg-black/25 backdrop-blur-md border border-white/20 shadow-md flex items-center gap-2 text-base sm:text-lg font-bold font-headline select-none`).
+- Live calculations are wrapped in a frosted glass banner matching the top hero banner (`px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md flex items-center gap-2 text-base sm:text-lg font-bold font-headline select-none`).
 - **No Inner Sub-Boxes**: The equation reads naturally from left to right as a clean, continuous statement without nested boxes or boxes inside boxes.
-- Operators (`+`, `−`, `·`, `=`) render in muted translucent white (`text-white/50`).
+- Operators (`+`, `−`, `·`, `=`) render in muted translucent white (`text-white/70`).
 - **Color Coding**:
   - Semantic terms ($a, b, c, A, B, C$) match their diagram colors.
   - Answers ($180^\circ$, calculated Area, Perimeter) render in crisp bold white (`text-white font-bold`).
   - When the answer directly corresponds to a semantic component (e.g. hypotenuse $c²$ in Pythagorean theorem), it uses its matching semantic color ($c² = 5²$ in Orange).
   ```tsx
   <div className="flex justify-center my-1">
-    <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/25 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
+    <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
       <span style={{ color: COLOR_A }}>{a}²</span>
       <span className="text-white/50">+</span>
       <span style={{ color: COLOR_B }}>{b}²</span>
@@ -167,7 +167,7 @@ Colors must be consistent and intuitive within each topic. As new topic categori
 ## ✅ 6. Card Verification Checklist
 
 Before considering any geometry card complete:
-- [ ] Top definition/formula is enclosed in the flat, full-bleed edge-to-edge frosted hero banner (`border-y border-white/20 bg-black/25`).
+- [ ] Top definition/formula is enclosed in the flat, full-bleed edge-to-edge frosted hero banner (`border-y border-white/20 bg-black/45`).
 - [ ] Shows the "why" via direct manipulation or proof visualization.
 - [ ] Semantic colors match across header text, diagram geometry, and live equation.
 - [ ] Live bottom equation is in a matching frosted banner with clean unboxed typographic flow.

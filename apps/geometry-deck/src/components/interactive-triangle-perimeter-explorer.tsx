@@ -282,7 +282,7 @@ export function InteractiveTrianglePerimeterExplorer({ color }: { color?: string
 
       {/* ── Live calculation formula display ───────────────────────────── */}
       <div className="flex justify-center mt-1">
-        <div className="flex items-center gap-2.5 px-5 py-1.5 rounded-2xl bg-black/25 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
+        <div className="flex items-center gap-2.5 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
           <span className="text-white">P</span>
           <span className="text-white/50">=</span>
           <span style={{ color: COLOR_A }}>{unitsA}</span>

@@ -133,6 +133,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-angle-supplementary": {
     id: "calc-angle-supplementary", topic: "angles", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.angles,
+    frontPrompt: "Solve for angle B",
     frontSvg: { shape: "angle-supplementary", dimensions: { A: 65, unknown: "B" }, labelMode: "numeric", unknownDimension: "B" },
     frontSpeechText: "A is 65 degrees. Find B.",
     backSteps: [
@@ -147,6 +148,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-angle-complementary": {
     id: "calc-angle-complementary", topic: "angles", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.angles,
+    frontPrompt: "Solve for angle B",
     frontSvg: { shape: "angle-complementary", dimensions: { A: 35, unknown: "B" }, labelMode: "numeric", unknownDimension: "B" },
     frontSpeechText: "A is 35 degrees. Find B.",
     backSteps: [
@@ -161,6 +163,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-angle-vertically-opp": {
     id: "calc-angle-vertically-opp", topic: "angles", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.angles,
+    frontPrompt: "Solve for angle C",
     frontSvg: { shape: "angle-vertically-opposite", dimensions: { A: 75, unknown: "C" }, labelMode: "numeric", unknownDimension: "C" },
     frontSpeechText: "A is 75 degrees. Find vertically opposite angle C.",
     backSteps: [
@@ -286,13 +289,14 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-tri-angle-sum": {
     id: "calc-tri-angle-sum", topic: "triangles", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.triangles,
+    frontPrompt: "Solve for angle C",
     frontSvg: { shape: "triangle", dimensions: { angA: 40, angB: 65, unknown: "C", style: "scalene", labelMode: "numeric" }, labelMode: "numeric" },
     frontSpeechText: "A is 40 degrees, B is 65 degrees. Find C.",
     backSteps: [
-      { equationTokens: [t("A","A","#5ee8ff"), d("p1"," + "), t("B","B","#ffd45e"), d("p2"," + "), t("C","C","#fb923c"), eq(), t("sum","180°")], reason: "Triangle angle sum theorem" },
-      { equationTokens: [t("A","40°","#5ee8ff"), d("p1"," + "), t("B","65°","#ffd45e"), d("p2"," + "), t("C","C","#fb923c"), eq(), t("sum","180°")], reason: "Substitute A = 40°, B = 65°" },
-      { equationTokens: [t("lhs","C","#fb923c"), eq(), t("r1","180°"), op("−"), t("r2","40°","#5ee8ff"), op("−"), t("r3","65°","#ffd45e")], reason: "Isolate C" },
-      { equationTokens: [t("lhs","C","#fb923c"), eq(), t("rhs","75°","#fb923c")], reason: "Evaluate" },
+      { equationTokens: [t("A","A","#5ee8ff"), d("p1"," + "), t("B","B","#ffd45e"), d("p2"," + "), t("C","C","#ffa756"), eq(), t("sum","180°")], reason: "Triangle angle sum theorem" },
+      { equationTokens: [t("A","40°","#5ee8ff"), d("p1"," + "), t("B","65°","#ffd45e"), d("p2"," + "), t("C","C","#ffa756"), eq(), t("sum","180°")], reason: "Substitute A = 40°, B = 65°" },
+      { equationTokens: [t("lhs","C","#ffa756"), eq(), t("r1","180°"), op("−"), t("r2","40°","#5ee8ff"), op("−"), t("r3","65°","#ffd45e")], reason: "Isolate C" },
+      { equationTokens: [t("lhs","C","#ffa756"), eq(), t("rhs","75°","#ffa756")], reason: "Evaluate" },
     ],
     backSpeechText: "C equals 75 degrees", numericAnswer: 75,
   },
@@ -300,6 +304,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-tri-area": {
     id: "calc-tri-area", topic: "triangles", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.triangles,
+    frontPrompt: "Calculate the area",
     frontSvg: { shape: "triangle", dimensions: { b: 8, h: 5, style: "scalene", labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "A" },
     frontSpeechText: "Base is 8, height is 5. Find the area.",
     backSteps: [
@@ -313,11 +318,12 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-tri-perimeter": {
     id: "calc-tri-perimeter", topic: "triangles", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.triangles,
+    frontPrompt: "Calculate the perimeter",
     frontSvg: { shape: "triangle", dimensions: { a: 5, b: 7, c: 9, style: "scalene", labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "P" },
     frontSpeechText: "Sides are 5, 7, and 9. Find the perimeter.",
     backSteps: [
-      { equationTokens: [t("lhs","P"), eq(), t("a","a","#5ee8ff"), op("+"), t("b","b","#ffd45e"), op("+"), t("c","c","#fb923c")], svgMutation: { traceStroke: "perimeter" }, reason: "Perimeter = sum of all sides" },
-      { equationTokens: [t("lhs","P"), eq(), t("a","5","#5ee8ff"), op("+"), t("b","7","#ffd45e"), op("+"), t("c","9","#fb923c")], reason: "Substitute the side lengths" },
+      { equationTokens: [t("lhs","P"), eq(), t("a","a","#5ee8ff"), op("+"), t("b","b","#ffd45e"), op("+"), t("c","c","#ffa756")], svgMutation: { traceStroke: "perimeter" }, reason: "Perimeter = sum of all sides" },
+      { equationTokens: [t("lhs","P"), eq(), t("a","5","#5ee8ff"), op("+"), t("b","7","#ffd45e"), op("+"), t("c","9","#ffa756")], reason: "Substitute the side lengths" },
       { equationTokens: [t("lhs","P"), eq(), t("rhs","21")], reason: "Evaluate" },
     ],
     backSpeechText: "P equals 21", numericAnswer: 21,
@@ -326,13 +332,14 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-tri-pyth-c": {
     id: "calc-tri-pyth-c", topic: "triangles", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.triangles,
+    frontPrompt: "Solve for hypotenuse c",
     frontSvg: { shape: "right-triangle", dimensions: { a: 3, b: 4, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "c" },
     frontSpeechText: "a is 3, b is 4. Find c.",
     backSteps: [
-      { equationTokens: [t("a","a²","#5ee8ff"), op("+"), t("b","b²","#ffd45e"), eq(), t("c","c²","#fb923c")], reason: "Pythagorean theorem" },
-      { equationTokens: [t("a","3²","#5ee8ff"), op("+"), t("b","4²","#ffd45e"), eq(), t("c","c²","#fb923c")], reason: "Substitute a = 3, b = 4" },
-      { equationTokens: [t("a","9","#5ee8ff"), op("+"), t("b","16","#ffd45e"), eq(), t("c","25","#fb923c")], svgMutation: { traceStroke: "hypotenuse" }, reason: "Square both values" },
-      { equationTokens: [t("c","c","#fb923c"), eq(), t("rhs","5","#fb923c")], reason: "Take the square root" },
+      { equationTokens: [t("a","a²","#5ee8ff"), op("+"), t("b","b²","#ffd45e"), eq(), t("c","c²","#ffa756")], reason: "Pythagorean theorem" },
+      { equationTokens: [t("a","3²","#5ee8ff"), op("+"), t("b","4²","#ffd45e"), eq(), t("c","c²","#ffa756")], reason: "Substitute a = 3, b = 4" },
+      { equationTokens: [t("a","9","#5ee8ff"), op("+"), t("b","16","#ffd45e"), eq(), t("c","25","#ffa756")], svgMutation: { traceStroke: "hypotenuse" }, reason: "Square both values" },
+      { equationTokens: [t("c","c","#ffa756"), eq(), t("rhs","5","#ffa756")], reason: "Take the square root" },
     ],
     backSpeechText: "c equals 5", numericAnswer: 5,
   },
@@ -340,12 +347,13 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-tri-pyth-b": {
     id: "calc-tri-pyth-b", topic: "triangles", cardType: "calculation", variant: "reverse",
     color: TOPIC_COLORS.triangles,
+    frontPrompt: "Solve for leg a",
     frontSvg: { shape: "right-triangle", dimensions: { b: 5, c: 13, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "a" },
     frontSpeechText: "b is 5, c is 13. Find a.",
     backSteps: [
-      { equationTokens: [t("a","a²","#5ee8ff"), op("+"), t("b","b²","#ffd45e"), eq(), t("c","c²","#fb923c")], reason: "Pythagorean theorem" },
-      { equationTokens: [t("a","a²","#5ee8ff"), op("+"), t("b","5²","#ffd45e"), eq(), t("c","13²","#fb923c")], reason: "Substitute known values" },
-      { equationTokens: [t("a","a²","#5ee8ff"), eq(), t("c","169","#fb923c"), op("−"), t("b","25","#ffd45e"), eq(), t("ans","144","#5ee8ff")], reason: "Isolate a²" },
+      { equationTokens: [t("a","a²","#5ee8ff"), op("+"), t("b","b²","#ffd45e"), eq(), t("c","c²","#ffa756")], reason: "Pythagorean theorem" },
+      { equationTokens: [t("a","a²","#5ee8ff"), op("+"), t("b","5²","#ffd45e"), eq(), t("c","13²","#ffa756")], reason: "Substitute known values" },
+      { equationTokens: [t("a","a²","#5ee8ff"), eq(), t("c","169","#ffa756"), op("−"), t("b","25","#ffd45e"), eq(), t("ans","144","#5ee8ff")], reason: "Isolate a²" },
       { equationTokens: [t("a","a","#5ee8ff"), eq(), t("rhs","12","#5ee8ff")], svgMutation: { traceStroke: "hypotenuse" }, reason: "Take the square root" },
     ],
     backSpeechText: "a equals 12", numericAnswer: 12,
@@ -448,6 +456,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-quad-rect-area": {
     id: "calc-quad-rect-area", topic: "quadrilaterals", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.quadrilaterals,
+    frontPrompt: "Calculate the area",
     frontSvg: { shape: "rectangle", dimensions: { l: 7, w: 4, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "A" },
     frontSpeechText: "Length is 7, width is 4. Find the area.",
     backSteps: [
@@ -461,6 +470,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-quad-rect-perim": {
     id: "calc-quad-rect-perim", topic: "quadrilaterals", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.quadrilaterals,
+    frontPrompt: "Calculate the perimeter",
     frontSvg: { shape: "rectangle", dimensions: { l: 7, w: 4, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "P" },
     frontSpeechText: "Length is 7, width is 4. Find the perimeter.",
     backSteps: [
@@ -474,6 +484,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-quad-para-area": {
     id: "calc-quad-para-area", topic: "quadrilaterals", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.quadrilaterals,
+    frontPrompt: "Calculate the area",
     frontSvg: { shape: "parallelogram", dimensions: { b: 8, h: 5, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "A" },
     frontSpeechText: "Base is 8, height is 5. Find the area.",
     backSteps: [
@@ -487,6 +498,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-quad-trap-area": {
     id: "calc-quad-trap-area", topic: "quadrilaterals", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.quadrilaterals,
+    frontPrompt: "Calculate the area",
     frontSvg: { shape: "trapezoid", dimensions: { a: 4, b: 10, h: 5, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "A" },
     frontSpeechText: "a is 4, b is 10, h is 5. Find the area.",
     backSteps: [
@@ -500,6 +512,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-quad-rect-reverse": {
     id: "calc-quad-rect-reverse", topic: "quadrilaterals", cardType: "calculation", variant: "reverse",
     color: TOPIC_COLORS.quadrilaterals,
+    frontPrompt: "Solve for length l",
     frontSvg: { shape: "rectangle", dimensions: { A: 24, w: 4, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "l" },
     frontSpeechText: "Area is 24, width is 4. Find the length.",
     backSteps: [
@@ -589,6 +602,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-circle-circ": {
     id: "calc-circle-circ", topic: "circles", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.circles,
+    frontPrompt: "Calculate the circumference",
     frontSvg: { shape: "circle", dimensions: { r: 4, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "C" },
     frontSpeechText: "Radius is 4. Find the circumference.",
     backSteps: [
@@ -602,6 +616,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-circle-area": {
     id: "calc-circle-area", topic: "circles", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.circles,
+    frontPrompt: "Calculate the area",
     frontSvg: { shape: "circle", dimensions: { r: 5, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "A" },
     frontSpeechText: "Radius is 5. Find the area.",
     backSteps: [
@@ -615,6 +630,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-circle-r-from-c": {
     id: "calc-circle-r-from-c", topic: "circles", cardType: "calculation", variant: "reverse",
     color: TOPIC_COLORS.circles,
+    frontPrompt: "Solve for radius r",
     frontSvg: { shape: "circle", dimensions: { C: "6π", labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "r" },
     frontSpeechText: "C equals 6 pi. Find the radius.",
     backSteps: [
@@ -629,6 +645,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-circle-r-from-a": {
     id: "calc-circle-r-from-a", topic: "circles", cardType: "calculation", variant: "reverse",
     color: TOPIC_COLORS.circles,
+    frontPrompt: "Solve for radius r",
     frontSvg: { shape: "circle", dimensions: { A: "9π", labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "r" },
     frontSpeechText: "A equals 9 pi. Find the radius.",
     backSteps: [
@@ -701,6 +718,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-poly-perimeter": {
     id: "calc-poly-perimeter", topic: "polygons", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.polygons,
+    frontPrompt: "Calculate the perimeter",
     frontSvg: { shape: "polygon", dimensions: { n: 6, s: 8, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "P" },
     frontSpeechText: "Regular polygon with 6 sides of length 8. Find the perimeter.",
     backSteps: [
@@ -714,6 +732,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-poly-angle-sum": {
     id: "calc-poly-angle-sum", topic: "polygons", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.polygons,
+    frontPrompt: "Calculate the interior angle sum",
     frontSvg: { shape: "polygon", dimensions: { n: 7, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "Sum" },
     frontSpeechText: "Regular polygon with 7 sides. Find the interior angle sum.",
     backSteps: [
@@ -728,6 +747,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-poly-each-angle-hex": {
     id: "calc-poly-each-angle-hex", topic: "polygons", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.polygons,
+    frontPrompt: "Calculate each interior angle",
     frontSvg: { shape: "polygon", dimensions: { n: 6, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "Each" },
     frontSpeechText: "Regular hexagon with 6 sides. Find each interior angle.",
     backSteps: [
@@ -861,6 +881,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-3d-prism": {
     id: "calc-3d-prism", topic: "3d-shapes", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS["3d-shapes"],
+    frontPrompt: "Calculate the volume",
     frontSvg: { shape: "prism", dimensions: { l: 4, w: 3, h: 2, labelMode: "numeric", unknown: "V" }, labelMode: "numeric" },
     frontSpeechText: "l = 4, w = 3, h = 2. Find the volume.",
     backSteps: [
@@ -874,6 +895,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-3d-cylinder": {
     id: "calc-3d-cylinder", topic: "3d-shapes", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS["3d-shapes"],
+    frontPrompt: "Calculate the volume",
     frontSvg: { shape: "cylinder", dimensions: { r: 3, h: 4, labelMode: "numeric", unknown: "V" }, labelMode: "numeric" },
     frontSpeechText: "r = 3, h = 4. Find the volume.",
     backSteps: [
@@ -887,6 +909,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-3d-euler": {
     id: "calc-3d-euler", topic: "3d-shapes", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS["3d-shapes"],
+    frontPrompt: "Solve for vertices (V)",
     frontSvg: { shape: "prism", dimensions: { l: 2, w: 2, h: 2, labelMode: "numeric" }, labelMode: "numeric" },
     frontSpeechText: "A cube has 6 faces and 12 edges. How many vertices?",
     backSteps: [
