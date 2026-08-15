@@ -113,30 +113,30 @@ export function InteractiveVerticalAngles({ color }: InteractiveVerticalAnglesPr
   const l2 = toPoint(cx, cy, angleA + (180 - angleA) / 2, ARC_R2 + 16);
   const l3 = toPoint(cx, cy, 180 + Math.max(angleA / 2, 15), ARC_R1 + 16);
   const l4 = toPoint(cx, cy, 180 + angleA + (180 - angleA) / 2, ARC_R2 + 16);
-
-  const COLOR_A = "#5ee8ff"; // cyan — for the equal pair A & C
-  const COLOR_B = "#ffd45e"; // yellow — for the equal pair B & D
+  // Semantic colors
+  const COLOR_A = "#5ee8ff"; // cyan
+  const COLOR_B = "#d8b4fe"; // neon lilac
 
   return (
     <div className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
       <svg ref={svgRef} viewBox={`0 0 ${svgW} ${svgH}`}
-        className="w-full max-w-[240px] sm:max-w-[280px] touch-none select-none"
-        style={{ cursor: isDragging ? "grabbing" : "default" }}>
+        className="w-full max-w-[280px] sm:max-w-[320px] touch-none select-none"
+        style={{ cursor: isDragging ? "grabbing" : "grab" }}>
 
-        {/* Arc A (top-right) */}
-        <path d={arc1} fill="none" stroke={COLOR_A} strokeWidth={2.5} strokeOpacity={0.85} />
-        {/* Arc B (top-left) */}
-        <path d={arc2} fill="none" stroke={COLOR_B} strokeWidth={2.5} strokeOpacity={0.85} />
-        {/* Arc A (bottom-left, opposite) */}
-        <path d={arc3} fill="none" stroke={COLOR_A} strokeWidth={2.5} strokeOpacity={0.85} />
-        {/* Arc B (bottom-right, opposite) */}
-        <path d={arc4} fill="none" stroke={COLOR_B} strokeWidth={2.5} strokeOpacity={0.85} />
+        {/* Arc A (right) */}
+        <path d={arc1} fill="none" stroke={COLOR_A} strokeWidth={2.5} strokeLinecap="round" />
+        {/* Arc B (top) */}
+        <path d={arc2} fill="none" stroke={COLOR_B} strokeWidth={2.5} strokeLinecap="round" />
+        {/* Arc C = A (left) */}
+        <path d={arc3} fill="none" stroke={COLOR_A} strokeWidth={2.5} strokeLinecap="round" />
+        {/* Arc D = B (bottom) */}
+        <path d={arc4} fill="none" stroke={COLOR_B} strokeWidth={2.5} strokeLinecap="round" />
 
         {/* Horizontal line */}
         <line x1={hL.x} y1={hL.y} x2={hR.x} y2={hR.y}
           stroke="rgba(255,255,255,0.9)" strokeWidth={2.5} strokeLinecap="round" />
 
-        {/* Rotating line */}
+        {/* Rotating transversal line */}
         <line x1={rD.x} y1={rD.y} x2={rU.x} y2={rU.y}
           stroke="rgba(255,255,255,0.9)" strokeWidth={2.5} strokeLinecap="round" />
 
@@ -145,17 +145,17 @@ export function InteractiveVerticalAngles({ color }: InteractiveVerticalAnglesPr
 
         {/* Labels */}
         <text x={l1.x} y={l1.y} textAnchor="middle" dominantBaseline="central"
-          fontSize={12} fontWeight={700} fill={COLOR_A}
-          stroke={color} strokeWidth={4} paintOrder="stroke">A {dA}°</text>
+          fontSize={12} fontWeight={800} fill={COLOR_A}
+          style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>{dA}°</text>
         <text x={l2.x} y={l2.y} textAnchor="middle" dominantBaseline="central"
-          fontSize={11} fontWeight={700} fill={COLOR_B}
-          stroke={color} strokeWidth={4} paintOrder="stroke">B {dB}°</text>
+          fontSize={12} fontWeight={800} fill={COLOR_B}
+          style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>{dB}°</text>
         <text x={l3.x} y={l3.y} textAnchor="middle" dominantBaseline="central"
-          fontSize={12} fontWeight={700} fill={COLOR_A}
-          stroke={color} strokeWidth={4} paintOrder="stroke">C {dA}°</text>
+          fontSize={12} fontWeight={800} fill={COLOR_A}
+          style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>{dA}°</text>
         <text x={l4.x} y={l4.y} textAnchor="middle" dominantBaseline="central"
-          fontSize={11} fontWeight={700} fill={COLOR_B}
-          stroke={color} strokeWidth={4} paintOrder="stroke">D {dB}°</text>
+          fontSize={12} fontWeight={800} fill={COLOR_B}
+          style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>{dB}°</text>
 
         {/* Drag handle on upper arm */}
         <circle cx={rU.x} cy={rU.y} r={HANDLE_R}
@@ -165,21 +165,12 @@ export function InteractiveVerticalAngles({ color }: InteractiveVerticalAnglesPr
         <circle cx={rU.x} cy={rU.y} r={4} fill="white" className="pointer-events-none" />
       </svg>
 
-      {/* Equation as pill tokens */}
-      <div className="flex items-end gap-1.5 justify-center px-2">
-        <div className="flex flex-col items-center gap-0.5">
-          <span className="text-[10px] font-bold" style={{ color: COLOR_A }}>A = C</span>
-          <span className="px-3 py-1 rounded-md text-sm font-bold"
-            style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_A, border: `1.5px solid ${COLOR_A}90` }}>
-            {dA}°
-          </span>
-        </div>
-        <div className="flex flex-col items-center gap-0.5">
-          <span className="text-[10px] font-bold" style={{ color: COLOR_B }}>B = D</span>
-          <span className="px-3 py-1 rounded-md text-sm font-bold"
-            style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_B, border: `1.5px solid ${COLOR_B}90` }}>
-            {dB}°
-          </span>
+      {/* Live equation matching design spec */}
+      <div className="flex justify-center my-0.5">
+        <div className="flex items-center gap-3 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none">
+          <span style={{ color: COLOR_A }}>A = C = {dA}°</span>
+          <span className="w-px h-4 bg-white/20" />
+          <span style={{ color: COLOR_B }}>B = D = {dB}°</span>
         </div>
       </div>
 

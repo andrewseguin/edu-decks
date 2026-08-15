@@ -294,7 +294,7 @@ export function InteractiveAngleExplorer({
           y={labelPos.y}
           textAnchor="middle"
           dominantBaseline="central"
-          fontSize={16}
+          fontSize={13}
           fontWeight={800}
           fill="#5ee8ff"
           style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}

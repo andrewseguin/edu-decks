@@ -139,9 +139,17 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
   - Built with `@radix-ui/react-popover` and React Portals to guarantee zero clipping from card overflow.
 - **Front Question Prompt Fading**:
   - Action-verb prompt on the front (e.g. *"Solve for angle C"*) smoothly collapses and fades on flip (`opacity-0 max-h-0`) so learners focus entirely on the calculation proof.
-- **Diagram Unknown Variable Cross-Fade (`RevealText`)**:
-  - Unknown target variable letters ($C, a, b, c$) display on the front diagram in prominent bold typography ($17\text{px}$ font, generous vertex clearance).
-  - On flip/reveal, the variable smoothly scales and cross-fades into the computed numeric answer ($75^\circ, 5$).
+### 2.6 Standard Diagram Typography Scale
+All SVG vector diagrams and interactive explorer components adhere to a unified typographic scale:
+
+| Role | Font Size | Weight | Usage |
+| :--- | :--- | :--- | :--- |
+| **Unknown Target Variables** | `17px` | `900` (Black/Heavy) | Target unknown variables on front diagrams before reveal ($C, a, b, c$) |
+| **Known Angle Readouts & Side Dimensions** | `12px` – `13px` | `800` (Extra Bold) | Live interactive angle values ($67^\circ, 23^\circ$), side dimensions ($3, 4, 12$) |
+| **Secondary Helper Annotations** | `11px` | `600` (Semi Bold) | Diagram helper notes (e.g. *alternate angles equal*, $180^\circ < \text{reflex} < 360^\circ$) |
+
+- **No Concatenated Variable Prefixes**: Angle arcs in diagrams cleanly display only the pure numeric degree value (e.g. `67°`, `23°`) rather than wide, cluttered prefixes like `A=67°` or `B=23°`.
+- **Always Include Drop Shadows**: Any text rendered directly over the card background includes `style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}`.
 
 ---
 

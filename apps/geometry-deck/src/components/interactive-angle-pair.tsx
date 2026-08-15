@@ -178,15 +178,15 @@ export function InteractiveAnglePair({ targetSum, label, color }: InteractiveAng
 
         {/* Label A */}
         <text x={labelAPos.x} y={labelAPos.y} textAnchor="middle" dominantBaseline="central"
-          fontSize={14} fontWeight={800} fill={COLOR_A}
+          fontSize={13} fontWeight={800} fill={COLOR_A}
           style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
-          >A={dA}°</text>
+          >{dA}°</text>
 
         {/* Label B */}
         <text x={labelBPos.x} y={labelBPos.y} textAnchor="middle" dominantBaseline="central"
           fontSize={13} fontWeight={800} fill={COLOR_B}
           style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
-          >B={dB}°</text>
+          >{dB}°</text>
 
         {/* Drag handle */}
         <circle cx={armEnd.x} cy={armEnd.y} r={HANDLE_R}
