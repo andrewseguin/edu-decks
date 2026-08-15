@@ -52,7 +52,8 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
           onPointerDown={(e) => e.stopPropagation()}
           onTouchStart={(e) => e.stopPropagation()}
           className={cn(
-            "z-[100] w-[calc(100vw-2rem)] max-w-xs p-3.5 rounded-xl text-left shadow-2xl animate-fade-in select-none pointer-events-auto border-none",
+            "z-[100] w-[calc(100vw-2rem)] max-w-xs p-3.5 rounded-xl text-left shadow-2xl animate-fade-in select-none pointer-events-auto",
+            "border-0 border-none outline-none focus:outline-none focus-visible:outline-none ring-0 focus:ring-0 focus-visible:ring-0",
             "bg-slate-950/95 text-white",
           )}
         >
