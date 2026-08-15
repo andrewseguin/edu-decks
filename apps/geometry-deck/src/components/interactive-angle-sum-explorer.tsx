@@ -239,75 +239,59 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
         className="w-full max-w-[280px] sm:max-w-[320px] touch-none select-none"
         style={{ cursor: isDragging ? "grabbing" : "default" }}
       >
-        {/* ── Outer full triangle (solid when unfolded, fades to ghost when folding) ── */}
-        <polygon
-          points={`${V1.x},${V1.y} ${V2.x},${V2.y} ${V3.x},${V3.y}`}
-          fill="rgba(255,255,255,0.08)"
-          stroke="rgba(255,255,255,0.9)"
-          strokeWidth={1.5}
-          strokeLinejoin="round"
-          opacity={rnd(Math.max(0, 1 - p * 3))}
-        />
-
-        {/* ── Ghost dashed reference triangle (fades in as fold starts) ── */}
-        {p > 0 && (
+        {p === 0 ? (
+          /* ── Unfolded State (Step 1): Clean single solid triangle with zero interior lines ── */
           <polygon
             points={`${V1.x},${V1.y} ${V2.x},${V2.y} ${V3.x},${V3.y}`}
-            fill="none"
-            stroke="rgba(255,255,255,0.25)"
-            strokeWidth={1}
-            strokeDasharray="4 3"
-            opacity={rnd(Math.min(1, p * 3))}
+            fill="rgba(255,255,255,0.08)"
+            stroke="rgba(255,255,255,0.85)"
+            strokeWidth={1.5}
+            strokeLinejoin="round"
           />
-        )}
-
-        {/* ── Folded center apex polygon & flaps (fade in with fold) ── */}
-        {p > 0 && (
+        ) : (
+          /* ── Folded / Folding State (Step 2): Crisp origami fold with dashed reference outline ── */
           <>
+            {/* Ghost reference of original unfolded triangle */}
+            <polygon
+              points={`${V1.x},${V1.y} ${V2.x},${V2.y} ${V3.x},${V3.y}`}
+              fill="none"
+              stroke="rgba(255,255,255,0.25)"
+              strokeWidth={1}
+              strokeDasharray="4 3"
+            />
+
+            {/* Central static piece */}
             <polygon
               points={`${ML.x},${ML.y} ${V3.x},${V3.y} ${MR.x},${MR.y} ${BM.x},${BM.y}`}
-              fill="rgba(255,255,255,0.06)"
-              stroke="rgba(255,255,255,0.7)"
-              strokeWidth={1.5}
-              strokeLinejoin="round"
-              opacity={rnd(Math.min(1, p * 3))}
-            />
-            <polygon
-              points={`${ML.x},${ML.y} ${V1f.x},${V1f.y} ${BMfL.x},${BMfL.y}`}
               fill="rgba(255,255,255,0.08)"
-              stroke="rgba(255,255,255,0.9)"
+              stroke="rgba(255,255,255,0.85)"
               strokeWidth={1.5}
               strokeLinejoin="round"
-              opacity={rnd(Math.min(1, p * 3) * flapOpacity)}
-            />
-            <polygon
-              points={`${MR.x},${MR.y} ${V2f.x},${V2f.y} ${BMfR.x},${BMfR.y}`}
-              fill="rgba(255,255,255,0.08)"
-              stroke="rgba(255,255,255,0.9)"
-              strokeWidth={1.5}
-              strokeLinejoin="round"
-              opacity={rnd(Math.min(1, p * 3) * flapOpacity)}
             />
 
-            {/* Naturally expanding and fading crease lines */}
-            {(() => {
-              const lineProgress = Math.min(1, p * 3);
-              const curBM_L = { x: rnd(lerp(ML.x, BM.x, lineProgress)), y: rnd(lerp(ML.y, BM.y, lineProgress)) };
-              const curBM_R = { x: rnd(lerp(MR.x, BM.x, lineProgress)), y: rnd(lerp(MR.y, BM.y, lineProgress)) };
-              const creaseOpacity = rnd(Math.min(0.5, p * 2));
-              return (
-                <>
-                  <line
-                    x1={ML.x} y1={ML.y} x2={curBM_L.x} y2={curBM_L.y}
-                    stroke="rgba(255,255,255,0.6)" strokeWidth={1.2} strokeDasharray="3 2" opacity={creaseOpacity}
-                  />
-                  <line
-                    x1={MR.x} y1={MR.y} x2={curBM_R.x} y2={curBM_R.y}
-                    stroke="rgba(255,255,255,0.6)" strokeWidth={1.2} strokeDasharray="3 2" opacity={creaseOpacity}
-                  />
-                </>
-              );
-            })()}
+            {/* Crease lines */}
+            <line x1={ML.x} y1={ML.y} x2={BM.x} y2={BM.y} stroke="rgba(255,255,255,0.5)" strokeWidth={1.2} strokeDasharray="3 2" />
+            <line x1={MR.x} y1={MR.y} x2={BM.x} y2={BM.y} stroke="rgba(255,255,255,0.5)" strokeWidth={1.2} strokeDasharray="3 2" />
+
+            {/* Left folding flap */}
+            <polygon
+              points={`${ML.x},${ML.y} ${V1f.x},${V1f.y} ${BMfL.x},${BMfL.y}`}
+              fill="rgba(255,255,255,0.12)"
+              stroke="rgba(255,255,255,0.9)"
+              strokeWidth={1.5}
+              strokeLinejoin="round"
+              opacity={flapOpacity}
+            />
+
+            {/* Right folding flap */}
+            <polygon
+              points={`${MR.x},${MR.y} ${V2f.x},${V2f.y} ${BMfR.x},${BMfR.y}`}
+              fill="rgba(255,255,255,0.12)"
+              stroke="rgba(255,255,255,0.9)"
+              strokeWidth={1.5}
+              strokeLinejoin="round"
+              opacity={flapOpacity}
+            />
           </>
         )}
 
