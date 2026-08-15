@@ -132,7 +132,8 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
   const baseY = 140;
   let V1 = { x: 35, y: baseY };
   let V2 = { x: 205, y: baseY };
-  let V3 = { x: 95, y: 45 };
+  // When b=8, h=5, align apex to column 3 (35 + 3 * 21.25 = 98.75) for 100% grid alignment
+  let V3 = { x: (h !== undefined && b === 8) ? 98.75 : 95, y: 45 };
 
   if (style === "equilateral") {
     V1 = { x: 45, y: 140 };
@@ -184,6 +185,57 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
 
   return (
     <svg viewBox="0 0 240 170" className="w-full h-full select-none" aria-hidden>
+      {/* ── Unit Grid for Area Mode (Bounding Rectangle) ─────────────────── */}
+      {h !== undefined && b !== undefined && Number(b) > 1 && Number(h) > 1 && (
+        <g opacity={0.85}>
+          {/* Outer bounding box enclosing b × h */}
+          <rect
+            x={V1.x}
+            y={V3.y}
+            width={V2.x - V1.x}
+            height={baseY - V3.y}
+            fill="rgba(255,255,255,0.03)"
+            stroke="rgba(255,255,255,0.3)"
+            strokeWidth={1}
+            strokeDasharray="4 3"
+          />
+
+          {/* Vertical grid lines */}
+          {Array.from({ length: Math.min(20, Math.round(Number(b))) - 1 }).map((_, i) => {
+            const gx = V1.x + ((i + 1) * (V2.x - V1.x)) / Number(b);
+            return (
+              <line
+                key={`vgrid-${i}`}
+                x1={gx}
+                y1={V3.y}
+                x2={gx}
+                y2={baseY}
+                stroke="rgba(255,255,255,0.18)"
+                strokeWidth={1}
+                strokeDasharray="2 2"
+              />
+            );
+          })}
+
+          {/* Horizontal grid lines */}
+          {Array.from({ length: Math.min(20, Math.round(Number(h))) - 1 }).map((_, i) => {
+            const gy = V3.y + ((i + 1) * (baseY - V3.y)) / Number(h);
+            return (
+              <line
+                key={`hgrid-${i}`}
+                x1={V1.x}
+                y1={gy}
+                x2={V2.x}
+                y2={gy}
+                stroke="rgba(255,255,255,0.18)"
+                strokeWidth={1}
+                strokeDasharray="2 2"
+              />
+            );
+          })}
+        </g>
+      )}
+
       {/* ── Main Triangle Polygon ────────────────────────────────────────── */}
       <polygon
         points={`${V1.x},${V1.y} ${V2.x},${V2.y} ${V3.x},${V3.y}`}
