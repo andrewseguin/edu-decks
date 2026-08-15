@@ -203,24 +203,24 @@
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: white;
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  background: radial-gradient(circle, #ffffff 30%, rgba(255, 255, 255, 0.18) 34%, rgba(255, 255, 255, 0.15) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
   cursor: grab;
 }
 
 .angle-slider::-webkit-slider-thumb:active {
   cursor: grabbing;
-  transform: scale(1.15);
+  transform: scale(1.12);
 }
 
 .angle-slider::-moz-range-thumb {
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: white;
-  border: 2px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  background: radial-gradient(circle, #ffffff 30%, rgba(255, 255, 255, 0.18) 34%, rgba(255, 255, 255, 0.15) 100%);
+  border: 2px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
   cursor: grab;
 }
 
