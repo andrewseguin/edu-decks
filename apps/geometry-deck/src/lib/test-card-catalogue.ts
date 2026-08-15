@@ -318,11 +318,11 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-tri-perimeter": {
     id: "calc-tri-perimeter", topic: "triangles", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.triangles,
-    frontPrompt: "Calculate the perimeter",
+    frontPrompt: "Solve for the triangle perimeter",
     frontSvg: { shape: "triangle", dimensions: { a: 5, b: 7, c: 9, style: "scalene", labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "P" },
-    frontSpeechText: "Sides are 5, 7, and 9. Find the perimeter.",
+    frontSpeechText: "Sides are 5, 7, and 9. Find the triangle perimeter.",
     backSteps: [
-      { equationTokens: [t("lhs","P"), eq(), t("a","a","#5ee8ff"), op("+"), t("b","b","#ffd45e"), op("+"), t("c","c","#ffa756")], svgMutation: { traceStroke: "perimeter" }, reason: "Perimeter = sum of all sides" },
+      { equationTokens: [t("lhs","P"), eq(), t("a","a","#5ee8ff"), op("+"), t("b","b","#ffd45e"), op("+"), t("c","c","#ffa756")], svgMutation: { traceStroke: "perimeter" }, reason: "Triangle perimeter formula" },
       { equationTokens: [t("lhs","P"), eq(), t("a","5","#5ee8ff"), op("+"), t("b","7","#ffd45e"), op("+"), t("c","9","#ffa756")], reason: "Substitute known values" },
       { equationTokens: [t("lhs","P"), eq(), t("rhs","21")], reason: "Evaluate" },
     ],

@@ -53,10 +53,15 @@ export const MATH_GLOSSARY: Record<string, GlossaryEntry> = {
     title: "Vertical Angles",
     explanation: "Opposite angles formed by two intersecting straight lines are always equal.",
   },
+  "triangle perimeter": {
+    title: "Triangle Perimeter Formula",
+    explanation: "Add up the lengths of all three sides (a, b, and c) to find the total outer boundary distance.",
+    formula: "P = a + b + c",
+  },
   perimeter: {
     title: "Perimeter",
     explanation: "The total continuous distance around the outer boundary of a shape.",
-    formula: "P = a + b + c",
+    formula: "P = sum of all sides",
   },
   "triangle area": {
     title: "Triangle Area Formula",
@@ -96,6 +101,7 @@ export function lookupGlossary(reason: string): GlossaryEntry | null {
   if (lower.includes("supplementary")) return MATH_GLOSSARY.supplementary;
   if (lower.includes("complementary")) return MATH_GLOSSARY.complementary;
   if (lower.includes("vertically opposite")) return MATH_GLOSSARY["vertically opposite"];
+  if (lower.includes("triangle perimeter")) return MATH_GLOSSARY["triangle perimeter"];
   if (lower.includes("perimeter")) return MATH_GLOSSARY.perimeter;
   if (lower.includes("triangle area")) return MATH_GLOSSARY["triangle area"];
   if (lower.includes("area")) return MATH_GLOSSARY.area;
