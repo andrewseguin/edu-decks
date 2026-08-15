@@ -44,6 +44,8 @@ function cornerArcSvg(
 /**
  * Smooth cross-fade transition between an unknown variable name ('C', 'a', etc.)
  * and its revealed numeric answer ('75°', '5', etc.) upon card reveal.
+ * Renders with an increased font size (17px, bold 900) so the target of the
+ * calculation stands out prominently from standard known dimensions (13px).
  */
 function RevealText({
   x,
@@ -52,8 +54,8 @@ function RevealText({
   revealedValue,
   unit = "",
   color,
-  fontSize = 13,
-  fontWeight = 800,
+  fontSize = 17,
+  fontWeight = 900,
   textAnchor = "middle",
   dominantBaseline = "central",
 }: {
@@ -328,7 +330,7 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
 
           {/* Label A (Cyan) */}
           <text
-            x={V1.x - 8}
+            x={V1.x - 10}
             y={V1.y + 4}
             textAnchor="end"
             dominantBaseline="central"
@@ -343,7 +345,7 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
 
           {/* Label B (Gold) */}
           <text
-            x={V2.x + 8}
+            x={V2.x + 10}
             y={V2.y + 4}
             textAnchor="start"
             dominantBaseline="central"
@@ -356,11 +358,11 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
             {angB}°
           </text>
 
-          {/* Label C / Unknown (Orange) */}
+          {/* Label C / Unknown (Orange) — generous clearance above apex dot */}
           {unknownDim === "C" ? (
             <RevealText
               x={V3.x}
-              y={V3.y - 14}
+              y={V3.y - 18}
               variable="C"
               revealedValue={revealedAnswer}
               unit="°"
@@ -370,7 +372,7 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
           ) : (
             <text
               x={V3.x}
-              y={V3.y - 14}
+              y={V3.y - 18}
               textAnchor="middle"
               dominantBaseline="central"
               fontSize={13}
@@ -463,7 +465,7 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
       {/* ── Side a (Vertical Leg — Cyan) ─────────────────────────────────── */}
       {unknownDim === "a" ? (
         <RevealText
-          x={V1.x - 14}
+          x={V1.x - 16}
           y={(V1.y + V3.y) / 2}
           variable="a"
           revealedValue={revealedAnswer}
@@ -490,7 +492,7 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
       {unknownDim === "b" ? (
         <RevealText
           x={(V1.x + V2.x) / 2}
-          y={V1.y + 18}
+          y={V1.y + 20}
           variable="b"
           revealedValue={revealedAnswer}
           color={COLOR_GOLD}
@@ -515,8 +517,8 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
       {/* ── Side c (Hypotenuse — Orange) ─────────────────────────────────── */}
       {unknownDim === "c" ? (
         <RevealText
-          x={hypMidX}
-          y={hypMidY}
+          x={hypMidX + 2}
+          y={hypMidY - 2}
           variable="c"
           revealedValue={revealedAnswer}
           color={COLOR_ORANGE}

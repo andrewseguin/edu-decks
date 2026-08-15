@@ -157,7 +157,7 @@ Colors must be consistent and intuitive within each topic. As new topic categori
    - `FormattedMathText` automatically color-codes mathematical keywords:
      - `a²`, `a`, `height (h)`, `height`, `h`, `base angles` $\rightarrow$ **Cyan (`#5ee8ff`)**
      - `b²`, `b`, `base (b)`, `base` $\rightarrow$ **Gold (`#ffd45e`)**
-     - `c²`, `c`, `hypotenuse (c)` $\rightarrow$ **Orange (`#fb923c`)**
+     - `c²`, `c`, `hypotenuse (c)` $\rightarrow$ **Orange (`#ffa756`)**
      - `A + B + C` $\rightarrow$ Angle $A$ (Cyan), Angle $B$ (Gold), Angle $C$ (Orange)
 7. **Diagram Simplicity & Pure Value Labels**:
    - Because the top frosted hero banner explicitly explains variable names and color tokens (e.g. $b = \text{base}$, $h = \text{height}$, $a, b, c$), diagrams should display clean numeric values directly (`10`, `7`, `40°`) in their matching semantic color rather than redundant prefixes (`b = 10`, `h = 7`). This keeps diagrams uncluttered and modern.
