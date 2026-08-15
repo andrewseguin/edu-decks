@@ -58,10 +58,8 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
       <div className="flex items-center justify-end pr-4 min-w-0">
         <span
           className={cn(
-            "leading-tight text-right",
-            isAnswer
-              ? "text-white font-bold text-xs sm:text-sm"
-              : "text-white font-medium text-xs sm:text-sm italic",
+            "leading-tight text-right italic text-xs sm:text-sm text-white",
+            isAnswer ? "font-bold" : "font-medium",
           )}
         >
           {reason}
