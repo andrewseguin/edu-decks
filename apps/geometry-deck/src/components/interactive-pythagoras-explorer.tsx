@@ -148,7 +148,7 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
   const lblFont = "var(--font-heading, system-ui)";
 
   /* ── step animation transitions ────────────────────────────────────────── */
-  const transitionTo = useCallback((targetGrow: number, targetMigrate: number, targetStep: number, duration = 400) => {
+  const transitionTo = useCallback((targetGrow: number, targetMigrate: number, targetStep: number, duration = 750) => {
     if (animRef.current) cancelAnimationFrame(animRef.current);
     setIsAutoPlaying(false);
     setActiveStep(targetStep);
@@ -192,9 +192,9 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
     setGrowP(0);
     setMigrateP(0);
 
-    const GROW_TIME = 1000;
-    const PAUSE = 400;
-    const MIGRATE_TIME = 1800;
+    const GROW_TIME = 1600;
+    const PAUSE = 600;
+    const MIGRATE_TIME = 3200;
     const t0 = performance.now();
 
     const tick = (now: number) => {
