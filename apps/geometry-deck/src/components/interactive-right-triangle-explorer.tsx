@@ -27,12 +27,12 @@ const RIGHT_TRIANGLE_PRESETS: RightTrianglePreset[] = [
     angA: 53,
     angB: 37,
     description: "Pythagorean Triple • 3² + 4² = 9 + 16 = 25 = 5²",
-    x1: 45,
-    y1: 140,
-    x2: 175,
-    y2: 140,
-    x3: 45,
-    y3: 42,
+    x1: 65,
+    y1: 108,
+    x2: 185,
+    y2: 108,
+    x3: 65,
+    y3: 18,
   },
   {
     name: "5 - 12 - 13",
@@ -42,12 +42,12 @@ const RIGHT_TRIANGLE_PRESETS: RightTrianglePreset[] = [
     angA: 67,
     angB: 23,
     description: "Pythagorean Triple • 5² + 12² = 25 + 144 = 169 = 13²",
-    x1: 40,
-    y1: 140,
-    x2: 185,
-    y2: 140,
-    x3: 40,
-    y3: 75,
+    x1: 65,
+    y1: 108,
+    x2: 190,
+    y2: 108,
+    x3: 65,
+    y3: 56,
   },
   {
     name: "8 - 15 - 17",
@@ -57,12 +57,12 @@ const RIGHT_TRIANGLE_PRESETS: RightTrianglePreset[] = [
     angA: 62,
     angB: 28,
     description: "Pythagorean Triple • 8² + 15² = 64 + 225 = 289 = 17²",
-    x1: 40,
-    y1: 140,
-    x2: 185,
-    y2: 140,
-    x3: 40,
-    y3: 60,
+    x1: 65,
+    y1: 108,
+    x2: 190,
+    y2: 108,
+    x3: 65,
+    y3: 42,
   },
   {
     name: "45° - 45° - 90°",
@@ -72,12 +72,12 @@ const RIGHT_TRIANGLE_PRESETS: RightTrianglePreset[] = [
     angA: 45,
     angB: 45,
     description: "Isosceles Right Triangle • 1² + 1² = 2 = (√2)²",
-    x1: 45,
-    y1: 140,
-    x2: 175,
-    y2: 140,
-    x3: 45,
-    y3: 35,
+    x1: 65,
+    y1: 108,
+    x2: 180,
+    y2: 108,
+    x3: 65,
+    y3: 18,
   },
 ];
 
@@ -109,7 +109,7 @@ export function InteractiveRightTriangleExplorer({ color }: { color?: string }) 
   const { a, b, c, angA, angB, description, x1, y1, x2, y2, x3, y3 } = preset;
 
   // Arc calculations
-  const arcR = 24;
+  const arcR = 22;
 
   // Base angle arc at x2, y2 (from leftwards horizontal up to hypotenuse)
   const radA = (angA * Math.PI) / 180;
@@ -124,27 +124,27 @@ export function InteractiveRightTriangleExplorer({ color }: { color?: string }) 
   const pathArcB = `M ${x3} ${y3 + arcR} A ${arcR} ${arcR} 0 0 0 ${arcB_x} ${arcB_y}`;
 
   // Angle label positions
-  const labelA_x = x2 - arcR - 12;
-  const labelA_y = y2 - 8;
+  const labelA_x = x2 - arcR - 10;
+  const labelA_y = y2 - 6;
 
-  const labelB_x = x3 + 12;
-  const labelB_y = y3 + arcR + 14;
+  const labelB_x = x3 + 14;
+  const labelB_y = y3 + arcR + 12;
 
-  // Side label positions with outward offsets
-  const sideA_x = x1 - 22; // Leg a (vertical left)
+  // Side label positions with generous outward offsets
+  const sideA_x = x1 - 12; // Leg a (vertical left, textAnchor="end")
   const sideA_y = (y1 + y3) / 2 + 4;
 
-  const sideB_x = (x1 + x2) / 2; // Leg b (base bottom)
-  const sideB_y = y1 + 18;
+  const sideB_x = (x1 + x2) / 2; // Leg b (base bottom, textAnchor="middle")
+  const sideB_y = y1 + 17;
 
-  const sideC_x = (x2 + x3) / 2 + 18; // Hypotenuse c (top-right normal)
+  const sideC_x = (x2 + x3) / 2 + 14; // Hypotenuse c (top-right normal, textAnchor="start")
   const sideC_y = (y2 + y3) / 2 - 4;
 
   return (
     <div className="flex flex-col items-center w-full max-w-[320px] select-none">
       {/* SVG Triangle Display */}
-      <div className="relative w-full aspect-[22/13.5] flex items-center justify-center">
-        <svg viewBox="0 20 220 135" className="w-full h-full" aria-hidden>
+      <div className="relative w-full aspect-[23/13.5] flex items-center justify-center">
+        <svg viewBox="0 0 230 135" className="w-full h-full" aria-hidden>
           {/* Subtle interior fill */}
           <polygon
             points={`${x1},${y1} ${x2},${y2} ${x3},${y3}`}
@@ -163,9 +163,9 @@ export function InteractiveRightTriangleExplorer({ color }: { color?: string }) 
           {/* Right Angle Corner Square Marker (Lavender Purple) */}
           <rect
             x={x1}
-            y={y1 - 16}
-            width={16}
-            height={16}
+            y={y1 - 15}
+            width={15}
+            height={15}
             fill="rgba(192, 132, 252, 0.25)"
             stroke="#c084fc"
             strokeWidth={2}
@@ -190,18 +190,7 @@ export function InteractiveRightTriangleExplorer({ color }: { color?: string }) 
             strokeLinecap="round"
           />
 
-          {/* Angle Degrees Readout */}
-          <text
-            x={x1 + 22}
-            y={y1 - 20}
-            fontSize={11}
-            fontWeight="800"
-            fill="#c084fc"
-            fontFamily="var(--font-heading, system-ui)"
-            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
-          >
-            90°
-          </text>
+          {/* Angle Degrees Readouts */}
           <text
             x={labelA_x}
             y={labelA_y}
