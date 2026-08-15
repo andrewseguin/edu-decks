@@ -36,7 +36,7 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
             "-my-1 py-1 -mx-0.5 px-0.5 touch-manipulation",
             className,
           )}
-          aria-label={`Learn more about ${entry.title}`}
+          aria-label={`Learn more about ${reason}`}
         >
           <span>{reason}</span>
         </button>
@@ -58,7 +58,7 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
           {/* Tooltip Header */}
           <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-white/15">
             <h4 className="font-bold text-xs sm:text-sm text-cyan-300 tracking-wide truncate min-w-0">
-              {entry.title}
+              {reason}
             </h4>
             <button
               type="button"
