@@ -90,24 +90,8 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
 ### 2.5 Frosted Controls & Action Buttons
 - Presets and action buttons (e.g. `Show proof ▶`, `Fold corners ▶`, presets `3, 4, 5`) use rounded frosted pills:
   ```tsx
-  className="px-4 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm disabled:opacity-50"
-  ```
-
----
-
-## 🎨 3. Semantic Color Standards
-
-Colors must be consistent and intuitive within each topic. As new topic categories are developed, add their specific semantic color mapping here:
-
-### 3.1 Angles & Triangles Palette *(Established)*
-
-| Concept | Token / Color | Hex | Usage |
-| :--- | :--- | :--- | :--- |
-| **Angle 1 / Base Angle / Side $a$** | Cyan | `#5ee8ff` | Bottom-left angle, base angles on isosceles, vertical altitude $h$, side $a$ |
-| **Angle 2 / Apex Angle / Base $b$** | Gold | `#ffd45e` | Bottom-right angle, apex angle on isosceles, baseline $b$, length $l$, side $b$ |
-| **Angle 3 / Hypotenuse $c$** | Orange | `#fb923c` | Third angle in scalene, hypotenuse $c$ in right triangles |
-| **Right Angle ($90^\circ$)** | Cyan / White | `#5ee8ff` / `#ffffff` | Perpendicular right-angle square marker ($\llcorner$) at base of altitude or right vertex |
-| **Calculated Answer / Angle Sum** | White Pill | `#ffffff` | Answer pill in live equation (`border: 1.5px solid white/65; bg: white/15`) |
+  className="px-4 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm disabled| **Right Angle ($90^\circ$)** | Cyan / White | `#5ee8ff` / `#ffffff` | Perpendicular right-angle square marker ($\llcorner$) at base of altitude or right vertex |
+| **Calculated Answer / Totals** | Bold White | `#ffffff` | Crisp bold white text inside the bottom frosted equation banner |
 | **Grid Lines & Bounding Boxes** | Translucent White | `rgba(255,255,255,0.35)` | Unit square grid lines (`strokeDasharray="2 2"`), bounding boxes (`strokeDasharray="4 3"`) |
 | **Shape Fills** | Soft Luminous White | `rgba(255,255,255,0.15)` | Interior fill of geometric shapes |
 | **Shape Outlines** | Solid White | `rgba(255,255,255,0.95)` | Primary polygon boundary edges (`strokeWidth={2.5}`) |
@@ -125,10 +109,13 @@ Colors must be consistent and intuitive within each topic. As new topic categori
 1. **Unit Grid Visualization**:
    - All area cards (triangle, rectangle, parallelogram, trapezoid, circle) must display subtle, neutral unit grid lines across the enclosing bounding rectangle ($b \times h$).
    - Concretely teaches that area is a countable measure of unit squares ($1 \times 1$).
-2. **Altitude Representation**:
+2. **Grid Snapping on Area Cards**:
+   - On area cards with unit grids, drag handles snap cleanly to unit grid coordinates (e.g. integer width columns and height rows).
+   - Ensures visual honesty: the apex, altitude line, and bounding box edges always align 1:1 with visible unit grid cells.
+3. **Altitude Representation**:
    - Vertical altitude ($h$) is drawn with a dashed cyan line (`#5ee8ff`, `strokeDasharray="4 3"`).
    - An explicit right-angle square box marker ($\llcorner$, size 8px) is placed at the intersection of the altitude and base.
-3. **Clamping & Geometric Invariants**:
+4. **Clamping & Geometric Invariants**:
    - Drag handles must be clamped within valid boundaries (e.g. apex $x$ clamped to base $[B_1, B_2]$) so the shape remains strictly enclosed inside its $b \times h$ unit grid box.
 
 ---
@@ -140,19 +127,23 @@ Colors must be consistent and intuitive within each topic. As new topic categori
    - Use standard unicode symbols (`·`, `×`, `²`, `√`, `°`, `⟂`, `½`, `⅓`).
 2. **Textbook Stacked Fractions**:
    - Always use `FormattedMathText` or `StackedFraction` (`<StackedFraction numerator="1" denominator="2" />`) for clean vertical fractions with horizontal fraction bars.
-3. **Clean Integer Rounding**:
-   - Interactive handles move smoothly and continuously in 2D without stepped snapping.
+3. **Clean Integer Rounding & Snapping**:
+   - Interactive handles move smoothly and snap to grid cells where appropriate.
    - All live numeric readouts ($b, h, A, \text{degrees}$) are rounded to whole integers to eliminate decimal clutter.
-4. **Angles vs. Side Lengths Lettering Convention**:
+4. **Uniform Outward Label Spacing**:
+   - Side length labels are positioned along their exact outward perpendicular normal vectors at a constant $14\text{px}$ offset, ensuring uniform breathing room away from shapes in any orientation.
+5. **Angles vs. Side Lengths Lettering Convention**:
    - **Angles & Vertices**: Always **Uppercase** ($A, B, C$). E.g. `A + B + C = 180°`, angle $A$, vertex $C$.
    - **Side Lengths & Dimensions**: Always **Lowercase** ($a, b, c$, $b, h$, $l, w$, $s, r$). E.g. `P = a + b + c`, `a² + b² = c²`, `A = ½ · b · h`.
+   - **Output Variables**: Calculated total variables ($A$ for Area, $P$ for Perimeter, $C$ for Circumference, $V$ for Volume) render in **crisp bold white**.
    - **Opposite Side-Angle Pairing**: Side $a$ is opposite Angle $A$, Side $b$ is opposite Angle $B$, and Side $c$ is opposite Angle $C$.
-5. **Formula Token Color Matching**:
+6. **Formula Token Color Matching**:
    - `FormattedMathText` automatically color-codes mathematical keywords:
-     - `A`, `a²`, `a`, `height (h)`, `height`, `h`, `base angles` $\rightarrow$ **Cyan (`#5ee8ff`)**
-     - `B`, `b²`, `b`, `base (b)`, `base` $\rightarrow$ **Gold (`#ffd45e`)**
-     - `C`, `c²`, `c`, `hypotenuse (c)` $\rightarrow$ **Orange (`#fb923c`)**
-6. **Diagram Simplicity & Pure Value Labels**:
+     - `a²`, `a`, `height (h)`, `height`, `h`, `base angles` $\rightarrow$ **Cyan (`#5ee8ff`)**
+     - `b²`, `b`, `base (b)`, `base` $\rightarrow$ **Gold (`#ffd45e`)**
+     - `c²`, `c`, `hypotenuse (c)` $\rightarrow$ **Orange (`#fb923c`)**
+     - `A + B + C` $\rightarrow$ Angle $A$ (Cyan), Angle $B$ (Gold), Angle $C$ (Orange)
+7. **Diagram Simplicity & Pure Value Labels**:
    - Because the top frosted hero banner explicitly explains variable names and color tokens (e.g. $b = \text{base}$, $h = \text{height}$, $a, b, c$), diagrams should display clean numeric values directly (`10`, `7`, `40°`) in their matching semantic color rather than redundant prefixes (`b = 10`, `h = 7`). This keeps diagrams uncluttered and modern.
 
 ---
@@ -160,12 +151,13 @@ Colors must be consistent and intuitive within each topic. As new topic categori
 ## ✅ 6. Card Verification Checklist
 
 Before considering any geometry card complete:
-- [ ] Top definition/formula is enclosed in the frosted glass hero banner.
+- [ ] Top definition/formula is enclosed in the flat, full-bleed edge-to-edge frosted hero banner (`border-y border-white/20 bg-black/25`).
 - [ ] Shows the "why" via direct manipulation or proof visualization.
 - [ ] Semantic colors match across header text, diagram geometry, and live equation.
-- [ ] Live bottom equation is open (no dark blocky token boxes).
-- [ ] Calculated answer is in a crisp white pill with white border.
-- [ ] Area cards display the neutral dashed unit grid across the bounding box.
+- [ ] Live bottom equation is in a matching frosted banner with clean unboxed typographic flow.
+- [ ] Calculated answers render in crisp bold white text (or matching target token color if solving for a specific component like $c^2$).
+- [ ] Labels maintain a consistent outward perpendicular offset ($14\text{px}$) from line segments.
+- [ ] Area cards display the neutral dashed unit grid across the bounding box and snap to integer unit cells.
 - [ ] Right angles feature a clean square box marker ($\llcorner$).
 - [ ] Drag handles move smoothly without jitter; numbers round cleanly to integers.
 - [ ] No auto-play loops are running in the background.
