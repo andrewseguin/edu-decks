@@ -282,3 +282,28 @@
 .animate-shake {
   animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
 }
+
+/* ────────────────────────────────────────────────────────── */
+/* Proof Table Container Query Responsive Layout             */
+/* ────────────────────────────────────────────────────────── */
+.proof-table-container {
+  container-type: inline-size;
+}
+
+@container (min-width: 480px) {
+  .proof-row-desktop {
+    display: grid !important;
+  }
+  .proof-row-mobile {
+    display: none !important;
+  }
+}
+
+@container (max-width: 479px) {
+  .proof-row-desktop {
+    display: none !important;
+  }
+  .proof-row-mobile {
+    display: flex !important;
+  }
+}

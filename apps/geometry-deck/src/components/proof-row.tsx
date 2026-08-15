@@ -56,8 +56,8 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
 
   return (
     <>
-      {/* ── Desktop / Tablet / Landscape (Two-Column Proof Table) ────────── */}
-      <div className="hidden sm:grid relative w-full items-center grid-cols-[1fr_1px_1fr] gap-x-0 py-1.5 min-w-0">
+      {/* ── Wide Container (Two-Column Proof Table: >= 480px) ─────────────── */}
+      <div className="proof-row-desktop relative w-full items-center grid-cols-[1fr_1px_1fr] gap-x-0 py-1.5 min-w-0">
         <div className="flex items-center justify-end pr-4 min-w-0">
           <ProofReasonTooltip
             reason={reason}
@@ -75,13 +75,13 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
         </div>
       </div>
 
-      {/* ── Mobile / Narrow Viewports (Stacked Step Layout) ─────────────── */}
-      <div className="flex sm:hidden relative flex-col items-center justify-center w-full py-1 px-2 text-center min-w-0 gap-0.5">
+      {/* ── Narrow Container (Stacked Step Layout: < 480px) ───────────────── */}
+      <div className="proof-row-mobile relative flex-col items-center justify-center w-full py-1.5 px-2 text-center min-w-0 gap-0.5">
         <div className="flex items-center justify-center min-w-0 max-w-full">
           <ProofReasonTooltip
             reason={reason}
             className={cn(
-              "leading-tight text-center italic text-[11px] text-white/80",
+              "leading-tight text-center italic text-xs text-white/85",
               isAnswer ? "font-bold text-white" : "font-medium",
             )}
           />
