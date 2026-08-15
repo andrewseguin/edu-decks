@@ -5,68 +5,68 @@ export interface GlossaryEntry {
 
 export const MATH_GLOSSARY: Record<string, GlossaryEntry> = {
   isolate: {
-    title: "Get the Letter Alone",
-    explanation: "Move all the other numbers to the other side of the = sign so our mystery letter sits all by itself.",
+    title: "Isolate the Variable",
+    explanation: "Move all other numbers and terms to the opposite side of the = sign so the target variable letter sits by itself.",
   },
   substitute: {
-    title: "Plug in the Numbers",
-    explanation: "Swap out the letter names for the real numbers we already know.",
+    title: "Substitute Known Values",
+    explanation: "Replace the variable letters with the known numeric values from the diagram.",
   },
   evaluate: {
-    title: "Do the Math",
-    explanation: "Calculate the final answer by adding, subtracting, or multiplying the numbers.",
+    title: "Evaluate Calculation",
+    explanation: "Perform the arithmetic operations to calculate the final numerical value.",
   },
   simplify: {
-    title: "Clean It Up",
-    explanation: "Do the easy math first (like inside parentheses) to make the equation shorter and simpler.",
+    title: "Simplify Expression",
+    explanation: "Perform the basic operations (such as inside parentheses) to make the equation shorter and cleaner.",
   },
   "square root": {
-    title: "Find the Root (√)",
-    explanation: "Ask: 'What number multiplied by itself gives this number?'",
+    title: "Take the Square Root (√)",
+    explanation: "Find the positive number that multiplies by itself to produce the value.",
   },
   "square both": {
-    title: "Multiply by Itself (x²)",
-    explanation: "Multiply a number by itself once.",
+    title: "Square Both Sides (x²)",
+    explanation: "Multiply each side of the equation by itself.",
   },
   "triangle angle sum": {
-    title: "3 Corners Make 180°",
-    explanation: "If you add up all 3 inside corners of any flat triangle, they always make 180°.",
+    title: "Triangle Angle Sum (180°)",
+    explanation: "The three interior angles of any planar triangle always add up to exactly 180°.",
   },
   "pythagorean theorem": {
-    title: "Pythagorean Rule",
-    explanation: "In a triangle with a square corner, the two short sides squared add up to the long diagonal side squared.",
+    title: "Pythagorean Theorem",
+    explanation: "In any right-angled triangle, the sum of the squares of the two legs equals the square of the hypotenuse (a² + b² = c²).",
   },
   supplementary: {
-    title: "Straight Line (180°)",
-    explanation: "Two angles that sit together on a flat straight line always add up to 180°.",
+    title: "Supplementary Angles (180°)",
+    explanation: "Angles along a straight line add up to 180°.",
   },
   complementary: {
-    title: "Square Corner (90°)",
-    explanation: "Two angles that fit together into a square 90° corner always add up to 90°.",
+    title: "Complementary Angles (90°)",
+    explanation: "Angles that form a right angle add up to 90°.",
   },
   "vertically opposite": {
-    title: "Crossed Lines Match",
-    explanation: "When two straight lines cross like an 'X', the angles directly opposite each other are identical twins (same size).",
+    title: "Vertical Angles",
+    explanation: "Opposite angles formed by two intersecting straight lines are always equal.",
   },
   perimeter: {
-    title: "Walk Around the Outside",
-    explanation: "The total distance you would walk if you walked all the way around the outside edges of the shape.",
+    title: "Perimeter",
+    explanation: "The total continuous distance around the outer boundary of a shape.",
   },
   area: {
-    title: "Tiles Covering the Inside",
-    explanation: "How many 1×1 square tiles you need to completely cover the flat inside of the shape.",
+    title: "Area",
+    explanation: "The total number of unit square tiles needed to completely cover the interior surface of a shape.",
   },
   circumference: {
-    title: "Around the Circle",
-    explanation: "The total distance all the way around the outer rim of a round circle.",
+    title: "Circumference",
+    explanation: "The linear boundary distance all the way around the edge of a circle (2 × π × r).",
   },
   euler: {
-    title: "Euler's 3D Block Rule",
-    explanation: "For solid 3D shapes: Corners minus Edges plus Flat Faces always equals 2.",
+    title: "Euler's Polyhedral Formula",
+    explanation: "For any convex 3D polyhedron: Vertices minus Edges plus Faces always equals 2 (V − E + F = 2).",
   },
   divide: {
     title: "Divide Both Sides",
-    explanation: "Divide both sides by the same number to undo multiplication and get the letter alone.",
+    explanation: "Divide both sides of the equation by the same number to isolate the variable.",
   },
 };
 
