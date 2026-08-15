@@ -21,8 +21,8 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
           className={cn(
             "font-mono leading-tight whitespace-nowrap",
             isAnswer
-              ? "text-white font-bold text-xs sm:text-base md:text-lg"
-              : "text-white/90 font-semibold text-[11px] sm:text-sm md:text-base",
+              ? "text-white font-bold text-sm sm:text-base md:text-lg"
+              : "text-white/90 font-semibold text-xs sm:text-sm md:text-base",
           )}
         >
           {tokens.map((t) => (
@@ -43,8 +43,8 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
           className={cn(
             "font-mono leading-tight",
             isAnswer
-              ? "text-white font-bold text-xs sm:text-base md:text-lg"
-              : "text-white/90 font-semibold text-[11px] sm:text-sm md:text-base",
+              ? "text-white font-bold text-sm sm:text-base md:text-lg"
+              : "text-white/90 font-semibold text-xs sm:text-sm md:text-base",
           )}
         >
           <FormattedMathText text={formulaLine} />
@@ -55,22 +55,41 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
   })();
 
   return (
-    <div className="relative grid w-full items-center grid-cols-[minmax(0,0.85fr)_1px_minmax(0,1.15fr)] gap-x-0 py-1 sm:py-1.5 min-w-0">
-      <div className="flex items-center justify-end pr-2 sm:pr-3.5 min-w-0">
-        <ProofReasonTooltip
-          reason={reason}
-          className={cn(
-            "leading-tight text-right italic text-[11px] sm:text-sm text-white",
-            isAnswer ? "font-bold" : "font-medium",
-          )}
-        />
+    <>
+      {/* ── Desktop / Tablet / Landscape (Two-Column Proof Table) ────────── */}
+      <div className="hidden sm:grid relative w-full items-center grid-cols-[1fr_1px_1fr] gap-x-0 py-1.5 min-w-0">
+        <div className="flex items-center justify-end pr-4 min-w-0">
+          <ProofReasonTooltip
+            reason={reason}
+            className={cn(
+              "leading-tight text-right italic text-xs sm:text-sm text-white",
+              isAnswer ? "font-bold" : "font-medium",
+            )}
+          />
+        </div>
+
+        <div className="self-stretch bg-white/20 min-h-[20px]" />
+
+        <div className="flex justify-start pl-4 min-w-0">
+          {equationNode}
+        </div>
       </div>
 
-      <div className="self-stretch bg-white/20 min-h-[18px]" />
-
-      <div className="flex justify-start pl-2 sm:pl-3.5 min-w-0 overflow-hidden">
-        {equationNode}
+      {/* ── Mobile / Narrow Viewports (Stacked Step Layout) ─────────────── */}
+      <div className="flex sm:hidden relative flex-col items-center justify-center w-full py-1 px-2 text-center min-w-0 gap-0.5">
+        <div className="flex items-center justify-center min-w-0 max-w-full">
+          <ProofReasonTooltip
+            reason={reason}
+            className={cn(
+              "leading-tight text-center italic text-[11px] text-white/80",
+              isAnswer ? "font-bold text-white" : "font-medium",
+            )}
+          />
+        </div>
+        <div className="flex items-center justify-center min-w-0 w-full overflow-x-auto no-scrollbar py-0.5">
+          {equationNode}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
