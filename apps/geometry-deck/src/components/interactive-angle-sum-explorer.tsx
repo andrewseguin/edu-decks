@@ -243,7 +243,7 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
           /* ── Unfolded State (Step 1): Clean single solid triangle with zero interior lines ── */
           <polygon
             points={`${V1.x},${V1.y} ${V2.x},${V2.y} ${V3.x},${V3.y}`}
-            fill="rgba(255,255,255,0.08)"
+            fill="rgba(255,255,255,0.15)"
             stroke="rgba(255,255,255,0.85)"
             strokeWidth={1.5}
             strokeLinejoin="round"
@@ -260,22 +260,22 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
               strokeDasharray="4 3"
             />
 
-            {/* Central static paper piece (uniform 0.08 fill) */}
+            {/* Central static paper piece (uniform 0.15 fill) */}
             <polygon
               points={`${ML.x},${ML.y} ${V3.x},${V3.y} ${MR.x},${MR.y} ${BM.x},${BM.y}`}
-              fill="rgba(255,255,255,0.08)"
+              fill="rgba(255,255,255,0.15)"
             />
 
-            {/* Left folding flap (matching uniform 0.08 fill) */}
+            {/* Left folding flap (matching uniform 0.15 fill) */}
             <polygon
               points={`${ML.x},${ML.y} ${V1f.x},${V1f.y} ${BMfL.x},${BMfL.y}`}
-              fill="rgba(255,255,255,0.08)"
+              fill="rgba(255,255,255,0.15)"
             />
 
-            {/* Right folding flap (matching uniform 0.08 fill) */}
+            {/* Right folding flap (matching uniform 0.15 fill) */}
             <polygon
               points={`${MR.x},${MR.y} ${V2f.x},${V2f.y} ${BMfR.x},${BMfR.y}`}
-              fill="rgba(255,255,255,0.08)"
+              fill="rgba(255,255,255,0.15)"
             />
 
             {/* Outer paper boundary edges (solid stroke) */}
