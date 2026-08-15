@@ -148,7 +148,7 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
   const lblFont = "var(--font-heading, system-ui)";
 
   /* ── step animation transitions ────────────────────────────────────────── */
-  const transitionTo = useCallback((targetGrow: number, targetMigrate: number, targetStep: number, duration = 750) => {
+  const transitionTo = useCallback((targetGrow: number, targetMigrate: number, targetStep: number, duration = 1000) => {
     if (animRef.current) cancelAnimationFrame(animRef.current);
     setIsAutoPlaying(false);
     setActiveStep(targetStep);
@@ -176,11 +176,11 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
 
   const handleStepClick = (stepNum: number) => {
     if (stepNum === 1) {
-      transitionTo(0, 0, 1);
+      transitionTo(0, 0, 1, 900);
     } else if (stepNum === 2) {
-      transitionTo(1, 0, 2);
+      transitionTo(1, 0, 2, 1200);
     } else if (stepNum === 3) {
-      transitionTo(1, 1, 3);
+      transitionTo(1, 1, 3, 3000);
     }
   };
 
@@ -192,9 +192,9 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
     setGrowP(0);
     setMigrateP(0);
 
-    const GROW_TIME = 1600;
-    const PAUSE = 600;
-    const MIGRATE_TIME = 3200;
+    const GROW_TIME = 1800;
+    const PAUSE = 700;
+    const MIGRATE_TIME = 4200;
     const t0 = performance.now();
 
     const tick = (now: number) => {
@@ -268,11 +268,11 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
 
         {/* ── Unit squares ──────────────────────────────────────────── */}
         {gp > 0.8 && dots.map((dot, i) => {
-          const dotMp = clamp01((mp - dot.delay) / (1 - 0.35));
-          const transP = ease(clamp01((dotMp - 0.2) / 0.8));
+          const dotMp = clamp01((mp - dot.delay) / (1 - 0.4));
+          const transP = ease(dotMp);
           const cx = rnd(lerp(dot.srcX, dot.tgtX, transP));
           const cy = rnd(lerp(dot.srcY, dot.tgtY, transP));
-          const rotP = ease(clamp01(dotMp / 0.2));
+          const rotP = ease(dotMp);
           const rot = rnd(lerp(0, cAngleDeg, rotP));
           const opacity = rnd(Math.min(1, (gp - 0.8) * 5));
           const hs = cellSize / 2;
