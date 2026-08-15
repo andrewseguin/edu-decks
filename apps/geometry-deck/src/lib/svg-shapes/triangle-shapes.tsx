@@ -55,7 +55,7 @@ function RevealText({
   unit = "",
   color,
   fontSize = 17,
-  fontWeight = 900,
+  fontWeight = "bold",
   textAnchor = "middle",
   dominantBaseline = "central",
 }: {
