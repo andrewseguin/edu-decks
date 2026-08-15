@@ -14,9 +14,9 @@ const COLOR_LAVENDER = "#d8b4fe";
 
 const lblStyle: React.CSSProperties = {
   filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))",
-  fontFamily: "var(--font-heading, system-ui)",
+  fontFamily: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
 };
-const lblFont = "var(--font-heading, system-ui)";
+const lblFont = "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
 
 /**
  * Robust vector-based corner arc helper.
@@ -187,7 +187,7 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
   const normC = getSideNormal(V3, V2, -14); // Right side outward normal
 
   return (
-    <svg viewBox="0 0 240 170" className="w-full h-full select-none font-headline" aria-hidden>
+    <svg viewBox="0 0 240 170" className="w-full h-full select-none" aria-hidden>
       {/* ── Unit Grid for Area Mode (Bounding Rectangle) ─────────────────── */}
       {h !== undefined && b !== undefined && Number(b) > 1 && Number(h) > 1 && (
         <g opacity={0.85}>
@@ -486,7 +486,7 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
   const revealedAnswer = mutation?.revealAnswer;
 
   return (
-    <svg viewBox="0 0 240 170" className="w-full h-full select-none font-headline" aria-hidden>
+    <svg viewBox="0 0 240 170" className="w-full h-full select-none" aria-hidden>
       {/* ── Right Triangle Polygon ───────────────────────────────────────── */}
       <polygon
         points={`${V1.x},${V1.y} ${V2.x},${V2.y} ${V3.x},${V3.y}`}

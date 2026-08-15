@@ -186,9 +186,9 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
 
   const lblStyle: React.CSSProperties = {
     filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))",
-    fontFamily: "var(--font-heading, system-ui)",
+    fontFamily: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
   };
-  const lblFont = "var(--font-heading, system-ui)";
+  const lblFont = "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
 
   const p = foldProgress;
   const ML = { x: rnd((V1.x + V3.x) / 2), y: rnd((V1.y + V3.y) / 2) };

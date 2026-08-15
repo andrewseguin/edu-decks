@@ -164,10 +164,10 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
 
   const lblStyle: React.CSSProperties = {
     filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))",
-    fontFamily: "var(--font-heading, system-ui)",
+    fontFamily: "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif",
   };
   const lblAreaStyle = { filter: "drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.95))" } as React.CSSProperties;
-  const lblFont = "var(--font-heading, system-ui)";
+  const lblFont = "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
 
   /* ── step animation transitions ────────────────────────────────────────── */
   const transitionTo = useCallback((targetGrow: number, targetMigrate: number, targetStep: number, duration = 1000) => {
