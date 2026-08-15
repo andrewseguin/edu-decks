@@ -93,6 +93,20 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
   className="px-4 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm disabled:opacity-50"
   ```
 
+### 2.5 Two-Column Calculation Proofs & Interactive Glossary
+- **Responsive Layout via CSS Container Queries (`.proof-table-container`)**:
+  - **Wide Containers ($\ge 480\text{px}$)**: Classic formal two-column proof table (Reason on Left `|` Equation on Right) separated by a subtle vertical divider (`bg-white/20`).
+  - **Narrow Containers ($< 480\text{px}$)**: Centered stacked step layout (Reason on top, full-width bold Equation below). Eliminates horizontal line clipping and preserves full, precise theorem language on small mobile screens.
+- **Interactive ELI5 Math Glossary Tooltips (`ProofReasonTooltip`)**:
+  - Every justification reason has a subtle dotted underline (`decoration-dotted decoration-white/50`).
+  - Hovering (desktop) or tapping (mobile) opens a frosted floating glossary card with ultra-accessible ELI5 explanations and clean unboxed examples (e.g. *Isolate*, *Substitute*, *Angle Sum*, *Evaluate*).
+  - Built with `@radix-ui/react-popover` and React Portals to guarantee zero clipping from card overflow.
+- **Front Question Prompt Fading**:
+  - Action-verb prompt on the front (e.g. *"Solve for angle C"*) smoothly collapses and fades on flip (`opacity-0 max-h-0`) so learners focus entirely on the calculation proof.
+- **Diagram Unknown Variable Cross-Fade (`RevealText`)**:
+  - Unknown target variable letters ($C, a, b, c$) display on the front diagram in prominent bold typography ($17\text{px}$ font, generous vertex clearance).
+  - On flip/reveal, the variable smoothly scales and cross-fades into the computed numeric answer ($75^\circ, 5$).
+
 ---
 
 ## 🎨 3. Semantic Color Standards
@@ -105,7 +119,7 @@ Colors must be consistent and intuitive within each topic. As new topic categori
 | :--- | :--- | :--- | :--- |
 | **Angle 1 / Base Angle / Side $a$** | Cyan | `#5ee8ff` | Bottom-left angle, base angles on isosceles, vertical altitude $h$, side $a$ |
 | **Angle 2 / Apex Angle / Base $b$** | Gold | `#ffd45e` | Bottom-right angle, apex angle on isosceles, baseline $b$, length $l$, side $b$ |
-| **Angle 3 / Hypotenuse $c$** | Orange | `#fb923c` | Third angle in scalene, hypotenuse $c$ in right triangles |
+| **Angle 3 / Hypotenuse $c$** | Orange | `#ffa756` | Third angle in scalene, hypotenuse $c$ in right triangles |
 | **Right Angle ($90^\circ$)** | Cyan / White | `#5ee8ff` / `#ffffff` | Perpendicular right-angle square marker ($\llcorner$) at base of altitude or right vertex |
 | **Calculated Answer / Totals** | Bold White | `#ffffff` | Crisp bold white text inside the bottom frosted equation banner |
 | **Grid Lines & Bounding Boxes** | Translucent White | `rgba(255,255,255,0.35)` | Unit square grid lines (`strokeDasharray="2 2"`), bounding boxes (`strokeDasharray="4 3"`) |
