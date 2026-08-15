@@ -184,7 +184,10 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
   const edgeAngleL = rnd(Math.atan2(-(BASE_Y - apexY), B1_X - apexX) * 180 / Math.PI);
   const edgeAngleR = rnd(Math.atan2(-(BASE_Y - apexY), B2_X - apexX) * 180 / Math.PI);
 
-  const lblStyle = { filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" } as React.CSSProperties;
+  const lblStyle: React.CSSProperties = {
+    filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))",
+    fontFamily: "var(--font-heading, system-ui)",
+  };
   const lblFont = "var(--font-heading, system-ui)";
 
   const p = foldProgress;

@@ -162,7 +162,10 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
   const cMx = (A.x + B.x) / 2, cMy = (A.y + B.y) / 2;
   const labelC = { x: rnd(cMx + (aPx / cPx) * 14), y: rnd(cMy + (-bPx / cPx) * 14) };
 
-  const lblStyle = { filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" } as React.CSSProperties;
+  const lblStyle: React.CSSProperties = {
+    filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))",
+    fontFamily: "var(--font-heading, system-ui)",
+  };
   const lblAreaStyle = { filter: "drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.95))" } as React.CSSProperties;
   const lblFont = "var(--font-heading, system-ui)";
 
