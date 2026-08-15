@@ -22,7 +22,11 @@ This file defines mandatory behavioral constraints and operational workflows for
 
 ### 3. MULTI-ENVIRONMENT DEPLOYMENTS & PRODUCTION BRANCH DISCIPLINE
 - Everyday commits, feature work, and PRs merge into the `main` branch.
-- Commits to `main` automatically deploy to `*-dev.edudecks.org` (`isDevSite() === true` for logs & dev tools) and `*-staging.edudecks.org` (`isDevSite() === false` for prod candidate testing).
+- Commits pushed to `main` automatically trigger builds on Vercel for `*-dev.edudecks.org` (`isDevSite() === true` for logs & dev tools) and `*-staging.edudecks.org` (`isDevSite() === false` for prod candidate testing).
+- **DO NOT PUSH TO REMOTE AFTER EVERY INDIVIDUAL COMMIT**:
+  - Create clean, atomic local commits with `git commit` as work progresses.
+  - **NEVER** run `git push origin main` after every tiny tweak or prompt to avoid burning Vercel build minutes.
+  - Only push to `origin main` when completing a substantial, tested feature milestone or when explicitly asked by the user.
 - Live production sites (`*.edudecks.org`) are served exclusively from the **`prod`** branch.
 - **NEVER** push directly to `prod` without validating changes on `main` / `*-staging.edudecks.org` first.
 - To promote a verified candidate from `main` to live production:
@@ -36,15 +40,15 @@ This file defines mandatory behavioral constraints and operational workflows for
 
 ### 5. GEOMETRY DECK — DESIGN & INTERACTION STANDARDS
 - All cards in `apps/geometry-deck` MUST follow [apps/geometry-deck/DESIGN_GUIDE.md](file:///Users/andrewseguin/git/edu-decks/apps/geometry-deck/DESIGN_GUIDE.md).
-- **Full-Bleed Frosted Formula Banner**: Always wrap top definitions/formulas in the full-bleed edge-to-edge frosted hero banner (`w-full border-y border-white/20 bg-black/25 backdrop-blur-md`) with primary formula + optional plain English subtitle.
+- **Full-Bleed Flat Frosted Hero Banner**: Always wrap top definitions/formulas in the full-bleed edge-to-edge frosted hero banner (`w-full border-y border-white/20 bg-black/35`) with primary formula + optional plain English subtitle. (Do not use `backdrop-blur` on full-bleed card banners to prevent edge blur shadows).
 - **Unit Grid Visualization**: All area cards must visualize area using subtle, neutral unit grid lines (e.g. dashed 1×1 square cells) across the enclosing bounding box to concretely ground square units.
 - **Semantic Color Coding**:
-  - **Cyan (`#5ee8ff`)**: Height / vertical altitude ($h$), Side $a$, Angle $A$, Base angles.
-  - **Gold (`#ffd45e`)**: Base / horizontal dimensions ($b$, $l$, $w$), Side $b$, Angle $B$, Apex angle.
-  - **Frosted Equation Banners**: Live calculations are wrapped in a matching frosted banner (`bg-black/45 backdrop-blur-md border-white/20`) with clean unboxed typographic flow.
+  - **Cyan (`#5ee8ff`)**: Height / vertical altitude (h), Side a, Angle A, Base angles.
+  - **Gold (`#ffd45e`)**: Base / horizontal dimensions (b, l, w), Side b, Angle B, Apex angle.
+  - **Frosted Equation Banners**: Live calculations are wrapped in a matching flat banner (`bg-black/35 border-y border-white/20`) with clean unboxed typographic flow.
   - **Neutral Translucent White**: Grid lines, bounding boxes, and shape fills.
 - **Interaction & Numbers**: Allow smooth, continuous dragging on handles/vertices while cleanly rounding displayed numbers to whole integers. No auto-play loops.
-- **Stacked Fractions**: Use `FormattedMathText` / `StackedFraction` for formulas to ensure textbook-quality typography rather than squished raw unicode fraction glyphs (e.g. `½`).
+- **Stacked Fractions**: Use `FormattedMathText` / `StackedFraction` for formulas to ensure textbook-quality typography rather than squished raw unicode fraction glyphs (e.g. ½).
 
 ---
 
