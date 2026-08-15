@@ -250,7 +250,7 @@ export function GeometryCard({
             <div
               className={cn(
                 "w-full flex items-center justify-center transition-all duration-300",
-                isFlipped ? "max-w-[360px] max-h-[170px] sm:max-h-[190px]" : "max-w-[440px] max-h-[230px]"
+                isFlipped ? "max-w-[320px] sm:max-w-[350px]" : "max-w-[380px] sm:max-w-[420px]"
               )}
             >
               {renderShapeSvg(card.frontSvg, activeMutation)}

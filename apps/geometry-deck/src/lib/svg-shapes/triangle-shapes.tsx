@@ -131,25 +131,25 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
   const filled = mutation?.fillInterior;
   const revealedAnswer = mutation?.revealAnswer;
 
-  // Standard geometry canvas dimensions
-  const baseY = 140;
-  let V1 = { x: 35, y: baseY };
-  let V2 = { x: 205, y: baseY };
-  // When b=8, h=5, align apex to column 3 (35 + 3 * 21.25 = 98.75) for 100% grid alignment
-  let V3 = { x: (h !== undefined && b === 8) ? 98.75 : 95, y: 45 };
+  // Standard geometry canvas dimensions (centered with generous padding for outer labels)
+  const baseY = 128;
+  let V1 = { x: 40, y: baseY };
+  let V2 = { x: 200, y: baseY };
+  // When b=8, h=5, align apex to column 3 (40 + 3 * 20 = 100) for 100% grid alignment
+  let V3 = { x: (h !== undefined && b === 8) ? 100 : 95, y: 35 };
 
   if (style === "equilateral") {
-    V1 = { x: 45, y: 140 };
-    V2 = { x: 195, y: 140 };
-    V3 = { x: 120, y: 140 - 75 * Math.sqrt(3) };
+    V1 = { x: 45, y: 128 };
+    V2 = { x: 195, y: 128 };
+    V3 = { x: 120, y: 128 - 75 * Math.sqrt(3) };
   } else if (style === "isosceles") {
-    V1 = { x: 55, y: 140 };
-    V2 = { x: 185, y: 140 };
-    V3 = { x: 120, y: 45 };
+    V1 = { x: 55, y: 128 };
+    V2 = { x: 185, y: 128 };
+    V3 = { x: 120, y: 35 };
   } else if (style === "isosceles-wide") {
-    V1 = { x: 40, y: 135 };
-    V2 = { x: 200, y: 135 };
-    V3 = { x: 120, y: 75 };
+    V1 = { x: 40, y: 125 };
+    V2 = { x: 200, y: 125 };
+    V3 = { x: 120, y: 65 };
   }
 
   // If angA is provided, compute angle-sum geometry dynamically so arcs align 100%
@@ -163,7 +163,7 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
     const radB = (angB * Math.PI) / 180;
     const tanA = Math.tan(radA);
     const tanB = Math.tan(radB);
-    const baseW = V2.x - V1.x; // 170
+    const baseW = V2.x - V1.x; // 160
     // Height from baseline
     const computedH = (baseW * tanA * tanB) / (tanA + tanB);
     const apexX = V1.x + computedH / tanA;
@@ -187,7 +187,7 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
   const normC = getSideNormal(V3, V2, -14); // Right side outward normal
 
   return (
-    <svg viewBox="0 0 240 170" className="w-full h-full select-none" aria-hidden>
+    <svg viewBox="0 0 240 165" className="w-full h-full select-none" aria-hidden>
       {/* ── Unit Grid for Area Mode (Bounding Rectangle) ─────────────────── */}
       {h !== undefined && b !== undefined && Number(b) > 1 && Number(h) > 1 && (
         <g opacity={0.85}>
