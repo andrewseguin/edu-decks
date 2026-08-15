@@ -293,9 +293,7 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
               fontWeight={800}
               fill={COLOR_A}
               fontFamily={lblFont}
-              stroke="rgba(0,0,0,0.85)"
-              strokeWidth={3}
-              paintOrder="stroke"
+              style={lblStyle}
               opacity={rnd(Math.min(1, (gp - 0.2) * 1.5))}
             >
               {a}² = {aSq}
@@ -311,9 +309,7 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
               fontWeight={800}
               fill={COLOR_B}
               fontFamily={lblFont}
-              stroke="rgba(0,0,0,0.85)"
-              strokeWidth={3}
-              paintOrder="stroke"
+              style={lblStyle}
               opacity={rnd(Math.min(1, (gp - 0.2) * 1.5))}
             >
               {b}² = {bSq}
@@ -329,9 +325,7 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
               fontWeight={800}
               fill={COLOR_C}
               fontFamily={lblFont}
-              stroke="rgba(0,0,0,0.85)"
-              strokeWidth={3}
-              paintOrder="stroke"
+              style={lblStyle}
               transform={`rotate(${cAngleDeg}, ${rnd(cMx + offX * 0.5)}, ${rnd(cMy + offY * 0.5)})`}
               opacity={rnd(Math.min(1, (gp - 0.2) * 1.5))}
             >
