@@ -236,23 +236,131 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
         <circle cx={A.x} cy={A.y} r={3} fill="white" />
         <circle cx={B.x} cy={B.y} r={3} fill="white" />
 
-        {/* ── Side labels ───────────────────────────────────────────── */}
-        <text x={labelA.x} y={labelA.y} textAnchor="end" dominantBaseline="central"
-          fontSize={14} fontWeight={800} fill={COLOR_A} fontFamily={lblFont} style={lblStyle}>{a}</text>
-        <text x={labelB.x} y={labelB.y} textAnchor="middle" dominantBaseline="hanging"
-          fontSize={14} fontWeight={800} fill={COLOR_B} fontFamily={lblFont} style={lblStyle}>{b}</text>
-        <text x={labelC.x} y={labelC.y} textAnchor="middle" dominantBaseline="central"
-          fontSize={14} fontWeight={800} fill={COLOR_C} fontFamily={lblFont} style={lblStyle}>{c}</text>
+        {/* ── Side & Area labels ───────────────────────────────────────── */}
+        <text
+          x={labelA.x}
+          y={labelA.y}
+          textAnchor="end"
+          dominantBaseline="central"
+          fontSize={14}
+          fontWeight={800}
+          fill={COLOR_A}
+          fontFamily={lblFont}
+          style={lblStyle}
+          opacity={gp > 0.5 ? 0 : 1}
+        >
+          {a}
+        </text>
+        <text
+          x={labelB.x}
+          y={labelB.y}
+          textAnchor="middle"
+          dominantBaseline="hanging"
+          fontSize={14}
+          fontWeight={800}
+          fill={COLOR_B}
+          fontFamily={lblFont}
+          style={lblStyle}
+          opacity={gp > 0.5 ? 0 : 1}
+        >
+          {b}
+        </text>
+        <text
+          x={labelC.x}
+          y={labelC.y}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontSize={14}
+          fontWeight={800}
+          fill={COLOR_C}
+          fontFamily={lblFont}
+          style={lblStyle}
+          opacity={gp > 0.5 ? 0 : 1}
+        >
+          {c}
+        </text>
+
+        {/* ── Exponent Area Labels (3² = 9, 4² = 16, 5² = 25) ────────────── */}
+        {gp > 0.2 && (
+          <>
+            {/* Square a Area Label */}
+            <text
+              x={rnd(O.x - (aPx * gp) / 2)}
+              y={rnd((O.y + A.y) / 2)}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={presetIdx === 0 ? 12 : 10}
+              fontWeight={800}
+              fill={COLOR_A}
+              fontFamily={lblFont}
+              stroke="rgba(0,0,0,0.85)"
+              strokeWidth={3}
+              paintOrder="stroke"
+              opacity={rnd(Math.min(1, (gp - 0.2) * 1.5))}
+            >
+              {a}² = {aSq}
+            </text>
+
+            {/* Square b Area Label */}
+            <text
+              x={rnd((O.x + B.x) / 2)}
+              y={rnd(O.y + (bPx * gp) / 2)}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={presetIdx === 0 ? 12 : 10}
+              fontWeight={800}
+              fill={COLOR_B}
+              fontFamily={lblFont}
+              stroke="rgba(0,0,0,0.85)"
+              strokeWidth={3}
+              paintOrder="stroke"
+              opacity={rnd(Math.min(1, (gp - 0.2) * 1.5))}
+            >
+              {b}² = {bSq}
+            </text>
+
+            {/* Square c Area Label */}
+            <text
+              x={rnd(cMx + (offX * 0.5))}
+              y={rnd(cMy + (offY * 0.5))}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={presetIdx === 0 ? 12 : 10}
+              fontWeight={800}
+              fill={COLOR_C}
+              fontFamily={lblFont}
+              stroke="rgba(0,0,0,0.85)"
+              strokeWidth={3}
+              paintOrder="stroke"
+              transform={`rotate(${cAngleDeg}, ${rnd(cMx + offX * 0.5)}, ${rnd(cMy + offY * 0.5)})`}
+              opacity={rnd(Math.min(1, (gp - 0.2) * 1.5))}
+            >
+              {c}² = {cSq}
+            </text>
+          </>
+        )}
       </svg>
 
-      {/* ── Equation ──────────────────────────────────────────────────────── */}
+      {/* ── Live Equation (Morphs to 9 + 16 = 25 during proof) ─────────── */}
       <div className="flex justify-center my-1">
-        <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
-          <span style={{ color: COLOR_A }}>{a}²</span>
-          <span className="text-white/50">+</span>
-          <span style={{ color: COLOR_B }}>{b}²</span>
-          <span className="text-white/50">=</span>
-          <span style={{ color: COLOR_C }}>{c}²</span>
+        <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none transition-all duration-300">
+          {mp > 0.3 ? (
+            <>
+              <span style={{ color: COLOR_A }}>{aSq}</span>
+              <span className="text-white/50">+</span>
+              <span style={{ color: COLOR_B }}>{bSq}</span>
+              <span className="text-white/50">=</span>
+              <span style={{ color: COLOR_C }}>{cSq}</span>
+            </>
+          ) : (
+            <>
+              <span style={{ color: COLOR_A }}>{a}²</span>
+              <span className="text-white/50">+</span>
+              <span style={{ color: COLOR_B }}>{b}²</span>
+              <span className="text-white/50">=</span>
+              <span style={{ color: COLOR_C }}>{c}²</span>
+            </>
+          )}
         </div>
       </div>
 
