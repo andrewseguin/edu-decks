@@ -196,34 +196,33 @@ export function InteractiveAnglePair({ targetSum, label, color }: InteractiveAng
         <circle cx={armEnd.x} cy={armEnd.y} r={4} fill="white" className="pointer-events-none" />
       </svg>
 
-      {/* Equation as colored pill tokens */}
-      <div className="flex items-end gap-1.5 justify-center px-2">
-        <div className="flex flex-col items-center gap-0.5">
-          <span className="text-[10px] font-bold" style={{ color: COLOR_A }}>A</span>
-          <span className="px-3 py-1 rounded-md text-sm font-bold"
-            style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_A, border: `1.5px solid ${COLOR_A}90` }}>
-            {dA}°
-          </span>
+      {/* Live equation matching design spec */}
+      <div className="flex justify-center my-0.5">
+        <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
+          <span style={{ color: COLOR_A }}>{dA}°</span>
+          <span className="text-white/50">+</span>
+          <span style={{ color: COLOR_B }}>{dB}°</span>
+          <span className="text-white/50">=</span>
+          <span className="text-white font-bold">{targetSum}°</span>
         </div>
-        <span className="text-white/50 text-sm font-bold pb-1.5">+</span>
-        <div className="flex flex-col items-center gap-0.5">
-          <span className="text-[10px] font-bold" style={{ color: COLOR_B }}>B</span>
-          <span className="px-3 py-1 rounded-md text-sm font-bold"
-            style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_B, border: `1.5px solid ${COLOR_B}90` }}>
-            {dB}°
-          </span>
-        </div>
-        <span className="text-white/50 text-sm font-bold pb-1.5">=</span>
-        <span className="text-white text-base font-bold pb-1">{targetSum}°</span>
       </div>
 
       {/* Slider */}
-      <div className="w-full max-w-[260px] sm:max-w-[300px] px-2" onClick={stop}>
-        <input type="range" min={sliderMin} max={sliderMax} step={1}
-          value={Math.round(angleA)} onChange={handleSlider}
+      <div className="w-full max-w-[260px] sm:max-w-[300px] px-2" onClick={stop} onPointerDown={stop}>
+        <input
+          type="range"
+          min={sliderMin}
+          max={sliderMax}
+          step={1}
+          value={Math.round(angleA)}
+          onChange={handleSlider}
           className="angle-slider w-full"
-          style={{ "--slider-color": color, "--slider-progress": `${((angleA - sliderMin) / (sliderMax - sliderMin)) * 100}%` } as React.CSSProperties}
-          aria-label={`Adjust ${label} angle A`} />
+          style={{
+            "--slider-color": color,
+            "--slider-progress": `${((angleA - sliderMin) / (sliderMax - sliderMin)) * 100}%`,
+          } as React.CSSProperties}
+          aria-label={`Adjust ${label} angles`}
+        />
       </div>
     </div>
   );
