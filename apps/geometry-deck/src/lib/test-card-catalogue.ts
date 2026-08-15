@@ -308,7 +308,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontSvg: { shape: "triangle", dimensions: { b: 8, h: 5, style: "scalene", labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "A" },
     frontSpeechText: "Base is 8, height is 5. Find the triangle area.",
     backSteps: [
-      { equationTokens: [t("lhs","A"), eq(), t("half","½"), op("×"), t("b","base (b)","#ffd45e"), op("×"), t("h","height (h)","#5ee8ff")], reason: "Triangle area formula" },
+      { equationTokens: [t("lhs","A"), eq(), t("half","½"), op("×"), t("b","b","#ffd45e"), op("×"), t("h","h","#5ee8ff")], reason: "Triangle area formula" },
       { equationTokens: [t("lhs","A"), eq(), t("half","½"), op("×"), t("b","8","#ffd45e"), op("×"), t("h","5","#5ee8ff")], svgMutation: { fillInterior: true }, reason: "Substitute known values" },
       { equationTokens: [t("lhs","A"), eq(), t("rhs","20")], reason: "Evaluate" },
     ],

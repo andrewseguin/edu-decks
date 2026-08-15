@@ -1,6 +1,7 @@
 export interface GlossaryEntry {
   title: string;
   explanation: string;
+  formula?: string;
 }
 
 export const MATH_GLOSSARY: Record<string, GlossaryEntry> = {
@@ -31,18 +32,22 @@ export const MATH_GLOSSARY: Record<string, GlossaryEntry> = {
   "triangle angle sum": {
     title: "Triangle Angle Sum (180°)",
     explanation: "The three interior angles of any planar triangle always add up to exactly 180°.",
+    formula: "A + B + C = 180°",
   },
   "pythagorean theorem": {
     title: "Pythagorean Theorem",
-    explanation: "In any right-angled triangle, the sum of the squares of the two legs equals the square of the hypotenuse (a² + b² = c²).",
+    explanation: "In any right-angled triangle, the sum of the squares of the two legs equals the square of the hypotenuse.",
+    formula: "a² + b² = c²",
   },
   supplementary: {
     title: "Supplementary Angles (180°)",
     explanation: "Angles along a straight line add up to 180°.",
+    formula: "A + B = 180°",
   },
   complementary: {
     title: "Complementary Angles (90°)",
     explanation: "Angles that form a right angle add up to 90°.",
+    formula: "A + B = 90°",
   },
   "vertically opposite": {
     title: "Vertical Angles",
@@ -51,10 +56,12 @@ export const MATH_GLOSSARY: Record<string, GlossaryEntry> = {
   perimeter: {
     title: "Perimeter",
     explanation: "The total continuous distance around the outer boundary of a shape.",
+    formula: "P = a + b + c",
   },
   "triangle area": {
     title: "Triangle Area Formula",
-    explanation: "Multiply half the base (b) by the vertical height (h) to find the enclosed surface area (A = ½ × base × height).",
+    explanation: "Multiply half the base (b) by the vertical height (h) to find the enclosed surface area.",
+    formula: "Area = ½ × base × height",
   },
   area: {
     title: "Area",
@@ -62,11 +69,13 @@ export const MATH_GLOSSARY: Record<string, GlossaryEntry> = {
   },
   circumference: {
     title: "Circumference",
-    explanation: "The linear boundary distance all the way around the edge of a circle (2 × π × r).",
+    explanation: "The linear boundary distance all the way around the edge of a circle.",
+    formula: "C = 2 × π × r",
   },
   euler: {
     title: "Euler's Polyhedral Formula",
-    explanation: "For any convex 3D polyhedron: Vertices minus Edges plus Faces always equals 2 (V − E + F = 2).",
+    explanation: "For any convex 3D polyhedron: Vertices minus Edges plus Faces always equals 2.",
+    formula: "V − E + F = 2",
   },
   divide: {
     title: "Divide Both Sides",

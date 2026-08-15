@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import * as Popover from "@radix-ui/react-popover";
-import { cn } from "@/lib/utils";
+import { cn } from "@decks/core";
+import { FormattedMathText } from "./ui/formatted-math-text";
 import { lookupGlossary } from "@/lib/math-glossary";
 
 interface ProofReasonTooltipProps {
@@ -77,6 +78,18 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
           <p className="pt-2 text-xs text-white/90 leading-relaxed not-italic font-normal">
             {entry.explanation}
           </p>
+
+          {/* Formula (if defined) */}
+          {entry.formula && (
+            <div className="mt-2.5 pt-2 border-t border-white/10 flex flex-col gap-0.5">
+              <span className="text-[10px] uppercase font-mono font-semibold tracking-wider" style={{ color: "#ffd45e" }}>
+                Formula:
+              </span>
+              <p className="font-mono text-white font-bold text-xs sm:text-sm leading-relaxed">
+                <FormattedMathText text={entry.formula} />
+              </p>
+            </div>
+          )}
 
           {/* Radix Popover Arrow */}
           <Popover.Arrow className="fill-slate-950/95" width={12} height={6} />
