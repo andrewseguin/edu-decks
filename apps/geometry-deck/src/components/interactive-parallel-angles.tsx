@@ -59,7 +59,7 @@ export function InteractiveParallelAngles({ mode, color }: InteractiveParallelAn
   const animate = useCallback((ts: number) => {
     if (ucRef.current) return;
     if (startTimeRef.current === null) startTimeRef.current = ts;
-    const t = (Math.sin((ts - startTimeRef.current) / 1000 * Math.PI * 0.25) + 1) / 2;
+    const t = (Math.sin(((ts - startTimeRef.current) / 1000) * Math.PI * 0.12) + 1) / 2;
     setTheta(sweepMin + t * (sweepMax - sweepMin));
     animRef.current = requestAnimationFrame(animate);
   }, [sweepMin, sweepMax]);
