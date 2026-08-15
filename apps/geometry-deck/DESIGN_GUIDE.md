@@ -1,6 +1,7 @@
 # Geometry Deck — Design & Interaction Guide
 
-This guide establishes the mandatory visual, typography, and interaction standards for all flash cards in the `geometry-deck`. Every card must adhere to these rules to maintain textbook-quality clarity, visual consistency, and intuitive student learning.
+> [!NOTE]
+> **Living Document**: This design specification is actively evolving as we progress card-by-card through the deck. The core layout hierarchy (frosted hero banner, open live equations, white-bordered answers, zero auto-play) is universal, while semantic color palettes, diagram layouts, and interactive paradigms will expand to accommodate new topics (e.g. Quadrilaterals, Circles, Polygons, and 3D Shapes) as each topic is reviewed. Always update this document when introducing or refining new visual patterns.
 
 ---
 
@@ -70,7 +71,9 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
 
 ## 🎨 2. Semantic Color Standards
 
-Never introduce random or conflicting colors. All geometry elements follow strict semantic meaning:
+Colors must be consistent and intuitive within each topic. As new topic categories are developed, add their specific semantic color mapping here:
+
+### 2.1 Angles & Triangles Palette *(Established)*
 
 | Concept | Token / Color | Hex | Usage |
 | :--- | :--- | :--- | :--- |
@@ -78,17 +81,23 @@ Never introduce random or conflicting colors. All geometry elements follow stric
 | **Angle 2 / Apex Angle / Base $b$** | Gold | `#ffd45e` | Bottom-right angle, apex angle on isosceles, baseline $b$, length $l$, side $b$ |
 | **Angle 3 / Hypotenuse $c$** | Orange | `#fb923c` | Third angle in scalene, hypotenuse $c$ in right triangles |
 | **Right Angle ($90^\circ$)** | Cyan / White | `#5ee8ff` / `#ffffff` | Perpendicular right-angle square marker ($\llcorner$) at base of altitude or right vertex |
-| **Calculated Answer / Area** | White Pill / Emerald | `#ffffff` / `#34d399` | Answer pill in live equation (`border: 1.5px solid white/65`) |
+| **Calculated Answer / Angle Sum** | White Pill | `#ffffff` | Answer pill in live equation (`border: 1.5px solid white/65; bg: white/15`) |
 | **Grid Lines & Bounding Boxes** | Translucent White | `rgba(255,255,255,0.35)` | Unit square grid lines (`strokeDasharray="2 2"`), bounding boxes (`strokeDasharray="4 3"`) |
 | **Shape Fills** | Soft Luminous White | `rgba(255,255,255,0.15)` | Interior fill of geometric shapes |
 | **Shape Outlines** | Solid White | `rgba(255,255,255,0.95)` | Primary polygon boundary edges (`strokeWidth={2.5}`) |
+
+### 2.2 Upcoming Topic Palettes *(To be formalized as we build)*
+- **Quadrilaterals**: Parallel side pairs, diagonals, base/height, trapezoid bases ($a, b$).
+- **Circles**: Radius ($r$), Diameter ($d$), Circumference ($C$), Area ($A$), $\pi$.
+- **Polygons**: Side length ($s$), Interior angle sum $(n-2)\times 180^\circ$, Number of sides ($n$).
+- **3D Shapes**: Surface Area ($SA$), Volume ($V$), Radius ($r$), Height ($h$), Slant height ($l$).
 
 ---
 
 ## 📐 3. Area Formulas & Unit Grids
 
 1. **Unit Grid Visualization**:
-   - All area cards (triangle, rectangle, parallelogram, trapezoid, circle) must display subtle, neutral unit grid lines across the enclosing rectangle ($b \times h$).
+   - All area cards (triangle, rectangle, parallelogram, trapezoid, circle) must display subtle, neutral unit grid lines across the enclosing bounding rectangle ($b \times h$).
    - Concretely teaches that area is a countable measure of unit squares ($1 \times 1$).
 2. **Altitude Representation**:
    - Vertical altitude ($h$) is drawn with a dashed cyan line (`#5ee8ff`, `strokeDasharray="4 3"`).
@@ -123,7 +132,7 @@ Before considering any geometry card complete:
 - [ ] Semantic colors match across header text, diagram geometry, and live equation.
 - [ ] Live bottom equation is open (no dark blocky token boxes).
 - [ ] Calculated answer is in a crisp white pill with white border.
-- [ ] Area cards display the neutral dashed unit grid across the $b \times h$ box.
+- [ ] Area cards display the neutral dashed unit grid across the bounding box.
 - [ ] Right angles feature a clean square box marker ($\llcorner$).
 - [ ] Drag handles move smoothly without jitter; numbers round cleanly to integers.
 - [ ] No auto-play loops are running in the background.
