@@ -1,278 +1,218 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 
-type ScaleneVariant = {
-  x1: number;
-  x2: number;
-  apexX: number;
-  apexY: number;
-  sides: [number, number, number]; // [left, right, base]
-  angles: [number, number, number]; // [left (Cyan), right (Rose), apex (Gold)]
+type InteractiveScaleneExplorerProps = {
+  color?: string;
 };
 
-type ScaleneCategory = {
-  name: string;
-  description: string;
-  variants: ScaleneVariant[];
-};
+const SVG_W = 220;
+const SVG_H = 155;
+const BASE_Y = 135;
+const B1_X = 35;  // left base vertex
+const B2_X = 185; // right base vertex
+const ARC_R = 18;
 
-const SCALENE_CATEGORIES: ScaleneCategory[] = [
-  {
-    name: "Acute Scalene",
-    description: "3 unequal sides • All 3 angles acute (< 90°)",
-    variants: [
-      { x1: 50, x2: 170, apexX: 95, apexY: 48, sides: [10, 11, 12], angles: [48, 57, 75] },
-      { x1: 40, x2: 180, apexX: 110, apexY: 45, sides: [12, 13, 14], angles: [52, 68, 60] },
-      { x1: 60, x2: 160, apexX: 98, apexY: 58, sides: [8, 9, 10], angles: [44, 58, 78] },
-      { x1: 30, x2: 190, apexX: 105, apexY: 40, sides: [13, 14, 16], angles: [50, 64, 66] },
-    ],
-  },
-  {
-    name: "Right Scalene",
-    description: "3 unequal sides • Has 1 right angle (= 90°)",
-    variants: [
-      { x1: 60, x2: 160, apexX: 96, apexY: 72, sides: [6, 8, 10], angles: [37, 53, 90] },
-      { x1: 40, x2: 180, apexX: 88, apexY: 65, sides: [8, 12, 14], angles: [32, 58, 90] },
-      { x1: 30, x2: 190, apexX: 110, apexY: 55, sides: [12, 10, 16], angles: [53, 37, 90] },
-    ],
-  },
-  {
-    name: "Obtuse Scalene",
-    description: "3 unequal sides • Has 1 obtuse angle (> 90°)",
-    variants: [
-      { x1: 40, x2: 180, apexX: 70, apexY: 90, sides: [6, 12, 14], angles: [24, 38, 118] },
-      { x1: 50, x2: 170, apexX: 75, apexY: 95, sides: [5, 10, 12], angles: [22, 35, 123] },
-      { x1: 30, x2: 190, apexX: 62, apexY: 85, sides: [7, 14, 16], angles: [25, 40, 115] },
-    ],
-  },
-];
+/** Round to 4dp to avoid SSR/client floating-point hydration mismatches */
+const rnd = (n: number) => Math.round(n * 10000) / 10000;
 
-const BASE_Y = 145;
-const STROKE_W = 2.5;
+function toPoint(cx: number, cy: number, deg: number, len: number) {
+  const rad = (deg * Math.PI) / 180;
+  return { x: rnd(cx + len * Math.cos(rad)), y: rnd(cy - len * Math.sin(rad)) };
+}
 
-export function InteractiveScaleneExplorer({ color }: { color?: string }) {
-  const [categoryIdx, setCategoryIdx] = useState(0);
-  const [variantIdx, setVariantIdx] = useState(0);
+function arcSvg(cx: number, cy: number, from: number, to: number, radius: number) {
+  const s = toPoint(cx, cy, from, radius);
+  const e = toPoint(cx, cy, to, radius);
+  const span = ((to - from) % 360 + 360) % 360;
+  const large = span > 180 ? 1 : 0;
+  return `M ${s.x} ${s.y} A ${radius} ${radius} 0 ${large} 0 ${e.x} ${e.y}`;
+}
 
-  const [isUserInteracted, setIsUserInteracted] = useState(false);
-  const timerRef = useRef<NodeJS.Timeout | null>(null);
+/** Clamp apex inside bounds AND enforce scalene (no two rounded angles equal) */
+function clampApex(x: number, y: number): { x: number; y: number } {
+  let cx = Math.max(B1_X + 15, Math.min(B2_X - 15, x));
+  const cy = Math.max(20, Math.min(BASE_Y - 20, y));
 
-  // Pick a random variant within a category (ensuring a different variant if available)
-  const getRandomVariant = (catIdx: number, currentVarIdx: number) => {
-    const category = SCALENE_CATEGORIES[catIdx];
-    if (category.variants.length <= 1) return 0;
-    let nextVar = currentVarIdx;
-    while (nextVar === currentVarIdx) {
-      nextVar = Math.floor(Math.random() * category.variants.length);
-    }
-    return nextVar;
-  };
+  // Nudge x until all three rounded angles are different
+  for (let i = 0; i < 12; i++) {
+    const a = Math.round(Math.atan2(BASE_Y - cy, cx - B1_X) * 180 / Math.PI);
+    const b = Math.round(Math.atan2(BASE_Y - cy, B2_X - cx) * 180 / Math.PI);
+    const c = 180 - a - b;
+    if (a !== b && a !== c && b !== c) break;
+    cx += cx >= (B1_X + B2_X) / 2 ? 1 : -1; // nudge away from midpoint
+    cx = Math.max(B1_X + 15, Math.min(B2_X - 15, cx));
+  }
 
-  const handleSelectCategory = (cIdx: number) => {
-    setIsUserInteracted(true);
-    if (cIdx === categoryIdx) {
-      setVariantIdx((prev) => getRandomVariant(cIdx, prev));
-    } else {
-      setCategoryIdx(cIdx);
-      setVariantIdx(Math.floor(Math.random() * SCALENE_CATEGORIES[cIdx].variants.length));
-    }
-  };
+  return { x: rnd(cx), y: rnd(cy) };
+}
 
-  // Auto-cycle through categories and variants every 3.5 seconds
+export function InteractiveScaleneExplorer({ color }: InteractiveScaleneExplorerProps) {
+  const [apex, setApex] = useState({ x: 85, y: 50 });
+  const [isUserControlling, setIsUserControlling] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const animRef = useRef<number>(0);
+  const startTimeRef = useRef<number | null>(null);
+  const ucRef = useRef(false);
+
+  useEffect(() => { ucRef.current = isUserControlling; }, [isUserControlling]);
+
+  // Auto-animation: apex traces a Lissajous orbit offset from base midpoint
+  // so the two legs are never equal (always scalene)
+  const animate = useCallback((ts: number) => {
+    if (ucRef.current) return;
+    if (startTimeRef.current === null) startTimeRef.current = ts;
+    const elapsed = (ts - startTimeRef.current) / 1000;
+    // Center at x=75 (well left of base midpoint 110) so left leg ≠ right leg
+    const cx = 75, cy = 72;
+    const rx = 28, ry = 28;
+    const x = cx + rx * Math.cos(elapsed * 0.4);
+    const y = cy + ry * Math.sin(elapsed * 0.55);
+    setApex(clampApex(x, y));
+    animRef.current = requestAnimationFrame(animate);
+  }, []);
+
   useEffect(() => {
-    if (!isUserInteracted) {
-      timerRef.current = setInterval(() => {
-        setCategoryIdx((prevCat) => {
-          const nextCat = (prevCat + 1) % SCALENE_CATEGORIES.length;
-          setVariantIdx(Math.floor(Math.random() * SCALENE_CATEGORIES[nextCat].variants.length));
-          return nextCat;
-        });
-      }, 3500);
+    if (!isUserControlling) {
+      startTimeRef.current = null;
+      animRef.current = requestAnimationFrame(animate);
     }
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current);
+    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
+  }, [animate, isUserControlling]);
+
+  // Drag handler on apex
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    e.preventDefault(); e.stopPropagation();
+    setIsUserControlling(true); setIsDragging(true);
+    if (animRef.current) cancelAnimationFrame(animRef.current);
+    const svg = svgRef.current;
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    const scX = SVG_W / rect.width, scY = SVG_H / rect.height;
+
+    const onMove = (ev: PointerEvent) => {
+      const px = (ev.clientX - rect.left) * scX;
+      const py = (ev.clientY - rect.top) * scY;
+      setApex(clampApex(px, py));
     };
-  }, [isUserInteracted]);
 
-  const currentCategory = SCALENE_CATEGORIES[categoryIdx];
-  const variant = currentCategory.variants[variantIdx] || currentCategory.variants[0];
-  const { x1: X1, x2: X2, apexX, apexY, sides, angles } = variant;
+    const onUp = () => {
+      setIsDragging(false);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  }, []);
 
-  const [sideB, sideA, sideC] = sides; // [left leg, right leg, base]
-  const [degA, degB, degC] = angles; // [left angle, right angle, apex angle]
+  const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 
-  // Midpoints for side labels
-  const midLeftX = (X1 + apexX) / 2;
-  const midLeftY = (BASE_Y + apexY) / 2;
+  const { x: apexX, y: apexY } = apex;
 
-  const midRightX = (X2 + apexX) / 2;
-  const midRightY = (BASE_Y + apexY) / 2;
+  // Compute angles (math coords, y-up)
+  const radA = Math.atan2(BASE_Y - apexY, apexX - B1_X);
+  const radB = Math.atan2(BASE_Y - apexY, B2_X - apexX);
+  const degA = Math.round(radA * 180 / Math.PI);
+  const degB = Math.round(radB * 180 / Math.PI);
+  const degC = 180 - degA - degB;
 
-  const midBaseX = (X1 + X2) / 2;
 
-  // Arc paths
-  const radA = Math.atan2(BASE_Y - apexY, apexX - X1);
-  const radB = Math.atan2(BASE_Y - apexY, X2 - apexX);
+  // Arc paths at each vertex
+  const arcAPath = arcSvg(B1_X, BASE_Y, 0, degA, ARC_R);
+  const arcBPath = arcSvg(B2_X, BASE_Y, 180 - degB, 180, ARC_R);
 
-  const arcRA = Math.min(22, Math.max(12, (apexX - X1) * 0.35));
-  const arcAEnd = { x: X1 + arcRA * Math.cos(radA), y: BASE_Y - arcRA * Math.sin(radA) };
-  const arcAPath = `M ${X1 + arcRA} ${BASE_Y} A ${arcRA} ${arcRA} 0 0 0 ${arcAEnd.x} ${arcAEnd.y}`;
+  // Apex arc: angle between the two downward edges
+  const downL = Math.atan2(BASE_Y - apexY, B1_X - apexX) * 180 / Math.PI; // negative (pointing down-left)
+  const downR = Math.atan2(BASE_Y - apexY, B2_X - apexX) * 180 / Math.PI; // negative (pointing down-right)
+  // In math coords (y-up), both are negative. We need the arc from downR to downL going CCW.
+  // Convert to SVG: toPoint uses standard math (0=right, 90=up)
+  // Edge to B1 from apex: angle = atan2(-(BASE_Y - apexY), B1_X - apexX) in math coords = -(downL screen)
+  const edgeAngleL = rnd(Math.atan2(-(BASE_Y - apexY), B1_X - apexX) * 180 / Math.PI);
+  const edgeAngleR = rnd(Math.atan2(-(BASE_Y - apexY), B2_X - apexX) * 180 / Math.PI);
+  // Arc from edgeAngleR to edgeAngleL (the interior angle at apex goes CCW from right edge to left edge)
+  const arcCPath = arcSvg(apexX, apexY, edgeAngleL, edgeAngleR, ARC_R);
 
-  const arcRB = Math.min(22, Math.max(12, (X2 - apexX) * 0.35));
-  const arcBEnd = { x: X2 - arcRB * Math.cos(radB), y: BASE_Y - arcRB * Math.sin(radB) };
-  const arcBPath = `M ${X2 - arcRB} ${BASE_Y} A ${arcRB} ${arcRB} 0 0 1 ${arcBEnd.x} ${arcBEnd.y}`;
 
-  const arcRC = 24;
-  const radDownL = Math.atan2(BASE_Y - apexY, X1 - apexX);
-  const radDownR = Math.atan2(BASE_Y - apexY, X2 - apexX);
-  const arcCEndL = { x: apexX + arcRC * Math.cos(radDownL), y: apexY + arcRC * Math.sin(radDownL) };
-  const arcCEndR = { x: apexX + arcRC * Math.cos(radDownR), y: apexY + arcRC * Math.sin(radDownR) };
-  const arcCPath = `M ${arcCEndL.x} ${arcCEndL.y} A ${arcRC} ${arcRC} 0 0 0 ${arcCEndR.x} ${arcCEndR.y}`;
+  // Angle label positions — base labels OUTSIDE, apex label along bisector
+  const labelCMid = (edgeAngleR + edgeAngleL) / 2;
+  const labelAPos = { x: B1_X - 8, y: BASE_Y + 3 };
+  const labelBPos = { x: B2_X + 8, y: BASE_Y + 3 };
+  const labelCPos = toPoint(apexX, apexY, labelCMid, ARC_R + 14);
 
-  // Outward normal vectors for side length labels
-  const leftLegLenPx = Math.sqrt((apexX - X1) ** 2 + (BASE_Y - apexY) ** 2);
-  const leftOutwardNx = (apexY - BASE_Y) / leftLegLenPx;
-  const leftOutwardNy = (X1 - apexX) / leftLegLenPx;
-
-  const rightLegLenPx = Math.sqrt((X2 - apexX) ** 2 + (BASE_Y - apexY) ** 2);
-  const rightOutwardNx = (BASE_Y - apexY) / rightLegLenPx;
-  const rightOutwardNy = (apexX - X2) / rightLegLenPx;
-
-  const sideLabelLeftX = midLeftX + 16 * leftOutwardNx;
-  const sideLabelLeftY = midLeftY + 16 * leftOutwardNy;
-
-  const sideLabelRightX = midRightX + 16 * rightOutwardNx;
-  const sideLabelRightY = midRightY + 16 * rightOutwardNy;
-
-  const sideLabelBaseY = BASE_Y + 16;
+  const COLOR_A = "#5ee8ff"; // cyan
+  const COLOR_B = "#ffd45e"; // yellow
+  const COLOR_C = "#fb923c"; // orange
 
   return (
-    <div className="w-full flex flex-col items-center select-none pb-1">
-      {/* SVG Diagram */}
-      <div className="relative w-full max-w-[340px] aspect-[22/14.5] flex items-center justify-center">
-        <svg
-          viewBox="0 20 220 145"
-          className="w-full h-full overflow-visible"
-          aria-hidden
-        >
-          {/* Main Triangle Polygon */}
-          <polygon
-            points={`${X1},${BASE_Y} ${X2},${BASE_Y} ${apexX},${apexY}`}
-            fill="rgba(255,255,255,0.06)"
-            stroke="rgba(255,255,255,0.95)"
-            strokeWidth={STROKE_W}
-            strokeLinejoin="round"
-          />
+    <div className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
+      <svg ref={svgRef} viewBox={`0 0 ${SVG_W} ${SVG_H}`}
+        className="w-full max-w-[300px] sm:max-w-[340px] touch-none select-none"
+        style={{ cursor: isDragging ? "grabbing" : "default" }}>
 
-          {/* Side Length Labels (Positioned OUTSIDE near each side in white fill with dark drop shadow) */}
-          <text
-            x={sideLabelLeftX}
-            y={sideLabelLeftY + 3}
-            textAnchor="end"
-            fontSize={11}
-            fontWeight="800"
-            fill="#ffffff"
-            fontFamily="var(--font-heading, system-ui)"
-            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
-          >
-            {sideB}
-          </text>
-          <text
-            x={sideLabelRightX}
-            y={sideLabelRightY + 3}
-            textAnchor="start"
-            fontSize={11}
-            fontWeight="800"
-            fill="#ffffff"
-            fontFamily="var(--font-heading, system-ui)"
-            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
-          >
-            {sideA}
-          </text>
-          <text
-            x={midBaseX}
-            y={sideLabelBaseY}
-            textAnchor="middle"
-            fontSize={11}
-            fontWeight="800"
-            fill="#ffffff"
-            fontFamily="var(--font-heading, system-ui)"
-            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
-          >
-            {sideC}
-          </text>
+        {/* Triangle fill */}
+        <polygon points={`${B1_X},${BASE_Y} ${B2_X},${BASE_Y} ${apexX},${apexY}`}
+          fill="rgba(255,255,255,0.06)" />
 
-          {/* Left Angle Arc A (Cyan) */}
-          <path d={arcAPath} fill="none" stroke="#5ee8ff" strokeWidth={2.5} strokeLinecap="round" />
-          {/* Right Angle Arc B (Lavender Purple) */}
-          <path d={arcBPath} fill="none" stroke="#c084fc" strokeWidth={2.5} strokeLinecap="round" />
-          {/* Apex Angle Arc C (Gold) */}
-          <path d={arcCPath} fill="none" stroke="#ffd45e" strokeWidth={2.5} strokeLinecap="round" />
+        {/* Triangle edges */}
+        <line x1={B1_X} y1={BASE_Y} x2={B2_X} y2={BASE_Y}
+          stroke="rgba(255,255,255,0.9)" strokeWidth={2} strokeLinecap="round" />
+        <line x1={B1_X} y1={BASE_Y} x2={apexX} y2={apexY}
+          stroke="rgba(255,255,255,0.9)" strokeWidth={2} strokeLinecap="round" />
+        <line x1={B2_X} y1={BASE_Y} x2={apexX} y2={apexY}
+          stroke="rgba(255,255,255,0.9)" strokeWidth={2} strokeLinecap="round" />
 
-          {/* Angle Value Labels (With crisp dark drop-shadow for maximum contrast) */}
-          <text
-            x={X1 - 8}
-            y={BASE_Y + 3}
-            textAnchor="end"
-            fontSize={12}
-            fontWeight="800"
-            fill="#5ee8ff"
-            fontFamily="var(--font-heading, system-ui)"
-            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
-          >
-            {degA}°
-          </text>
-          <text
-            x={X2 + 8}
-            y={BASE_Y + 3}
-            textAnchor="start"
-            fontSize={12}
-            fontWeight="800"
-            fill="#c084fc"
-            fontFamily="var(--font-heading, system-ui)"
-            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
-          >
-            {degB}°
-          </text>
-          <text
-            x={apexX}
-            y={apexY - 10}
-            textAnchor="middle"
-            fontSize={12}
-            fontWeight="800"
-            fill="#ffd45e"
-            fontFamily="var(--font-heading, system-ui)"
-            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
-          >
-            {degC}°
-          </text>
-        </svg>
-      </div>
 
-      {/* Active Category Definition Caption (Clean text readout, no pill background or border) */}
-      <p className="my-1.5 text-xs text-center font-medium text-emerald-100/90 tracking-tight">
-        {currentCategory.description}
-      </p>
+        {/* Angle arcs */}
+        <path d={arcAPath} fill="none" stroke={COLOR_A} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
+        <path d={arcBPath} fill="none" stroke={COLOR_B} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
+        <path d={arcCPath} fill="none" stroke={COLOR_C} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
 
-      {/* Interactive Category Chips (Clicking generates a new random variation) */}
-      <div className="flex items-center gap-2 mt-0.5">
-        {SCALENE_CATEGORIES.map((c, idx) => (
-          <button
-            key={c.name}
-            onClick={(e) => {
-              e.stopPropagation();
-              handleSelectCategory(idx);
-            }}
-            className={`px-3 py-1 rounded-lg text-xs font-bold transition-all border ${
-              idx === categoryIdx
-                ? "bg-white text-emerald-950 font-black border-white shadow-md scale-105"
-                : "bg-black/40 text-white/70 border-white/20 hover:bg-black/60 hover:text-white"
-            }`}
-          >
-            {c.name}
-          </button>
-        ))}
+        {/* Base vertex dots */}
+        <circle cx={B1_X} cy={BASE_Y} r={3} fill="white" />
+        <circle cx={B2_X} cy={BASE_Y} r={3} fill="white" />
+
+        {/* Angle labels with drop-shadow for contrast */}
+        <text x={labelAPos.x} y={labelAPos.y} textAnchor="end" dominantBaseline="central"
+          fontSize={12} fontWeight={800} fill={COLOR_A}
+          fontFamily="var(--font-heading, system-ui)"
+          style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>{degA}°</text>
+        <text x={labelBPos.x} y={labelBPos.y} textAnchor="start" dominantBaseline="central"
+          fontSize={12} fontWeight={800} fill={COLOR_B}
+          fontFamily="var(--font-heading, system-ui)"
+          style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>{degB}°</text>
+        <text x={labelCPos.x} y={labelCPos.y} textAnchor="middle" dominantBaseline="central"
+          fontSize={12} fontWeight={800} fill={COLOR_C}
+          fontFamily="var(--font-heading, system-ui)"
+          style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>{degC}°</text>
+
+        {/* Drag handle on apex */}
+        <circle cx={apexX} cy={apexY} r={10}
+          fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.5)" strokeWidth={2}
+          style={{ cursor: isDragging ? "grabbing" : "grab", touchAction: "none" }}
+          onPointerDown={handlePointerDown} />
+        <circle cx={apexX} cy={apexY} r={3} fill="white" className="pointer-events-none" />
+      </svg>
+
+
+      {/* Equation as pill tokens: A + B + C = 180° */}
+      <div className="flex items-end gap-1.5 justify-center px-2">
+        <span className="px-2.5 py-1 rounded-md text-sm font-bold"
+          style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_A, border: `1.5px solid ${COLOR_A}90` }}>
+          {degA}°
+        </span>
+        <span className="text-white/50 text-sm font-bold pb-1.5">+</span>
+        <span className="px-2.5 py-1 rounded-md text-sm font-bold"
+          style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_B, border: `1.5px solid ${COLOR_B}90` }}>
+          {degB}°
+        </span>
+        <span className="text-white/50 text-sm font-bold pb-1.5">+</span>
+        <span className="px-2.5 py-1 rounded-md text-sm font-bold"
+          style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_C, border: `1.5px solid ${COLOR_C}90` }}>
+          {degC}°
+        </span>
+        <span className="text-white/50 text-sm font-bold pb-1.5">=</span>
+        <span className="text-white text-base font-bold pb-1">180°</span>
       </div>
     </div>
   );

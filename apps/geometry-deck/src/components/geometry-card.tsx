@@ -11,6 +11,7 @@ import { InteractiveParallelAngles } from "./interactive-parallel-angles";
 import { InteractiveIsoscelesExplorer } from "./interactive-isosceles-explorer";
 import { InteractiveScaleneExplorer } from "./interactive-scalene-explorer";
 import { InteractiveRightTriangleExplorer } from "./interactive-right-triangle-explorer";
+import { InteractiveEquilateralExplorer } from "./interactive-equilateral-explorer";
 import type {
   GeometryCard as GeometryCardType,
   SvgMutation,
@@ -105,6 +106,9 @@ export function GeometryCard({
         if (relational.type === "parallel") {
           return <InteractiveParallelAngles mode={relational.mode} color={card.color} />;
         }
+      }
+      if (card.frontLabel === "Equilateral triangles") {
+        return <InteractiveEquilateralExplorer color={card.color} />;
       }
       if (card.frontLabel === "Isosceles triangles") {
         return <InteractiveIsoscelesExplorer color={card.color} />;

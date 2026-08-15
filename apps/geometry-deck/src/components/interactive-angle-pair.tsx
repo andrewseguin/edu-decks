@@ -110,7 +110,7 @@ export function InteractiveAnglePair({ targetSum, label, color }: InteractiveAng
 
   // Accent colors for A and B
   const COLOR_A = "#5ee8ff"; // cyan
-  const COLOR_B = "#ffd45e"; // gold
+  const COLOR_B = "#ffd45e"; // yellow
 
   const armEnd = toPoint(vx, vy, angleA, RAY_LEN);
   const baseEnd = toPoint(vx, vy, 0, RAY_LEN);
@@ -201,7 +201,7 @@ export function InteractiveAnglePair({ targetSum, label, color }: InteractiveAng
         <div className="flex flex-col items-center gap-0.5">
           <span className="text-[10px] font-bold" style={{ color: COLOR_A }}>A</span>
           <span className="px-3 py-1 rounded-md text-sm font-bold"
-            style={{ backgroundColor: `${COLOR_A}30`, color: COLOR_A, border: `1.5px solid ${COLOR_A}50` }}>
+            style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_A, border: `1.5px solid ${COLOR_A}90` }}>
             {dA}°
           </span>
         </div>
@@ -209,7 +209,7 @@ export function InteractiveAnglePair({ targetSum, label, color }: InteractiveAng
         <div className="flex flex-col items-center gap-0.5">
           <span className="text-[10px] font-bold" style={{ color: COLOR_B }}>B</span>
           <span className="px-3 py-1 rounded-md text-sm font-bold"
-            style={{ backgroundColor: `${COLOR_B}30`, color: COLOR_B, border: `1.5px solid ${COLOR_B}50` }}>
+            style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_B, border: `1.5px solid ${COLOR_B}90` }}>
             {dB}°
           </span>
         </div>

@@ -115,7 +115,7 @@ export function InteractiveVerticalAngles({ color }: InteractiveVerticalAnglesPr
   const l4 = toPoint(cx, cy, 180 + angleA + (180 - angleA) / 2, ARC_R2 + 16);
 
   const COLOR_A = "#5ee8ff"; // cyan — for the equal pair A & C
-  const COLOR_B = "#ffd45e"; // gold — for the equal pair B & D
+  const COLOR_B = "#ffd45e"; // yellow — for the equal pair B & D
 
   return (
     <div className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
@@ -170,14 +170,14 @@ export function InteractiveVerticalAngles({ color }: InteractiveVerticalAnglesPr
         <div className="flex flex-col items-center gap-0.5">
           <span className="text-[10px] font-bold" style={{ color: COLOR_A }}>A = C</span>
           <span className="px-3 py-1 rounded-md text-sm font-bold"
-            style={{ backgroundColor: `${COLOR_A}30`, color: COLOR_A, border: `1.5px solid ${COLOR_A}50` }}>
+            style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_A, border: `1.5px solid ${COLOR_A}90` }}>
             {dA}°
           </span>
         </div>
         <div className="flex flex-col items-center gap-0.5">
           <span className="text-[10px] font-bold" style={{ color: COLOR_B }}>B = D</span>
           <span className="px-3 py-1 rounded-md text-sm font-bold"
-            style={{ backgroundColor: `${COLOR_B}30`, color: COLOR_B, border: `1.5px solid ${COLOR_B}50` }}>
+            style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_B, border: `1.5px solid ${COLOR_B}90` }}>
             {dB}°
           </span>
         </div>

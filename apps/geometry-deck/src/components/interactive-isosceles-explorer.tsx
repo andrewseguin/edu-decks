@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useRef, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { SvgTriangle } from "../lib/svg-shapes";
 
 type InteractiveIsoscelesExplorerProps = {
   color?: string;
@@ -10,6 +11,9 @@ const LEG_LEN = 95;
 const BASE_Y = 145;
 const CX = 110;
 const STROKE_W = 2.5;
+
+/** Round to 4 decimal places to avoid SSR/client floating-point hydration mismatches */
+const r = (n: number) => Math.round(n * 10000) / 10000;
 
 export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExplorerProps) {
   // Even apex angles (30° to 120°, step 2) so base angles are always exact integers
@@ -50,57 +54,57 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
   const baseAngle = (180 - displayApexAngle) / 2;
 
   const halfApexRad = ((displayApexAngle / 2) * Math.PI) / 180;
-  const hw = LEG_LEN * Math.sin(halfApexRad);
-  const h = LEG_LEN * Math.cos(halfApexRad);
+  const hw = r(LEG_LEN * Math.sin(halfApexRad));
+  const h = r(LEG_LEN * Math.cos(halfApexRad));
 
-  const x1 = CX - hw;
-  const x2 = CX + hw;
+  const x1 = r(CX - hw);
+  const x2 = r(CX + hw);
   const apexX = CX;
-  const apexY = BASE_Y - h;
+  const apexY = r(BASE_Y - h);
 
   // Midpoints for tick marks on equal legs
-  const midLeftX = (x1 + apexX) / 2;
-  const midLeftY = (BASE_Y + apexY) / 2;
-  const midRightX = (x2 + apexX) / 2;
-  const midRightY = (BASE_Y + apexY) / 2;
+  const midLeftX = r((x1 + apexX) / 2);
+  const midLeftY = r((BASE_Y + apexY) / 2);
+  const midRightX = r((x2 + apexX) / 2);
+  const midRightY = r((BASE_Y + apexY) / 2);
 
   // Exact normal vectors (100% perpendicular to leg line at all angles)
   const tickHalfLen = 7;
   const leftLegRad = Math.atan2(BASE_Y - apexY, x1 - apexX);
   const leftNormalX = -Math.sin(leftLegRad);
   const leftNormalY = Math.cos(leftLegRad);
-  const tickLeft1 = { x: midLeftX - tickHalfLen * leftNormalX, y: midLeftY - tickHalfLen * leftNormalY };
-  const tickLeft2 = { x: midLeftX + tickHalfLen * leftNormalX, y: midLeftY + tickHalfLen * leftNormalY };
+  const tickLeft1 = { x: r(midLeftX - tickHalfLen * leftNormalX), y: r(midLeftY - tickHalfLen * leftNormalY) };
+  const tickLeft2 = { x: r(midLeftX + tickHalfLen * leftNormalX), y: r(midLeftY + tickHalfLen * leftNormalY) };
 
   const rightLegRad = Math.atan2(BASE_Y - apexY, x2 - apexX);
   const rightNormalX = -Math.sin(rightLegRad);
   const rightNormalY = Math.cos(rightLegRad);
-  const tickRight1 = { x: midRightX - tickHalfLen * rightNormalX, y: midRightY - tickHalfLen * rightNormalY };
-  const tickRight2 = { x: midRightX + tickHalfLen * rightNormalX, y: midRightY + tickHalfLen * rightNormalY };
+  const tickRight1 = { x: r(midRightX - tickHalfLen * rightNormalX), y: r(midRightY - tickHalfLen * rightNormalY) };
+  const tickRight2 = { x: r(midRightX + tickHalfLen * rightNormalX), y: r(midRightY + tickHalfLen * rightNormalY) };
 
   // Base angle arcs strictly inside triangle polygon
   const arcR = Math.min(24, Math.max(10, hw * 0.4));
   const leftArcEnd = {
-    x: x1 + arcR * Math.cos(Math.atan2(BASE_Y - apexY, apexX - x1)),
-    y: BASE_Y - arcR * Math.sin(Math.atan2(BASE_Y - apexY, apexX - x1)),
+    x: r(x1 + arcR * Math.cos(Math.atan2(BASE_Y - apexY, apexX - x1))),
+    y: r(BASE_Y - arcR * Math.sin(Math.atan2(BASE_Y - apexY, apexX - x1))),
   };
-  const leftArcPath = `M ${x1 + arcR} ${BASE_Y} A ${arcR} ${arcR} 0 0 0 ${leftArcEnd.x} ${leftArcEnd.y}`;
+  const leftArcPath = `M ${r(x1 + arcR)} ${BASE_Y} A ${arcR} ${arcR} 0 0 0 ${leftArcEnd.x} ${leftArcEnd.y}`;
 
   const rightArcEnd = {
-    x: x2 - arcR * Math.cos(Math.atan2(BASE_Y - apexY, x2 - apexX)),
-    y: BASE_Y - arcR * Math.sin(Math.atan2(BASE_Y - apexY, x2 - apexX)),
+    x: r(x2 - arcR * Math.cos(Math.atan2(BASE_Y - apexY, x2 - apexX))),
+    y: r(BASE_Y - arcR * Math.sin(Math.atan2(BASE_Y - apexY, x2 - apexX))),
   };
-  const rightArcPath = `M ${x2 - arcR} ${BASE_Y} A ${arcR} ${arcR} 0 0 1 ${rightArcEnd.x} ${rightArcEnd.y}`;
+  const rightArcPath = `M ${r(x2 - arcR)} ${BASE_Y} A ${arcR} ${arcR} 0 0 1 ${rightArcEnd.x} ${rightArcEnd.y}`;
 
   // Apex arc path
   const apexArcR = Math.min(26, Math.max(12, h * 0.4));
   const apexArcLeft = {
-    x: apexX + apexArcR * Math.cos(leftLegRad),
-    y: apexY + apexArcR * Math.sin(leftLegRad),
+    x: r(apexX + apexArcR * Math.cos(leftLegRad)),
+    y: r(apexY + apexArcR * Math.sin(leftLegRad)),
   };
   const apexArcRight = {
-    x: apexX + apexArcR * Math.cos(rightLegRad),
-    y: apexY + apexArcR * Math.sin(rightLegRad),
+    x: r(apexX + apexArcR * Math.cos(rightLegRad)),
+    y: r(apexY + apexArcR * Math.sin(rightLegRad)),
   };
   const apexArcPath = `M ${apexArcLeft.x} ${apexArcLeft.y} A ${apexArcR} ${apexArcR} 0 0 0 ${apexArcRight.x} ${apexArcRight.y}`;
 
@@ -123,12 +127,13 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
           aria-hidden
         >
           {/* Main Triangle Polygon */}
-          <polygon
-            points={`${x1},${BASE_Y} ${x2},${BASE_Y} ${apexX},${apexY}`}
+          <SvgTriangle
+            x1={x1} y1={BASE_Y}
+            x2={x2} y2={BASE_Y}
+            x3={apexX} y3={apexY}
             fill="rgba(255,255,255,0.06)"
             stroke="rgba(255,255,255,0.95)"
             strokeWidth={STROKE_W}
-            strokeLinejoin="round"
           />
 
           {/* Equal Legs Tick Marks (Strictly Orthogonal to leg at every angle) */}
@@ -162,7 +167,7 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
             strokeLinecap="round"
           />
 
-          {/* Base Angle Value Labels (Positioned outside left & right corners with generous 10px offset) */}
+          {/* Base Angle Readouts (Cyan) */}
           <text
             x={x1 - 10}
             y={BASE_Y + 3}
@@ -171,6 +176,7 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
             fontWeight="800"
             fill="#5ee8ff"
             fontFamily="var(--font-heading, system-ui)"
+            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
           >
             {baseAngle}°
           </text>
@@ -182,6 +188,7 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
             fontWeight="800"
             fill="#5ee8ff"
             fontFamily="var(--font-heading, system-ui)"
+            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
           >
             {baseAngle}°
           </text>
@@ -195,24 +202,35 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
             fontWeight="800"
             fill="#ffd45e"
             fontFamily="var(--font-heading, system-ui)"
+            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
           >
             {displayApexAngle}°
           </text>
         </svg>
       </div>
 
-      {/* Legend / Status Badges */}
-      <div className="flex flex-wrap justify-center items-center gap-2 my-2 text-xs font-mono">
-        <span className="px-3 py-1 rounded-full bg-black/40 text-cyan-300 border border-cyan-500/40 font-bold shadow-sm backdrop-blur">
-          Base angles: <span className="text-cyan-200">{baseAngle}° & {baseAngle}°</span> (Always Equal)
+      {/* Equation as pill tokens */}
+      <div className="flex items-end gap-1.5 justify-center px-2 my-2">
+        <span className="px-2.5 py-1 rounded-md text-sm font-bold"
+          style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: "#5ee8ff", border: "1.5px solid #5ee8ff90" }}>
+          {baseAngle}°
         </span>
-        <span className="px-3 py-1 rounded-full bg-black/40 text-amber-300 border border-amber-500/40 font-bold shadow-sm backdrop-blur">
-          Apex: <span className="text-amber-200">{displayApexAngle}°</span>
+        <span className="text-white/50 text-sm font-bold pb-1.5">+</span>
+        <span className="px-2.5 py-1 rounded-md text-sm font-bold"
+          style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: "#5ee8ff", border: "1.5px solid #5ee8ff90" }}>
+          {baseAngle}°
         </span>
+        <span className="text-white/50 text-sm font-bold pb-1.5">+</span>
+        <span className="px-2.5 py-1 rounded-md text-sm font-bold"
+          style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: "#ffd45e", border: "1.5px solid #ffd45e90" }}>
+          {displayApexAngle}°
+        </span>
+        <span className="text-white/50 text-sm font-bold pb-1.5">=</span>
+        <span className="text-white text-base font-bold pb-1">180°</span>
       </div>
 
       {/* Range Slider Control (Capped 10° to 160° to avoid degenerate straight line triangles) */}
-      <div className="w-full max-w-[280px] px-2 flex flex-col gap-1.5 items-center mt-1">
+      <div className="w-full max-w-[280px] px-2 flex flex-col gap-1.5 items-center mt-1" onClick={(e) => e.stopPropagation()}>
         <input
           type="range"
           min={10}
@@ -220,7 +238,8 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
           step={2}
           value={displayApexAngle}
           onChange={handleSlider}
-          className="w-full h-2 bg-black/30 rounded-lg appearance-none cursor-pointer accent-amber-400 focus:outline-none border border-white/20"
+          className="angle-slider w-full"
+          style={{ "--slider-progress": `${((displayApexAngle - 10) / (160 - 10)) * 100}%` } as React.CSSProperties}
           aria-label="Apex angle slider"
         />
       </div>

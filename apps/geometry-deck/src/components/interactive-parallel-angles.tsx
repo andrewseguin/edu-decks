@@ -16,9 +16,12 @@ const SVG_H = 200;
 const ARC_R = 24;
 const ARROW_SIZE = 6;
 
+/** Round to 4 decimal places to avoid SSR/client floating-point hydration mismatches */
+const r = (n: number) => Math.round(n * 10000) / 10000;
+
 function toPoint(cx: number, cy: number, deg: number, len: number) {
   const rad = (deg * Math.PI) / 180;
-  return { x: cx + len * Math.cos(rad), y: cy - len * Math.sin(rad) };
+  return { x: r(cx + len * Math.cos(rad)), y: r(cy - len * Math.sin(rad)) };
 }
 
 function arcPath(cx: number, cy: number, from: number, to: number, r: number) {
@@ -109,13 +112,13 @@ export function InteractiveParallelAngles({ mode, color }: InteractiveParallelAn
   const sinT = Math.sin((theta * Math.PI) / 180);
   const cosT = Math.cos((theta * Math.PI) / 180);
   const dx = (gap / 2) * (cosT / sinT);
-  const ux = midX + dx; // upper intersection x
-  const lx = midX - dx; // lower intersection x
+  const ux = r(midX + dx); // upper intersection x
+  const lx = r(midX - dx); // lower intersection x
 
   // Transversal endpoints (extend beyond intersections)
   const ext = 30;
-  const tTop = { x: ux + ext * cosT, y: LINE_Y1 - ext * sinT };
-  const tBot = { x: lx - ext * cosT, y: LINE_Y2 + ext * sinT };
+  const tTop = { x: r(ux + ext * cosT), y: r(LINE_Y1 - ext * sinT) };
+  const tBot = { x: r(lx - ext * cosT), y: r(LINE_Y2 + ext * sinT) };
 
   const dTheta = Math.round(theta);
   const dComp = 180 - dTheta;
@@ -132,7 +135,7 @@ export function InteractiveParallelAngles({ mode, color }: InteractiveParallelAn
   // Interior left angle: from θ going CCW to 180°, span = 180° - θ
 
   const COLOR_A = "#5ee8ff"; // cyan
-  const COLOR_B = "#ffd45e"; // gold
+  const COLOR_B = "#ffd45e"; // yellow
 
   let upperArc: string;
   let lowerArc: string;
@@ -217,7 +220,7 @@ export function InteractiveParallelAngles({ mode, color }: InteractiveParallelAn
           <div className="flex flex-col items-center gap-0.5">
             <span className="text-[10px] font-bold" style={{ color: COLOR_A }}>Both</span>
             <span className="px-3 py-1 rounded-md text-sm font-bold"
-              style={{ backgroundColor: `${COLOR_A}30`, color: COLOR_A, border: `1.5px solid ${COLOR_A}50` }}>
+              style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_A, border: `1.5px solid ${COLOR_A}90` }}>
               {dTheta}°
             </span>
           </div>
@@ -227,7 +230,7 @@ export function InteractiveParallelAngles({ mode, color }: InteractiveParallelAn
           <div className="flex flex-col items-center gap-0.5">
             <span className="text-[10px] font-bold" style={{ color: COLOR_A }}>A</span>
             <span className="px-3 py-1 rounded-md text-sm font-bold"
-              style={{ backgroundColor: `${COLOR_A}30`, color: COLOR_A, border: `1.5px solid ${COLOR_A}50` }}>
+              style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_A, border: `1.5px solid ${COLOR_A}90` }}>
               {dComp}°
             </span>
           </div>
@@ -235,7 +238,7 @@ export function InteractiveParallelAngles({ mode, color }: InteractiveParallelAn
           <div className="flex flex-col items-center gap-0.5">
             <span className="text-[10px] font-bold" style={{ color: COLOR_B }}>B</span>
             <span className="px-3 py-1 rounded-md text-sm font-bold"
-              style={{ backgroundColor: `${COLOR_B}30`, color: COLOR_B, border: `1.5px solid ${COLOR_B}50` }}>
+              style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_B, border: `1.5px solid ${COLOR_B}90` }}>
               {dTheta}°
             </span>
           </div>
