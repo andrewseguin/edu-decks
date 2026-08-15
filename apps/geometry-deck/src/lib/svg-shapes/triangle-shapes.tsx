@@ -285,11 +285,11 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
 
           {/* Label C or Unknown Question Badge (Orange) */}
           {unknownDim === "C" ? (
-            <UnknownPill x={V3.x} y={V3.y - 14} color={COLOR_ORANGE} />
+            <UnknownPill x={V3.x} y={V3.y - 20} color={COLOR_ORANGE} />
           ) : (
             <text
               x={V3.x}
-              y={V3.y - 14}
+              y={V3.y - 16}
               textAnchor="middle"
               dominantBaseline="central"
               fontSize={13}
