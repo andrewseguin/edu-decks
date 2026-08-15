@@ -232,7 +232,12 @@ export function GeometryCard({
       frontContent={
         <div className="flex flex-col items-center justify-center px-4 gap-1.5 sm:gap-2">
           {card.frontPrompt && (
-            <p className="text-white text-center font-bold leading-tight text-lg sm:text-xl md:text-2xl tracking-wide">
+            <p
+              className={cn(
+                "text-white text-center font-bold leading-tight text-lg sm:text-xl md:text-2xl tracking-wide transition-all duration-300",
+                isFlipped ? "max-h-0 opacity-0 overflow-hidden" : "max-h-[60px] opacity-100"
+              )}
+            >
               <FormattedMathText text={card.frontPrompt} />
             </p>
           )}

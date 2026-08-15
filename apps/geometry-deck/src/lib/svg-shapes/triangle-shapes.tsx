@@ -284,19 +284,19 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
             {angB}°
           </text>
 
-          {/* Label C / Unknown (Orange) — prominent bold typography matching A and B */}
+          {/* Label C / Unknown (Orange) */}
           <text
             x={V3.x}
-            y={unknownDim === "C" && revealedAnswer == null ? V3.y - 16 : V3.y - 14}
+            y={V3.y - 14}
             textAnchor="middle"
             dominantBaseline="central"
-            fontSize={unknownDim === "C" && revealedAnswer == null ? 20 : 13}
-            fontWeight={900}
+            fontSize={13}
+            fontWeight={800}
             fill={COLOR_ORANGE}
             fontFamily={lblFont}
             style={lblStyle}
           >
-            {unknownDim === "C" ? (revealedAnswer != null ? `${revealedAnswer}°` : "?") : `${angC}°`}
+            {unknownDim === "C" ? (revealedAnswer != null ? `${revealedAnswer}°` : "C") : `${angC}°`}
           </text>
         </>
       )}
@@ -382,14 +382,14 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
         y={(V1.y + V3.y) / 2}
         textAnchor="end"
         dominantBaseline="central"
-        fontSize={unknownDim === "a" && revealedAnswer == null ? 20 : 13}
-        fontWeight={900}
+        fontSize={13}
+        fontWeight={800}
         fill={COLOR_CYAN}
         fontFamily={lblFont}
         style={lblStyle}
       >
         {unknownDim === "a"
-          ? (revealedAnswer != null ? `${revealedAnswer}` : "?")
+          ? (revealedAnswer != null ? `${revealedAnswer}` : "a")
           : (a !== undefined ? (lm === "numeric" ? `${a}` : "a") : "")}
       </text>
 
@@ -399,14 +399,14 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
         y={V1.y + 18}
         textAnchor="middle"
         dominantBaseline="central"
-        fontSize={unknownDim === "b" && revealedAnswer == null ? 20 : 13}
-        fontWeight={900}
+        fontSize={13}
+        fontWeight={800}
         fill={COLOR_GOLD}
         fontFamily={lblFont}
         style={lblStyle}
       >
         {unknownDim === "b"
-          ? (revealedAnswer != null ? `${revealedAnswer}` : "?")
+          ? (revealedAnswer != null ? `${revealedAnswer}` : "b")
           : (b !== undefined ? (lm === "numeric" ? `${b}` : "b") : "")}
       </text>
 
@@ -416,14 +416,14 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
         y={hypMidY}
         textAnchor="start"
         dominantBaseline="central"
-        fontSize={unknownDim === "c" && revealedAnswer == null ? 20 : 13}
-        fontWeight={900}
+        fontSize={13}
+        fontWeight={800}
         fill={COLOR_ORANGE}
         fontFamily={lblFont}
         style={lblStyle}
       >
         {unknownDim === "c"
-          ? (revealedAnswer != null ? `${revealedAnswer}` : "?")
+          ? (revealedAnswer != null ? `${revealedAnswer}` : "c")
           : (c_val !== undefined ? (lm === "numeric" ? `${c_val}` : "c") : "")}
       </text>
 
