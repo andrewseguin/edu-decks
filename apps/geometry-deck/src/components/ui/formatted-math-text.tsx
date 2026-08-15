@@ -26,6 +26,7 @@ const COLOR_KEYWORDS: Record<string, string> = {
   "height (h)": "#5ee8ff", // cyan
   "height": "#5ee8ff",
   "hypotenuse (c)": "#fb923c", // orange
+  // Lowercase side lengths:
   "a²": "#5ee8ff", // cyan
   "b²": "#ffd45e", // gold
   "c²": "#fb923c", // orange
@@ -33,6 +34,10 @@ const COLOR_KEYWORDS: Record<string, string> = {
   "b": "#ffd45e",
   "c": "#fb923c",
   "h": "#5ee8ff",
+  // Uppercase angles:
+  "A": "#5ee8ff",
+  "B": "#ffd45e",
+  "C": "#fb923c",
 };
 
 export function StackedFraction({
@@ -64,7 +69,7 @@ export function FormattedMathText({
   className?: string;
 }) {
   // Regex to match fractions and semantic keywords in descending order of specificity
-  const pattern = /(½|⅓|⅔|¼|¾|⅕|⅖|⅗|⅘|⅙|⅚|⅛|⅜|⅝|⅞|⁴⁄₃|base angles|base \(b\)|height \(h\)|hypotenuse \(c\)|base|height|a²|b²|c²|\ba\b|\bb\b|\bc\b|\bh\b)/g;
+  const pattern = /(½|⅓|⅔|¼|¾|⅕|⅖|⅗|⅘|⅙|⅚|⅛|⅜|⅝|⅞|⁴⁄₃|base angles|base \(b\)|height \(h\)|hypotenuse \(c\)|base|height|a²|b²|c²|\ba\b|\bb\b|\bc\b|\bh\b|\bA\b|\bB\b|\bC\b)/g;
   const parts = text.split(pattern);
 
   return (

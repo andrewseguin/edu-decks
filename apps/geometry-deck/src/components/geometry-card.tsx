@@ -15,6 +15,7 @@ import { InteractiveEquilateralExplorer } from "./interactive-equilateral-explor
 import { InteractiveAngleSumExplorer } from "./interactive-angle-sum-explorer";
 import { InteractivePythagorasExplorer } from "./interactive-pythagoras-explorer";
 import { InteractiveTriangleAreaExplorer } from "./interactive-triangle-area-explorer";
+import { InteractiveTrianglePerimeterExplorer } from "./interactive-triangle-perimeter-explorer";
 import { FormattedMathText } from "./ui/formatted-math-text";
 import type {
   GeometryCard as GeometryCardType,
@@ -131,6 +132,9 @@ export function GeometryCard({
       }
       if (card.frontLabel === "Area of a triangle") {
         return <InteractiveTriangleAreaExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "Perimeter of a triangle") {
+        return <InteractiveTrianglePerimeterExplorer color={card.color} />;
       }
       if (hasSvg) {
         return (

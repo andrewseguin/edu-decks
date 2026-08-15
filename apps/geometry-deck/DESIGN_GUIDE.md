@@ -145,11 +145,15 @@ Colors must be consistent and intuitive within each topic. As new topic categori
 3. **Clean Integer Rounding**:
    - Interactive handles move smoothly and continuously in 2D without stepped snapping.
    - All live numeric readouts ($b, h, A, \text{degrees}$) are rounded to whole integers to eliminate decimal clutter.
-4. **Formula Token Color Matching**:
+4. **Angles vs. Side Lengths Lettering Convention**:
+   - **Angles & Vertices**: Always **Uppercase** ($A, B, C$). E.g. `A + B + C = 180°`, angle $A$, vertex $C$.
+   - **Side Lengths & Dimensions**: Always **Lowercase** ($a, b, c$, $b, h$, $l, w$, $s, r$). E.g. `P = a + b + c`, `a² + b² = c²`, `A = ½ · b · h`.
+   - **Opposite Side-Angle Pairing**: Side $a$ is opposite Angle $A$, Side $b$ is opposite Angle $B$, and Side $c$ is opposite Angle $C$.
+5. **Formula Token Color Matching**:
    - `FormattedMathText` automatically color-codes mathematical keywords:
-     - `a²`, `a`, `height (h)`, `height`, `h`, `base angles` $\rightarrow$ **Cyan (`#5ee8ff`)**
-     - `b²`, `b`, `base (b)`, `base` $\rightarrow$ **Gold (`#ffd45e`)**
-     - `c²`, `c`, `hypotenuse (c)` $\rightarrow$ **Orange (`#fb923c`)**
+     - `A`, `a²`, `a`, `height (h)`, `height`, `h`, `base angles` $\rightarrow$ **Cyan (`#5ee8ff`)**
+     - `B`, `b²`, `b`, `base (b)`, `base` $\rightarrow$ **Gold (`#ffd45e`)**
+     - `C`, `c²`, `c`, `hypotenuse (c)` $\rightarrow$ **Orange (`#fb923c`)**
 
 ---
 
