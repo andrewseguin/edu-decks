@@ -111,9 +111,9 @@ function buildDots(t: Triple): DotInfo[] {
 }
 
 const STEPS = [
-  { step: 1, label: "Triangle" },
-  { step: 2, label: "Squares" },
-  { step: 3, label: "Combined" },
+  { step: 1, label: "1. Triangle" },
+  { step: 2, label: "2. Squares" },
+  { step: 3, label: "3. Combined" },
 ];
 
 /* ── component ────────────────────────────────────────────────────────────── */
