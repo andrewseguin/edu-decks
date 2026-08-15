@@ -255,8 +255,9 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
         <span style={{ color: COLOR_B }}>{b}²</span>
         <span className="text-white/50">=</span>
         <span
-          className="px-2.5 py-0.5 rounded-lg font-bold text-white shadow-sm"
+          className="px-2.5 py-0.5 rounded-lg font-bold shadow-sm"
           style={{
+            color: COLOR_C,
             backgroundColor: "rgba(255, 255, 255, 0.15)",
             border: "1.5px solid rgba(255, 255, 255, 0.65)",
           }}

@@ -75,12 +75,16 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
 - Operators (`+`, `−`, `·`, `=`) render in muted translucent white (`text-white/50`).
 - Values match their semantic diagram colors.
 
-### 2.4 White-Bordered Calculated Answer
-- The result of the calculation or total angle sum is always rendered in a crisp, white-bordered pill:
+### 2.4 Bordered Calculated Answer Pill
+- The result of the calculation or target property is rendered inside a translucent, white-bordered pill (`border: 1.5px solid rgba(255, 255, 255, 0.65); bg: rgba(255, 255, 255, 0.15)`).
+- **Text Color Rule**:
+  - **Aggregated / Calculated Totals** (e.g. Angle sum `180°`, Area `35`, Perimeter `24`): Render in **crisp white text** (`text-white`).
+  - **Semantic Target Properties** (e.g. Hypotenuse `c²` / `5²` in Pythagorean theorem): Render in the **matching semantic token color** (e.g. Orange `#fb923c` for hypotenuse $c$) to preserve 1:1 color continuity across the formula, diagram, and equation.
   ```tsx
   <span
-    className="px-2.5 py-0.5 rounded-lg font-bold text-white shadow-sm"
+    className="px-2.5 py-0.5 rounded-lg font-bold shadow-sm"
     style={{
+      color: isSemanticTarget ? SEMANTIC_COLOR : "white",
       backgroundColor: "rgba(255, 255, 255, 0.15)",
       border: "1.5px solid rgba(255, 255, 255, 0.65)",
     }}
