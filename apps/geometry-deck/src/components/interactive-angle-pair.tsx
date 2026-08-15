@@ -110,7 +110,7 @@ export function InteractiveAnglePair({ targetSum, label, color }: InteractiveAng
 
   // Accent colors for A and B
   const COLOR_A = "#5ee8ff"; // cyan
-  const COLOR_B = "#ffd45e"; // yellow
+  const COLOR_B = "#d8b4fe"; // neon lilac
 
   const armEnd = toPoint(vx, vy, angleA, RAY_LEN);
   const baseEnd = toPoint(vx, vy, 0, RAY_LEN);
@@ -178,14 +178,14 @@ export function InteractiveAnglePair({ targetSum, label, color }: InteractiveAng
 
         {/* Label A */}
         <text x={labelAPos.x} y={labelAPos.y} textAnchor="middle" dominantBaseline="central"
-          fontSize={14} fontWeight={700} fill={COLOR_A}
-          stroke={color} strokeWidth={4} paintOrder="stroke"
+          fontSize={14} fontWeight={800} fill={COLOR_A}
+          style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
           >A={dA}°</text>
 
         {/* Label B */}
         <text x={labelBPos.x} y={labelBPos.y} textAnchor="middle" dominantBaseline="central"
-          fontSize={13} fontWeight={700} fill={COLOR_B}
-          stroke={color} strokeWidth={4} paintOrder="stroke"
+          fontSize={13} fontWeight={800} fill={COLOR_B}
+          style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
           >B={dB}°</text>
 
         {/* Drag handle */}

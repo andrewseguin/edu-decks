@@ -255,15 +255,15 @@ export function InteractiveAngleExplorer({
           strokeDasharray="6 4"
         />
 
-        {/* Filled wedge region (very subtle) */}
-        <path d={wedgePath} fill="rgba(255,255,255,0.08)" />
+        {/* Filled wedge region (subtle cyan) */}
+        <path d={wedgePath} fill="#5ee8ff" fillOpacity={0.15} />
 
         {/* Arc */}
         <path
           d={currentArc}
           fill="none"
-          stroke="rgba(255,255,255,0.7)"
-          strokeWidth={2}
+          stroke="#5ee8ff"
+          strokeWidth={2.5}
           strokeLinecap="round"
         />
 
@@ -295,9 +295,9 @@ export function InteractiveAngleExplorer({
           textAnchor="middle"
           dominantBaseline="central"
           fontSize={16}
-          fontWeight={700}
-          fill="white"
-          style={{ textShadow: "0 1px 4px rgba(0,0,0,0.4)" }}
+          fontWeight={800}
+          fill="#5ee8ff"
+          style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
         >
           {displayAngle}°
         </text>
@@ -308,7 +308,7 @@ export function InteractiveAngleExplorer({
           cy={armEnd.y}
           r={HANDLE_R}
           fill="rgba(255,255,255,0.15)"
-          stroke="rgba(255,255,255,0.5)"
+          stroke="#5ee8ff"
           strokeWidth={2}
           style={{ cursor: isDragging ? "grabbing" : "grab", touchAction: "none" }}
           onPointerDown={handlePointerDown}
