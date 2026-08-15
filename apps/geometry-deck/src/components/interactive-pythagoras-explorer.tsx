@@ -56,9 +56,10 @@ function buildDots(t: Triple): DotInfo[] {
       const idx = row * a + col;
       const tgt = cPos(col, c - 1 - row);
       // col 0 is leftmost, col a-1 is rightmost (closest to leg x=OX)
-      // Outline passes from leg outward to left
-      const tileStartGp = (a - 1 - col) / a;
-      const tileFullGp = (a - col) / a;
+      // Outline passes from leg outward to left.
+      // We trigger tile emergence AFTER the outline has passed the outer edge of this column:
+      const tileStartGp = (a - col) / (a + 0.5);
+      const tileFullGp = Math.min(1, tileStartGp + 0.18);
       dots.push({
         srcX: rnd(OX - aPx + (col + 0.5) * unit),
         srcY: rnd(apexY + (row + 0.5) * unit),
@@ -91,8 +92,10 @@ function buildDots(t: Triple): DotInfo[] {
 
   for (let idx = 0; idx < goldSrcs.length; idx++) {
     const src = goldSrcs[idx];
-    const tileStartGp = src.row / b;
-    const tileFullGp = (src.row + 1) / b;
+    // Outline sweeps downward.
+    // Trigger tile emergence AFTER the outline has passed the bottom of this row:
+    const tileStartGp = (src.row + 1) / (b + 0.5);
+    const tileFullGp = Math.min(1, tileStartGp + 0.18);
     dots.push({
       srcX: src.x, srcY: src.y,
       tgtX: goldTgts[idx].x, tgtY: goldTgts[idx].y,
