@@ -116,8 +116,9 @@ export function InteractiveAnglePair({ targetSum, label, color }: InteractiveAng
 
   // Labels — push well outside arcs and clamp away from boundary rays
   const labelR = RAY_LEN * 0.55;
-  const labelAAngle = Math.max(Math.min(angleA / 2, angleA - 8), 15);
-  const labelAPos = toPoint(vx, vy, labelAAngle, labelR);
+  const labelAAngle = Math.max(Math.min(angleA / 2, angleA - 6), 9);
+  const labelAR = labelR + Math.max(0, (25 - angleA) * 0.6);
+  const labelAPos = toPoint(vx, vy, labelAAngle, labelAR);
   const labelBMid = Math.min(Math.max(angleA + (targetSum - angleA) / 2, angleA + 8), targetSum - 15);
   const labelBPos = toPoint(vx, vy, labelBMid, labelR);
 

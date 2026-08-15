@@ -199,9 +199,10 @@ export function InteractiveAngleExplorer({
   const showMinBoundary = minAngle > 0;
   const boundaryMinEnd = showMinBoundary ? toPoint(vx, vy, minAngle, RAY_LEN) : null;
 
-  // Degree label position — clamp to [25°, 85°] so it never overlaps the rays
-  const labelAngle = Math.max(25, Math.min(angle / 2, 85));
-  const labelPos = toPoint(vx, vy, labelAngle, ARC_R + 28);
+  // Degree label position — track true angle bisector down to 10°, extending distance for small angles so text stays close to the baseline without overlapping
+  const labelAngle = Math.max(10, Math.min(angle / 2, 85));
+  const labelDist = ARC_R + 24 + Math.max(0, (28 - angle) * 0.7);
+  const labelPos = toPoint(vx, vy, labelAngle, labelDist);
 
   const displayAngle = Math.round(angle);
 
