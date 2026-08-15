@@ -102,31 +102,31 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
   - Modeled after the step controls pattern from mental math decks, wrapping steps in a compact frosted capsule:
     ```tsx
     {/* Capsule Container */}
-    <div className="flex items-center gap-1 sm:gap-1.5 bg-white/10 backdrop-blur-md px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border border-white/30 shadow-sm pointer-events-auto z-30 select-none">
-      {/* Active Step Pill */}
-      <button className="px-2 sm:px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-headline font-bold transition-all duration-200 border bg-white/25 text-white border-white/60 shadow-sm">
+    <div className="flex items-center gap-1 sm:gap-1.5 bg-white/10 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-white/25 shadow-sm pointer-events-auto z-30 select-none">
+      {/* Active Step Pill (Borderless Soft Glow) */}
+      <button className="px-2.5 sm:px-3 py-0.5 rounded-full text-[11px] sm:text-xs font-headline font-bold transition-all duration-200 border-none bg-white/20 text-white shadow-none">
         2. Squares
       </button>
 
       {/* Inactive Step Pill */}
-      <button className="px-2 sm:px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-headline font-bold transition-all duration-200 border bg-transparent text-white/80 border-transparent hover:text-white hover:bg-white/15">
+      <button className="px-2.5 sm:px-3 py-0.5 rounded-full text-[11px] sm:text-xs font-headline font-bold transition-all duration-200 border-none bg-transparent text-white/70 hover:text-white hover:bg-white/10">
         3. Combined
       </button>
 
       {/* Vertical Divider */}
-      <div className="w-px h-3 bg-white/25 mx-0.5" />
+      <div className="w-px h-3 bg-white/20 mx-0.5" />
 
       {/* Replay Button */}
-      <button title="Replay animation" className="p-1 rounded-full text-white/80 hover:text-white hover:bg-white/20 transition-all active:scale-95">
+      <button title="Replay animation" className="p-1 rounded-full text-white/70 hover:text-white hover:bg-white/15 transition-all active:scale-95 border-none">
         <RotateCcw className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
       </button>
     </div>
     ```
 
 - **Preset & Dimension Selectors** (e.g. `3, 4, 5`, `5, 12, 13`, `8, 15, 17`):
-  - Compact rounded pills for switching geometric scenarios:
-    - **Active**: `bg-white/25 text-white border-white/60 shadow-sm px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold`
-    - **Inactive**: `bg-white/10 text-white/80 border-white/25 hover:bg-white/20 hover:text-white px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold`
+  - Compact borderless rounded pills for switching geometric scenarios:
+    - **Active**: `bg-white/20 text-white shadow-none px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold border-none`
+    - **Inactive**: `bg-white/10 text-white/70 hover:bg-white/15 hover:text-white px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold border-none`
 - **No Autoplay Loops**: All animations must be user-triggered via step clicks or replay pills; never run looping timers in the background.
 
 ### 2.5 Two-Column Calculation Proofs & Interactive Glossary
