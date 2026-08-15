@@ -5,7 +5,35 @@
 
 ---
 
-## 🏛️ 1. Card Layout & Visual Hierarchy
+## 💡 1. Pedagogical Principles & Interaction Philosophy
+
+The geometry deck is built on the principle that **true mathematical understanding comes from direct manipulation, visual proofs, and minimal cognitive load**:
+
+1. **Interactive by Default (Direct Manipulation)**:
+   - Wherever mathematically meaningful, cards must be interactive rather than static drawings.
+   - Learners build lasting geometric intuition by *touching and transforming* shapes:
+     - Dragging vertices to observe invariants (e.g. watching triangle area change with height while base is fixed, or angles dynamically balancing to maintain $180^\circ$).
+     - Moving sliders to test edge cases (e.g. near-flat obtuse triangles vs. tall acute triangles).
+     - Triggering physical proofs (e.g. folding corner angles to form a straight $180^\circ$ line).
+
+2. **State-of-the-Art Pedagogy ("Show the 'Why', Not Just the 'What'")**:
+   - Every visualization should illuminate the underlying mathematical proof or conceptual intuition:
+     - **Triangle Area ($A = ½bh$)**: Visualized with a neutral $b \times h$ unit grid bounding box, showing that the altitude divides the box into two sub-rectangles that are each cut in half.
+     - **Angle Sum ($180^\circ$)**: Visualized through congruent corner folding along mid-segments to form a straight $180^\circ$ line.
+     - **Pythagorean Theorem ($a² + b² = c²$)**: Visualized with actual geometric squares built on each side and animated rearrangement proofs.
+     - **Circle Area ($A = \pi r²$)**: Unrolling circular sectors into an equivalent parallelogram of base $\pi r$ and height $r$.
+
+3. **Simplicity Over Clutter (Low Cognitive Load)**:
+   - **Zero Auto-Play Loops**: Cards must remain completely stationary until the user decides to interact. Auto-playing loops distract the user and remove agency.
+   - **No Decimal Noise**: Dragging is continuous and smooth in 2D, while displayed numbers ($b, h, A, \text{degrees}$) are cleanly rounded to whole integers so learners focus on conceptual relationships rather than floating-point decimals.
+   - **Minimalist Controls**: Use subtle, translucent controls (frosted pills, clear slider tracks) that keep the focus entirely on the geometric figure.
+
+4. **Instant Algebraic-Visual Feedback**:
+   - The live equation at the bottom updates instantaneously as the user drags handles, cementing the direct 1:1 mapping between visual shapes and algebraic formulas.
+
+---
+
+## 🏛️ 2. Card Layout & Visual Hierarchy
 
 Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
 
@@ -32,22 +60,22 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 1.1 Top Frosted Definition Banner (Hero)
+### 2.1 Top Frosted Definition Banner (Hero)
 - **Container**: `px-6 py-2.5 my-1 rounded-2xl bg-black/25 backdrop-blur-md border border-white/20 shadow-lg flex flex-col items-center justify-center gap-1`
 - **Primary Line**: Bold, prominent formula (e.g. `A = ½ · b · h`, `a² + b² = c²`, `2 equal sides, 2 equal base angles`).
 - **Optional Secondary Subtitle**: Smaller plain English translation (e.g. `Area = ½ · base · height`).
 
-### 1.2 Interactive Diagram (Center)
+### 2.2 Interactive Diagram (Center)
 - Clean SVG canvas with aspect ratio ~ `22/13.5` or `viewBox="0 0 240 170"`.
 - Draggable vertices with `touch-none` and continuous 2D pointer dragging.
 - **Zero auto-play**: Card stays completely stationary until the user drags or clicks a control.
 
-### 1.3 Live Open Equation (Bottom)
+### 2.3 Live Open Equation (Bottom)
 - Open, unboxed equation layout with text drop-shadow (`filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.4))`).
 - Operators (`+`, `−`, `·`, `=`) render in muted translucent white (`text-white/50`).
 - Values match their semantic diagram colors.
 
-### 1.4 White-Bordered Calculated Answer
+### 2.4 White-Bordered Calculated Answer
 - The result of the calculation or total angle sum is always rendered in a crisp, white-bordered pill:
   ```tsx
   <span
@@ -61,7 +89,7 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
   </span>
   ```
 
-### 1.5 Frosted Controls & Action Buttons
+### 2.5 Frosted Controls & Action Buttons
 - Presets and action buttons (e.g. `Show proof ▶`, `Fold corners ▶`, presets `3, 4, 5`) use rounded frosted pills:
   ```tsx
   className="px-4 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm disabled:opacity-50"
@@ -69,11 +97,11 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
 
 ---
 
-## 🎨 2. Semantic Color Standards
+## 🎨 3. Semantic Color Standards
 
 Colors must be consistent and intuitive within each topic. As new topic categories are developed, add their specific semantic color mapping here:
 
-### 2.1 Angles & Triangles Palette *(Established)*
+### 3.1 Angles & Triangles Palette *(Established)*
 
 | Concept | Token / Color | Hex | Usage |
 | :--- | :--- | :--- | :--- |
@@ -86,7 +114,7 @@ Colors must be consistent and intuitive within each topic. As new topic categori
 | **Shape Fills** | Soft Luminous White | `rgba(255,255,255,0.15)` | Interior fill of geometric shapes |
 | **Shape Outlines** | Solid White | `rgba(255,255,255,0.95)` | Primary polygon boundary edges (`strokeWidth={2.5}`) |
 
-### 2.2 Upcoming Topic Palettes *(To be formalized as we build)*
+### 3.2 Upcoming Topic Palettes *(To be formalized as we build)*
 - **Quadrilaterals**: Parallel side pairs, diagonals, base/height, trapezoid bases ($a, b$).
 - **Circles**: Radius ($r$), Diameter ($d$), Circumference ($C$), Area ($A$), $\pi$.
 - **Polygons**: Side length ($s$), Interior angle sum $(n-2)\times 180^\circ$, Number of sides ($n$).
@@ -94,7 +122,7 @@ Colors must be consistent and intuitive within each topic. As new topic categori
 
 ---
 
-## 📐 3. Area Formulas & Unit Grids
+## 📐 4. Area Formulas & Unit Grids
 
 1. **Unit Grid Visualization**:
    - All area cards (triangle, rectangle, parallelogram, trapezoid, circle) must display subtle, neutral unit grid lines across the enclosing bounding rectangle ($b \times h$).
@@ -107,7 +135,7 @@ Colors must be consistent and intuitive within each topic. As new topic categori
 
 ---
 
-## 🔤 4. Typography & Mathematical Notation
+## 🔤 5. Typography & Mathematical Notation
 
 1. **No LaTeX**:
    - Never use LaTeX (`$...$`, `\frac{...}{...}`, `\times`) in assistant messages, comments, or cards.
@@ -125,10 +153,11 @@ Colors must be consistent and intuitive within each topic. As new topic categori
 
 ---
 
-## ✅ 5. Card Verification Checklist
+## ✅ 6. Card Verification Checklist
 
 Before considering any geometry card complete:
 - [ ] Top definition/formula is enclosed in the frosted glass hero banner.
+- [ ] Shows the "why" via direct manipulation or proof visualization.
 - [ ] Semantic colors match across header text, diagram geometry, and live equation.
 - [ ] Live bottom equation is open (no dark blocky token boxes).
 - [ ] Calculated answer is in a crisp white pill with white border.
