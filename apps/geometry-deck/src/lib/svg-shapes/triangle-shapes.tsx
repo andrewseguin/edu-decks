@@ -239,7 +239,7 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
       {/* ── Main Triangle Polygon ────────────────────────────────────────── */}
       <polygon
         points={`${V1.x},${V1.y} ${V2.x},${V2.y} ${V3.x},${V3.y}`}
-        fill={filled ? "rgba(255,255,255,0.28)" : "rgba(255,255,255,0.12)"}
+        fill={filled ? "rgba(255,255,255,0.32)" : (h !== undefined ? "rgba(255,255,255,0.22)" : "rgba(255,255,255,0.12)")}
         stroke="rgba(255,255,255,0.95)"
         strokeWidth={2.5}
         strokeLinejoin="round"
