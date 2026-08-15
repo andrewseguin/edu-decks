@@ -113,52 +113,18 @@ export function InteractiveAngleExplorer({
     [minAngle, maxAngle]
   );
 
-  const [angle, setAngle] = useState(sweepMin);
-  const [isUserControlling, setIsUserControlling] = useState(false);
+  const [angle, setAngle] = useState(
+    Math.round(sweepMin + (sweepMax - sweepMin) * 0.4)
+  );
   const [isDragging, setIsDragging] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
-  const animRef = useRef<number>(0);
-  const startTimeRef = useRef<number | null>(null);
-  const isUserControllingRef = useRef(false);
-
-  useEffect(() => {
-    isUserControllingRef.current = isUserControlling;
-  }, [isUserControlling]);
-
-  // ── Auto-animation ──────────────────────────────────────────────────────
-  const animate = useCallback(
-    (timestamp: number) => {
-      if (isUserControllingRef.current) return;
-      if (startTimeRef.current === null) startTimeRef.current = timestamp;
-      const elapsed = (timestamp - startTimeRef.current) / 1000;
-
-      const t = (Math.sin(elapsed * Math.PI * 0.25) + 1) / 2;
-      const newAngle = sweepMin + t * (sweepMax - sweepMin);
-      setAngle(newAngle);
-
-      animRef.current = requestAnimationFrame(animate);
-    },
-    [sweepMin, sweepMax]
-  );
-
-  useEffect(() => {
-    if (!isUserControlling) {
-      startTimeRef.current = null;
-      animRef.current = requestAnimationFrame(animate);
-    }
-    return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-    };
-  }, [animate, isUserControlling]);
 
   // ── Pointer drag on arm endpoint ────────────────────────────────────────
   const handlePointerDown = useCallback(
     (e: React.PointerEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      setIsUserControlling(true);
       setIsDragging(true);
-      if (animRef.current) cancelAnimationFrame(animRef.current);
 
       const svg = svgRef.current;
       if (!svg) return;
@@ -185,18 +151,6 @@ export function InteractiveAngleExplorer({
       window.addEventListener("pointerup", onUp);
     },
     [sweepMin, sweepMax, svgW, svgH, vx, vy]
-  );
-
-  // ── Slider input ────────────────────────────────────────────────────────
-  const handleSliderChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (!isUserControlling) {
-        setIsUserControlling(true);
-        if (animRef.current) cancelAnimationFrame(animRef.current);
-      }
-      setAngle(Number(e.target.value));
-    },
-    [isUserControlling]
   );
 
   // ── Prevent card tap-to-flip when interacting ───────────────────────────
@@ -302,6 +256,15 @@ export function InteractiveAngleExplorer({
           {displayAngle}°
         </text>
 
+        {/* Transparent hit area */}
+        <circle
+          cx={armEnd.x}
+          cy={armEnd.y}
+          r={24}
+          fill="transparent"
+          style={{ cursor: isDragging ? "grabbing" : "grab", touchAction: "none" }}
+          onPointerDown={handlePointerDown}
+        />
         {/* Draggable handle at arm endpoint */}
         <circle
           cx={armEnd.x}
@@ -310,8 +273,7 @@ export function InteractiveAngleExplorer({
           fill="rgba(255,255,255,0.15)"
           stroke="rgba(255,255,255,0.5)"
           strokeWidth={2}
-          style={{ cursor: isDragging ? "grabbing" : "grab", touchAction: "none" }}
-          onPointerDown={handlePointerDown}
+          className="pointer-events-none"
         />
         <circle
           cx={armEnd.x}
@@ -321,29 +283,6 @@ export function InteractiveAngleExplorer({
           className="pointer-events-none"
         />
       </svg>
-
-      {/* Slider */}
-      <div
-        className="w-full max-w-[260px] sm:max-w-[300px] px-2"
-        onClick={stopPropagation}
-      >
-        <input
-          type="range"
-          min={sweepMin}
-          max={sweepMax}
-          step={1}
-          value={Math.round(angle)}
-          onChange={handleSliderChange}
-          className="angle-slider w-full"
-          style={
-            {
-              "--slider-color": color,
-              "--slider-progress": `${((angle - sweepMin) / (sweepMax - sweepMin)) * 100}%`,
-            } as React.CSSProperties
-          }
-          aria-label={`Adjust ${label} angle`}
-        />
-      </div>
     </div>
   );
 }

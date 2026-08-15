@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { SvgTriangle } from "../lib/svg-shapes";
 
 type InteractiveIsoscelesExplorerProps = {
@@ -18,36 +18,38 @@ const r = (n: number) => Math.round(n * 10000) / 10000;
 export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExplorerProps) {
   // Even apex angles (30° to 120°, step 2) so base angles are always exact integers
   const [apexAngle, setApexAngle] = useState(50);
-  const [isUserControlling, setIsUserControlling] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const svgRef = useRef<SVGSVGElement>(null);
 
-  const animRef = useRef<number>(0);
-  const startTimeRef = useRef<number | null>(null);
-  const ucRef = useRef(false);
+  // Direct vertical drag on apex vertex
+  const handlePointerDown = useCallback((e: React.PointerEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+    const svg = svgRef.current;
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    const scY = 135 / rect.height;
 
-  useEffect(() => {
-    ucRef.current = isUserControlling;
-  }, [isUserControlling]);
+    const onMove = (ev: PointerEvent) => {
+      const py = (ev.clientY - rect.top) * scY + 25;
+      const h = Math.max(15, Math.min(92, BASE_Y - py));
+      const halfRad = Math.acos(Math.max(0.15, Math.min(0.97, h / LEG_LEN)));
+      const rawDeg = (halfRad * 2 * 180) / Math.PI;
+      const evenDeg = Math.max(16, Math.min(150, Math.round(rawDeg / 2) * 2));
+      setApexAngle(evenDeg);
+    };
 
-  // Smooth continuous auto-pulse loop across 12° to 158°
-  const animate = useCallback((ts: number) => {
-    if (ucRef.current) return;
-    if (startTimeRef.current === null) startTimeRef.current = ts;
-    const t = (Math.sin(((ts - startTimeRef.current) / 1000) * Math.PI * 0.2) + 1) / 2;
-    const rawDeg = 12 + t * (158 - 12);
-    const evenDeg = Math.round(rawDeg / 2) * 2;
-    setApexAngle(evenDeg);
-    animRef.current = requestAnimationFrame(animate);
+    const onUp = () => {
+      setIsDragging(false);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
   }, []);
 
-  useEffect(() => {
-    if (!isUserControlling) {
-      startTimeRef.current = null;
-      animRef.current = requestAnimationFrame(animate);
-    }
-    return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-    };
-  }, [animate, isUserControlling]);
+  const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 
   // Geometry calculations (even integer apex angles guarantee baseAngle is an exact whole integer and apex + 2*base = 180° exactly)
   const displayApexAngle = Math.round(apexAngle / 2) * 2;
@@ -108,22 +110,15 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
   };
   const apexArcPath = `M ${apexArcLeft.x} ${apexArcLeft.y} A ${apexArcR} ${apexArcR} 0 0 0 ${apexArcRight.x} ${apexArcRight.y}`;
 
-  const handleSlider = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isUserControlling) {
-      setIsUserControlling(true);
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-    }
-    const val = Number(e.target.value);
-    setApexAngle(Math.round(val / 2) * 2);
-  }, [isUserControlling]);
-
   return (
-    <div className="w-full flex flex-col items-center select-none pb-1">
+    <div className="w-full flex flex-col items-center select-none pb-1" onClick={stop} onPointerDown={stop}>
       {/* SVG Diagram */}
       <div className="relative w-full max-w-[340px] aspect-[22/13.5] flex items-center justify-center">
         <svg
+          ref={svgRef}
           viewBox="0 25 220 135"
-          className="w-full h-full overflow-visible"
+          className="w-full h-full overflow-visible touch-none select-none"
+          style={{ cursor: isDragging ? "grabbing" : "default" }}
           aria-hidden
         >
           {/* Main Triangle Polygon */}
@@ -196,7 +191,7 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
           {/* Apex Angle Value Label (Floating OUTSIDE above apex vertex) */}
           <text
             x={apexX}
-            y={apexY - 10}
+            y={apexY - 14}
             textAnchor="middle"
             fontSize={12}
             fontWeight="800"
@@ -206,6 +201,27 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
           >
             {displayApexAngle}°
           </text>
+
+          {/* Transparent hit area */}
+          <circle
+            cx={apexX}
+            cy={apexY}
+            r={24}
+            fill="transparent"
+            style={{ cursor: isDragging ? "grabbing" : "grab", touchAction: "none" }}
+            onPointerDown={handlePointerDown}
+          />
+          {/* Draggable Apex handle */}
+          <circle
+            cx={apexX}
+            cy={apexY}
+            r={10}
+            fill="rgba(255,255,255,0.15)"
+            stroke="rgba(255,255,255,0.5)"
+            strokeWidth={2}
+            className="pointer-events-none"
+          />
+          <circle cx={apexX} cy={apexY} r={3.5} fill="white" className="pointer-events-none" />
         </svg>
       </div>
 
@@ -220,21 +236,6 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
           <span className="text-white/50">=</span>
           <span className="text-white font-bold">180°</span>
         </div>
-      </div>
-
-      {/* Range Slider Control (Capped 10° to 160° to avoid degenerate straight line triangles) */}
-      <div className="w-full max-w-[280px] px-2 flex flex-col gap-1.5 items-center mt-1" onClick={(e) => e.stopPropagation()}>
-        <input
-          type="range"
-          min={10}
-          max={160}
-          step={2}
-          value={displayApexAngle}
-          onChange={handleSlider}
-          className="angle-slider w-full"
-          style={{ "--slider-progress": `${((displayApexAngle - 10) / (160 - 10)) * 100}%` } as React.CSSProperties}
-          aria-label="Apex angle slider"
-        />
       </div>
     </div>
   );

@@ -182,7 +182,7 @@ Colors on Angles cards follow a strict **progressive allocation order**:
 > **Text Drop Shadows on Cards**: Any text element rendered directly on top of the card background (without a frosted/dimmed banner container) must include `style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}` for maximum legibility and contrast.
 
 > [!IMPORTANT]
-> **Touch Points & Draggable Handles (Always White)**: All interactive drag handles, touch points, vertex manipulation anchors, and range slider thumbs must strictly share the **unified white drag affordance** (solid white center dot with a frosted translucent grab ring: `fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.5)"` in SVG, or `radial-gradient(circle, #ffffff 30%, rgba(255,255,255,0.18) 34%, rgba(255,255,255,0.15) 100%)` on sliders). Semantic colors are strictly reserved for mathematical properties (angles, lengths, heights, areas), while frosted white serves as the universal signature for draggable controls.
+> **Touch Points & Draggable Handles (Direct Shape Manipulation, Always White)**: All interactive controls are **100% direct vector drag manipulations** on vertex/ray endpoints (no disconnected horizontal range sliders). All drag handles strictly share the **unified white drag affordance** (solid white center dot with a frosted translucent grab ring: `fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.5)"` in SVG, paired with an invisible `r=24` touch hit area for effortless touch interaction). Semantic colors are strictly reserved for mathematical properties (angles, lengths, heights, areas), while frosted white serves as the universal signature for draggable controls.
 
 ### 3.2 Triangles Topic Palette *(Optimized for `#10b981` Emerald/Green)*
 

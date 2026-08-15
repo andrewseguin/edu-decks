@@ -65,10 +65,6 @@ export function InteractiveVerticalAngles({ color }: InteractiveVerticalAnglesPr
     window.addEventListener("pointerup", onUp);
   }, [svgW, svgH, cx, cy, sweepMin, sweepMax]);
 
-  const handleSlider = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setAngleA(Number(e.target.value));
-  }, []);
-
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 
   const dA = Math.round(angleA);
@@ -145,15 +141,6 @@ export function InteractiveVerticalAngles({ color }: InteractiveVerticalAnglesPr
           className="pointer-events-none" />
         <circle cx={rU.x} cy={rU.y} r={4} fill="white" className="pointer-events-none" />
       </svg>
-
-      {/* Slider */}
-      <div className="w-full max-w-[260px] sm:max-w-[300px] px-2" onClick={stop}>
-        <input type="range" min={sweepMin} max={sweepMax} step={1}
-          value={Math.round(angleA)} onChange={handleSlider}
-          className="angle-slider w-full"
-          style={{ "--slider-color": color, "--slider-progress": `${((angleA - sweepMin) / (sweepMax - sweepMin)) * 100}%` } as React.CSSProperties}
-          aria-label="Adjust angle" />
-      </div>
     </div>
   );
 }

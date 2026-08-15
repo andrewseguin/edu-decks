@@ -45,36 +45,13 @@ export function InteractiveAnglePair({ targetSum, label, color }: InteractiveAng
   const svgW = is180 ? (totalR + sidePad) * 2 : totalR + sidePad * 2 + 4;
   const svgH = vy + 18;
 
-  const [angleA, setAngleA] = useState(targetSum / 3);
-  const [isUserControlling, setIsUserControlling] = useState(false);
+  const [angleA, setAngleA] = useState(is180 ? 65 : 40);
   const [isDragging, setIsDragging] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
-  const animRef = useRef<number>(0);
-  const startTimeRef = useRef<number | null>(null);
-  const ucRef = useRef(false);
-
-  useEffect(() => { ucRef.current = isUserControlling; }, [isUserControlling]);
-
-  const animate = useCallback((ts: number) => {
-    if (ucRef.current) return;
-    if (startTimeRef.current === null) startTimeRef.current = ts;
-    const t = (Math.sin((ts - startTimeRef.current) / 1000 * Math.PI * 0.25) + 1) / 2;
-    setAngleA(animMin + t * (animMax - animMin));
-    animRef.current = requestAnimationFrame(animate);
-  }, [animMin, animMax]);
-
-  useEffect(() => {
-    if (!isUserControlling) {
-      startTimeRef.current = null;
-      animRef.current = requestAnimationFrame(animate);
-    }
-    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
-  }, [animate, isUserControlling]);
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault(); e.stopPropagation();
-    setIsUserControlling(true); setIsDragging(true);
-    if (animRef.current) cancelAnimationFrame(animRef.current);
+    setIsDragging(true);
     const svg = svgRef.current;
     if (!svg) return;
     const rect = svg.getBoundingClientRect();
@@ -95,11 +72,6 @@ export function InteractiveAnglePair({ targetSum, label, color }: InteractiveAng
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
   }, [sliderMin, sliderMax, svgW, svgH, vx, vy]);
-
-  const handleSlider = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isUserControlling) { setIsUserControlling(true); cancelAnimationFrame(animRef.current); }
-    setAngleA(Number(e.target.value));
-  }, [isUserControlling]);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 
@@ -188,11 +160,14 @@ export function InteractiveAnglePair({ targetSum, label, color }: InteractiveAng
           style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
           >{dB}°</text>
 
+        {/* Transparent large hit area */}
+        <circle cx={armEnd.x} cy={armEnd.y} r={24} fill="transparent"
+          style={{ cursor: isDragging ? "grabbing" : "grab", touchAction: "none" }}
+          onPointerDown={handlePointerDown} />
         {/* Drag handle */}
         <circle cx={armEnd.x} cy={armEnd.y} r={HANDLE_R}
           fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.5)" strokeWidth={2}
-          style={{ cursor: isDragging ? "grabbing" : "grab", touchAction: "none" }}
-          onPointerDown={handlePointerDown} />
+          className="pointer-events-none" />
         <circle cx={armEnd.x} cy={armEnd.y} r={4} fill="white" className="pointer-events-none" />
       </svg>
 
@@ -205,24 +180,6 @@ export function InteractiveAnglePair({ targetSum, label, color }: InteractiveAng
           <span className="text-white/50">=</span>
           <span className="text-white font-bold">{targetSum}°</span>
         </div>
-      </div>
-
-      {/* Slider */}
-      <div className="w-full max-w-[260px] sm:max-w-[300px] px-2" onClick={stop} onPointerDown={stop}>
-        <input
-          type="range"
-          min={sliderMin}
-          max={sliderMax}
-          step={1}
-          value={Math.round(angleA)}
-          onChange={handleSlider}
-          className="angle-slider w-full"
-          style={{
-            "--slider-color": color,
-            "--slider-progress": `${((angleA - sliderMin) / (sliderMax - sliderMin)) * 100}%`,
-          } as React.CSSProperties}
-          aria-label={`Adjust ${label} angles`}
-        />
       </div>
     </div>
   );

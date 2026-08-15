@@ -37,36 +37,13 @@ export function InteractiveRightTriangleExplorer({ color }: InteractiveRightTria
   const sweepMax = 75;
 
   const [angA, setAngA] = useState(53);
-  const [isUserControlling, setIsUserControlling] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
-  const animRef = useRef<number>(0);
-  const startTimeRef = useRef<number | null>(null);
-  const ucRef = useRef(false);
-
-  useEffect(() => { ucRef.current = isUserControlling; }, [isUserControlling]);
-
-  const animate = useCallback((ts: number) => {
-    if (ucRef.current) return;
-    if (startTimeRef.current === null) startTimeRef.current = ts;
-    const t = (Math.sin(((ts - startTimeRef.current) / 1000) * Math.PI * 0.25) + 1) / 2;
-    setAngA(Math.round(sweepMin + t * (sweepMax - sweepMin)));
-    animRef.current = requestAnimationFrame(animate);
-  }, []);
-
-  useEffect(() => {
-    if (!isUserControlling) {
-      startTimeRef.current = null;
-      animRef.current = requestAnimationFrame(animate);
-    }
-    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
-  }, [animate, isUserControlling]);
 
   // Drag handler on apex
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault(); e.stopPropagation();
-    setIsUserControlling(true); setIsDragging(true);
-    if (animRef.current) cancelAnimationFrame(animRef.current);
+    setIsDragging(true);
     const svg = svgRef.current;
     if (!svg) return;
     const rect = svg.getBoundingClientRect();
@@ -92,11 +69,6 @@ export function InteractiveRightTriangleExplorer({ color }: InteractiveRightTria
     window.addEventListener("pointerup", onUp);
   }, []);
 
-  const handleSlider = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isUserControlling) { setIsUserControlling(true); cancelAnimationFrame(animRef.current); }
-    setAngA(Number(e.target.value));
-  }, [isUserControlling]);
-
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 
   const angB = 90 - angA;
@@ -108,27 +80,23 @@ export function InteractiveRightTriangleExplorer({ color }: InteractiveRightTria
 
   // Right-angle marker at apex (edge-aligned)
   const mSize = 10;
-  const lenToB1 = Math.hypot(B1_X - apexX, BASE_Y - apexY);
-  const lenToB2 = Math.hypot(B2_X - apexX, BASE_Y - apexY);
-  const u1x = ((B1_X - apexX) / lenToB1) * mSize;
-  const u1y = ((BASE_Y - apexY) / lenToB1) * mSize;
-  const u2x = ((B2_X - apexX) / lenToB2) * mSize;
-  const u2y = ((BASE_Y - apexY) / lenToB2) * mSize;
-  const markerPath = `M ${rnd(apexX + u1x)} ${rnd(apexY + u1y)} L ${rnd(apexX + u1x + u2x)} ${rnd(apexY + u1y + u2y)} L ${rnd(apexX + u2x)} ${rnd(apexY + u2y)}`;
+  const u1 = { x: (B1_X - apexX) / Math.hypot(B1_X - apexX, BASE_Y - apexY), y: (BASE_Y - apexY) / Math.hypot(B1_X - apexX, BASE_Y - apexY) };
+  const u2 = { x: (B2_X - apexX) / Math.hypot(B2_X - apexX, BASE_Y - apexY), y: (BASE_Y - apexY) / Math.hypot(B2_X - apexX, BASE_Y - apexY) };
+  const p1 = { x: rnd(apexX + u1.x * mSize), y: rnd(apexY + u1.y * mSize) };
+  const p2 = { x: rnd(apexX + u1.x * mSize + u2.x * mSize), y: rnd(apexY + u1.y * mSize + u2.y * mSize) };
+  const p3 = { x: rnd(apexX + u2.x * mSize), y: rnd(apexY + u2.y * mSize) };
 
-  // Angle arcs
-  const arcAPath = arcSvg(B1_X, BASE_Y, 0, angA, ARC_R);
-  const arcBPath = arcSvg(B2_X, BASE_Y, 90 + angA, 180, ARC_R);
+  // Angle arcs at base vertices
+  const arcA = arcSvg(B1_X, BASE_Y, 0, angA, ARC_R);
+  const arcB = arcSvg(B2_X, BASE_Y, 180 - angB, 180, ARC_R);
 
-  // Angle label positions — along bisector, pushed outward past the arc
-  const labelAPos = toPoint(B1_X, BASE_Y, angA / 2, ARC_R + 14);
-  const labelBPos = toPoint(B2_X, BASE_Y, 90 + angA + angB / 2, ARC_R + 14);
+  // Label positions
+  const labelAPos = toPoint(B1_X, BASE_Y, Math.max(angA / 2, 12), ARC_R + 14);
+  const labelBPos = toPoint(B2_X, BASE_Y, 180 - Math.max(angB / 2, 12), ARC_R + 14);
 
-  const COLOR_A = "#5ee8ff"; // cyan
-  const COLOR_B = "#ffd45e"; // yellow
-
-  // Faint semicircle showing the Thales locus
-  const semiArcPath = `M ${B1_X} ${BASE_Y} A ${R} ${R} 0 0 0 ${B2_X} ${BASE_Y}`;
+  // Semantic colors: A = Cyan (#5ee8ff), B = Yellow (#ffd45e)
+  const COLOR_A = "#5ee8ff";
+  const COLOR_B = "#ffd45e";
 
   return (
     <div className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
@@ -136,33 +104,35 @@ export function InteractiveRightTriangleExplorer({ color }: InteractiveRightTria
         className="w-full max-w-[300px] sm:max-w-[340px] touch-none select-none"
         style={{ cursor: isDragging ? "grabbing" : "default" }}>
 
-        {/* Faint semicircle — the locus of all right-angle vertices (Thales' theorem) */}
-        <path d={semiArcPath} fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth={1} strokeDasharray="4 4" />
+        {/* Thales semicircle (construction guide) */}
+        <path d={`M ${B2_X} ${BASE_Y} A ${R} ${R} 0 0 0 ${B1_X} ${BASE_Y}`}
+          fill="none" stroke="rgba(255,255,255,0.2)" strokeWidth={1.5} strokeDasharray="4 3" />
 
         {/* Triangle fill */}
         <polygon points={`${B1_X},${BASE_Y} ${B2_X},${BASE_Y} ${apexX},${apexY}`}
-          fill="rgba(255,255,255,0.06)" />
+          fill="rgba(255,255,255,0.08)" stroke="none" />
 
-        {/* Triangle edges */}
+        {/* Triangle outline */}
         <line x1={B1_X} y1={BASE_Y} x2={B2_X} y2={BASE_Y}
-          stroke="rgba(255,255,255,0.9)" strokeWidth={2} strokeLinecap="round" />
+          stroke="rgba(255,255,255,0.9)" strokeWidth={2.5} strokeLinecap="round" />
         <line x1={B1_X} y1={BASE_Y} x2={apexX} y2={apexY}
-          stroke="rgba(255,255,255,0.9)" strokeWidth={2} strokeLinecap="round" />
+          stroke="rgba(255,255,255,0.9)" strokeWidth={2.5} strokeLinecap="round" />
         <line x1={B2_X} y1={BASE_Y} x2={apexX} y2={apexY}
-          stroke="rgba(255,255,255,0.9)" strokeWidth={2} strokeLinecap="round" />
+          stroke="rgba(255,255,255,0.9)" strokeWidth={2.5} strokeLinecap="round" />
 
-        {/* Right-angle marker at apex */}
-        <path d={markerPath} fill="none" stroke="#ffffff" strokeWidth={2} strokeLinecap="square" />
+        {/* Right-angle square marker at apex */}
+        <polyline points={`${p1.x},${p1.y} ${p2.x},${p2.y} ${p3.x},${p3.y}`}
+          fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth={1.5} />
 
         {/* Angle arcs */}
-        <path d={arcAPath} fill="none" stroke={COLOR_A} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
-        <path d={arcBPath} fill="none" stroke={COLOR_B} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
+        <path d={arcA} fill="none" stroke={COLOR_A} strokeWidth={2.5} strokeOpacity={0.85} strokeLinecap="round" />
+        <path d={arcB} fill="none" stroke={COLOR_B} strokeWidth={2.5} strokeOpacity={0.85} strokeLinecap="round" />
 
-        {/* Base vertex dots */}
+        {/* Base vertices */}
         <circle cx={B1_X} cy={BASE_Y} r={3} fill="white" />
         <circle cx={B2_X} cy={BASE_Y} r={3} fill="white" />
 
-        {/* Angle labels with drop-shadow for contrast */}
+        {/* Labels */}
         <text x={labelAPos.x} y={labelAPos.y} textAnchor="middle" dominantBaseline="central"
           fontSize={12} fontWeight={800} fill={COLOR_A}
           fontFamily="var(--font-heading, system-ui)"
@@ -172,11 +142,14 @@ export function InteractiveRightTriangleExplorer({ color }: InteractiveRightTria
           fontFamily="var(--font-heading, system-ui)"
           style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>{angB}°</text>
 
+        {/* Transparent hit area */}
+        <circle cx={apexX} cy={apexY} r={24} fill="transparent"
+          style={{ cursor: isDragging ? "grabbing" : "grab", touchAction: "none" }}
+          onPointerDown={handlePointerDown} />
         {/* Drag handle on apex */}
         <circle cx={apexX} cy={apexY} r={10}
           fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.5)" strokeWidth={2}
-          style={{ cursor: isDragging ? "grabbing" : "grab", touchAction: "none" }}
-          onPointerDown={handlePointerDown} />
+          className="pointer-events-none" />
         <circle cx={apexX} cy={apexY} r={3} fill="white" className="pointer-events-none" />
       </svg>
 
@@ -191,15 +164,6 @@ export function InteractiveRightTriangleExplorer({ color }: InteractiveRightTria
           <span className="text-white/50">=</span>
           <span className="text-white font-bold">180°</span>
         </div>
-      </div>
-
-      {/* Slider */}
-      <div className="w-full max-w-[260px] sm:max-w-[300px] px-2" onClick={stop}>
-        <input type="range" min={sweepMin} max={sweepMax} step={1}
-          value={angA} onChange={handleSlider}
-          className="angle-slider w-full"
-          style={{ "--slider-color": color, "--slider-progress": `${((angA - sweepMin) / (sweepMax - sweepMin)) * 100}%` } as React.CSSProperties}
-          aria-label="Adjust acute angle" />
       </div>
     </div>
   );

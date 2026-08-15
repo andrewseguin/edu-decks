@@ -81,10 +81,6 @@ export function InteractiveParallelAngles({ mode, color }: InteractiveParallelAn
     window.addEventListener("pointerup", onUp);
   }, [sweepMin, sweepMax]);
 
-  const handleSlider = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setTheta(Number(e.target.value));
-  }, []);
-
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 
   // Compute intersection points
@@ -205,15 +201,6 @@ export function InteractiveParallelAngles({ mode, color }: InteractiveParallelAn
           </div>
         </div>
       )}
-
-      {/* Slider */}
-      <div className="w-full max-w-[260px] sm:max-w-[300px] px-2" onClick={stop}>
-        <input type="range" min={sweepMin} max={sweepMax} step={1}
-          value={Math.round(theta)} onChange={handleSlider}
-          className="angle-slider w-full"
-          style={{ "--slider-color": color, "--slider-progress": `${((theta - sweepMin) / (sweepMax - sweepMin)) * 100}%` } as React.CSSProperties}
-          aria-label="Adjust transversal angle" />
-      </div>
     </div>
   );
 }
