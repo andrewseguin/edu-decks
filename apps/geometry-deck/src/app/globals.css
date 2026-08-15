@@ -306,4 +306,7 @@
   .proof-row-mobile {
     display: flex !important;
   }
+  .proof-table-container {
+    border-top-width: 0 !important;
+  }
 }
