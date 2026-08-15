@@ -1,59 +1,48 @@
 export interface GlossaryEntry {
   title: string;
   explanation: string;
-  example?: string;
 }
 
 export const MATH_GLOSSARY: Record<string, GlossaryEntry> = {
   isolate: {
     title: "Get the Letter Alone",
     explanation: "Move all the other numbers to the other side of the = sign so our mystery letter sits all by itself.",
-    example: "A + B + C = 180°  →  C = 180° − A − B",
   },
   substitute: {
     title: "Plug in the Numbers",
     explanation: "Swap out the letter names for the real numbers we already know.",
-    example: "Swap A with 40° and B with 65°.",
   },
   evaluate: {
     title: "Do the Math",
     explanation: "Calculate the final answer by adding, subtracting, or multiplying the numbers.",
-    example: "180° − 40° − 65° = 75°",
   },
   simplify: {
     title: "Clean It Up",
     explanation: "Do the easy math first (like inside parentheses) to make the equation shorter and simpler.",
-    example: "(6 − 2) × 180° becomes 4 × 180°",
   },
   "square root": {
     title: "Find the Root (√)",
     explanation: "Ask: 'What number multiplied by itself gives this number?'",
-    example: "5 × 5 = 25, so √25 = 5.",
   },
   "square both": {
     title: "Multiply by Itself (x²)",
     explanation: "Multiply a number by itself once.",
-    example: "3² means 3 × 3 = 9, and 4² means 4 × 4 = 16.",
   },
   "triangle angle sum": {
     title: "3 Corners Make 180°",
     explanation: "If you add up all 3 inside corners of any flat triangle, they always make 180°.",
-    example: "Corner A + Corner B + Corner C = 180°",
   },
   "pythagorean theorem": {
     title: "Pythagorean Rule",
     explanation: "In a triangle with a square corner, the two short sides squared add up to the long diagonal side squared.",
-    example: "a² + b² = c²",
   },
   supplementary: {
     title: "Straight Line (180°)",
     explanation: "Two angles that sit together on a flat straight line always add up to 180°.",
-    example: "Angle A + Angle B = 180°",
   },
   complementary: {
     title: "Square Corner (90°)",
     explanation: "Two angles that fit together into a square 90° corner always add up to 90°.",
-    example: "Angle A + Angle B = 90°",
   },
   "vertically opposite": {
     title: "Crossed Lines Match",
@@ -70,12 +59,10 @@ export const MATH_GLOSSARY: Record<string, GlossaryEntry> = {
   circumference: {
     title: "Around the Circle",
     explanation: "The total distance all the way around the outer rim of a round circle.",
-    example: "Circumference = 2 × π × radius",
   },
   euler: {
     title: "Euler's 3D Block Rule",
     explanation: "For solid 3D shapes: Corners minus Edges plus Flat Faces always equals 2.",
-    example: "Corners − Edges + Faces = 2",
   },
   divide: {
     title: "Divide Both Sides",

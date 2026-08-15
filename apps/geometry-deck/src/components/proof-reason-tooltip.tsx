@@ -78,18 +78,6 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
             {entry.explanation}
           </p>
 
-          {/* Example (if provided) */}
-          {entry.example && (
-            <div className="mt-2.5 pt-2 border-t border-white/10 flex flex-col gap-0.5">
-              <span className="text-[10px] uppercase font-mono font-semibold tracking-wider" style={{ color: "#ffd45e" }}>
-                Example:
-              </span>
-              <p className="font-mono text-white/90 not-italic text-[11px] sm:text-xs leading-relaxed break-words">
-                {entry.example}
-              </p>
-            </div>
-          )}
-
           {/* Radix Popover Arrow */}
           <Popover.Arrow className="fill-slate-950/95" width={12} height={6} />
         </Popover.Content>
