@@ -149,20 +149,29 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
 
 Colors must be consistent and intuitive within each topic. As new topic categories are developed, add their specific semantic color mapping here:
 
-### 3.1 Angles & Triangles Palette *(Established)*
+### 3.1 Angles Topic Palette *(Optimized for `#d97706` Amber/Orange)*
 
 | Concept | Token / Color | Hex | Usage |
 | :--- | :--- | :--- | :--- |
-| **Angle 1 / Base Angle / Side $a$** | Cyan | `#5ee8ff` | Bottom-left angle, base angles on isosceles, vertical altitude $h$, side $a$ |
-| **Angle 2 / Apex Angle / Base $b$** | Gold | `#ffd45e` | Bottom-right angle, apex angle on isosceles, baseline $b$, length $l$, side $b$ |
-| **Angle 3 / Hypotenuse $c$** | Neon Lilac | `#d8b4fe` | Third angle in scalene, hypotenuse $c$ in right triangles (cool harmony on green) |
+| **Angle A / Angle 1** | Electric Cyan | `#5ee8ff` | Primary given angle arc, alternate angle pair, first angle in sums ($A + B$) |
+| **Angle B / Angle 2** | Neon Lilac | `#d8b4fe` | Supplementary/complementary second angle, co-interior angle |
+| **Angle C / Angle 3** | Mint Green | `#4ade80` | Third angle in multi-angle systems |
+| **Right Angle / Rays** | Crisp White | `#ffffff` | Ray line segments, square $90^\circ$ perpendicular markers |
+
+### 3.2 Triangles Topic Palette *(Optimized for `#10b981` Emerald/Green)*
+
+| Concept | Token / Color | Hex | Usage |
+| :--- | :--- | :--- | :--- |
+| **Side $a$ / Altitude $h$ / Angle $A$** | Cyan | `#5ee8ff` | Vertical altitude $h$, side $a$, bottom-left angle $A$, base angles on isosceles |
+| **Side $b$ / Base $b$ / Angle $B$** | Gold | `#ffd45e` | Horizontal baseline $b$, length $l$, side $b$, apex angle on isosceles |
+| **Side $c$ / Hypotenuse $c$ / Angle $C$** | Neon Lilac | `#d8b4fe` | Hypotenuse $c$ in right triangles, third angle $C$ in scalene/angle sum |
 | **Right Angle ($90^\circ$)** | Cyan / White | `#5ee8ff` / `#ffffff` | Perpendicular right-angle square marker ($\llcorner$) at base of altitude or right vertex |
 | **Calculated Answer / Totals** | Bold White | `#ffffff` | Crisp bold white text inside the bottom frosted equation banner |
 | **Grid Lines & Bounding Boxes** | Translucent White | `rgba(255,255,255,0.35)` | Unit square grid lines (`strokeDasharray="2 2"`), bounding boxes (`strokeDasharray="4 3"`) |
 | **Shape Fills** | Soft Luminous White | `rgba(255,255,255,0.15)` | Interior fill of geometric shapes |
 | **Shape Outlines** | Solid White | `rgba(255,255,255,0.95)` | Primary polygon boundary edges (`strokeWidth={2.5}`) |
 
-### 3.2 Upcoming Topic Palettes *(To be formalized as we build)*
+### 3.3 Upcoming Topic Palettes *(To be formalized as we build)*
 - **Quadrilaterals**: Parallel side pairs, diagonals, base/height, trapezoid bases ($a, b$).
 - **Circles**: Radius ($r$), Diameter ($d$), Circumference ($C$), Area ($A$), $\pi$.
 - **Polygons**: Side length ($s$), Interior angle sum $(n-2)\times 180^\circ$, Number of sides ($n$).

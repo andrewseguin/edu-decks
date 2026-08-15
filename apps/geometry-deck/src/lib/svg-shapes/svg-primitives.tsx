@@ -79,6 +79,7 @@ export function UnknownPill({
           fontWeight="700"
           fill={labelColor}
           fontFamily={LABEL_FONT}
+          style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
         >
           {labelText}
         </text>
@@ -96,6 +97,7 @@ export function UnknownPill({
         style={{
           opacity: isRevealed ? 1 : 0,
           transition: "opacity 0.4s ease 0.15s",
+          filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))",
         }}
       >
         {displayAnswer}

@@ -45,6 +45,7 @@ export function LegendValueToken({
         fontWeight="700"
         fill={color}
         fontFamily={LABEL_FONT}
+        style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
       >
         {label} =
       </text>
@@ -59,6 +60,7 @@ export function LegendValueToken({
           fontWeight="700"
           fill={color}
           fontFamily={LABEL_FONT}
+          style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
         >
           {value}°
         </text>
@@ -77,6 +79,7 @@ export function LegendValueToken({
             style={{
               opacity: isRevealed ? 1 : 0,
               transition: "opacity 0.4s ease 0.15s",
+              filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))",
             }}
           >
             {revealValue}°
@@ -170,7 +173,7 @@ export function AngleSupplementary({ dims, mutation }: { dims: Record<string, nu
   const arcBPath = `M ${vx + arcR} ${vy} A ${arcR} ${arcR} 0 ${bAngle > 180 ? 1 : 0} 0 ${midArcX} ${midArcY}`;
   const arcAPath = `M ${midArcX} ${midArcY} A ${arcR} ${arcR} 0 ${aAngle > 180 ? 1 : 0} 0 ${vx - arcR} ${vy}`;
   const COLOR_A = "#5ee8ff"; // Cyan
-  const COLOR_B = "#ffd45e"; // Yellow
+  const COLOR_B = "#d8b4fe"; // Neon Lilac (high contrast on orange)
 
   // Wedge fills
   const wr = 28;
@@ -226,7 +229,7 @@ export function AngleComplementary({ dims, mutation }: { dims: Record<string, nu
   const arcAPath = `M ${vx + arcR} ${vy} A ${arcR} ${arcR} 0 0 0 ${midArcX} ${midArcY}`;
   const arcBPath = `M ${midArcX} ${midArcY} A ${arcR} ${arcR} 0 0 0 ${vx} ${vy - arcR}`;
   const COLOR_A = "#5ee8ff"; // Cyan
-  const COLOR_B = "#ffd45e"; // Yellow
+  const COLOR_B = "#d8b4fe"; // Neon Lilac (high contrast on orange)
 
   // Wedge fills
   const wr = 26;
@@ -276,7 +279,7 @@ export function AngleVerticallyOpposite({ dims, mutation }: { dims: Record<strin
   const unknownDim = dims.unknown as string | undefined;
 
   const COLOR_A = "#5ee8ff"; // Cyan
-  const COLOR_B = "#ffd45e"; // Yellow
+  const COLOR_B = "#d8b4fe"; // Neon Lilac (high contrast on orange)
   // In calculation mode for C, use gold for C so A and C have unique colors!
   const COLOR_C = unknownDim ? COLOR_B : COLOR_A;
 
@@ -386,12 +389,12 @@ export function AngleReflex({ dims }: { dims: Record<string, number | string> })
           <g key={i}>
             <line x1={localVx} y1={localVy} x2={localVx + 40} y2={localVy} stroke="rgba(255,255,255,0.6)" strokeWidth={1.5} strokeLinecap="round" />
             <line x1={localVx} y1={localVy} x2={localVx + 40 * Math.cos(-rad)} y2={localVy + 40 * Math.sin(-rad)} stroke="rgba(255,255,255,0.6)" strokeWidth={1.5} strokeLinecap="round" />
-            <path d={reflexPath} fill="none" stroke="rgba(255,200,80,0.85)" strokeWidth={2} strokeLinecap="round" />
-            <text x={localVx} y={localVy - 38} textAnchor="middle" fontSize={11} fontWeight="600" fill={WHITE90} fontFamily={LABEL_FONT}>{angleDeg}°</text>
+            <path d={reflexPath} fill="none" stroke="#5ee8ff" strokeWidth={2.5} strokeLinecap="round" />
+            <text x={localVx} y={localVy - 38} textAnchor="middle" fontSize={11} fontWeight="600" fill={WHITE90} fontFamily={LABEL_FONT} style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>{angleDeg}°</text>
           </g>
         );
       })}
-      <text x={110} y={185} textAnchor="middle" fontSize={12} fill="rgba(255,255,255,0.6)" fontFamily={LABEL_FONT}>180° &lt; reflex &lt; 360°</text>
+      <text x={110} y={185} textAnchor="middle" fontSize={12} fill="rgba(255,255,255,0.7)" fontFamily={LABEL_FONT} style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>180° &lt; reflex &lt; 360°</text>
     </svg>
   );
 }
@@ -412,12 +415,12 @@ export function AngleParallelAlternate({ dims }: { dims: Record<string, number |
       <line x1={20} y1={140} x2={200} y2={140} stroke={WHITE70} strokeWidth={STROKE_W} />
       <line x1={95} y1={52} x2={105} y2={68} stroke={WHITE50} strokeWidth={1.5} />
       <line x1={95} y1={132} x2={105} y2={148} stroke={WHITE50} strokeWidth={1.5} />
-      <line x1={60} y1={20} x2={160} y2={180} stroke="rgba(255,220,100,0.8)" strokeWidth={2} />
-      <path d={arcTop} fill="none" stroke="rgba(255,220,100,0.9)" strokeWidth={2.5} strokeLinecap="round" />
-      <path d={arcBot} fill="none" stroke="rgba(255,220,100,0.9)" strokeWidth={2.5} strokeLinecap="round" />
-      <text x={78} y={50} textAnchor="middle" fontSize={12} fontWeight="600" fill={WHITE90} fontFamily={LABEL_FONT}>{angle}°</text>
-      <text x={144} y={170} textAnchor="middle" fontSize={12} fontWeight="600" fill={WHITE90} fontFamily={LABEL_FONT}>{angle}°</text>
-      <text x={110} y={195} textAnchor="middle" fontSize={11} fill={WHITE50} fontFamily={LABEL_FONT}>alternate angles equal</text>
+      <line x1={60} y1={20} x2={160} y2={180} stroke="rgba(255,255,255,0.7)" strokeWidth={2} />
+      <path d={arcTop} fill="none" stroke="#5ee8ff" strokeWidth={2.5} strokeLinecap="round" />
+      <path d={arcBot} fill="none" stroke="#5ee8ff" strokeWidth={2.5} strokeLinecap="round" />
+      <text x={78} y={50} textAnchor="middle" fontSize={12} fontWeight="700" fill="#5ee8ff" fontFamily={LABEL_FONT} style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>{angle}°</text>
+      <text x={144} y={170} textAnchor="middle" fontSize={12} fontWeight="700" fill="#5ee8ff" fontFamily={LABEL_FONT} style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>{angle}°</text>
+      <text x={110} y={195} textAnchor="middle" fontSize={11} fill={WHITE70} fontFamily={LABEL_FONT} style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>alternate angles equal</text>
     </svg>
   );
 }
@@ -442,12 +445,12 @@ export function AngleParallelCointerior({ dims }: { dims: Record<string, number 
       <line x1={20} y1={140} x2={200} y2={140} stroke={WHITE70} strokeWidth={STROKE_W} />
       <line x1={95} y1={52} x2={105} y2={68} stroke={WHITE50} strokeWidth={1.5} />
       <line x1={95} y1={132} x2={105} y2={148} stroke={WHITE50} strokeWidth={1.5} />
-      <line x1={70} y1={20} x2={150} y2={180} stroke="rgba(180,220,255,0.8)" strokeWidth={2} />
-      <path d={arcA} fill="none" stroke="rgba(180,220,255,0.9)" strokeWidth={2.5} strokeLinecap="round" />
-      <path d={arcB} fill="none" stroke="rgba(180,220,255,0.9)" strokeWidth={2.5} strokeLinecap="round" />
-      <text x={130} y={53} textAnchor="start" fontSize={12} fontWeight="600" fill={WHITE90} fontFamily={LABEL_FONT}>A = {aAngle}°</text>
-      <text x={132} y={160} textAnchor="start" fontSize={12} fontWeight="600" fill={WHITE90} fontFamily={LABEL_FONT}>B = {bAngle}°</text>
-      <text x={110} y={195} textAnchor="middle" fontSize={11} fill={WHITE50} fontFamily={LABEL_FONT}>A + B = 180°</text>
+      <line x1={70} y1={20} x2={150} y2={180} stroke="rgba(255,255,255,0.7)" strokeWidth={2} />
+      <path d={arcA} fill="none" stroke="#5ee8ff" strokeWidth={2.5} strokeLinecap="round" />
+      <path d={arcB} fill="none" stroke="#d8b4fe" strokeWidth={2.5} strokeLinecap="round" />
+      <text x={130} y={53} textAnchor="start" fontSize={12} fontWeight="700" fill="#5ee8ff" fontFamily={LABEL_FONT} style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>A = {aAngle}°</text>
+      <text x={132} y={160} textAnchor="start" fontSize={12} fontWeight="700" fill="#d8b4fe" fontFamily={LABEL_FONT} style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>B = {bAngle}°</text>
+      <text x={110} y={195} textAnchor="middle" fontSize={11} fill={WHITE70} fontFamily={LABEL_FONT} style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>A + B = 180°</text>
     </svg>
   );
 }

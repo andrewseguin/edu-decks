@@ -126,10 +126,10 @@ function makeAnglesCalcCard(): GeometryCard {
       frontSvg: { shape: "angle-supplementary", dimensions: { A, unknown: "B" }, labelMode: "numeric", unknownDimension: "B" },
       frontSpeechText: `A is ${A} degrees. Find B.`,
       backSteps: [
-        { equationTokens: [tok("lhs","A","#5ee8ff"), op("+"), tok("mid","B","#ffd45e"), eq(), tok("sum","180°")], reason: "Supplementary angles sum to 180°" },
-        { equationTokens: [tok("lhs",`${A}°`,"#5ee8ff"), op("+"), tok("mid","B","#ffd45e"), eq(), tok("sum","180°")], reason: `Substitute A = ${A}°` },
-        { equationTokens: [tok("lhs","B","#ffd45e"), eq(), tok("rhs1","180°"), op("−"), tok("rhs2",`${A}°`,"#5ee8ff")], reason: "Isolate B" },
-        { equationTokens: [tok("lhs","B","#ffd45e"), eq(), tok("rhs",`${B}°`,"#ffd45e")], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","A","#5ee8ff"), op("+"), tok("mid","B","#d8b4fe"), eq(), tok("sum","180°")], reason: "Supplementary angles sum to 180°" },
+        { equationTokens: [tok("lhs",`${A}°`,"#5ee8ff"), op("+"), tok("mid","B","#d8b4fe"), eq(), tok("sum","180°")], reason: `Substitute A = ${A}°` },
+        { equationTokens: [tok("lhs","B","#d8b4fe"), eq(), tok("rhs1","180°"), op("−"), tok("rhs2",`${A}°`,"#5ee8ff")], reason: "Isolate B" },
+        { equationTokens: [tok("lhs","B","#d8b4fe"), eq(), tok("rhs",`${B}°`,"#d8b4fe")], reason: "Evaluate" },
       ],
       backSpeechText: `B equals ${B} degrees`, numericAnswer: B, color,
     };
@@ -142,10 +142,10 @@ function makeAnglesCalcCard(): GeometryCard {
       frontSvg: { shape: "angle-complementary", dimensions: { A, unknown: "B" }, labelMode: "numeric", unknownDimension: "B" },
       frontSpeechText: `A is ${A} degrees. Find B.`,
       backSteps: [
-        { equationTokens: [tok("lhs","A","#5ee8ff"), op("+"), tok("mid","B","#ffd45e"), eq(), tok("sum","90°")], reason: "Complementary angles sum to 90°" },
-        { equationTokens: [tok("lhs",`${A}°`,"#5ee8ff"), op("+"), tok("mid","B","#ffd45e"), eq(), tok("sum","90°")], reason: `Substitute A = ${A}°` },
-        { equationTokens: [tok("lhs","B","#ffd45e"), eq(), tok("rhs1","90°"), op("−"), tok("rhs2",`${A}°`,"#5ee8ff")], reason: "Isolate B" },
-        { equationTokens: [tok("lhs","B","#ffd45e"), eq(), tok("rhs",`${B}°`,"#ffd45e")], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","A","#5ee8ff"), op("+"), tok("mid","B","#d8b4fe"), eq(), tok("sum","90°")], reason: "Complementary angles sum to 90°" },
+        { equationTokens: [tok("lhs",`${A}°`,"#5ee8ff"), op("+"), tok("mid","B","#d8b4fe"), eq(), tok("sum","90°")], reason: `Substitute A = ${A}°` },
+        { equationTokens: [tok("lhs","B","#d8b4fe"), eq(), tok("rhs1","90°"), op("−"), tok("rhs2",`${A}°`,"#5ee8ff")], reason: "Isolate B" },
+        { equationTokens: [tok("lhs","B","#d8b4fe"), eq(), tok("rhs",`${B}°`,"#d8b4fe")], reason: "Evaluate" },
       ],
       backSpeechText: `B equals ${B} degrees`, numericAnswer: B, color,
     };
