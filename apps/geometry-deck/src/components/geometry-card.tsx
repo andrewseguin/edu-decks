@@ -182,7 +182,7 @@ export function GeometryCard({
         revealContent={
           <div className="min-h-0 overflow-y-auto flex flex-col gap-2 items-center px-4 pt-1 pb-6">
             {card.backDefinition && (
-              <div className="px-6 py-2.5 my-1 rounded-2xl bg-black/25 backdrop-blur-md border border-white/20 shadow-lg flex flex-col items-center justify-center gap-1 max-w-full">
+              <div className="w-[calc(100%+2rem)] -mx-4 sm:w-[calc(100%+3rem)] sm:-mx-6 px-4 py-2.5 my-1 bg-black/25 backdrop-blur-md border-y border-white/20 shadow-md flex flex-col items-center justify-center gap-1">
                 <p className="text-white text-center font-bold leading-tight text-xl sm:text-2xl md:text-3xl shrink-0 tracking-wide">
                   <FormattedMathText text={card.backDefinition} />
                 </p>

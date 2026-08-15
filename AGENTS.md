@@ -36,7 +36,7 @@ This file defines mandatory behavioral constraints and operational workflows for
 
 ### 5. GEOMETRY DECK — DESIGN & INTERACTION STANDARDS
 - All cards in `apps/geometry-deck` MUST follow [apps/geometry-deck/DESIGN_GUIDE.md](file:///Users/andrewseguin/git/edu-decks/apps/geometry-deck/DESIGN_GUIDE.md).
-- **Frosted Formula Banner**: Always wrap top definitions/formulas in the frosted hero banner with primary formula + optional plain English subtitle.
+- **Full-Bleed Frosted Formula Banner**: Always wrap top definitions/formulas in the full-bleed edge-to-edge frosted hero banner (`w-full border-y border-white/20 bg-black/25 backdrop-blur-md`) with primary formula + optional plain English subtitle.
 - **Unit Grid Visualization**: All area cards must visualize area using subtle, neutral unit grid lines (e.g. dashed 1×1 square cells) across the enclosing bounding box to concretely ground square units.
 - **Semantic Color Coding**:
   - **Cyan (`#5ee8ff`)**: Height / vertical altitude ($h$), Side $a$, Angle $A$, Base angles.

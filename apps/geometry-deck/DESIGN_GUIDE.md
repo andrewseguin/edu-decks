@@ -40,30 +40,27 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                      Card Title                             │
-│                                                             │
-│   ┌─────────────────────────────────────────────────────┐   │
-│   │             Top Frosted Formula Banner              │   │  <-- Tier 1: Hero Definition / Formula
-│   │         A = ½ · b · h  (Primary Headline)           │   │
-│   │     Area = ½ · base · height  (English Subtitle)    │   │
-│   └─────────────────────────────────────────────────────┘   │
+├─────────────────────────────────────────────────────────────┤
+│         A = ½ · b · h  (Primary Headline)                   │  <-- Tier 1: Full-Bleed Frosted Definition
+│     Area = ½ · base · height  (English Subtitle)            │      (Edge-to-edge border-y banner)
+├─────────────────────────────────────────────────────────────┤
 │                                                             │
 │                ┌───────────────────────────┐                │
-│                │                           │                │  <-- Tier 2: Interactive SVG Diagram
-│                │   Interactive Geometry    │                │      (Unit grids, handles, angle arcs)
-│                │          Diagram          │                │
-│                │                           │                │
+│                │   Interactive Geometry    │                │  <-- Tier 2: Interactive SVG Diagram
+│                │          Diagram          │                │      (Unit grids, handles, angle arcs)
 │                └───────────────────────────┘                │
 │                                                             │
-│              A = ½ · 10 · 6 = [ 30 ]                        │  <-- Tier 3: Live Open Equation
+│         (  A = ½ · 10 · 7 = 35  )                           │  <-- Tier 3: Bottom Frosted Equation Banner
 │                                                             │
 │             ( Preset 1 )  ( Preset 2 )                      │  <-- Tier 4: Frosted Controls / Sliders
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### 2.1 Top Frosted Definition Banner (Hero)
-- **Container**: `px-6 py-2.5 my-1 rounded-2xl bg-black/25 backdrop-blur-md border border-white/20 shadow-lg flex flex-col items-center justify-center gap-1`
+### 2.1 Top Full-Bleed Frosted Definition Banner (Hero)
+- **Container**: `w-[calc(100%+2rem)] -mx-4 sm:w-[calc(100%+3rem)] sm:-mx-6 px-4 py-2.5 my-1 bg-black/25 backdrop-blur-md border-y border-white/20 shadow-md flex flex-col items-center justify-center gap-1`
+- **Full Bleed Design**: Spans horizontally from edge to edge of the card container, anchored with top and bottom borders (`border-y border-white/20`).
 - **Primary Line**: Bold, prominent formula (e.g. `A = ½ · b · h`, `a² + b² = c²`, `2 equal sides, 2 equal base angles`).
-- **Optional Secondary Subtitle**: Smaller plain English translation (e.g. `Area = ½ · base · height`).
+- **Optional Secondary Subtitle**: Smaller plain English translation (e.g. `Area = ½ · base · height`, `Interior angles always sum to 180°`).
 
 ### 2.2 Interactive Diagram (Center)
 - Clean SVG canvas with aspect ratio ~ `22/13.5` or `viewBox="0 0 240 170"`.
