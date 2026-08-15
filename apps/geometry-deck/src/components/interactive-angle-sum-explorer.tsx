@@ -398,7 +398,7 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
         disabled={isFolding}
         className="mt-1 px-4 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm disabled:opacity-50 disabled:cursor-default"
       >
-        {isFolding ? "Folding…" : "Fold corners ▶"}
+        {isFolding ? "Folding…" : "Fold corners"}
       </button>
     </div>
   );

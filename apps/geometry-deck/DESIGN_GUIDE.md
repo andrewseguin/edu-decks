@@ -87,10 +87,26 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
   </div>
   ```
 
-### 2.5 Frosted Controls & Action Buttons
-- Presets and action buttons (e.g. `Show proof ▶`, `Fold corners ▶`, presets `3, 4, 5`) use rounded frosted pills:
+### 2.4 Frosted Controls & Action Buttons
+- Presets and action buttons (e.g. `Show proof`, `Fold corners`, `Unroll perimeter`, presets `3, 4, 5`) use rounded frosted pills with no play arrow glyphs:
   ```tsx
-  className="px-4 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm disabled| **Right Angle ($90^\circ$)** | Cyan / White | `#5ee8ff` / `#ffffff` | Perpendicular right-angle square marker ($\llcorner$) at base of altitude or right vertex |
+  className="px-4 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm disabled:opacity-50"
+  ```
+
+---
+
+## 🎨 3. Semantic Color Standards
+
+Colors must be consistent and intuitive within each topic. As new topic categories are developed, add their specific semantic color mapping here:
+
+### 3.1 Angles & Triangles Palette *(Established)*
+
+| Concept | Token / Color | Hex | Usage |
+| :--- | :--- | :--- | :--- |
+| **Angle 1 / Base Angle / Side $a$** | Cyan | `#5ee8ff` | Bottom-left angle, base angles on isosceles, vertical altitude $h$, side $a$ |
+| **Angle 2 / Apex Angle / Base $b$** | Gold | `#ffd45e` | Bottom-right angle, apex angle on isosceles, baseline $b$, length $l$, side $b$ |
+| **Angle 3 / Hypotenuse $c$** | Orange | `#fb923c` | Third angle in scalene, hypotenuse $c$ in right triangles |
+| **Right Angle ($90^\circ$)** | Cyan / White | `#5ee8ff` / `#ffffff` | Perpendicular right-angle square marker ($\llcorner$) at base of altitude or right vertex |
 | **Calculated Answer / Totals** | Bold White | `#ffffff` | Crisp bold white text inside the bottom frosted equation banner |
 | **Grid Lines & Bounding Boxes** | Translucent White | `rgba(255,255,255,0.35)` | Unit square grid lines (`strokeDasharray="2 2"`), bounding boxes (`strokeDasharray="4 3"`) |
 | **Shape Fills** | Soft Luminous White | `rgba(255,255,255,0.15)` | Interior fill of geometric shapes |

@@ -302,7 +302,7 @@ export function InteractiveTrianglePerimeterExplorer({ color }: { color?: string
         disabled={isUnrolling}
         className="mt-1 px-4 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm disabled:opacity-50"
       >
-        {unrollProgress > 0.5 ? "Close triangle ◀" : "Unroll perimeter ▶"}
+        {unrollProgress > 0.5 ? "Close triangle" : "Unroll perimeter"}
       </button>
     </div>
   );

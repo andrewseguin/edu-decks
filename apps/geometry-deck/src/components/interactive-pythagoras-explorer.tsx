@@ -286,7 +286,7 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
         disabled={phase !== "idle"}
         className="mt-1 px-4 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm disabled:opacity-50 disabled:cursor-default"
       >
-        {phase !== "idle" ? "Showing…" : "Show proof ▶"}
+        {phase !== "idle" ? "Showing…" : "Show proof"}
       </button>
     </div>
   );
