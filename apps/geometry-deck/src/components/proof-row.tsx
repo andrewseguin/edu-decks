@@ -4,6 +4,7 @@ import React from "react";
 import { cn } from "@/lib/utils";
 import type { EquationToken } from "@/lib/types";
 import { FormattedMathText } from "./ui/formatted-math-text";
+import { ProofReasonTooltip } from "./proof-reason-tooltip";
 
 type ProofRowProps = {
   tokens: EquationToken[] | null;
@@ -56,14 +57,13 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
   return (
     <div className="grid w-full items-center grid-cols-[1fr_1px_1fr] gap-x-0 py-1.5 min-w-0">
       <div className="flex items-center justify-end pr-4 min-w-0">
-        <span
+        <ProofReasonTooltip
+          reason={reason}
           className={cn(
             "leading-tight text-right italic text-xs sm:text-sm text-white",
             isAnswer ? "font-bold" : "font-medium",
           )}
-        >
-          {reason}
-        </span>
+        />
       </div>
 
       <div className="self-stretch bg-white/20 min-h-[20px]" />
