@@ -12,6 +12,7 @@ import { InteractiveIsoscelesExplorer } from "./interactive-isosceles-explorer";
 import { InteractiveScaleneExplorer } from "./interactive-scalene-explorer";
 import { InteractiveRightTriangleExplorer } from "./interactive-right-triangle-explorer";
 import { InteractiveEquilateralExplorer } from "./interactive-equilateral-explorer";
+import { InteractiveAngleSumExplorer } from "./interactive-angle-sum-explorer";
 import type {
   GeometryCard as GeometryCardType,
   SvgMutation,
@@ -116,6 +117,9 @@ export function GeometryCard({
       if (card.frontLabel === "Scalene triangles") {
         return <InteractiveScaleneExplorer color={card.color} />;
       }
+      if (card.frontLabel === "The triangle angle sum") {
+        return <InteractiveAngleSumExplorer color={card.color} />;
+      }
       if (card.frontLabel === "Right triangles") {
         return <InteractiveRightTriangleExplorer color={card.color} />;
       }
@@ -165,7 +169,7 @@ export function GeometryCard({
         revealContent={
           <div className="min-h-0 overflow-y-auto flex flex-col gap-2 items-center px-4 pt-1 pb-6">
             {card.backDefinition && (
-              <p className="text-white text-center font-semibold leading-snug text-base sm:text-lg shrink-0">
+              <p className="text-white text-center font-bold leading-snug text-lg sm:text-xl shrink-0">
                 {card.backDefinition}
               </p>
             )}
