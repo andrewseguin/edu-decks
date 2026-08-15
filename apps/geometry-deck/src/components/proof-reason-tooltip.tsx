@@ -57,28 +57,20 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
         >
           {/* Tooltip Header */}
           <div className="flex items-center justify-between gap-2 pb-1.5 border-b border-white/15">
-            <div className="flex items-center gap-1.5 min-w-0">
-              <span className="w-2 h-2 rounded-full bg-cyan-400 shrink-0" />
-              <h4 className="font-bold text-xs sm:text-sm text-cyan-300 tracking-wide truncate">
-                {entry.title}
-              </h4>
-            </div>
-            <div className="flex items-center gap-1.5 shrink-0">
-              <span className="text-[10px] text-white/50 uppercase tracking-widest font-mono">
-                Glossary
-              </span>
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setIsOpen(false);
-                }}
-                className="text-white/60 hover:text-white px-1 text-xs font-bold sm:hidden"
-                aria-label="Close glossary"
-              >
-                ✕
-              </button>
-            </div>
+            <h4 className="font-bold text-xs sm:text-sm text-cyan-300 tracking-wide truncate min-w-0">
+              {entry.title}
+            </h4>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsOpen(false);
+              }}
+              className="text-white/60 hover:text-white px-1 text-xs font-bold sm:hidden shrink-0"
+              aria-label="Close glossary tooltip"
+            >
+              ✕
+            </button>
           </div>
 
           {/* Explanation */}
