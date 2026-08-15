@@ -239,40 +239,52 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
         className="w-full max-w-[280px] sm:max-w-[320px] touch-none select-none"
         style={{ cursor: isDragging ? "grabbing" : "default" }}
       >
-        <polygon
-          points={`${ML.x},${ML.y} ${V3.x},${V3.y} ${MR.x},${MR.y} ${BM.x},${BM.y}`}
-          fill="rgba(255,255,255,0.06)"
-          stroke="rgba(255,255,255,0.7)"
-          strokeWidth={1.5}
-          strokeLinejoin="round"
-        />
-        <polygon
-          points={`${V1.x},${V1.y} ${V2.x},${V2.y} ${V3.x},${V3.y}`}
-          fill="none"
-          stroke="rgba(255,255,255,0.2)"
-          strokeWidth={1}
-          strokeDasharray="4 3"
-        />
-        <polygon
-          points={`${ML.x},${ML.y} ${V1f.x},${V1f.y} ${BMfL.x},${BMfL.y}`}
-          fill="rgba(255,255,255,0.08)"
-          stroke="rgba(255,255,255,0.9)"
-          strokeWidth={1.5}
-          strokeLinejoin="round"
-          opacity={flapOpacity}
-        />
-        <polygon
-          points={`${MR.x},${MR.y} ${V2f.x},${V2f.y} ${BMfR.x},${BMfR.y}`}
-          fill="rgba(255,255,255,0.08)"
-          stroke="rgba(255,255,255,0.9)"
-          strokeWidth={1.5}
-          strokeLinejoin="round"
-          opacity={flapOpacity}
-        />
-        <line x1={ML.x} y1={ML.y} x2={BM.x} y2={BM.y}
-          stroke="rgba(255,255,255,0.4)" strokeWidth={1} strokeDasharray="3 2" />
-        <line x1={MR.x} y1={MR.y} x2={BM.x} y2={BM.y}
-          stroke="rgba(255,255,255,0.4)" strokeWidth={1} strokeDasharray="3 2" />
+        {p === 0 ? (
+          <polygon
+            points={`${V1.x},${V1.y} ${V2.x},${V2.y} ${V3.x},${V3.y}`}
+            fill="rgba(255,255,255,0.08)"
+            stroke="rgba(255,255,255,0.9)"
+            strokeWidth={1.5}
+            strokeLinejoin="round"
+          />
+        ) : (
+          <>
+            <polygon
+              points={`${V1.x},${V1.y} ${V2.x},${V2.y} ${V3.x},${V3.y}`}
+              fill="none"
+              stroke="rgba(255,255,255,0.2)"
+              strokeWidth={1}
+              strokeDasharray="4 3"
+            />
+            <polygon
+              points={`${ML.x},${ML.y} ${V3.x},${V3.y} ${MR.x},${MR.y} ${BM.x},${BM.y}`}
+              fill="rgba(255,255,255,0.06)"
+              stroke="rgba(255,255,255,0.7)"
+              strokeWidth={1.5}
+              strokeLinejoin="round"
+            />
+            <polygon
+              points={`${ML.x},${ML.y} ${V1f.x},${V1f.y} ${BMfL.x},${BMfL.y}`}
+              fill="rgba(255,255,255,0.08)"
+              stroke="rgba(255,255,255,0.9)"
+              strokeWidth={1.5}
+              strokeLinejoin="round"
+              opacity={flapOpacity}
+            />
+            <polygon
+              points={`${MR.x},${MR.y} ${V2f.x},${V2f.y} ${BMfR.x},${BMfR.y}`}
+              fill="rgba(255,255,255,0.08)"
+              stroke="rgba(255,255,255,0.9)"
+              strokeWidth={1.5}
+              strokeLinejoin="round"
+              opacity={flapOpacity}
+            />
+            <line x1={ML.x} y1={ML.y} x2={BM.x} y2={BM.y}
+              stroke="rgba(255,255,255,0.4)" strokeWidth={1} strokeDasharray="3 2" />
+            <line x1={MR.x} y1={MR.y} x2={BM.x} y2={BM.y}
+              stroke="rgba(255,255,255,0.4)" strokeWidth={1} strokeDasharray="3 2" />
+          </>
+        )}
 
         <g transform={`translate(${V1f.x}, ${V1f.y}) rotate(${foldAngle})`}>
           <path d={arcSvg(0, 0, 0, degA, ARC_R)} fill="none" stroke={COLOR_A} strokeWidth={2.5} strokeLinecap="round" opacity={0.85} />
