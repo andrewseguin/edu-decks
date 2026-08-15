@@ -7,10 +7,10 @@ import {
   SvgLabel, UnknownPill, TickMark, RightAngleMarker,
 } from "./svg-primitives";
 
-// Semantic Color Tokens
+// Semantic Color Tokens — tuned for high-contrast luminance against emerald cards
 const COLOR_CYAN = "#5ee8ff";
 const COLOR_GOLD = "#ffd45e";
-const COLOR_ORANGE = "#fb923c";
+const COLOR_ORANGE = "#ffa756";
 
 const lblStyle: React.CSSProperties = { filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" };
 const lblFont = "var(--font-heading, system-ui)";
@@ -283,24 +283,20 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
             {angB}°
           </text>
 
-          {/* Label C or Unknown Question Badge (Orange) */}
-          {unknownDim === "C" ? (
-            <UnknownPill x={V3.x} y={V3.y - 20} color={COLOR_ORANGE} />
-          ) : (
-            <text
-              x={V3.x}
-              y={V3.y - 16}
-              textAnchor="middle"
-              dominantBaseline="central"
-              fontSize={13}
-              fontWeight={800}
-              fill={COLOR_ORANGE}
-              fontFamily={lblFont}
-              style={lblStyle}
-            >
-              {angC}°
-            </text>
-          )}
+          {/* Label C / Unknown (Orange) — clean unboxed typography matching A and B */}
+          <text
+            x={V3.x}
+            y={V3.y - 14}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontSize={14}
+            fontWeight={800}
+            fill={COLOR_ORANGE}
+            fontFamily={lblFont}
+            style={lblStyle}
+          >
+            {unknownDim === "C" ? "?" : `${angC}°`}
+          </text>
         </>
       )}
 
