@@ -4,11 +4,8 @@ import React, { useState, useEffect, useRef } from "react";
 
 type RightTrianglePreset = {
   name: string;
-  a: number;
-  b: number;
-  c: number | string;
-  angA: number; // Base angle (Cyan)
-  angB: number; // Top angle (Rose)
+  angA: number; // Base angle at x2, y2 (Cyan)
+  angB: number; // Top angle at x3, y3 (Rose)
   description: string;
   x1: number;
   y1: number;
@@ -20,13 +17,10 @@ type RightTrianglePreset = {
 
 const RIGHT_TRIANGLE_PRESETS: RightTrianglePreset[] = [
   {
-    name: "3 - 4 - 5",
-    a: 3,
-    b: 4,
-    c: 5,
+    name: "53° & 37°",
     angA: 53,
     angB: 37,
-    description: "Pythagorean Triple • 3² + 4² = 9 + 16 = 25 = 5²",
+    description: "One 90° right angle • Acute angles sum to 90° (53° + 37° = 90°)",
     x1: 65,
     y1: 108,
     x2: 185,
@@ -35,49 +29,40 @@ const RIGHT_TRIANGLE_PRESETS: RightTrianglePreset[] = [
     y3: 18,
   },
   {
-    name: "5 - 12 - 13",
-    a: 5,
-    b: 12,
-    c: 13,
-    angA: 67,
-    angB: 23,
-    description: "Pythagorean Triple • 5² + 12² = 25 + 144 = 169 = 13²",
+    name: "30° & 60°",
+    angA: 30,
+    angB: 60,
+    description: "Special 30°-60°-90° Right Triangle (30° + 60° = 90°)",
     x1: 65,
     y1: 108,
-    x2: 190,
+    x2: 195,
     y2: 108,
     x3: 65,
-    y3: 56,
+    y3: 33,
   },
   {
-    name: "8 - 15 - 17",
-    a: 8,
-    b: 15,
-    c: 17,
-    angA: 62,
-    angB: 28,
-    description: "Pythagorean Triple • 8² + 15² = 64 + 225 = 289 = 17²",
-    x1: 65,
-    y1: 108,
-    x2: 190,
-    y2: 108,
-    x3: 65,
-    y3: 42,
-  },
-  {
-    name: "45° - 45° - 90°",
-    a: 1,
-    b: 1,
-    c: "1.4",
+    name: "45° & 45°",
     angA: 45,
     angB: 45,
-    description: "Isosceles Right Triangle • 1² + 1² = 2 = (√2)²",
+    description: "Isosceles Right Triangle • 2 equal sides & two 45° angles",
     x1: 65,
     y1: 108,
-    x2: 180,
+    x2: 185,
     y2: 108,
     x3: 65,
-    y3: 18,
+    y3: 25,
+  },
+  {
+    name: "70° & 20°",
+    angA: 70,
+    angB: 20,
+    description: "Steep Right Triangle • Acute angles sum to 90° (70° + 20° = 90°)",
+    x1: 65,
+    y1: 108,
+    x2: 175,
+    y2: 108,
+    x3: 65,
+    y3: 15,
   },
 ];
 
@@ -106,9 +91,9 @@ export function InteractiveRightTriangleExplorer({ color }: { color?: string }) 
   }, [isUserInteracted]);
 
   const preset = RIGHT_TRIANGLE_PRESETS[presetIdx];
-  const { a, b, c, angA, angB, description, x1, y1, x2, y2, x3, y3 } = preset;
+  const { angA, angB, description, x1, y1, x2, y2, x3, y3 } = preset;
 
-  // Arc calculations
+  // Arc radius
   const arcR = 22;
 
   // Base angle arc at x2, y2 (from leftwards horizontal up to hypotenuse)
@@ -117,18 +102,19 @@ export function InteractiveRightTriangleExplorer({ color }: { color?: string }) 
   const arcA_y = y2 - arcR * Math.sin(radA);
   const pathArcA = `M ${x2 - arcR} ${y2} A ${arcR} ${arcR} 0 0 1 ${arcA_x} ${arcA_y}`;
 
-  // Top angle arc at x3, y3 (from downwards vertical right to hypotenuse)
-  const radB = ((90 - angB) * Math.PI) / 180;
-  const arcB_x = x3 + arcR * Math.cos(radB);
-  const arcB_y = y3 + arcR * Math.sin(radB);
+  // Top angle arc at x3, y3 (from straight down vertical to hypotenuse)
+  const radB = (angB * Math.PI) / 180;
+  const arcB_x = x3 + arcR * Math.sin(radB);
+  const arcB_y = y3 + arcR * Math.cos(radB);
   const pathArcB = `M ${x3} ${y3 + arcR} A ${arcR} ${arcR} 0 0 0 ${arcB_x} ${arcB_y}`;
 
-  // Angle label positions
+  // Angle degree label positions
   const labelA_x = x2 - arcR - 10;
   const labelA_y = y2 - 6;
 
-  const labelB_x = x3 + 14;
-  const labelB_y = y3 + arcR + 12;
+  const halfRadB = ((angB / 2) * Math.PI) / 180;
+  const labelB_x = x3 + Math.sin(halfRadB) * (arcR + 14);
+  const labelB_y = y3 + Math.cos(halfRadB) * (arcR + 14);
 
   // Side label positions with generous outward offsets
   const sideA_x = x1 - 12; // Leg a (vertical left, textAnchor="end")
@@ -216,7 +202,7 @@ export function InteractiveRightTriangleExplorer({ color }: { color?: string }) 
             {angB}°
           </text>
 
-          {/* Side Length Labels (Bold White with dark drop-shadow) */}
+          {/* Side Labels (Bold White with dark drop-shadow) */}
           <text
             x={sideA_x}
             y={sideA_y}
@@ -227,7 +213,7 @@ export function InteractiveRightTriangleExplorer({ color }: { color?: string }) 
             fontFamily="var(--font-heading, system-ui)"
             style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
           >
-            a = {a}
+            a
           </text>
           <text
             x={sideB_x}
@@ -239,7 +225,7 @@ export function InteractiveRightTriangleExplorer({ color }: { color?: string }) 
             fontFamily="var(--font-heading, system-ui)"
             style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
           >
-            b = {b}
+            b
           </text>
           <text
             x={sideC_x}
@@ -251,7 +237,7 @@ export function InteractiveRightTriangleExplorer({ color }: { color?: string }) 
             fontFamily="var(--font-heading, system-ui)"
             style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
           >
-            c = {c}
+            c
           </text>
         </svg>
       </div>
