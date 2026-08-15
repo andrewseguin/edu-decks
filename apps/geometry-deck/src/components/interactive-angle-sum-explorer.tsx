@@ -249,7 +249,7 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
             strokeLinejoin="round"
           />
         ) : (
-          /* ── Folded / Folding State (Step 2): Crisp origami fold with dashed reference outline ── */
+          /* ── Folded / Folding State (Step 2): Crisp origami fold with dotted crease lines ── */
           <>
             {/* Ghost reference of original unfolded triangle */}
             <polygon
@@ -260,37 +260,62 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
               strokeDasharray="4 3"
             />
 
-            {/* Central static piece */}
+            {/* Central static piece fill */}
             <polygon
               points={`${ML.x},${ML.y} ${V3.x},${V3.y} ${MR.x},${MR.y} ${BM.x},${BM.y}`}
               fill="rgba(255,255,255,0.08)"
-              stroke="rgba(255,255,255,0.85)"
-              strokeWidth={1.5}
-              strokeLinejoin="round"
             />
 
-            {/* Crease lines (dotted) */}
-            <line x1={ML.x} y1={ML.y} x2={BM.x} y2={BM.y} stroke="rgba(255,255,255,0.65)" strokeWidth={1.5} strokeDasharray="2 3" strokeLinecap="round" />
-            <line x1={MR.x} y1={MR.y} x2={BM.x} y2={BM.y} stroke="rgba(255,255,255,0.65)" strokeWidth={1.5} strokeDasharray="2 3" strokeLinecap="round" />
-
-            {/* Left folding flap */}
+            {/* Left folding flap fill */}
             <polygon
               points={`${ML.x},${ML.y} ${V1f.x},${V1f.y} ${BMfL.x},${BMfL.y}`}
               fill="rgba(255,255,255,0.12)"
+              opacity={flapOpacity}
+            />
+
+            {/* Right folding flap fill */}
+            <polygon
+              points={`${MR.x},${MR.y} ${V2f.x},${V2f.y} ${BMfR.x},${BMfR.y}`}
+              fill="rgba(255,255,255,0.12)"
+              opacity={flapOpacity}
+            />
+
+            {/* Outer paper boundary edges (solid stroke) */}
+            <polyline
+              points={`${ML.x},${ML.y} ${V3.x},${V3.y} ${MR.x},${MR.y}`}
+              fill="none"
+              stroke="rgba(255,255,255,0.85)"
+              strokeWidth={1.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+            <polyline
+              points={`${ML.x},${ML.y} ${V1f.x},${V1f.y} ${BMfL.x},${BMfL.y}`}
+              fill="none"
               stroke="rgba(255,255,255,0.9)"
               strokeWidth={1.5}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              opacity={flapOpacity}
+            />
+            <polyline
+              points={`${MR.x},${MR.y} ${V2f.x},${V2f.y} ${BMfR.x},${BMfR.y}`}
+              fill="none"
+              stroke="rgba(255,255,255,0.9)"
+              strokeWidth={1.5}
+              strokeLinecap="round"
               strokeLinejoin="round"
               opacity={flapOpacity}
             />
 
-            {/* Right folding flap */}
-            <polygon
-              points={`${MR.x},${MR.y} ${V2f.x},${V2f.y} ${BMfR.x},${BMfR.y}`}
-              fill="rgba(255,255,255,0.12)"
-              stroke="rgba(255,255,255,0.9)"
-              strokeWidth={1.5}
-              strokeLinejoin="round"
-              opacity={flapOpacity}
+            {/* Internal paper crease lines (strictly dotted) */}
+            <line
+              x1={ML.x} y1={ML.y} x2={BM.x} y2={BM.y}
+              stroke="rgba(255,255,255,0.85)" strokeWidth={1.5} strokeDasharray="2 4" strokeLinecap="round"
+            />
+            <line
+              x1={MR.x} y1={MR.y} x2={BM.x} y2={BM.y}
+              stroke="rgba(255,255,255,0.85)" strokeWidth={1.5} strokeDasharray="2 4" strokeLinecap="round"
             />
           </>
         )}
