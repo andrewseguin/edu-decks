@@ -57,8 +57,8 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
 ```
 
 ### 2.1 Top Full-Bleed Frosted Definition Banner (Hero)
-- **Container**: `w-[calc(100%+2rem)] -mx-4 sm:w-[calc(100%+3rem)] sm:-mx-6 px-4 py-2.5 my-1 bg-black/25 backdrop-blur-md border-y border-white/20 shadow-md flex flex-col items-center justify-center gap-1`
-- **Full Bleed Design**: Spans horizontally from edge to edge of the card container, anchored with top and bottom borders (`border-y border-white/20`).
+- **Container**: `w-[calc(100%+2rem)] -mx-4 sm:w-[calc(100%+3rem)] sm:-mx-6 px-4 py-2.5 my-1 bg-black/25 backdrop-blur-md border-y border-white/20 flex flex-col items-center justify-center gap-1`
+- **Full Bleed Design**: Spans horizontally from edge to edge of the card container, anchored cleanly with flat top and bottom borders (`border-y border-white/20`) and no side/drop shadows.
 - **Primary Line**: Bold, prominent formula (e.g. `A = ½ · b · h`, `a² + b² = c²`, `2 equal sides, 2 equal base angles`).
 - **Optional Secondary Subtitle**: Smaller plain English translation (e.g. `Area = ½ · base · height`, `Interior angles always sum to 180°`).
 
