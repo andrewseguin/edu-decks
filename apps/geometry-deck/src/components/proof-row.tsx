@@ -55,7 +55,7 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
   })();
 
   return (
-    <>
+    <div className="proof-row-item w-full min-w-0">
       {/* ── Wide Container (Two-Column Proof Table: >= 480px) ─────────────── */}
       <div className="proof-row-desktop relative w-full items-center grid-cols-[1fr_1px_1fr] gap-x-0 py-1.5 min-w-0">
         <div className="flex items-center justify-end pr-4 min-w-0">
@@ -90,6 +90,6 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
           {equationNode}
         </div>
       </div>
-    </>
+    </div>
   );
 }
