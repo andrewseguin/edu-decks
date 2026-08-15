@@ -125,15 +125,29 @@ export function InteractiveTrianglePerimeterExplorer({ color }: { color?: string
     animRef.current = requestAnimationFrame(tick);
   };
 
-  // Midpoints for labels
+  // Exact outward normal offsets (constant 14px perpendicular distance)
+  const LABEL_DIST = 14;
+
+  // Side a outward normal
+  const normAx = lenAPx > 0 ? (currentAEnd.y - BASE_Y) / lenAPx : 0;
+  const normAy = lenAPx > 0 ? -(currentAEnd.x - B1_X) / lenAPx : 1;
   const midA = {
-    x: (B1_X + currentAEnd.x) / 2 - 10 * (1 - unrollProgress),
-    y: (BASE_Y + currentAEnd.y) / 2 - 4 * (1 - unrollProgress) + 16 * unrollProgress,
+    x: (B1_X + currentAEnd.x) / 2 + normAx * LABEL_DIST,
+    y: (BASE_Y + currentAEnd.y) / 2 + normAy * LABEL_DIST,
   };
-  const midB = { x: (B1_X + B2_X) / 2, y: BASE_Y + 16 };
+
+  // Side b outward normal (straight down)
+  const midB = {
+    x: (B1_X + B2_X) / 2,
+    y: BASE_Y + LABEL_DIST,
+  };
+
+  // Side c outward normal
+  const normCx = lenCPx > 0 ? -(currentCEnd.y - BASE_Y) / lenCPx : 0;
+  const normCy = lenCPx > 0 ? (currentCEnd.x - B2_X) / lenCPx : 1;
   const midC = {
-    x: (B2_X + currentCEnd.x) / 2 + 10 * (1 - unrollProgress),
-    y: (BASE_Y + currentCEnd.y) / 2 - 4 * (1 - unrollProgress) + 16 * unrollProgress,
+    x: (B2_X + currentCEnd.x) / 2 + normCx * LABEL_DIST,
+    y: (BASE_Y + currentCEnd.y) / 2 + normCy * LABEL_DIST,
   };
 
   return (

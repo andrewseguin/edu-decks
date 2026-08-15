@@ -130,8 +130,8 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
   const sqB = `${O.x},${O.y} ${B.x},${B.y} ${B.x},${rnd(B.y + bPx * gp)} ${O.x},${rnd(O.y + bPx * gp)}`;
   const sqC = `${A.x},${A.y} ${B.x},${B.y} ${rnd(B.x + offX)},${rnd(B.y + offY)} ${rnd(A.x + offX)},${rnd(A.y + offY)}`;
 
-  // Side labels
-  const labelA = { x: O.x - 12, y: (O.y + A.y) / 2 };
+  // Side labels (standardized 14px outward distance)
+  const labelA = { x: O.x - 14, y: (O.y + A.y) / 2 };
   const labelB = { x: (O.x + B.x) / 2, y: O.y + 14 };
   const cMx = (A.x + B.x) / 2, cMy = (A.y + B.y) / 2;
   const labelC = { x: rnd(cMx + (aPx / cPx) * 14), y: rnd(cMy + (-bPx / cPx) * 14) };
