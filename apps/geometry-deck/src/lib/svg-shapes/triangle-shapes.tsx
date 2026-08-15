@@ -41,6 +41,78 @@ function cornerArcSvg(
   return `M ${p1.x.toFixed(2)} ${p1.y.toFixed(2)} A ${r} ${r} 0 0 ${sweep} ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
 }
 
+/**
+ * Smooth cross-fade transition between an unknown variable name ('C', 'a', etc.)
+ * and its revealed numeric answer ('75°', '5', etc.) upon card reveal.
+ */
+function RevealText({
+  x,
+  y,
+  variable,
+  revealedValue,
+  unit = "",
+  color,
+  fontSize = 13,
+  fontWeight = 800,
+  textAnchor = "middle",
+  dominantBaseline = "central",
+}: {
+  x: number;
+  y: number;
+  variable: string;
+  revealedValue?: number | string;
+  unit?: string;
+  color: string;
+  fontSize?: number;
+  fontWeight?: number | string;
+  textAnchor?: "start" | "middle" | "end";
+  dominantBaseline?: "central" | "alphabetic" | "hanging";
+}) {
+  const isRevealed = revealedValue != null;
+  const commonProps = {
+    x,
+    y,
+    textAnchor,
+    dominantBaseline,
+    fontSize,
+    fontWeight,
+    fill: color,
+    fontFamily: lblFont,
+  };
+
+  return (
+    <g>
+      {/* Variable (e.g. 'C', 'a', 'b', 'c') */}
+      <text
+        {...commonProps}
+        style={{
+          ...lblStyle,
+          opacity: isRevealed ? 0 : 1,
+          transform: isRevealed ? `translateY(-3px) scale(0.85)` : `translateY(0) scale(1)`,
+          transformOrigin: `${x}px ${y}px`,
+          transition: "opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+      >
+        {variable}
+      </text>
+
+      {/* Revealed answer (e.g. '75°', '5', '12') */}
+      <text
+        {...commonProps}
+        style={{
+          ...lblStyle,
+          opacity: isRevealed ? 1 : 0,
+          transform: isRevealed ? `translateY(0) scale(1)` : `translateY(3px) scale(1.15)`,
+          transformOrigin: `${x}px ${y}px`,
+          transition: "opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.05s, transform 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.05s",
+        }}
+      >
+        {revealedValue != null ? `${revealedValue}${unit}` : ""}
+      </text>
+    </g>
+  );
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // General Triangle (Angle sum, Area, Perimeter, Classification)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -285,19 +357,31 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
           </text>
 
           {/* Label C / Unknown (Orange) */}
-          <text
-            x={V3.x}
-            y={V3.y - 14}
-            textAnchor="middle"
-            dominantBaseline="central"
-            fontSize={13}
-            fontWeight={800}
-            fill={COLOR_ORANGE}
-            fontFamily={lblFont}
-            style={lblStyle}
-          >
-            {unknownDim === "C" ? (revealedAnswer != null ? `${revealedAnswer}°` : "C") : `${angC}°`}
-          </text>
+          {unknownDim === "C" ? (
+            <RevealText
+              x={V3.x}
+              y={V3.y - 14}
+              variable="C"
+              revealedValue={revealedAnswer}
+              unit="°"
+              color={COLOR_ORANGE}
+              textAnchor="middle"
+            />
+          ) : (
+            <text
+              x={V3.x}
+              y={V3.y - 14}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={13}
+              fontWeight={800}
+              fill={COLOR_ORANGE}
+              fontFamily={lblFont}
+              style={lblStyle}
+            >
+              {`${angC}°`}
+            </text>
+          )}
         </>
       )}
 
@@ -377,55 +461,82 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
       )}
 
       {/* ── Side a (Vertical Leg — Cyan) ─────────────────────────────────── */}
-      <text
-        x={V1.x - 14}
-        y={(V1.y + V3.y) / 2}
-        textAnchor="end"
-        dominantBaseline="central"
-        fontSize={13}
-        fontWeight={800}
-        fill={COLOR_CYAN}
-        fontFamily={lblFont}
-        style={lblStyle}
-      >
-        {unknownDim === "a"
-          ? (revealedAnswer != null ? `${revealedAnswer}` : "a")
-          : (a !== undefined ? (lm === "numeric" ? `${a}` : "a") : "")}
-      </text>
+      {unknownDim === "a" ? (
+        <RevealText
+          x={V1.x - 14}
+          y={(V1.y + V3.y) / 2}
+          variable="a"
+          revealedValue={revealedAnswer}
+          color={COLOR_CYAN}
+          textAnchor="end"
+        />
+      ) : a !== undefined ? (
+        <text
+          x={V1.x - 14}
+          y={(V1.y + V3.y) / 2}
+          textAnchor="end"
+          dominantBaseline="central"
+          fontSize={13}
+          fontWeight={800}
+          fill={COLOR_CYAN}
+          fontFamily={lblFont}
+          style={lblStyle}
+        >
+          {lm === "numeric" ? `${a}` : "a"}
+        </text>
+      ) : null}
 
       {/* ── Side b (Horizontal Leg — Gold) ───────────────────────────────── */}
-      <text
-        x={(V1.x + V2.x) / 2}
-        y={V1.y + 18}
-        textAnchor="middle"
-        dominantBaseline="central"
-        fontSize={13}
-        fontWeight={800}
-        fill={COLOR_GOLD}
-        fontFamily={lblFont}
-        style={lblStyle}
-      >
-        {unknownDim === "b"
-          ? (revealedAnswer != null ? `${revealedAnswer}` : "b")
-          : (b !== undefined ? (lm === "numeric" ? `${b}` : "b") : "")}
-      </text>
+      {unknownDim === "b" ? (
+        <RevealText
+          x={(V1.x + V2.x) / 2}
+          y={V1.y + 18}
+          variable="b"
+          revealedValue={revealedAnswer}
+          color={COLOR_GOLD}
+          textAnchor="middle"
+        />
+      ) : b !== undefined ? (
+        <text
+          x={(V1.x + V2.x) / 2}
+          y={V1.y + 18}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontSize={13}
+          fontWeight={800}
+          fill={COLOR_GOLD}
+          fontFamily={lblFont}
+          style={lblStyle}
+        >
+          {lm === "numeric" ? `${b}` : "b"}
+        </text>
+      ) : null}
 
       {/* ── Side c (Hypotenuse — Orange) ─────────────────────────────────── */}
-      <text
-        x={hypMidX}
-        y={hypMidY}
-        textAnchor="start"
-        dominantBaseline="central"
-        fontSize={13}
-        fontWeight={800}
-        fill={COLOR_ORANGE}
-        fontFamily={lblFont}
-        style={lblStyle}
-      >
-        {unknownDim === "c"
-          ? (revealedAnswer != null ? `${revealedAnswer}` : "c")
-          : (c_val !== undefined ? (lm === "numeric" ? `${c_val}` : "c") : "")}
-      </text>
+      {unknownDim === "c" ? (
+        <RevealText
+          x={hypMidX}
+          y={hypMidY}
+          variable="c"
+          revealedValue={revealedAnswer}
+          color={COLOR_ORANGE}
+          textAnchor="start"
+        />
+      ) : c_val !== undefined ? (
+        <text
+          x={hypMidX}
+          y={hypMidY}
+          textAnchor="start"
+          dominantBaseline="central"
+          fontSize={13}
+          fontWeight={800}
+          fill={COLOR_ORANGE}
+          fontFamily={lblFont}
+          style={lblStyle}
+        >
+          {lm === "numeric" ? `${c_val}` : "c"}
+        </text>
+      ) : null}
 
       {/* ── Vertex Dots ──────────────────────────────────────────────────── */}
       <circle cx={V1.x} cy={V1.y} r={3} fill="white" />
