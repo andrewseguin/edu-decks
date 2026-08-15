@@ -69,7 +69,7 @@ export function FormattedMathText({
   className?: string;
 }) {
   // Regex to match fractions and semantic keywords in descending order of specificity
-  const pattern = /(A \+ B \+ C|½|⅓|⅔|¼|¾|⅕|⅖|⅗|⅘|⅙|⅚|⅛|⅜|⅝|⅞|⁴⁄₃|base angles|base \(b\)|height \(h\)|hypotenuse \(c\)|base|height|a²|b²|c²|∠A|∠B|∠C|\ba\b|\bb\b|\bc\b|\bh\b)/g;
+  const pattern = /(A \+ B \+ C|½|⅓|⅔|¼|¾|⅕|⅖|⅗|⅘|⅙|⅚|⅛|⅜|⅝|⅞|⁴⁄₃|base angles|base \(b\)|height \(h\)|hypotenuse \(c\)|base|height|a²|b²|c²|∠A|∠B|∠C|[Aa]ngle [ABC]|\ba\b|\bb\b|\bc\b|\bh\b)/g;
   const parts = text.split(pattern);
 
   return (
@@ -83,6 +83,30 @@ export function FormattedMathText({
               <span style={{ color: "#ffd45e" }} className="font-bold">B</span>
               {" + "}
               <span style={{ color: "#d8b4fe" }} className="font-bold">C</span>
+            </React.Fragment>
+          );
+        }
+        if (/^[Aa]ngle A$/.test(part)) {
+          const prefix = part.startsWith("A") ? "Angle " : "angle ";
+          return (
+            <React.Fragment key={idx}>
+              {prefix}<span style={{ color: "#5ee8ff" }} className="font-bold">A</span>
+            </React.Fragment>
+          );
+        }
+        if (/^[Aa]ngle B$/.test(part)) {
+          const prefix = part.startsWith("A") ? "Angle " : "angle ";
+          return (
+            <React.Fragment key={idx}>
+              {prefix}<span style={{ color: "#ffd45e" }} className="font-bold">B</span>
+            </React.Fragment>
+          );
+        }
+        if (/^[Aa]ngle C$/.test(part)) {
+          const prefix = part.startsWith("A") ? "Angle " : "angle ";
+          return (
+            <React.Fragment key={idx}>
+              {prefix}<span style={{ color: "#d8b4fe" }} className="font-bold">C</span>
             </React.Fragment>
           );
         }
