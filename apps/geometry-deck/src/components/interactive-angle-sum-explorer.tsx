@@ -74,27 +74,6 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
   const [isFolding, setIsFolding] = useState(false);
   const foldAnimRef = useRef<number>(0);
 
-  /* ── idle auto-animation ───────────────────────────────────────────────── */
-  const animate = useCallback((ts: number) => {
-    if (ucRef.current) return;
-    if (startTimeRef.current === null) startTimeRef.current = ts;
-    const elapsed = (ts - startTimeRef.current) / 1000;
-    const cx = 100, cy = 75;
-    const rx = 40, ry = 20;
-    const x = cx + rx * Math.cos(elapsed * 0.35);
-    const y = cy + ry * Math.sin(elapsed * 0.55);
-    setApex(clampApex(x, y));
-    animRef.current = requestAnimationFrame(animate);
-  }, []);
-
-  useEffect(() => {
-    if (!isUserControlling && !isFolding) {
-      startTimeRef.current = null;
-      animRef.current = requestAnimationFrame(animate);
-    }
-    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
-  }, [animate, isUserControlling, isFolding]);
-
   /* ── pointer drag on apex ──────────────────────────────────────────────── */
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     if (isFolding) return;
@@ -398,40 +377,37 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
         )}
       </svg>
 
-      {/* ── Equation pills ──────────────────────────────────────────────── */}
-      <div className="flex items-end gap-1.5 justify-center px-2">
-        <span className="px-2.5 py-1 rounded-md text-sm font-bold"
-          style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_A, border: `1.5px solid ${COLOR_A}90` }}>
-          {degA}°
+      {/* ── Live equation ──────────────────────────────────────────────── */}
+      <div
+        className="flex items-center gap-2 justify-center text-base sm:text-lg font-bold font-headline select-none px-2 my-1"
+        style={{ filter: "drop-shadow(0px 1px 2px rgba(0,0,0,0.4))" }}
+      >
+        <span style={{ color: COLOR_A }}>{degA}°</span>
+        <span className="text-white/50">+</span>
+        <span style={{ color: COLOR_B }}>{degB}°</span>
+        <span className="text-white/50">+</span>
+        <span style={{ color: COLOR_C }}>{degC}°</span>
+        <span className="text-white/50">=</span>
+        <span
+          className="px-2.5 py-0.5 rounded-lg font-bold text-white shadow-sm"
+          style={{
+            backgroundColor: "rgba(255, 255, 255, 0.15)",
+            border: "1.5px solid rgba(255, 255, 255, 0.65)",
+          }}
+        >
+          180°
         </span>
-        <span className="text-white/50 text-sm font-bold pb-1.5">+</span>
-        <span className="px-2.5 py-1 rounded-md text-sm font-bold"
-          style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_B, border: `1.5px solid ${COLOR_B}90` }}>
-          {degB}°
-        </span>
-        <span className="text-white/50 text-sm font-bold pb-1.5">+</span>
-        <span className="px-2.5 py-1 rounded-md text-sm font-bold"
-          style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_C, border: `1.5px solid ${COLOR_C}90` }}>
-          {degC}°
-        </span>
-        <span className="text-white/50 text-sm font-bold pb-1.5">=</span>
-        <span className="text-white text-base font-bold pb-1">180°</span>
       </div>
 
       {/* ── Fold button ─────────────────────────────────────────────────── */}
       <button
+        type="button"
         onClick={handleFold}
         onPointerDown={stop}
         disabled={isFolding}
-        className="mt-0.5 px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-200"
-        style={{
-          backgroundColor: isFolding ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.35)',
-          color: isFolding ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.9)',
-          border: `1.5px solid ${isFolding ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.3)'}`,
-          cursor: isFolding ? 'default' : 'pointer',
-        }}
+        className="mt-1 px-4 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm disabled:opacity-50 disabled:cursor-default"
       >
-        {isFolding ? 'Folding…' : 'Fold corners ▶'}
+        {isFolding ? "Folding…" : "Fold corners ▶"}
       </button>
     </div>
   );

@@ -195,24 +195,26 @@ export function InteractiveScaleneExplorer({ color }: InteractiveScaleneExplorer
       </svg>
 
 
-      {/* Equation as pill tokens: A + B + C = 180° */}
-      <div className="flex items-end gap-1.5 justify-center px-2">
-        <span className="px-2.5 py-1 rounded-md text-sm font-bold"
-          style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_A, border: `1.5px solid ${COLOR_A}90` }}>
-          {degA}°
+      {/* Equation: A + B + C = 180° */}
+      <div
+        className="flex items-center gap-2 justify-center text-base sm:text-lg font-bold font-headline select-none px-2 mt-2"
+        style={{ filter: "drop-shadow(0px 1px 2px rgba(0,0,0,0.4))" }}
+      >
+        <span style={{ color: COLOR_A }}>{degA}°</span>
+        <span className="text-white/50">+</span>
+        <span style={{ color: COLOR_B }}>{degB}°</span>
+        <span className="text-white/50">+</span>
+        <span style={{ color: COLOR_C }}>{degC}°</span>
+        <span className="text-white/50">=</span>
+        <span
+          className="px-2.5 py-0.5 rounded-lg font-bold text-white shadow-sm"
+          style={{
+            backgroundColor: "rgba(255, 255, 255, 0.15)",
+            border: "1.5px solid rgba(255, 255, 255, 0.65)",
+          }}
+        >
+          180°
         </span>
-        <span className="text-white/50 text-sm font-bold pb-1.5">+</span>
-        <span className="px-2.5 py-1 rounded-md text-sm font-bold"
-          style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_B, border: `1.5px solid ${COLOR_B}90` }}>
-          {degB}°
-        </span>
-        <span className="text-white/50 text-sm font-bold pb-1.5">+</span>
-        <span className="px-2.5 py-1 rounded-md text-sm font-bold"
-          style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_C, border: `1.5px solid ${COLOR_C}90` }}>
-          {degC}°
-        </span>
-        <span className="text-white/50 text-sm font-bold pb-1.5">=</span>
-        <span className="text-white text-base font-bold pb-1">180°</span>
       </div>
     </div>
   );

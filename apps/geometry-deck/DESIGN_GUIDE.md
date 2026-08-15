@@ -1,0 +1,130 @@
+# Geometry Deck — Design & Interaction Guide
+
+This guide establishes the mandatory visual, typography, and interaction standards for all flash cards in the `geometry-deck`. Every card must adhere to these rules to maintain textbook-quality clarity, visual consistency, and intuitive student learning.
+
+---
+
+## 🏛️ 1. Card Layout & Visual Hierarchy
+
+Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                      Card Title                             │
+│                                                             │
+│   ┌─────────────────────────────────────────────────────┐   │
+│   │             Top Frosted Formula Banner              │   │  <-- Tier 1: Hero Definition / Formula
+│   │         A = ½ · b · h  (Primary Headline)           │   │
+│   │     Area = ½ · base · height  (English Subtitle)    │   │
+│   └─────────────────────────────────────────────────────┘   │
+│                                                             │
+│                ┌───────────────────────────┐                │
+│                │                           │                │  <-- Tier 2: Interactive SVG Diagram
+│                │   Interactive Geometry    │                │      (Unit grids, handles, angle arcs)
+│                │          Diagram          │                │
+│                │                           │                │
+│                └───────────────────────────┘                │
+│                                                             │
+│              A = ½ · 10 · 6 = [ 30 ]                        │  <-- Tier 3: Live Open Equation
+│                                                             │
+│             ( Preset 1 )  ( Preset 2 )                      │  <-- Tier 4: Frosted Controls / Sliders
+└─────────────────────────────────────────────────────────────┘
+```
+
+### 1.1 Top Frosted Definition Banner (Hero)
+- **Container**: `px-6 py-2.5 my-1 rounded-2xl bg-black/25 backdrop-blur-md border border-white/20 shadow-lg flex flex-col items-center justify-center gap-1`
+- **Primary Line**: Bold, prominent formula (e.g. `A = ½ · b · h`, `a² + b² = c²`, `2 equal sides, 2 equal base angles`).
+- **Optional Secondary Subtitle**: Smaller plain English translation (e.g. `Area = ½ · base · height`).
+
+### 1.2 Interactive Diagram (Center)
+- Clean SVG canvas with aspect ratio ~ `22/13.5` or `viewBox="0 0 240 170"`.
+- Draggable vertices with `touch-none` and continuous 2D pointer dragging.
+- **Zero auto-play**: Card stays completely stationary until the user drags or clicks a control.
+
+### 1.3 Live Open Equation (Bottom)
+- Open, unboxed equation layout with text drop-shadow (`filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.4))`).
+- Operators (`+`, `−`, `·`, `=`) render in muted translucent white (`text-white/50`).
+- Values match their semantic diagram colors.
+
+### 1.4 White-Bordered Calculated Answer
+- The result of the calculation or total angle sum is always rendered in a crisp, white-bordered pill:
+  ```tsx
+  <span
+    className="px-2.5 py-0.5 rounded-lg font-bold text-white shadow-sm"
+    style={{
+      backgroundColor: "rgba(255, 255, 255, 0.15)",
+      border: "1.5px solid rgba(255, 255, 255, 0.65)",
+    }}
+  >
+    {answer}
+  </span>
+  ```
+
+### 1.5 Frosted Controls & Action Buttons
+- Presets and action buttons (e.g. `Show proof ▶`, `Fold corners ▶`, presets `3, 4, 5`) use rounded frosted pills:
+  ```tsx
+  className="px-4 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm disabled:opacity-50"
+  ```
+
+---
+
+## 🎨 2. Semantic Color Standards
+
+Never introduce random or conflicting colors. All geometry elements follow strict semantic meaning:
+
+| Concept | Token / Color | Hex | Usage |
+| :--- | :--- | :--- | :--- |
+| **Angle 1 / Base Angle / Side $a$** | Cyan | `#5ee8ff` | Bottom-left angle, base angles on isosceles, vertical altitude $h$, side $a$ |
+| **Angle 2 / Apex Angle / Base $b$** | Gold | `#ffd45e` | Bottom-right angle, apex angle on isosceles, baseline $b$, length $l$, side $b$ |
+| **Angle 3 / Hypotenuse $c$** | Orange | `#fb923c` | Third angle in scalene, hypotenuse $c$ in right triangles |
+| **Right Angle ($90^\circ$)** | Cyan / White | `#5ee8ff` / `#ffffff` | Perpendicular right-angle square marker ($\llcorner$) at base of altitude or right vertex |
+| **Calculated Answer / Area** | White Pill / Emerald | `#ffffff` / `#34d399` | Answer pill in live equation (`border: 1.5px solid white/65`) |
+| **Grid Lines & Bounding Boxes** | Translucent White | `rgba(255,255,255,0.35)` | Unit square grid lines (`strokeDasharray="2 2"`), bounding boxes (`strokeDasharray="4 3"`) |
+| **Shape Fills** | Soft Luminous White | `rgba(255,255,255,0.15)` | Interior fill of geometric shapes |
+| **Shape Outlines** | Solid White | `rgba(255,255,255,0.95)` | Primary polygon boundary edges (`strokeWidth={2.5}`) |
+
+---
+
+## 📐 3. Area Formulas & Unit Grids
+
+1. **Unit Grid Visualization**:
+   - All area cards (triangle, rectangle, parallelogram, trapezoid, circle) must display subtle, neutral unit grid lines across the enclosing rectangle ($b \times h$).
+   - Concretely teaches that area is a countable measure of unit squares ($1 \times 1$).
+2. **Altitude Representation**:
+   - Vertical altitude ($h$) is drawn with a dashed cyan line (`#5ee8ff`, `strokeDasharray="4 3"`).
+   - An explicit right-angle square box marker ($\llcorner$, size 8px) is placed at the intersection of the altitude and base.
+3. **Clamping & Geometric Invariants**:
+   - Drag handles must be clamped within valid boundaries (e.g. apex $x$ clamped to base $[B_1, B_2]$) so the shape remains strictly enclosed inside its $b \times h$ unit grid box.
+
+---
+
+## 🔤 4. Typography & Mathematical Notation
+
+1. **No LaTeX**:
+   - Never use LaTeX (`$...$`, `\frac{...}{...}`, `\times`) in assistant messages, comments, or cards.
+   - Use standard unicode symbols (`·`, `×`, `²`, `√`, `°`, `⟂`, `½`, `⅓`).
+2. **Textbook Stacked Fractions**:
+   - Always use `FormattedMathText` or `StackedFraction` (`<StackedFraction numerator="1" denominator="2" />`) for clean vertical fractions with horizontal fraction bars.
+3. **Clean Integer Rounding**:
+   - Interactive handles move smoothly and continuously in 2D without stepped snapping.
+   - All live numeric readouts ($b, h, A, \text{degrees}$) are rounded to whole integers to eliminate decimal clutter.
+4. **Formula Token Color Matching**:
+   - `FormattedMathText` automatically color-codes mathematical keywords:
+     - `a²`, `a`, `height (h)`, `height`, `h`, `base angles` $\rightarrow$ **Cyan (`#5ee8ff`)**
+     - `b²`, `b`, `base (b)`, `base` $\rightarrow$ **Gold (`#ffd45e`)**
+     - `c²`, `c`, `hypotenuse (c)` $\rightarrow$ **Orange (`#fb923c`)**
+
+---
+
+## ✅ 5. Card Verification Checklist
+
+Before considering any geometry card complete:
+- [ ] Top definition/formula is enclosed in the frosted glass hero banner.
+- [ ] Semantic colors match across header text, diagram geometry, and live equation.
+- [ ] Live bottom equation is open (no dark blocky token boxes).
+- [ ] Calculated answer is in a crisp white pill with white border.
+- [ ] Area cards display the neutral dashed unit grid across the $b \times h$ box.
+- [ ] Right angles feature a clean square box marker ($\llcorner$).
+- [ ] Drag handles move smoothly without jitter; numbers round cleanly to integers.
+- [ ] No auto-play loops are running in the background.
+- [ ] Card passes `pnpm -r typecheck` and `pnpm -r test`.

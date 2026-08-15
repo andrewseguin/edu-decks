@@ -209,24 +209,26 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
         </svg>
       </div>
 
-      {/* Equation as pill tokens */}
-      <div className="flex items-end gap-1.5 justify-center px-2 my-2">
-        <span className="px-2.5 py-1 rounded-md text-sm font-bold"
-          style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: "#5ee8ff", border: "1.5px solid #5ee8ff90" }}>
-          {baseAngle}°
+      {/* Live equation */}
+      <div
+        className="flex items-center gap-2 justify-center text-base sm:text-lg font-bold font-headline select-none my-2"
+        style={{ filter: "drop-shadow(0px 1px 2px rgba(0,0,0,0.4))" }}
+      >
+        <span style={{ color: "#5ee8ff" }}>{baseAngle}°</span>
+        <span className="text-white/50">+</span>
+        <span style={{ color: "#5ee8ff" }}>{baseAngle}°</span>
+        <span className="text-white/50">+</span>
+        <span style={{ color: "#ffd45e" }}>{displayApexAngle}°</span>
+        <span className="text-white/50">=</span>
+        <span
+          className="px-2.5 py-0.5 rounded-lg font-bold text-white shadow-sm"
+          style={{
+            backgroundColor: "rgba(255, 255, 255, 0.15)",
+            border: "1.5px solid rgba(255, 255, 255, 0.65)",
+          }}
+        >
+          180°
         </span>
-        <span className="text-white/50 text-sm font-bold pb-1.5">+</span>
-        <span className="px-2.5 py-1 rounded-md text-sm font-bold"
-          style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: "#5ee8ff", border: "1.5px solid #5ee8ff90" }}>
-          {baseAngle}°
-        </span>
-        <span className="text-white/50 text-sm font-bold pb-1.5">+</span>
-        <span className="px-2.5 py-1 rounded-md text-sm font-bold"
-          style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: "#ffd45e", border: "1.5px solid #ffd45e90" }}>
-          {displayApexAngle}°
-        </span>
-        <span className="text-white/50 text-sm font-bold pb-1.5">=</span>
-        <span className="text-white text-base font-bold pb-1">180°</span>
       </div>
 
       {/* Range Slider Control (Capped 10° to 160° to avoid degenerate straight line triangles) */}

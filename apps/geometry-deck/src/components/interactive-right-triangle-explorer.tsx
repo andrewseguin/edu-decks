@@ -180,23 +180,26 @@ export function InteractiveRightTriangleExplorer({ color }: InteractiveRightTria
         <circle cx={apexX} cy={apexY} r={3} fill="white" className="pointer-events-none" />
       </svg>
 
-      {/* Equation as pill tokens: a + b + 90° = 180° */}
-      <div className="flex items-end gap-1.5 justify-center px-2">
-        <span className="px-3 py-1 rounded-md text-sm font-bold"
-          style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_A, border: `1.5px solid ${COLOR_A}90` }}>
-          {angA}°
+      {/* Equation: a + b + 90° = 180° */}
+      <div
+        className="flex items-center gap-2 justify-center text-base sm:text-lg font-bold font-headline select-none px-2 my-2"
+        style={{ filter: "drop-shadow(0px 1px 2px rgba(0,0,0,0.4))" }}
+      >
+        <span style={{ color: COLOR_A }}>{angA}°</span>
+        <span className="text-white/50">+</span>
+        <span style={{ color: COLOR_B }}>{angB}°</span>
+        <span className="text-white/50">+</span>
+        <span className="text-white/90">90°</span>
+        <span className="text-white/50">=</span>
+        <span
+          className="px-2.5 py-0.5 rounded-lg font-bold text-white shadow-sm"
+          style={{
+            backgroundColor: "rgba(255, 255, 255, 0.15)",
+            border: "1.5px solid rgba(255, 255, 255, 0.65)",
+          }}
+        >
+          180°
         </span>
-        <span className="text-white/50 text-sm font-bold pb-1.5">+</span>
-        <span className="px-3 py-1 rounded-md text-sm font-bold"
-          style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_B, border: `1.5px solid ${COLOR_B}90` }}>
-          {angB}°
-        </span>
-        <span className="text-white/50 text-sm font-bold pb-1.5">+</span>
-        <span className="px-3 py-1 rounded-md text-sm font-bold text-white/90 border border-white/40" style={{ backgroundColor: 'rgba(0,0,0,0.35)' }}>
-          90°
-        </span>
-        <span className="text-white/50 text-sm font-bold pb-1.5">=</span>
-        <span className="text-white text-base font-bold pb-1">180°</span>
       </div>
 
       {/* Slider */}

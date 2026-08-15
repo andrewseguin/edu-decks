@@ -246,26 +246,41 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
       </svg>
 
       {/* ── Equation ──────────────────────────────────────────────────────── */}
-      <p className="text-lg sm:text-xl font-bold" style={{ fontFamily: lblFont, filter: 'drop-shadow(0px 1px 2px rgba(0,0,0,0.3))' }}>
+      <div
+        className="flex items-center gap-2 justify-center text-base sm:text-lg font-bold font-headline select-none my-1"
+        style={{ filter: "drop-shadow(0px 1px 2px rgba(0,0,0,0.4))" }}
+      >
         <span style={{ color: COLOR_A }}>{a}²</span>
-        <span className="text-white/50"> + </span>
+        <span className="text-white/50">+</span>
         <span style={{ color: COLOR_B }}>{b}²</span>
-        <span className="text-white/50"> = </span>
-        <span style={{ color: COLOR_C }}>{c}²</span>
-      </p>
+        <span className="text-white/50">=</span>
+        <span
+          className="px-2.5 py-0.5 rounded-lg font-bold text-white shadow-sm"
+          style={{
+            backgroundColor: "rgba(255, 255, 255, 0.15)",
+            border: "1.5px solid rgba(255, 255, 255, 0.65)",
+          }}
+        >
+          {c}²
+        </span>
+      </div>
 
-      <div className="flex gap-1.5 justify-center">
+      {/* ── Presets ───────────────────────────────────────────────────────── */}
+      <div className="flex gap-1.5 justify-center my-0.5">
         {PRESETS.map((p, i) => (
-          <button key={i}
-            onClick={(e) => { e.stopPropagation(); if (phase === "idle") setPresetIdx(i); }}
-            disabled={phase !== "idle"}
-            className="px-2.5 py-1 rounded-md text-xs font-bold transition-all duration-200"
-            style={{
-              backgroundColor: i === presetIdx ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.3)',
-              color: i === presetIdx ? 'white' : 'rgba(255,255,255,0.5)',
-              border: `1.5px solid ${i === presetIdx ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.15)'}`,
-              cursor: phase !== "idle" ? 'default' : 'pointer',
+          <button
+            key={i}
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              if (phase === "idle") setPresetIdx(i);
             }}
+            disabled={phase !== "idle"}
+            className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide transition-all border ${
+              i === presetIdx
+                ? "bg-white/25 text-white border-white/60 shadow-sm"
+                : "bg-black/25 text-white/70 border-white/15 hover:bg-white/10 hover:text-white"
+            }`}
           >
             {p.a}, {p.b}, {p.c}
           </button>
@@ -274,18 +289,13 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
 
       {/* ── Show proof button ───────────────────────────────────────────── */}
       <button
+        type="button"
         onClick={handleShow}
         onPointerDown={stop}
         disabled={phase !== "idle"}
-        className="mt-0.5 px-4 py-1.5 rounded-full text-sm font-bold transition-all duration-200"
-        style={{
-          backgroundColor: phase !== "idle" ? 'rgba(0,0,0,0.2)' : 'rgba(0,0,0,0.35)',
-          color: phase !== "idle" ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.9)',
-          border: `1.5px solid ${phase !== "idle" ? 'rgba(255,255,255,0.1)' : 'rgba(255,255,255,0.3)'}`,
-          cursor: phase !== "idle" ? 'default' : 'pointer',
-        }}
+        className="mt-1 px-4 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm disabled:opacity-50 disabled:cursor-default"
       >
-        {phase !== "idle" ? 'Showing…' : 'Show proof ▶'}
+        {phase !== "idle" ? "Showing…" : "Show proof ▶"}
       </button>
     </div>
   );
