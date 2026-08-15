@@ -212,13 +212,19 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
   const fromB = edgeAngleB_math - curRotB;
   const toB = baseAngleB_math - curRotB;
 
-  const labelDist = 28;
-  const labelAx = p < 0.1 ? B1_X - 10 : rnd(V3.x + (LABEL_R + 8) * Math.cos((180 + degA / 2) * Math.PI / 180));
-  const labelAy = p < 0.1 ? BASE_Y + 10 : rnd(V3.y - (LABEL_R + 8) * Math.sin((180 + degA / 2) * Math.PI / 180));
-  const labelBx = p < 0.1 ? B2_X + 10 : rnd(V3.x + (LABEL_R + 8) * Math.cos((-degB / 2) * Math.PI / 180));
-  const labelBy = p < 0.1 ? BASE_Y + 10 : rnd(V3.y - (LABEL_R + 8) * Math.sin((-degB / 2) * Math.PI / 180));
-  const labelCx = rnd(V3.x + (LABEL_R + 2) * Math.cos(((edgeAngleL + edgeAngleR) / 2 + 180 * (1 - p)) * Math.PI / 180));
-  const labelCy = rnd(V3.y - (LABEL_R + 2) * Math.sin(((edgeAngleL + edgeAngleR) / 2 + 180 * (1 - p)) * Math.PI / 180));
+  const bisectA_math = ((fromA + toA) / 2) * Math.PI / 180;
+  const labelAx = rnd(V1f.x + (ARC_R + 12) * Math.cos(bisectA_math));
+  const labelAy = rnd(V1f.y - (ARC_R + 12) * Math.sin(bisectA_math));
+
+  const bisectB_math = ((fromB + toB) / 2) * Math.PI / 180;
+  const labelBx = rnd(V2f.x + (ARC_R + 12) * Math.cos(bisectB_math));
+  const labelBy = rnd(V2f.y - (ARC_R + 12) * Math.sin(bisectB_math));
+
+  const apexBisectorDeg = (edgeAngleL + edgeAngleR) / 2;
+  const startC = toPoint(V3.x, V3.y, apexBisectorDeg + 180, ARC_R + 12);
+  const endC = toPoint(V3.x, V3.y, apexBisectorDeg, ARC_R + 12);
+  const labelCx = rnd(lerp(startC.x, endC.x, p));
+  const labelCy = rnd(lerp(startC.y, endC.y, p));
 
   const lineExtent = 75;
 
