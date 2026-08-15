@@ -27,12 +27,6 @@ const STEPS = [
   { step: 2, label: "2. Folded" },
 ];
 
-const PRESETS = [
-  { label: "Acute", apex: { x: 105, y: 38 } },
-  { label: "Right", apex: { x: 65, y: 40 } },
-  { label: "Obtuse", apex: { x: 145, y: 75 } },
-];
-
 /* ── geometry helpers ─────────────────────────────────────────────────────── */
 
 function toPoint(cx: number, cy: number, deg: number, len: number) {
@@ -69,7 +63,6 @@ function rotateAround(px: number, py: number, ox: number, oy: number, angleDeg: 
 /* ── component ────────────────────────────────────────────────────────────── */
 
 export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
-  const [presetIdx, setPresetIdx] = useState<number | null>(0);
   const [apex, setApex] = useState({ x: 105, y: 38 });
   const [isDragging, setIsDragging] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
@@ -85,7 +78,6 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
     if (activeStep === 2 || foldProgress > 0.05) return;
     e.preventDefault(); e.stopPropagation();
     setIsDragging(true);
-    setPresetIdx(null);
     const svg = svgRef.current;
     if (!svg) return;
     const rect = svg.getBoundingClientRect();
@@ -133,9 +125,9 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
 
   const handleStepClick = (stepNum: number) => {
     if (stepNum === 1) {
-      transitionTo(0, 1, 800);
+      transitionTo(0, 1, 1800);
     } else if (stepNum === 2) {
-      transitionTo(1, 2, 1200);
+      transitionTo(1, 2, 2600);
     }
   };
 
@@ -146,14 +138,18 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
     setActiveStep(1);
     setFoldProgress(0);
 
-    const FOLD_MS = 1800;
+    const PAUSE_MS = 250;
+    const FOLD_MS = 2800;
     const t0 = performance.now();
 
     const tick = (now: number) => {
       const elapsed = now - t0;
-      if (elapsed < FOLD_MS) {
+      if (elapsed < PAUSE_MS) {
+        setFoldProgress(0);
+        setActiveStep(1);
+      } else if (elapsed < PAUSE_MS + FOLD_MS) {
         setActiveStep(2);
-        setFoldProgress(ease(elapsed / FOLD_MS));
+        setFoldProgress(ease((elapsed - PAUSE_MS) / FOLD_MS));
       } else {
         setFoldProgress(1);
         setActiveStep(2);
@@ -349,28 +345,6 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
         >
           <RotateCcw className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
         </button>
-      </div>
-
-      {/* ── Triangle Presets ─────────────────────────────────────────── */}
-      <div className="flex gap-1.5 justify-center mt-0.5">
-        {PRESETS.map((p, i) => (
-          <button
-            key={i}
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
-              setPresetIdx(i);
-              setApex(p.apex);
-            }}
-            className={`px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold tracking-wide transition-all border ${
-              i === presetIdx
-                ? "bg-white/25 text-white border-white/60 shadow-sm"
-                : "bg-white/10 text-white/80 border-white/25 hover:bg-white/20 hover:text-white"
-            }`}
-          >
-            {p.label}
-          </button>
-        ))}
       </div>
     </div>
   );
