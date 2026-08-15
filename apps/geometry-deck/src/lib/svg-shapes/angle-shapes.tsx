@@ -150,11 +150,11 @@ export function AngleSingle({ dims, mutation }: { dims: Record<string, number | 
       <line x1={vx} y1={vy} x2={baseEnd.x} y2={baseEnd.y} stroke={WHITE70} strokeWidth={STROKE_W} strokeLinecap="round" />
       <line x1={vx} y1={vy} x2={secondEnd.x} y2={secondEnd.y} stroke={WHITE70} strokeWidth={STROKE_W} strokeLinecap="round" />
       <circle cx={vx} cy={vy} r={3} fill={WHITE90} />
-      <path d={aPath} fill="none" stroke={WHITE90} strokeWidth={2.5} strokeLinecap="round"
+      <path d={aPath} fill="none" stroke="#5ee8ff" strokeWidth={2.5} strokeLinecap="round"
         style={{ strokeDasharray: `${arcLen} 1000`, strokeDashoffset: mutation?.drawAngleArc ? arcLen : 0,
           animation: mutation?.drawAngleArc ? `drawArc 0.55s cubic-bezier(0.4,0,0.2,1) forwards` : undefined,
           "--arc-length": arcLen } as React.CSSProperties} />
-      {isUnknown ? <UnknownPill x={labelX} y={labelY} /> : <SvgLabel x={labelX} y={labelY} text={`${angleDeg}°`} />}
+      {isUnknown ? <UnknownPill x={labelX} y={labelY} color="#5ee8ff" /> : <SvgLabel x={labelX} y={labelY} text={`${angleDeg}°`} color="#5ee8ff" />}
     </svg>
   );
 }

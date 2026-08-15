@@ -151,12 +151,27 @@ Colors must be consistent and intuitive within each topic. As new topic categori
 
 ### 3.1 Angles Topic Palette *(Optimized for `#d97706` Amber/Orange)*
 
+Colors on Angles cards follow a strict **progressive allocation order**:
+1. **1 Angle Cards** (Acute, Obtuse, Reflex, Single Angle):
+   - Primary angle arc & label: **Electric Cyan (`#5ee8ff`)**.
+2. **2 Angles Cards** (Supplementary, Complementary, Vertically Opposite, Co-Interior):
+   - First Angle ($A$): **Electric Cyan (`#5ee8ff`)**.
+   - Second Angle ($B$): **Neon Lilac (`#d8b4fe`)**.
+   - Congruent Pairs (Alternate Angles where $A = B$): both in **Electric Cyan (`#5ee8ff`)**.
+3. **3 Angles Cards** (Multi-angle systems, 3 angles at a point):
+   - Angle 1 ($A$): **Electric Cyan (`#5ee8ff`)**.
+   - Angle 2 ($B$): **Neon Lilac (`#d8b4fe`)**.
+   - Angle 3 ($C$): **Mint Green (`#4ade80`)**.
+
 | Concept | Token / Color | Hex | Usage |
 | :--- | :--- | :--- | :--- |
-| **Angle A / Angle 1** | Electric Cyan | `#5ee8ff` | Primary given angle arc, alternate angle pair, first angle in sums ($A + B$) |
-| **Angle B / Angle 2** | Neon Lilac | `#d8b4fe` | Supplementary/complementary second angle, co-interior angle |
-| **Angle C / Angle 3** | Mint Green | `#4ade80` | Third angle in multi-angle systems |
+| **Angle 1 ($A$) / Single Angle** | Electric Cyan | `#5ee8ff` | Acute, obtuse, reflex arcs, first angle in pairs/sums ($A + B$) |
+| **Angle 2 ($B$)** | Neon Lilac | `#d8b4fe` | Supplementary/complementary second angle, co-interior angle |
+| **Angle 3 ($C$)** | Mint Green | `#4ade80` | Third angle in multi-angle systems |
 | **Right Angle / Rays** | Crisp White | `#ffffff` | Ray line segments, square $90^\circ$ perpendicular markers |
+
+> [!IMPORTANT]
+> **Text Drop Shadows on Cards**: Any text element rendered directly on top of the card background (without a frosted/dimmed banner container) must include `style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}` for maximum legibility and contrast.
 
 ### 3.2 Triangles Topic Palette *(Optimized for `#10b981` Emerald/Green)*
 
