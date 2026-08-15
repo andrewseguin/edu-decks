@@ -249,9 +249,9 @@ export function GeometryCard({
         </div>
       }
       revealContent={
-        <div className="w-[calc(100%+1.5rem)] -mx-3 sm:w-[calc(100%+2.5rem)] sm:-mx-5 md:w-[calc(100%+3rem)] md:-mx-6 flex-1 min-h-0 flex flex-col items-center justify-center">
+        <div className="proof-table-container w-[calc(100%+1.5rem)] -mx-3 sm:w-[calc(100%+2.5rem)] sm:-mx-5 md:w-[calc(100%+3rem)] md:-mx-6 flex-1 min-h-0 flex flex-col items-center justify-center">
           {isFlipped && (
-            <div className="w-full bg-black/45 backdrop-blur-md border-y border-white/20 px-4 sm:px-6 py-2 divide-y divide-white/10 proof-table-container">
+            <div className="proof-table-banner w-full bg-black/45 backdrop-blur-md border-b border-white/20 px-4 sm:px-6 py-2 divide-y divide-white/10">
               {steps.map((step, i) => (
                 <ProofRow
                   key={i}

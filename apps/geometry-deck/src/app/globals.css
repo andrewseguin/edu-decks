@@ -297,6 +297,9 @@
   .proof-row-mobile {
     display: none !important;
   }
+  .proof-table-banner {
+    border-top: 1px solid rgba(255, 255, 255, 0.2) !important;
+  }
 }
 
 @container (max-width: 479px) {
@@ -306,7 +309,7 @@
   .proof-row-mobile {
     display: flex !important;
   }
-  .proof-table-container {
-    border-top-width: 0 !important;
+  .proof-table-banner {
+    border-top: none !important;
   }
 }
