@@ -83,19 +83,23 @@ export function InteractiveTrianglePerimeterExplorer({ color }: { color?: string
   const angleAUnrolled = -Math.PI; // -180° = flat left (rotates outward counter-clockwise)
   const currentAngleA = angleAClosed + (angleAUnrolled - angleAClosed) * unrollProgress;
 
-  const currentAEnd = {
-    x: B1_X + lenAPx * Math.cos(currentAngleA),
-    y: BASE_Y + lenAPx * Math.sin(currentAngleA),
-  };
+  const currentAEnd = unrollProgress === 0
+    ? { x: apexX, y: apexY }
+    : {
+        x: Math.round((B1_X + lenAPx * Math.cos(currentAngleA)) * 100) / 100,
+        y: Math.round((BASE_Y + lenAPx * Math.sin(currentAngleA)) * 100) / 100,
+      };
 
   const angleCClosed = Math.atan2(apexY - BASE_Y, apexX - B2_X); // negative rad
   const angleCUnrolled = 0; // 0° = flat right
   const currentAngleC = angleCClosed + (angleCUnrolled - angleCClosed) * unrollProgress;
 
-  const currentCEnd = {
-    x: B2_X + lenCPx * Math.cos(currentAngleC),
-    y: BASE_Y + lenCPx * Math.sin(currentAngleC),
-  };
+  const currentCEnd = unrollProgress === 0
+    ? { x: apexX, y: apexY }
+    : {
+        x: Math.round((B2_X + lenCPx * Math.cos(currentAngleC)) * 100) / 100,
+        y: Math.round((BASE_Y + lenCPx * Math.sin(currentAngleC)) * 100) / 100,
+      };
 
   // Toggle Unroll Animation
   const handleToggleUnroll = () => {
@@ -132,8 +136,8 @@ export function InteractiveTrianglePerimeterExplorer({ color }: { color?: string
   const normAx = lenAPx > 0 ? (currentAEnd.y - BASE_Y) / lenAPx : 0;
   const normAy = lenAPx > 0 ? -(currentAEnd.x - B1_X) / lenAPx : 1;
   const midA = {
-    x: (B1_X + currentAEnd.x) / 2 + normAx * LABEL_DIST,
-    y: (BASE_Y + currentAEnd.y) / 2 + normAy * LABEL_DIST,
+    x: Math.round(((B1_X + currentAEnd.x) / 2 + normAx * LABEL_DIST) * 100) / 100,
+    y: Math.round(((BASE_Y + currentAEnd.y) / 2 + normAy * LABEL_DIST) * 100) / 100,
   };
 
   // Side b outward normal (straight down)
@@ -146,8 +150,8 @@ export function InteractiveTrianglePerimeterExplorer({ color }: { color?: string
   const normCx = lenCPx > 0 ? -(currentCEnd.y - BASE_Y) / lenCPx : 0;
   const normCy = lenCPx > 0 ? (currentCEnd.x - B2_X) / lenCPx : 1;
   const midC = {
-    x: (B2_X + currentCEnd.x) / 2 + normCx * LABEL_DIST,
-    y: (BASE_Y + currentCEnd.y) / 2 + normCy * LABEL_DIST,
+    x: Math.round(((B2_X + currentCEnd.x) / 2 + normCx * LABEL_DIST) * 100) / 100,
+    y: Math.round(((BASE_Y + currentCEnd.y) / 2 + normCy * LABEL_DIST) * 100) / 100,
   };
 
   return (
