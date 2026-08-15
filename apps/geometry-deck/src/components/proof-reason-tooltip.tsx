@@ -91,13 +91,13 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
 
           {/* Example (if provided) */}
           {entry.example && (
-            <div className="mt-2.5 pt-2 border-t border-white/10 flex flex-col gap-0.5">
-              <span className="text-[10px] uppercase font-mono text-gold-300 font-semibold tracking-wider" style={{ color: "#ffd45e" }}>
-                Example:
+            <div className="mt-2 pt-2 border-t border-white/10 flex items-baseline gap-1.5 text-xs">
+              <span className="text-[11px] font-semibold shrink-0" style={{ color: "#ffd45e" }}>
+                e.g.
               </span>
-              <code className="text-[11px] font-mono text-white/80 bg-white/10 px-1.5 py-0.5 rounded border border-white/10 not-italic">
+              <span className="font-mono text-white/90 not-italic text-[11px] sm:text-xs">
                 {entry.example}
-              </code>
+              </span>
             </div>
           )}
 
