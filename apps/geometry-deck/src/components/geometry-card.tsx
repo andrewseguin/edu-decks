@@ -230,19 +230,19 @@ export function GeometryCard({
       showDebugOutlines={showDebugOutlines}
       onCardTap={onCardTap || onTap}
       frontContent={
-        <div className="flex flex-col items-center justify-center px-4 gap-1.5 sm:gap-2">
+        <div className="flex flex-col items-center justify-center px-4 gap-4 sm:gap-6 py-2">
           {card.frontPrompt && (
             <p
               className={cn(
-                "font-bold text-white text-center leading-tight text-lg sm:text-xl md:text-2xl tracking-wide transition-all duration-300",
-                isFlipped ? "max-h-0 opacity-0 overflow-hidden" : "max-h-[60px] opacity-100"
+                "font-bold text-white text-center leading-tight text-xl sm:text-2xl md:text-3xl tracking-wide transition-all duration-300 pb-1 sm:pb-2",
+                isFlipped ? "max-h-0 opacity-0 overflow-hidden" : "max-h-[80px] opacity-100"
               )}
             >
-              <FormattedMathText text={card.frontPrompt} />
+              {card.frontPrompt}
             </p>
           )}
           {card.frontSvg && (
-            <div className="w-full max-w-[500px]">
+            <div className="w-full max-w-[480px]">
               {renderShapeSvg(card.frontSvg, activeMutation)}
             </div>
           )}

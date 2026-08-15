@@ -332,7 +332,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-tri-pyth-c": {
     id: "calc-tri-pyth-c", topic: "triangles", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.triangles,
-    frontPrompt: "Solve for hypotenuse c",
+    frontPrompt: "Solve for hypotenuse (c)",
     frontSvg: { shape: "right-triangle", dimensions: { a: 3, b: 4, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "c" },
     frontSpeechText: "a is 3, b is 4. Find c.",
     backSteps: [
@@ -347,7 +347,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-tri-pyth-b": {
     id: "calc-tri-pyth-b", topic: "triangles", cardType: "calculation", variant: "reverse",
     color: TOPIC_COLORS.triangles,
-    frontPrompt: "Solve for leg a",
+    frontPrompt: "Solve for leg (a)",
     frontSvg: { shape: "right-triangle", dimensions: { b: 5, c: 13, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "a" },
     frontSpeechText: "b is 5, c is 13. Find a.",
     backSteps: [

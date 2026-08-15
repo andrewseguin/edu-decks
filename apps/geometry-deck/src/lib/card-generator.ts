@@ -321,7 +321,7 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
     const cDisp = Number.isInteger(c) ? c : `√${c2}`;
     return {
       id: nextId(), topic: "triangles", cardType: "calculation", variant: "compute",
-      frontPrompt: "Solve for hypotenuse c",
+      frontPrompt: "Solve for hypotenuse (c)",
       frontSvg: { shape: "right-triangle", dimensions: { a, b, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "c" },
       frontSpeechText: `a is ${a}, b is ${b}. Find c.`,
       backSteps: [
@@ -341,7 +341,7 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
   const aDisp = Number.isInteger(a) ? a : `√${a2}`;
   return {
     id: nextId(), topic: "triangles", cardType: "calculation", variant: "reverse",
-    frontPrompt: "Solve for leg a",
+    frontPrompt: "Solve for leg (a)",
     frontSvg: { shape: "right-triangle", dimensions: { b, c, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "a" },
     frontSpeechText: `b is ${b}, c is ${c}. Find a.`,
     backSteps: [

@@ -480,8 +480,15 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
   const V2 = { x: 195, y: 140 }; // Bottom-right vertex
   const V3 = { x: 50, y: 45 };   // Top-left vertex
 
-  const hypMidX = (V2.x + V3.x) / 2 + 12;
-  const hypMidY = (V2.y + V3.y) / 2 - 10;
+  // True perpendicular normal offset from exact hypotenuse midpoint
+  const hMidX = (V2.x + V3.x) / 2;
+  const hMidY = (V2.y + V3.y) / 2;
+  const hDx = V2.x - V3.x;
+  const hDy = V2.y - V3.y;
+  const hLen = Math.hypot(hDx, hDy) || 1;
+  const hypNormDist = 19;
+  const hypMidX = Math.round((hMidX + (hDy / hLen) * hypNormDist) * 10) / 10;
+  const hypMidY = Math.round((hMidY - (hDx / hLen) * hypNormDist) * 10) / 10;
 
   const revealedAnswer = mutation?.revealAnswer;
 
@@ -581,7 +588,7 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
           variable="c"
           revealedValue={revealedAnswer}
           color={COLOR_LAVENDER}
-          textAnchor="start"
+          textAnchor="middle"
           fontSize={17}
           fontWeight={900}
         />
@@ -589,7 +596,7 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
         <text
           x={hypMidX}
           y={hypMidY}
-          textAnchor="start"
+          textAnchor="middle"
           dominantBaseline="central"
           fontSize={13}
           fontWeight={800}
