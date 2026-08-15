@@ -32,8 +32,9 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
           onMouseEnter={() => setIsOpen(true)}
           onMouseLeave={() => setIsOpen(false)}
           className={cn(
-            "text-right cursor-help transition-all duration-150 inline-flex items-center gap-1 no-focus-ring",
-            "underline decoration-dotted decoration-white/50 underline-offset-4 hover:decoration-white focus:outline-none focus-visible:outline-none",
+            "text-right cursor-help transition-all duration-150 inline-flex items-center gap-1",
+            "border-0 border-none outline-none focus:outline-none focus-visible:outline-none ring-0 focus:ring-0 active:outline-none no-focus-ring bg-transparent",
+            "underline decoration-dotted decoration-white/50 underline-offset-4 hover:decoration-white/90",
             "-my-1 py-1 -mx-0.5 px-0.5 touch-manipulation",
             className,
           )}
