@@ -47,48 +47,28 @@ export function InteractiveParallelAngles({ mode, color }: InteractiveParallelAn
   const midY = (LINE_Y1 + LINE_Y2) / 2;
 
   const [theta, setTheta] = useState(55);
-  const [isUserControlling, setIsUserControlling] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
-  const animRef = useRef<number>(0);
-  const startTimeRef = useRef<number | null>(null);
-  const ucRef = useRef(false);
-
-  useEffect(() => { ucRef.current = isUserControlling; }, [isUserControlling]);
-
-  const animate = useCallback((ts: number) => {
-    if (ucRef.current) return;
-    if (startTimeRef.current === null) startTimeRef.current = ts;
-    const t = (Math.sin((ts - startTimeRef.current) / 1000 * Math.PI * 0.25) + 1) / 2;
-    setTheta(sweepMin + t * (sweepMax - sweepMin));
-    animRef.current = requestAnimationFrame(animate);
-  }, []);
-
-  useEffect(() => {
-    if (!isUserControlling) {
-      startTimeRef.current = null;
-      animRef.current = requestAnimationFrame(animate);
-    }
-    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
-  }, [animate, isUserControlling]);
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault(); e.stopPropagation();
-    setIsUserControlling(true); setIsDragging(true);
-    if (animRef.current) cancelAnimationFrame(animRef.current);
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
     const svg = svgRef.current;
     if (!svg) return;
     const rect = svg.getBoundingClientRect();
-    const scX = SVG_W / rect.width, scY = SVG_H / rect.height;
-    // Use the upper intersection as reference for angle computation
+    const scX = SVG_W / rect.width;
+    const scY = SVG_H / rect.height;
+    const centerX = SVG_W / 2;
+    const centerY = (LINE_Y1 + LINE_Y2) / 2;
+
     const onMove = (ev: PointerEvent) => {
       const px = (ev.clientX - rect.left) * scX;
       const py = (ev.clientY - rect.top) * scY;
-      // Compute angle from the upper intersection
-      const rad = Math.atan2(-(py - LINE_Y1), px - ux);
+      const rad = Math.atan2(-(py - centerY), px - centerX);
       let a = (rad * 180) / Math.PI;
       if (a < 0) a += 360;
-      if (a > 180) a = 360 - a;
+      if (a > 180) a -= 180;
       a = Math.max(sweepMin, Math.min(sweepMax, a));
       setTheta(a);
     };
@@ -99,12 +79,11 @@ export function InteractiveParallelAngles({ mode, color }: InteractiveParallelAn
     };
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
-  }, []);
+  }, [sweepMin, sweepMax]);
 
   const handleSlider = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isUserControlling) { setIsUserControlling(true); cancelAnimationFrame(animRef.current); }
     setTheta(Number(e.target.value));
-  }, [isUserControlling]);
+  }, []);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 

@@ -35,39 +35,18 @@ export function InteractiveVerticalAngles({ color }: InteractiveVerticalAnglesPr
   const svgH = (totalR + PAD) * 2;
 
   const [angleA, setAngleA] = useState(50);
-  const [isUserControlling, setIsUserControlling] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const svgRef = useRef<SVGSVGElement>(null);
-  const animRef = useRef<number>(0);
-  const startTimeRef = useRef<number | null>(null);
-  const ucRef = useRef(false);
-
-  useEffect(() => { ucRef.current = isUserControlling; }, [isUserControlling]);
-
-  const animate = useCallback((ts: number) => {
-    if (ucRef.current) return;
-    if (startTimeRef.current === null) startTimeRef.current = ts;
-    const t = (Math.sin((ts - startTimeRef.current) / 1000 * Math.PI * 0.25) + 1) / 2;
-    setAngleA(sweepMin + t * (sweepMax - sweepMin));
-    animRef.current = requestAnimationFrame(animate);
-  }, []);
-
-  useEffect(() => {
-    if (!isUserControlling) {
-      startTimeRef.current = null;
-      animRef.current = requestAnimationFrame(animate);
-    }
-    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
-  }, [animate, isUserControlling]);
 
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault(); e.stopPropagation();
-    setIsUserControlling(true); setIsDragging(true);
-    if (animRef.current) cancelAnimationFrame(animRef.current);
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
     const svg = svgRef.current;
     if (!svg) return;
     const rect = svg.getBoundingClientRect();
-    const scX = svgW / rect.width, scY = svgH / rect.height;
+    const scX = svgW / rect.width;
+    const scY = svgH / rect.height;
     const onMove = (ev: PointerEvent) => {
       const px = (ev.clientX - rect.left) * scX;
       const py = (ev.clientY - rect.top) * scY;
@@ -84,12 +63,11 @@ export function InteractiveVerticalAngles({ color }: InteractiveVerticalAnglesPr
     };
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
-  }, [svgW, svgH, cx, cy]);
+  }, [svgW, svgH, cx, cy, sweepMin, sweepMax]);
 
   const handleSlider = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isUserControlling) { setIsUserControlling(true); cancelAnimationFrame(animRef.current); }
     setAngleA(Number(e.target.value));
-  }, [isUserControlling]);
+  }, []);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 
@@ -108,7 +86,7 @@ export function InteractiveVerticalAngles({ color }: InteractiveVerticalAnglesPr
   const arc3 = arcPath(cx, cy, 180, 180 + angleA, ARC_R1);
   const arc4 = arcPath(cx, cy, 180 + angleA, 360, ARC_R2);
 
-  // Label positions
+  // Label positions (in the middle of each sector)
   const l1 = toPoint(cx, cy, Math.max(angleA / 2, 15), ARC_R1 + 16);
   const l2 = toPoint(cx, cy, angleA + (180 - angleA) / 2, ARC_R2 + 16);
   const l3 = toPoint(cx, cy, 180 + Math.max(angleA / 2, 15), ARC_R1 + 16);
@@ -157,22 +135,16 @@ export function InteractiveVerticalAngles({ color }: InteractiveVerticalAnglesPr
           fontSize={12} fontWeight={800} fill={COLOR_B}
           style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>{dB}°</text>
 
+        {/* Transparent large hit area */}
+        <circle cx={rU.x} cy={rU.y} r={24} fill="transparent"
+          style={{ cursor: isDragging ? "grabbing" : "grab", touchAction: "none" }}
+          onPointerDown={handlePointerDown} />
         {/* Drag handle on upper arm */}
         <circle cx={rU.x} cy={rU.y} r={HANDLE_R}
           fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.5)" strokeWidth={2}
-          style={{ cursor: isDragging ? "grabbing" : "grab", touchAction: "none" }}
-          onPointerDown={handlePointerDown} />
+          className="pointer-events-none" />
         <circle cx={rU.x} cy={rU.y} r={4} fill="white" className="pointer-events-none" />
       </svg>
-
-      {/* Live equation matching design spec */}
-      <div className="flex justify-center my-0.5">
-        <div className="flex items-center gap-3 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none">
-          <span style={{ color: COLOR_A }}>A = C = {dA}°</span>
-          <span className="w-px h-4 bg-white/20" />
-          <span style={{ color: COLOR_B }}>B = D = {dB}°</span>
-        </div>
-      </div>
 
       {/* Slider */}
       <div className="w-full max-w-[260px] sm:max-w-[300px] px-2" onClick={stop}>
