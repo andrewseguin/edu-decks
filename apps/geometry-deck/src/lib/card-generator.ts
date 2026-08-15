@@ -275,7 +275,7 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSpeechText: `A is ${A} degrees, B is ${B} degrees. Find C.`,
       backSteps: [
         { equationTokens: [tok("A","A","#5ee8ff"), dim("p1"," + "), tok("B","B","#ffd45e"), dim("p2"," + "), tok("C","C","#ffa756"), eq(), tok("sum","180°")], reason: "Triangle angle sum theorem" },
-        { equationTokens: [tok("A",`${A}°`,"#5ee8ff"), dim("p1"," + "), tok("B",`${B}°`,"#ffd45e"), dim("p2"," + "), tok("C","C","#ffa756"), eq(), tok("sum","180°")], reason: `Substitute A = ${A}°, B = ${B}°` },
+        { equationTokens: [tok("A",`${A}°`,"#5ee8ff"), dim("p1"," + "), tok("B",`${B}°`,"#ffd45e"), dim("p2"," + "), tok("C","C","#ffa756"), eq(), tok("sum","180°")], reason: "Substitute known values" },
         { equationTokens: [tok("lhs","C","#ffa756"), eq(), tok("r1","180°"), op("−"), tok("r2",`${A}°`,"#5ee8ff"), op("−"), tok("r3",`${B}°`,"#ffd45e")], reason: "Isolate C" },
         { equationTokens: [tok("lhs","C","#ffa756"), eq(), tok("rhs",`${C}°`,"#ffa756")], reason: "Evaluate" },
       ],
@@ -292,7 +292,7 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSpeechText: `Base is ${b}, height is ${h}. Find the area.`,
       backSteps: [
         { equationTokens: [tok("lhs","A"), eq(), tok("half","½"), op("×"), tok("b","b","#ffd45e"), op("×"), tok("h","h","#5ee8ff")], reason: "Triangle area formula" },
-        { equationTokens: [tok("lhs","A"), eq(), tok("half","½"), op("×"), tok("b",`${b}`,"#ffd45e"), op("×"), tok("h",`${h}`,"#5ee8ff")], svgMutation: { fillInterior: true }, reason: `Substitute b = ${b}, h = ${h}` },
+        { equationTokens: [tok("lhs","A"), eq(), tok("half","½"), op("×"), tok("b",`${b}`,"#ffd45e"), op("×"), tok("h",`${h}`,"#5ee8ff")], svgMutation: { fillInterior: true }, reason: "Substitute known values" },
         { equationTokens: [tok("lhs","A"), eq(), tok("rhs",`${A}${u}²`)], reason: "Evaluate" },
       ],
       backSpeechText: `A equals ${A} square ${settings.measurementUnit === "none" ? "units" : settings.measurementUnit}`, numericAnswer: A, color,
@@ -308,7 +308,7 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSpeechText: `Sides are ${a}, ${b}, and ${c}. Find the perimeter.`,
       backSteps: [
         { equationTokens: [tok("lhs","P"), eq(), tok("a","a","#5ee8ff"), op("+"), tok("b","b","#ffd45e"), op("+"), tok("c","c","#ffa756")], svgMutation: { traceStroke: "perimeter" }, reason: "Perimeter = sum of all sides" },
-        { equationTokens: [tok("lhs","P"), eq(), tok("a",`${a}`,"#5ee8ff"), op("+"), tok("b",`${b}`,"#ffd45e"), op("+"), tok("c",`${c}`,"#ffa756")], reason: "Substitute the side lengths" },
+        { equationTokens: [tok("lhs","P"), eq(), tok("a",`${a}`,"#5ee8ff"), op("+"), tok("b",`${b}`,"#ffd45e"), op("+"), tok("c",`${c}`,"#ffa756")], reason: "Substitute known values" },
         { equationTokens: [tok("lhs","P"), eq(), tok("rhs",`${P}${u}`)], reason: "Evaluate" },
       ],
       backSpeechText: `P equals ${P}`, numericAnswer: P, color,
@@ -326,7 +326,7 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSpeechText: `a is ${a}, b is ${b}. Find c.`,
       backSteps: [
         { equationTokens: [tok("a","a²","#5ee8ff"), op("+"), tok("b","b²","#ffd45e"), eq(), tok("c","c²","#ffa756")], reason: "Pythagorean theorem" },
-        { equationTokens: [tok("a",`${a}²`,"#5ee8ff"), op("+"), tok("b",`${b}²`,"#ffd45e"), eq(), tok("c","c²","#ffa756")], reason: `Substitute a = ${a}, b = ${b}` },
+        { equationTokens: [tok("a",`${a}²`,"#5ee8ff"), op("+"), tok("b",`${b}²`,"#ffd45e"), eq(), tok("c","c²","#ffa756")], reason: "Substitute known values" },
         { equationTokens: [tok("a",`${a * a}`,"#5ee8ff"), op("+"), tok("b",`${b * b}`,"#ffd45e"), eq(), tok("c",`${c2}`,"#ffa756")], svgMutation: { traceStroke: "hypotenuse" }, reason: "Square both values" },
         { equationTokens: [tok("c","c","#ffa756"), eq(), tok("rhs",`${cDisp}${u}`,"#ffa756")], reason: "Take the square root" },
       ],

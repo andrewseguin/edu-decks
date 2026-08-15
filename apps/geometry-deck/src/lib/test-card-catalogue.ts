@@ -294,7 +294,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontSpeechText: "A is 40 degrees, B is 65 degrees. Find C.",
     backSteps: [
       { equationTokens: [t("A","A","#5ee8ff"), d("p1"," + "), t("B","B","#ffd45e"), d("p2"," + "), t("C","C","#ffa756"), eq(), t("sum","180°")], reason: "Triangle angle sum theorem" },
-      { equationTokens: [t("A","40°","#5ee8ff"), d("p1"," + "), t("B","65°","#ffd45e"), d("p2"," + "), t("C","C","#ffa756"), eq(), t("sum","180°")], reason: "Substitute A = 40°, B = 65°" },
+      { equationTokens: [t("A","40°","#5ee8ff"), d("p1"," + "), t("B","65°","#ffd45e"), d("p2"," + "), t("C","C","#ffa756"), eq(), t("sum","180°")], reason: "Substitute known values" },
       { equationTokens: [t("lhs","C","#ffa756"), eq(), t("r1","180°"), op("−"), t("r2","40°","#5ee8ff"), op("−"), t("r3","65°","#ffd45e")], reason: "Isolate C" },
       { equationTokens: [t("lhs","C","#ffa756"), eq(), t("rhs","75°","#ffa756")], reason: "Evaluate" },
     ],
@@ -309,7 +309,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontSpeechText: "Base is 8, height is 5. Find the area.",
     backSteps: [
       { equationTokens: [t("lhs","A"), eq(), t("half","½"), op("×"), t("b","b","#ffd45e"), op("×"), t("h","h","#5ee8ff")], reason: "Triangle area formula" },
-      { equationTokens: [t("lhs","A"), eq(), t("half","½"), op("×"), t("b","8","#ffd45e"), op("×"), t("h","5","#5ee8ff")], svgMutation: { fillInterior: true }, reason: "Substitute b = 8, h = 5" },
+      { equationTokens: [t("lhs","A"), eq(), t("half","½"), op("×"), t("b","8","#ffd45e"), op("×"), t("h","5","#5ee8ff")], svgMutation: { fillInterior: true }, reason: "Substitute known values" },
       { equationTokens: [t("lhs","A"), eq(), t("rhs","20")], reason: "Evaluate" },
     ],
     backSpeechText: "A equals 20", numericAnswer: 20,
@@ -323,7 +323,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontSpeechText: "Sides are 5, 7, and 9. Find the perimeter.",
     backSteps: [
       { equationTokens: [t("lhs","P"), eq(), t("a","a","#5ee8ff"), op("+"), t("b","b","#ffd45e"), op("+"), t("c","c","#ffa756")], svgMutation: { traceStroke: "perimeter" }, reason: "Perimeter = sum of all sides" },
-      { equationTokens: [t("lhs","P"), eq(), t("a","5","#5ee8ff"), op("+"), t("b","7","#ffd45e"), op("+"), t("c","9","#ffa756")], reason: "Substitute the side lengths" },
+      { equationTokens: [t("lhs","P"), eq(), t("a","5","#5ee8ff"), op("+"), t("b","7","#ffd45e"), op("+"), t("c","9","#ffa756")], reason: "Substitute known values" },
       { equationTokens: [t("lhs","P"), eq(), t("rhs","21")], reason: "Evaluate" },
     ],
     backSpeechText: "P equals 21", numericAnswer: 21,
@@ -337,7 +337,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontSpeechText: "a is 3, b is 4. Find c.",
     backSteps: [
       { equationTokens: [t("a","a²","#5ee8ff"), op("+"), t("b","b²","#ffd45e"), eq(), t("c","c²","#ffa756")], reason: "Pythagorean theorem" },
-      { equationTokens: [t("a","3²","#5ee8ff"), op("+"), t("b","4²","#ffd45e"), eq(), t("c","c²","#ffa756")], reason: "Substitute a = 3, b = 4" },
+      { equationTokens: [t("a","3²","#5ee8ff"), op("+"), t("b","4²","#ffd45e"), eq(), t("c","c²","#ffa756")], reason: "Substitute known values" },
       { equationTokens: [t("a","9","#5ee8ff"), op("+"), t("b","16","#ffd45e"), eq(), t("c","25","#ffa756")], svgMutation: { traceStroke: "hypotenuse" }, reason: "Square both values" },
       { equationTokens: [t("c","c","#ffa756"), eq(), t("rhs","5","#ffa756")], reason: "Take the square root" },
     ],
