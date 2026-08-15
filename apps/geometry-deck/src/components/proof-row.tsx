@@ -25,9 +25,9 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
               : "text-white/90 font-semibold text-xs sm:text-sm md:text-base",
           )}
         >
-          {tokens.map((t) => (
+          {tokens.map((t, idx) => (
             <span
-              key={t.id}
+              key={`${t.id}-${idx}`}
               className={cn(t.dim ? "text-white/70" : undefined)}
               style={t.color ? { color: t.color } : undefined}
             >
