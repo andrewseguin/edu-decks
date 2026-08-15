@@ -523,8 +523,8 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
           revealedValue={revealedAnswer}
           color={COLOR_CYAN}
           textAnchor="end"
-          fontSize={13}
-          fontWeight={800}
+          fontSize={17}
+          fontWeight={900}
         />
       ) : a !== undefined ? (
         <text
@@ -551,8 +551,8 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
           revealedValue={revealedAnswer}
           color={COLOR_GOLD}
           textAnchor="middle"
-          fontSize={13}
-          fontWeight={800}
+          fontSize={17}
+          fontWeight={900}
         />
       ) : b !== undefined ? (
         <text
@@ -579,8 +579,8 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
           revealedValue={revealedAnswer}
           color={COLOR_ORANGE}
           textAnchor="start"
-          fontSize={13}
-          fontWeight={800}
+          fontSize={17}
+          fontWeight={900}
         />
       ) : c_val !== undefined ? (
         <text
