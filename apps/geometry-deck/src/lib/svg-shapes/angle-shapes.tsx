@@ -4,123 +4,8 @@ import React from "react";
 import type { SvgMutation } from "../types";
 import {
   LABEL_FONT, STROKE_W, WHITE50, WHITE70, WHITE90,
-  arcPath, SvgLabel, UnknownPill,
+  arcPath, SvgLabel, RevealText, UnknownPill,
 } from "./svg-primitives";
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Angle helper component
-// ─────────────────────────────────────────────────────────────────────────────
-
-export function LegendValueToken({
-  x,
-  y,
-  label,
-  value,
-  isUnknown,
-  revealValue,
-  color,
-}: {
-  x: number;
-  y: number;
-  label: string;
-  value: number;
-  isUnknown: boolean;
-  revealValue?: number;
-  color: string;
-}) {
-  const isRevealed = revealValue != null;
-  const pillW = 34;
-  const pillH = 22;
-  const valueX = x + 6;
-  const pillCx = valueX + pillW / 2;
-
-  return (
-    <g>
-      {/* Label "A = " or "B = " */}
-      <text
-        x={x}
-        y={y + 4}
-        textAnchor="end"
-        fontSize={13}
-        fontWeight="700"
-        fill={color}
-        fontFamily={LABEL_FONT}
-        style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
-      >
-        {label} =
-      </text>
-
-      {!isUnknown ? (
-        /* Known value: simple text */
-        <text
-          x={valueX}
-          y={y + 4}
-          textAnchor="start"
-          fontSize={14}
-          fontWeight="700"
-          fill={color}
-          fontFamily={LABEL_FONT}
-          style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
-        >
-          {value}°
-        </text>
-      ) : (
-        /* Unknown value: glassmorphic ? badge when unrevealed, text when revealed */
-        <>
-          {/* Revealed answer */}
-          <text
-            x={valueX}
-            y={y + 4}
-            textAnchor="start"
-            fontSize={14}
-            fontWeight="700"
-            fill={color}
-            fontFamily={LABEL_FONT}
-            style={{
-              opacity: isRevealed ? 1 : 0,
-              transition: "opacity 0.4s ease 0.15s",
-              filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))",
-            }}
-          >
-            {revealValue}°
-          </text>
-
-          {/* Glassmorphic ? badge */}
-          <g
-            style={{
-              opacity: isRevealed ? 0 : 1,
-              transform: isRevealed ? "scale(0.75)" : "scale(1)",
-              transformOrigin: `${pillCx}px ${y}px`,
-              transition: "opacity 0.3s ease, transform 0.3s ease",
-            }}
-          >
-            <rect
-              x={valueX}
-              y={y - pillH / 2}
-              width={pillW}
-              height={pillH}
-              rx={pillH / 2}
-              fill="rgba(255,255,255,0.22)"
-              stroke="rgba(255,255,255,0.65)"
-              strokeWidth={1.5}
-            />
-            <text
-              x={pillCx}
-              y={y + 4}
-              textAnchor="middle"
-              fontSize={14}
-              fontWeight="800"
-              fill="rgba(255,255,255,0.95)"
-              fontFamily={LABEL_FONT}
-            >
-              ?
-            </text>
-          </g>
-        </>
-      )}
-    </g>
-  );
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Angle shapes
@@ -135,7 +20,6 @@ export function AngleSingle({ dims, mutation }: { dims: Record<string, number | 
   const secondEnd = { x: vx + rayLen * Math.cos(-rad), y: vy + rayLen * Math.sin(-rad) };
   const arcR = 36;
   // Arc endpoints sit on the two rays at distance arcR from vertex.
-  // sweep=1 (CW on screen) goes upward from the base ray to the second ray.
   const arcEx = vx + arcR * Math.cos(-rad);
   const arcEy = vy + arcR * Math.sin(-rad);
   const large = angleDeg > 180 ? 1 : 0;
@@ -173,7 +57,7 @@ export function AngleSupplementary({ dims, mutation }: { dims: Record<string, nu
   const arcBPath = `M ${vx + arcR} ${vy} A ${arcR} ${arcR} 0 ${bAngle > 180 ? 1 : 0} 0 ${midArcX} ${midArcY}`;
   const arcAPath = `M ${midArcX} ${midArcY} A ${arcR} ${arcR} 0 ${aAngle > 180 ? 1 : 0} 0 ${vx - arcR} ${vy}`;
   const COLOR_A = "#5ee8ff"; // Cyan
-  const COLOR_B = "#d8b4fe"; // Neon Lilac (high contrast on orange)
+  const COLOR_B = "#d8b4fe"; // Neon Lilac
 
   // Wedge fills
   const wr = 28;
@@ -182,20 +66,19 @@ export function AngleSupplementary({ dims, mutation }: { dims: Record<string, nu
   const wedgeA = `M ${vx} ${vy} L ${vx - wr} ${vy} A ${wr} ${wr} 0 ${aAngle > 180 ? 1 : 0} 1 ${mwx} ${mwy} Z`;
   const wedgeB = `M ${vx} ${vy} L ${mwx} ${mwy} A ${wr} ${wr} 0 ${bAngle > 180 ? 1 : 0} 1 ${vx + wr} ${vy} Z`;
 
-  // Letter labels inside diagram arcs (just "A" and "B" — compact 11px font)
-  const letterR = arcR + 14;
+  // Label positions along angle bisectors
   const aMid = 180 - aAngle / 2;
-  const aLx = vx + letterR * Math.cos(-(aMid * Math.PI) / 180);
-  const aLy = vy + letterR * Math.sin(-(aMid * Math.PI) / 180);
+  const aDist = arcR + 18;
+  const aLx = vx + aDist * Math.cos(-(aMid * Math.PI) / 180);
+  const aLy = vy + aDist * Math.sin(-(aMid * Math.PI) / 180);
 
   const bMid = bAngle / 2;
-  const bLx = vx + letterR * Math.cos(-(bMid * Math.PI) / 180);
-  const bLy = vy + letterR * Math.sin(-(bMid * Math.PI) / 180);
-
-  const legendY = 120;
+  const bDist = arcR + 18;
+  const bLx = vx + bDist * Math.cos(-(bMid * Math.PI) / 180);
+  const bLy = vy + bDist * Math.sin(-(bMid * Math.PI) / 180);
 
   return (
-    <svg viewBox="0 0 220 140" className="w-full h-full" aria-hidden>
+    <svg viewBox="0 0 220 105" className="w-full h-full" aria-hidden>
       <path d={wedgeA} fill={COLOR_A} fillOpacity={0.12} />
       <path d={wedgeB} fill={COLOR_B} fillOpacity={0.12} />
       <line x1={leftEnd.x} y1={leftEnd.y} x2={rightEnd.x} y2={rightEnd.y} stroke={WHITE70} strokeWidth={STROKE_W} strokeLinecap="round" />
@@ -204,13 +87,18 @@ export function AngleSupplementary({ dims, mutation }: { dims: Record<string, nu
       <path d={arcAPath} fill="none" stroke={COLOR_A} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
       <path d={arcBPath} fill="none" stroke={COLOR_B} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
 
-      {/* Letter labels inside diagram arcs */}
-      <SvgLabel x={aLx} y={aLy} text="A" size={11} color={COLOR_A} />
-      <SvgLabel x={bLx} y={bLy} text="B" size={11} color={COLOR_B} />
+      {/* Direct in-diagram angle labels */}
+      {unknownDim === "A" ? (
+        <RevealText x={aLx} y={aLy} variable="A" revealedValue={mutation?.revealAnswer} unit="°" color={COLOR_A} />
+      ) : (
+        <SvgLabel x={aLx} y={aLy} text={`${aAngle}°`} color={COLOR_A} />
+      )}
 
-      {/* Visually centered legend row below diagram */}
-      <LegendValueToken x={60} y={legendY} label="A" value={aAngle} isUnknown={unknownDim === "A"} revealValue={mutation?.revealAnswer} color={COLOR_A} />
-      <LegendValueToken x={148} y={legendY} label="B" value={bAngle} isUnknown={unknownDim === "B"} revealValue={mutation?.revealAnswer} color={COLOR_B} />
+      {unknownDim === "B" ? (
+        <RevealText x={bLx} y={bLy} variable="B" revealedValue={mutation?.revealAnswer} unit="°" color={COLOR_B} />
+      ) : (
+        <SvgLabel x={bLx} y={bLy} text={`${bAngle}°`} color={COLOR_B} />
+      )}
     </svg>
   );
 }
@@ -219,7 +107,7 @@ export function AngleComplementary({ dims, mutation }: { dims: Record<string, nu
   const aAngle = typeof dims.A === "number" ? dims.A : 34;
   const bAngle = 90 - aAngle;
   const unknownDim = dims.unknown as string | undefined;
-  const vx = 55, vy = 90, rayLen = 80;
+  const vx = 45, vy = 92, rayLen = 80;
   const rightEnd = { x: vx + rayLen, y: vy }, upEnd = { x: vx, y: vy - rayLen };
   const rad = (aAngle * Math.PI) / 180;
   const midEnd = { x: vx + rayLen * Math.cos(-rad), y: vy + rayLen * Math.sin(-rad) };
@@ -229,7 +117,7 @@ export function AngleComplementary({ dims, mutation }: { dims: Record<string, nu
   const arcAPath = `M ${vx + arcR} ${vy} A ${arcR} ${arcR} 0 0 0 ${midArcX} ${midArcY}`;
   const arcBPath = `M ${midArcX} ${midArcY} A ${arcR} ${arcR} 0 0 0 ${vx} ${vy - arcR}`;
   const COLOR_A = "#5ee8ff"; // Cyan
-  const COLOR_B = "#d8b4fe"; // Neon Lilac (high contrast on orange)
+  const COLOR_B = "#d8b4fe"; // Neon Lilac
 
   // Wedge fills
   const wr = 26;
@@ -238,20 +126,19 @@ export function AngleComplementary({ dims, mutation }: { dims: Record<string, nu
   const wedgeA = `M ${vx} ${vy} L ${vx + wr} ${vy} A ${wr} ${wr} 0 0 0 ${mwx} ${mwy} Z`;
   const wedgeB = `M ${vx} ${vy} L ${mwx} ${mwy} A ${wr} ${wr} 0 0 0 ${vx} ${vy - wr} Z`;
 
-  // Letter labels inside diagram arcs
-  const letterR = arcR + 14;
+  // Label positions along angle bisectors
   const aMid = aAngle / 2;
-  const aLx = vx + letterR * Math.cos((-aMid * Math.PI) / 180);
-  const aLy = vy + letterR * Math.sin((-aMid * Math.PI) / 180);
+  const aDist = arcR + 18;
+  const aLx = vx + aDist * Math.cos((-aMid * Math.PI) / 180);
+  const aLy = vy + aDist * Math.sin((-aMid * Math.PI) / 180);
 
   const bMid = aAngle + bAngle / 2;
-  const bLx = vx + letterR * Math.cos((-bMid * Math.PI) / 180);
-  const bLy = vy + letterR * Math.sin((-bMid * Math.PI) / 180);
-
-  const legendY = 120;
+  const bDist = arcR + 18;
+  const bLx = vx + bDist * Math.cos((-bMid * Math.PI) / 180);
+  const bLy = vy + bDist * Math.sin((-bMid * Math.PI) / 180);
 
   return (
-    <svg viewBox="0 0 190 140" className="w-full h-full" aria-hidden>
+    <svg viewBox="0 0 160 105" className="w-full h-full" aria-hidden>
       <path d={wedgeA} fill={COLOR_A} fillOpacity={0.12} />
       <path d={wedgeB} fill={COLOR_B} fillOpacity={0.12} />
       <rect x={vx} y={vy - 14} width={14} height={14} fill="none" stroke={WHITE50} strokeWidth={1.5} />
@@ -262,13 +149,18 @@ export function AngleComplementary({ dims, mutation }: { dims: Record<string, nu
       <path d={arcAPath} fill="none" stroke={COLOR_A} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
       <path d={arcBPath} fill="none" stroke={COLOR_B} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
 
-      {/* Letter labels inside diagram arcs */}
-      <SvgLabel x={aLx} y={aLy} text="A" size={11} color={COLOR_A} />
-      <SvgLabel x={bLx} y={bLy} text="B" size={11} color={COLOR_B} />
+      {/* Direct in-diagram angle labels */}
+      {unknownDim === "A" ? (
+        <RevealText x={aLx} y={aLy} variable="A" revealedValue={mutation?.revealAnswer} unit="°" color={COLOR_A} />
+      ) : (
+        <SvgLabel x={aLx} y={aLy} text={`${aAngle}°`} color={COLOR_A} />
+      )}
 
-      {/* Visually centered legend row below diagram */}
-      <LegendValueToken x={48} y={legendY} label="A" value={aAngle} isUnknown={unknownDim === "A"} revealValue={mutation?.revealAnswer} color={COLOR_A} />
-      <LegendValueToken x={130} y={legendY} label="B" value={bAngle} isUnknown={unknownDim === "B"} revealValue={mutation?.revealAnswer} color={COLOR_B} />
+      {unknownDim === "B" ? (
+        <RevealText x={bLx} y={bLy} variable="B" revealedValue={mutation?.revealAnswer} unit="°" color={COLOR_B} />
+      ) : (
+        <SvgLabel x={bLx} y={bLy} text={`${bAngle}°`} color={COLOR_B} />
+      )}
     </svg>
   );
 }
@@ -279,11 +171,10 @@ export function AngleVerticallyOpposite({ dims, mutation }: { dims: Record<strin
   const unknownDim = dims.unknown as string | undefined;
 
   const COLOR_A = "#5ee8ff"; // Cyan
-  const COLOR_B = "#d8b4fe"; // Neon Lilac (high contrast on orange)
-  // In calculation mode for C, use gold for C so A and C have unique colors!
+  const COLOR_B = "#d8b4fe"; // Neon Lilac
   const COLOR_C = unknownDim ? COLOR_B : COLOR_A;
 
-  const vx = 110, vy = 62, rayLen = 65;
+  const vx = 110, vy = 60, rayLen = 65;
   const rad = (aAngle * Math.PI) / 180;
 
   // Four ray endpoints
@@ -307,33 +198,31 @@ export function AngleVerticallyOpposite({ dims, mutation }: { dims: Record<strin
   const arcBPath1 = `M ${urArcX} ${urArcY} A ${arcR} ${arcR} 0 ${lb} 0 ${wArcX} ${wArcY}`;
   const arcBPath2 = `M ${llArcX} ${llArcY} A ${arcR} ${arcR} 0 ${lb} 0 ${eArcX} ${eArcY}`;
 
-  // Letter label positions inside/near diagram arcs
-  const letterR = arcR + 12;
+  // Label positions
+  const labelDist = arcR + 15;
   const aMid = aAngle / 2;
-  const aLx = vx + letterR * Math.cos((-aMid * Math.PI) / 180);
-  const aLy = vy + letterR * Math.sin((-aMid * Math.PI) / 180);
+  const aLx = vx + labelDist * Math.cos((-aMid * Math.PI) / 180);
+  const aLy = vy + labelDist * Math.sin((-aMid * Math.PI) / 180);
 
   const bMid = aAngle + bAngle / 2;
-  const bLx = vx + letterR * Math.cos((-bMid * Math.PI) / 180);
-  const bLy = vy + letterR * Math.sin((-bMid * Math.PI) / 180);
+  const bLx = vx + labelDist * Math.cos((-bMid * Math.PI) / 180);
+  const bLy = vy + labelDist * Math.sin((-bMid * Math.PI) / 180);
 
   const cMid = 180 + aAngle / 2;
-  const cLx = vx + letterR * Math.cos((-cMid * Math.PI) / 180);
-  const cLy = vy + letterR * Math.sin((-cMid * Math.PI) / 180);
+  const cLx = vx + labelDist * Math.cos((-cMid * Math.PI) / 180);
+  const cLy = vy + labelDist * Math.sin((-cMid * Math.PI) / 180);
 
   const dMid = 180 + aAngle + bAngle / 2;
-  const dLx = vx + letterR * Math.cos((-dMid * Math.PI) / 180);
-  const dLy = vy + letterR * Math.sin((-dMid * Math.PI) / 180);
-
-  const legendY = 118;
+  const dLx = vx + labelDist * Math.cos((-dMid * Math.PI) / 180);
+  const dLy = vy + labelDist * Math.sin((-dMid * Math.PI) / 180);
 
   return (
-    <svg viewBox="0 0 220 140" className="w-full h-full" aria-hidden>
+    <svg viewBox="0 0 220 120" className="w-full h-full" aria-hidden>
       <line x1={ends[0].x} y1={ends[0].y} x2={ends[1].x} y2={ends[1].y} stroke={WHITE70} strokeWidth={STROKE_W} strokeLinecap="round" />
       <line x1={ends[2].x} y1={ends[2].y} x2={ends[3].x} y2={ends[3].y} stroke={WHITE70} strokeWidth={STROKE_W} strokeLinecap="round" />
       <circle cx={vx} cy={vy} r={3} fill={WHITE90} />
 
-      {/* Arcs: in calculation mode, only show the given angle A and target angle C in unique colors */}
+      {/* Arcs */}
       <path d={arcAPath1} fill="none" stroke={COLOR_A} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
       <path d={arcAPath2} fill="none" stroke={COLOR_C} strokeWidth={2.5} strokeLinecap="round" strokeOpacity={0.85} />
       {!unknownDim && (
@@ -343,35 +232,27 @@ export function AngleVerticallyOpposite({ dims, mutation }: { dims: Record<strin
         </>
       )}
 
-      {/* Letter labels inside diagram arcs */}
-      <SvgLabel x={aLx} y={aLy} text="A" size={11} color={COLOR_A} />
-      <SvgLabel x={cLx} y={cLy} text="C" size={11} color={COLOR_C} />
+      {/* Direct in-diagram angle labels */}
+      {unknownDim === "A" ? (
+        <RevealText x={aLx} y={aLy} variable="A" revealedValue={mutation?.revealAnswer} unit="°" color={COLOR_A} />
+      ) : (
+        <SvgLabel x={aLx} y={aLy} text={`${aAngle}°`} color={COLOR_A} />
+      )}
+
+      {unknownDim === "C" ? (
+        <RevealText x={cLx} y={cLy} variable="C" revealedValue={mutation?.revealAnswer} unit="°" color={COLOR_C} />
+      ) : unknownDim ? (
+        <SvgLabel x={cLx} y={cLy} text={`${aAngle}°`} color={COLOR_C} />
+      ) : (
+        <SvgLabel x={cLx} y={cLy} text="C" size={11} color={COLOR_C} />
+      )}
+
       {!unknownDim && (
         <>
           <SvgLabel x={bLx} y={bLy} text="B" size={11} color={COLOR_B} />
           <SvgLabel x={dLx} y={dLy} text="D" size={11} color={COLOR_B} />
         </>
       )}
-
-      {/* Visually centered legend row below diagram */}
-      <LegendValueToken
-        x={60}
-        y={legendY}
-        label="A"
-        value={aAngle}
-        isUnknown={unknownDim === "A"}
-        revealValue={mutation?.revealAnswer}
-        color={COLOR_A}
-      />
-      <LegendValueToken
-        x={148}
-        y={legendY}
-        label={unknownDim === "B" || unknownDim === "D" ? "B" : "C"}
-        value={unknownDim === "B" || unknownDim === "D" ? bAngle : aAngle}
-        isUnknown={Boolean(unknownDim && (unknownDim === "C" || unknownDim === "B" || unknownDim === "D"))}
-        revealValue={mutation?.revealAnswer}
-        color={COLOR_C}
-      />
     </svg>
   );
 }

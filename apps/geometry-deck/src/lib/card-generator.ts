@@ -122,9 +122,9 @@ function makeAnglesCalcCard(): GeometryCard {
     const A = randInt(20, 155); const B = 180 - A;
     return {
       id: nextId(), topic: "angles", cardType: "calculation", variant: "compute",
-      frontPrompt: "Solve for angle B",
+      frontPrompt: "Solve for the unknown angle",
       frontSvg: { shape: "angle-supplementary", dimensions: { A, unknown: "B" }, labelMode: "numeric", unknownDimension: "B" },
-      frontSpeechText: `A is ${A} degrees. Find B.`,
+      frontSpeechText: `One angle is ${A} degrees. Find the unknown supplementary angle B.`,
       backSteps: [
         { equationTokens: [tok("lhs","A","#5ee8ff"), op("+"), tok("mid","B","#d8b4fe"), eq(), tok("sum","180°")], reason: "Supplementary angles sum to 180°" },
         { equationTokens: [tok("lhs",`${A}°`,"#5ee8ff"), op("+"), tok("mid","B","#d8b4fe"), eq(), tok("sum","180°")], reason: `Substitute A = ${A}°` },
@@ -138,9 +138,9 @@ function makeAnglesCalcCard(): GeometryCard {
     const A = randInt(10, 79); const B = 90 - A;
     return {
       id: nextId(), topic: "angles", cardType: "calculation", variant: "compute",
-      frontPrompt: "Solve for angle B",
+      frontPrompt: "Solve for the unknown angle",
       frontSvg: { shape: "angle-complementary", dimensions: { A, unknown: "B" }, labelMode: "numeric", unknownDimension: "B" },
-      frontSpeechText: `A is ${A} degrees. Find B.`,
+      frontSpeechText: `One angle is ${A} degrees. Find the unknown complementary angle B.`,
       backSteps: [
         { equationTokens: [tok("lhs","A","#5ee8ff"), op("+"), tok("mid","B","#d8b4fe"), eq(), tok("sum","90°")], reason: "Complementary angles sum to 90°" },
         { equationTokens: [tok("lhs",`${A}°`,"#5ee8ff"), op("+"), tok("mid","B","#d8b4fe"), eq(), tok("sum","90°")], reason: `Substitute A = ${A}°` },
@@ -153,9 +153,9 @@ function makeAnglesCalcCard(): GeometryCard {
   const A = randInt(15, 80);
   return {
     id: nextId(), topic: "angles", cardType: "calculation", variant: "compute",
-    frontPrompt: "Solve for angle C",
+    frontPrompt: "Solve for the unknown angle",
     frontSvg: { shape: "angle-vertically-opposite", dimensions: { A, unknown: "C" }, labelMode: "numeric", unknownDimension: "C" },
-    frontSpeechText: `A is ${A} degrees. Find vertically opposite angle C.`,
+    frontSpeechText: `One angle is ${A} degrees. Find vertically opposite angle C.`,
     backSteps: [
       { equationTokens: [tok("lhs","C","#5ee8ff"), eq(), tok("rhs","A","#5ee8ff")], reason: "Vertically opposite angles are equal" },
       { equationTokens: [tok("lhs","C","#5ee8ff"), eq(), tok("rhs",`${A}°`,"#5ee8ff")], reason: `Substitute A = ${A}°` },

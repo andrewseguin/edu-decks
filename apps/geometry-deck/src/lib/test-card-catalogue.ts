@@ -133,9 +133,9 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-angle-supplementary": {
     id: "calc-angle-supplementary", topic: "angles", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.angles,
-    frontPrompt: "Solve for angle B",
+    frontPrompt: "Solve for the unknown angle",
     frontSvg: { shape: "angle-supplementary", dimensions: { A: 65, unknown: "B" }, labelMode: "numeric", unknownDimension: "B" },
-    frontSpeechText: "A is 65 degrees. Find B.",
+    frontSpeechText: "One angle is 65 degrees. Find the unknown supplementary angle B.",
     backSteps: [
       { equationTokens: [t("lhs","A","#5ee8ff"), op("+"), t("mid","B","#d8b4fe"), eq(), t("sum","180°")], reason: "Supplementary angles sum to 180°" },
       { equationTokens: [t("lhs","65°","#5ee8ff"), op("+"), t("mid","B","#d8b4fe"), eq(), t("sum","180°")], reason: "Substitute A = 65°" },
@@ -148,9 +148,9 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-angle-complementary": {
     id: "calc-angle-complementary", topic: "angles", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.angles,
-    frontPrompt: "Solve for angle B",
+    frontPrompt: "Solve for the unknown angle",
     frontSvg: { shape: "angle-complementary", dimensions: { A: 35, unknown: "B" }, labelMode: "numeric", unknownDimension: "B" },
-    frontSpeechText: "A is 35 degrees. Find B.",
+    frontSpeechText: "One angle is 35 degrees. Find the unknown complementary angle B.",
     backSteps: [
       { equationTokens: [t("lhs","A","#5ee8ff"), op("+"), t("mid","B","#d8b4fe"), eq(), t("sum","90°")], reason: "Complementary angles sum to 90°" },
       { equationTokens: [t("lhs","35°","#5ee8ff"), op("+"), t("mid","B","#d8b4fe"), eq(), t("sum","90°")], reason: "Substitute A = 35°" },
@@ -163,9 +163,9 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-angle-vertically-opp": {
     id: "calc-angle-vertically-opp", topic: "angles", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS.angles,
-    frontPrompt: "Solve for angle C",
+    frontPrompt: "Solve for the unknown angle",
     frontSvg: { shape: "angle-vertically-opposite", dimensions: { A: 75, unknown: "C" }, labelMode: "numeric", unknownDimension: "C" },
-    frontSpeechText: "A is 75 degrees. Find vertically opposite angle C.",
+    frontSpeechText: "One angle is 75 degrees. Find vertically opposite angle C.",
     backSteps: [
       { equationTokens: [t("lhs","C","#5ee8ff"), eq(), t("rhs","A","#5ee8ff")], reason: "Vertically opposite angles are equal" },
       { equationTokens: [t("lhs","C","#5ee8ff"), eq(), t("rhs","75°","#5ee8ff")], reason: "Substitute A = 75°" },

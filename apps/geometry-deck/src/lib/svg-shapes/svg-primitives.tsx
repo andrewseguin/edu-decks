@@ -40,6 +40,73 @@ export function SvgLabel({ x, y, text, size = LABEL_SIZE, opacity = 0.95, color 
   );
 }
 
+export function RevealText({
+  x,
+  y,
+  variable,
+  revealedValue,
+  unit = "",
+  color,
+  fontSize = 15,
+  fontWeight = "700",
+  textAnchor = "middle",
+  dominantBaseline = "central",
+}: {
+  x: number;
+  y: number;
+  variable: string;
+  revealedValue?: number | string;
+  unit?: string;
+  color: string;
+  fontSize?: number;
+  fontWeight?: number | string;
+  textAnchor?: "start" | "middle" | "end";
+  dominantBaseline?: "central" | "alphabetic" | "hanging";
+}) {
+  const isRevealed = revealedValue != null;
+  const rx = Math.round(x * 100) / 100;
+  const ry = Math.round(y * 100) / 100;
+  const commonProps = {
+    x: rx,
+    y: ry,
+    textAnchor,
+    dominantBaseline,
+    fontSize,
+    fontWeight,
+    fill: color,
+    fontFamily: LABEL_FONT,
+  };
+
+  return (
+    <g>
+      <text
+        {...commonProps}
+        style={{
+          filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))",
+          opacity: isRevealed ? 0 : 1,
+          transform: isRevealed ? `translateY(-3px) scale(0.85)` : `translateY(0) scale(1)`,
+          transformOrigin: `${rx}px ${ry}px`,
+          transition: "opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1), transform 0.35s cubic-bezier(0.4, 0, 0.2, 1)",
+        }}
+      >
+        {variable}
+      </text>
+      <text
+        {...commonProps}
+        style={{
+          filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))",
+          opacity: isRevealed ? 1 : 0,
+          transform: isRevealed ? `translateY(0) scale(1)` : `translateY(3px) scale(1.15)`,
+          transformOrigin: `${rx}px ${ry}px`,
+          transition: "opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.05s, transform 0.35s cubic-bezier(0.4, 0, 0.2, 1) 0.05s",
+        }}
+      >
+        {revealedValue != null ? `${revealedValue}${unit}` : ""}
+      </text>
+    </g>
+  );
+}
+
 export function UnknownPill({
   x,
   y,
