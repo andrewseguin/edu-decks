@@ -52,6 +52,7 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
   const style = (dims.style as string) ?? "scalene";
   const unknownDim = dims.unknown as string | undefined;
   const filled = mutation?.fillInterior;
+  const revealedAnswer = mutation?.revealAnswer;
 
   // Standard geometry canvas dimensions
   const baseY = 140;
@@ -286,16 +287,16 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
           {/* Label C / Unknown (Orange) — prominent bold typography matching A and B */}
           <text
             x={V3.x}
-            y={unknownDim === "C" ? V3.y - 16 : V3.y - 14}
+            y={unknownDim === "C" && revealedAnswer == null ? V3.y - 16 : V3.y - 14}
             textAnchor="middle"
             dominantBaseline="central"
-            fontSize={unknownDim === "C" ? 20 : 13}
+            fontSize={unknownDim === "C" && revealedAnswer == null ? 20 : 13}
             fontWeight={900}
             fill={COLOR_ORANGE}
             fontFamily={lblFont}
             style={lblStyle}
           >
-            {unknownDim === "C" ? "?" : `${angC}°`}
+            {unknownDim === "C" ? (revealedAnswer != null ? `${revealedAnswer}°` : "?") : `${angC}°`}
           </text>
         </>
       )}
@@ -341,6 +342,8 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
   const hypMidX = (V2.x + V3.x) / 2 + 12;
   const hypMidY = (V2.y + V3.y) / 2 - 10;
 
+  const revealedAnswer = mutation?.revealAnswer;
+
   return (
     <svg viewBox="0 0 240 170" className="w-full h-full select-none" aria-hidden>
       {/* ── Right Triangle Polygon ───────────────────────────────────────── */}
@@ -379,13 +382,15 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
         y={(V1.y + V3.y) / 2}
         textAnchor="end"
         dominantBaseline="central"
-        fontSize={unknownDim === "a" ? 20 : 13}
+        fontSize={unknownDim === "a" && revealedAnswer == null ? 20 : 13}
         fontWeight={900}
         fill={COLOR_CYAN}
         fontFamily={lblFont}
         style={lblStyle}
       >
-        {unknownDim === "a" ? "?" : (a !== undefined ? (lm === "numeric" ? `${a}` : "a") : "")}
+        {unknownDim === "a"
+          ? (revealedAnswer != null ? `${revealedAnswer}` : "?")
+          : (a !== undefined ? (lm === "numeric" ? `${a}` : "a") : "")}
       </text>
 
       {/* ── Side b (Horizontal Leg — Gold) ───────────────────────────────── */}
@@ -394,13 +399,15 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
         y={V1.y + 18}
         textAnchor="middle"
         dominantBaseline="central"
-        fontSize={unknownDim === "b" ? 20 : 13}
+        fontSize={unknownDim === "b" && revealedAnswer == null ? 20 : 13}
         fontWeight={900}
         fill={COLOR_GOLD}
         fontFamily={lblFont}
         style={lblStyle}
       >
-        {unknownDim === "b" ? "?" : (b !== undefined ? (lm === "numeric" ? `${b}` : "b") : "")}
+        {unknownDim === "b"
+          ? (revealedAnswer != null ? `${revealedAnswer}` : "?")
+          : (b !== undefined ? (lm === "numeric" ? `${b}` : "b") : "")}
       </text>
 
       {/* ── Side c (Hypotenuse — Orange) ─────────────────────────────────── */}
@@ -409,13 +416,15 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
         y={hypMidY}
         textAnchor="start"
         dominantBaseline="central"
-        fontSize={unknownDim === "c" ? 20 : 13}
+        fontSize={unknownDim === "c" && revealedAnswer == null ? 20 : 13}
         fontWeight={900}
         fill={COLOR_ORANGE}
         fontFamily={lblFont}
         style={lblStyle}
       >
-        {unknownDim === "c" ? "?" : (c_val !== undefined ? (lm === "numeric" ? `${c_val}` : "c") : "")}
+        {unknownDim === "c"
+          ? (revealedAnswer != null ? `${revealedAnswer}` : "?")
+          : (c_val !== undefined ? (lm === "numeric" ? `${c_val}` : "c") : "")}
       </text>
 
       {/* ── Vertex Dots ──────────────────────────────────────────────────── */}
