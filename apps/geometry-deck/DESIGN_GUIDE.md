@@ -87,11 +87,47 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
   </div>
   ```
 
-### 2.4 Frosted Controls & Action Buttons
-- Presets and action buttons (e.g. `Show proof`, `Fold corners`, `Unroll perimeter`, presets `3, 4, 5`) use rounded frosted pills with no play arrow glyphs:
-  ```tsx
-  className="px-4 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm disabled:opacity-50"
-  ```
+### 2.4 Frosted White Interactive Controls & Button Standards
+- **Neutral White Glassmorphism**:
+  - UI buttons and interactive triggers must **NEVER** use card-colored backgrounds (e.g. green, blue, purple) or saturated semantic colors.
+  - All interactive elements strictly use **neutral translucent frosted white styling** (`bg-white/10` to `bg-white/25`, `border-white/20` to `border-white/60`, `text-white/90`). This ensures the vibrant semantic palette (Cyan `#5ee8ff`, Gold `#ffd45e`, Orange `#ffa756`) remains exclusively dedicated to mathematical variables, dimensions, and angles.
+
+- **Primary Action & Trigger Buttons** (e.g. `Fold corners`, `Unroll perimeter`, `Show proof`):
+  - Frosted white pill with subtle glass border and hover state:
+    ```tsx
+    className="px-4 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm backdrop-blur-md active:scale-95 disabled:opacity-50 disabled:cursor-default"
+    ```
+
+- **Interactive Step Navigation Pills** (e.g. `Triangle` → `Squares` → `Combined` + `↺` Replay):
+  - Modeled after the step controls pattern from mental math decks, wrapping steps in a compact frosted capsule:
+    ```tsx
+    {/* Capsule Container */}
+    <div className="flex items-center gap-1 sm:gap-1.5 bg-black/35 backdrop-blur-md px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border border-white/20 shadow-sm pointer-events-auto z-30 select-none">
+      {/* Active Step Pill */}
+      <button className="px-2 sm:px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-headline font-bold transition-all duration-200 border bg-white/25 text-white border-white/60 shadow-sm">
+        Squares
+      </button>
+
+      {/* Inactive Step Pill */}
+      <button className="px-2 sm:px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-headline font-bold transition-all duration-200 border bg-transparent text-white/70 border-transparent hover:text-white hover:bg-white/15">
+        Combined
+      </button>
+
+      {/* Vertical Divider */}
+      <div className="w-px h-3 bg-white/25 mx-0.5" />
+
+      {/* Replay Button */}
+      <button title="Replay animation" className="p-1 rounded-full text-white/70 hover:text-white hover:bg-white/20 transition-all active:scale-95">
+        <RotateCcw className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
+      </button>
+    </div>
+    ```
+
+- **Preset & Dimension Selectors** (e.g. `3, 4, 5`, `5, 12, 13`, `8, 15, 17`):
+  - Compact rounded pills for switching geometric scenarios:
+    - **Active**: `bg-white/25 text-white border-white/60 shadow-sm px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold`
+    - **Inactive**: `bg-black/25 text-white/70 border-white/15 hover:bg-white/10 hover:text-white px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold`
+- **No Autoplay Loops**: All animations must be user-triggered via step clicks or replay pills; never run looping timers in the background.
 
 ### 2.5 Two-Column Calculation Proofs & Interactive Glossary
 - **Responsive Layout via CSS Container Queries (`.proof-table-container`)**:
