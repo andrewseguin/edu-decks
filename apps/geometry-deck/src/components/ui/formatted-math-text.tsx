@@ -22,18 +22,12 @@ const FRACTION_MAP: Record<string, [string, string]> = {
 const COLOR_KEYWORDS: Record<string, string> = {
   "base angles": "#5ee8ff", // cyan
   "base (b)": "#ffd45e", // gold
-  "base": "#ffd45e",
   "height (h)": "#5ee8ff", // cyan
-  "height": "#5ee8ff",
   "hypotenuse (c)": "#d8b4fe", // neon lilac
-  // Lowercase side lengths:
+  // Lowercase squared side lengths:
   "a²": "#5ee8ff", // cyan
   "b²": "#ffd45e", // gold
   "c²": "#d8b4fe", // neon lilac
-  "a": "#5ee8ff",
-  "b": "#ffd45e",
-  "c": "#d8b4fe",
-  "h": "#5ee8ff",
   // Specific angle notations:
   "∠A": "#5ee8ff",
   "∠B": "#ffd45e",
@@ -68,8 +62,8 @@ export function FormattedMathText({
   text: string;
   className?: string;
 }) {
-  // Regex to match fractions and semantic keywords in descending order of specificity
-  const pattern = /(A \+ B \+ C|½|⅓|⅔|¼|¾|⅕|⅖|⅗|⅘|⅙|⅚|⅛|⅜|⅝|⅞|⁴⁄₃|base angles|base \(b\)|height \(h\)|hypotenuse \(c\)|base|height|a²|b²|c²|∠A|∠B|∠C|[Aa]ngle [ABC]|\ba\b|\bb\b|\bc\b|\bh\b)/g;
+  // Regex to match fractions and specific math keywords in descending order of specificity
+  const pattern = /(A \+ B \+ C|½|⅓|⅔|¼|¾|⅕|⅖|⅗|⅘|⅙|⅚|⅛|⅜|⅝|⅞|⁴⁄₃|base angles|base \(b\)|height \(h\)|hypotenuse \(c\)|a²|b²|c²|∠A|∠B|∠C|[Aa]ngle [ABC])/g;
   const parts = text.split(pattern);
 
   return (

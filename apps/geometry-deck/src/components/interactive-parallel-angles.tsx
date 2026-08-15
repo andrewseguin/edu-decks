@@ -135,7 +135,7 @@ export function InteractiveParallelAngles({ mode, color }: InteractiveParallelAn
   // Interior left angle: from θ going CCW to 180°, span = 180° - θ
 
   const COLOR_A = "#5ee8ff"; // cyan
-  const COLOR_B = "#ffd45e"; // yellow
+  const COLOR_B = "#d8b4fe"; // neon lilac
 
   let upperArc: string;
   let lowerArc: string;
@@ -145,7 +145,7 @@ export function InteractiveParallelAngles({ mode, color }: InteractiveParallelAn
   let lowerArcColor: string;
 
   if (mode === "alternate") {
-    // Z-pattern: both angles equal → same color
+    // Z-pattern: both angles equal → both in Cyan
     upperArc = arcPath(ux, LINE_Y1, 180, 180 + theta, ARC_R);
     lowerArc = arcPath(lx, LINE_Y2, 0, theta, ARC_R);
     const uLabelAngle = 180 + theta / 2;
@@ -155,7 +155,7 @@ export function InteractiveParallelAngles({ mode, color }: InteractiveParallelAn
     upperArcColor = COLOR_A;
     lowerArcColor = COLOR_A;
   } else {
-    // C-pattern: angles sum to 180° → different colors
+    // C-pattern: angles sum to 180° → Cyan and Lilac
     upperArc = arcPath(ux, LINE_Y1, 180 + theta, 360, ARC_R);
     lowerArc = arcPath(lx, LINE_Y2, 0, theta, ARC_R);
     const uMid = 180 + theta + (180 - theta) / 2;
@@ -200,11 +200,11 @@ export function InteractiveParallelAngles({ mode, color }: InteractiveParallelAn
 
         {/* Labels */}
         <text x={upperLabel.pos.x} y={upperLabel.pos.y} textAnchor="middle" dominantBaseline="central"
-          fontSize={12} fontWeight={700} fill={upperLabel.color}
-          stroke={color} strokeWidth={4} paintOrder="stroke">{upperLabel.text}</text>
+          fontSize={12} fontWeight={800} fill={upperLabel.color}
+          style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>{upperLabel.text}</text>
         <text x={lowerLabel.pos.x} y={lowerLabel.pos.y} textAnchor="middle" dominantBaseline="central"
-          fontSize={12} fontWeight={700} fill={lowerLabel.color}
-          stroke={color} strokeWidth={4} paintOrder="stroke">{lowerLabel.text}</text>
+          fontSize={12} fontWeight={800} fill={lowerLabel.color}
+          style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>{lowerLabel.text}</text>
 
         {/* Drag handle on transversal top end */}
         <circle cx={tTop.x} cy={tTop.y} r={10}
@@ -214,36 +214,16 @@ export function InteractiveParallelAngles({ mode, color }: InteractiveParallelAn
         <circle cx={tTop.x} cy={tTop.y} r={3} fill="white" className="pointer-events-none" />
       </svg>
 
-      {/* Equation as pill tokens */}
-      {mode === "alternate" ? (
-        <div className="flex items-end gap-1.5 justify-center px-2">
-          <div className="flex flex-col items-center gap-0.5">
-            <span className="text-[10px] font-bold" style={{ color: COLOR_A }}>Both</span>
-            <span className="px-3 py-1 rounded-md text-sm font-bold"
-              style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_A, border: `1.5px solid ${COLOR_A}90` }}>
-              {dTheta}°
-            </span>
+      {/* Live equation for co-interior angle pairs */}
+      {mode === "co-interior" && (
+        <div className="flex justify-center my-0.5">
+          <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
+            <span style={{ color: COLOR_A }}>{dComp}°</span>
+            <span className="text-white/50">+</span>
+            <span style={{ color: COLOR_B }}>{dTheta}°</span>
+            <span className="text-white/50">=</span>
+            <span className="text-white font-bold">180°</span>
           </div>
-        </div>
-      ) : (
-        <div className="flex items-end gap-1.5 justify-center px-2">
-          <div className="flex flex-col items-center gap-0.5">
-            <span className="text-[10px] font-bold" style={{ color: COLOR_A }}>A</span>
-            <span className="px-3 py-1 rounded-md text-sm font-bold"
-              style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_A, border: `1.5px solid ${COLOR_A}90` }}>
-              {dComp}°
-            </span>
-          </div>
-          <span className="text-white/50 text-sm font-bold pb-1.5">+</span>
-          <div className="flex flex-col items-center gap-0.5">
-            <span className="text-[10px] font-bold" style={{ color: COLOR_B }}>B</span>
-            <span className="px-3 py-1 rounded-md text-sm font-bold"
-              style={{ backgroundColor: 'rgba(0,0,0,0.35)', color: COLOR_B, border: `1.5px solid ${COLOR_B}90` }}>
-              {dTheta}°
-            </span>
-          </div>
-          <span className="text-white/50 text-sm font-bold pb-1.5">=</span>
-          <span className="text-white text-base font-bold pb-1">180°</span>
         </div>
       )}
 
