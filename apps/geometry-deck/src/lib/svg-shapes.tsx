@@ -707,7 +707,7 @@ function RightTriangle({ dims, mutation }: { dims: Record<string, number | strin
       {mutation?.fillInterior && <polygon points={`${x1},${y1} ${x2},${y2} ${x3},${y3}`} fill={FILL_COLOR} />}
       <polygon points={`${x1},${y1} ${x2},${y2} ${x3},${y3}`} fill="none" stroke={WHITE90} strokeWidth={STROKE_W} strokeLinejoin="round" />
       {/* Right angle marker */}
-      <rect x={x1} y={y1 - 14} width={14} height={14} fill="none" stroke={WHITE70} strokeWidth={1.5} />
+      <rect x={x1} y={y1 - 14} width={14} height={14} fill="rgba(192, 132, 252, 0.2)" stroke="#c084fc" strokeWidth={1.5} rx={1} />
       {/* Hypotenuse highlight */}
       {highlightHyp && (
         <line x1={x2} y1={y2} x2={x3} y2={y3} stroke="rgba(255,220,100,0.9)" strokeWidth={3.5} strokeLinecap="round"
@@ -717,16 +717,16 @@ function RightTriangle({ dims, mutation }: { dims: Record<string, number | strin
       {/* Labels */}
       {lm === "numeric" && (
         <>
-          {a !== undefined && (unknownDim === "a" ? <UnknownPill x={x1 - 14} y={(y1 + y3) / 2} /> : <SvgLabel x={x1 - 14} y={(y1 + y3) / 2} text={`a = ${a}`} />)}
-          {b !== undefined && (unknownDim === "b" ? <UnknownPill x={(x1 + x2) / 2} y={y1 + 16} /> : <SvgLabel x={(x1 + x2) / 2} y={y1 + 16} text={`b = ${b}`} />)}
-          {c_val !== undefined && (unknownDim === "c" ? <UnknownPill x={(x2 + x3) / 2 + 10} y={(y2 + y3) / 2} /> : <SvgLabel x={(x2 + x3) / 2 + 10} y={(y2 + y3) / 2} text={`c = ${c_val}`} />)}
+          {a !== undefined && (unknownDim === "a" ? <UnknownPill x={x1 - 22} y={(y1 + y3) / 2} /> : <SvgLabel x={x1 - 22} y={(y1 + y3) / 2} text={`a = ${a}`} />)}
+          {b !== undefined && (unknownDim === "b" ? <UnknownPill x={(x1 + x2) / 2} y={y1 + 18} /> : <SvgLabel x={(x1 + x2) / 2} y={y1 + 18} text={`b = ${b}`} />)}
+          {c_val !== undefined && (unknownDim === "c" ? <UnknownPill x={(x2 + x3) / 2 + 18} y={(y2 + y3) / 2 - 4} /> : <SvgLabel x={(x2 + x3) / 2 + 18} y={(y2 + y3) / 2 - 4} text={`c = ${c_val}`} />)}
         </>
       )}
       {lm === "variable" && (
         <>
-          <SvgLabel x={x1 - 10} y={(y1 + y3) / 2} text="a" />
-          <SvgLabel x={(x1 + x2) / 2} y={y1 + 16} text="b" />
-          {unknownDim === "c" && <UnknownPill x={(x2 + x3) / 2 + 14} y={(y2 + y3) / 2} />}
+          <SvgLabel x={x1 - 14} y={(y1 + y3) / 2} text="a" />
+          <SvgLabel x={(x1 + x2) / 2} y={y1 + 18} text="b" />
+          {unknownDim === "c" && <UnknownPill x={(x2 + x3) / 2 + 18} y={(y2 + y3) / 2 - 4} />}
         </>
       )}
     </svg>
