@@ -125,9 +125,9 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
 
   const handleStepClick = (stepNum: number) => {
     if (stepNum === 1) {
-      transitionTo(0, 1, 600);
+      transitionTo(0, 1, 1800);
     } else if (stepNum === 2) {
-      transitionTo(1, 2, 700);
+      transitionTo(1, 2, 2600);
     }
   };
 
@@ -138,8 +138,8 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
     setActiveStep(1);
     setFoldProgress(0);
 
-    const PAUSE_MS = 200;
-    const FOLD_MS = 2000;
+    const PAUSE_MS = 250;
+    const FOLD_MS = 2800;
     const t0 = performance.now();
 
     const tick = (now: number) => {
