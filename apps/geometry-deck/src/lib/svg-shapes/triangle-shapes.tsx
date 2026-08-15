@@ -10,7 +10,7 @@ import {
 // Semantic Color Tokens — tuned for high-contrast luminance against emerald cards
 const COLOR_CYAN = "#5ee8ff";
 const COLOR_GOLD = "#ffd45e";
-const COLOR_ROSE = "#fb7185";
+const COLOR_LAVENDER = "#c084fc";
 
 const lblStyle: React.CSSProperties = { filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" };
 const lblFont = "var(--font-heading, system-ui)";
@@ -333,7 +333,7 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
               {lm === "numeric" ? `${b}` : "b"}
             </text>
           )}
-          {/* Side c (Rose) */}
+          {/* Side c (Lavender) */}
           {c !== undefined && (
             <text
               x={normC.midX}
@@ -342,7 +342,7 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
               dominantBaseline="central"
               fontSize={13}
               fontWeight={800}
-              fill={COLOR_ROSE}
+              fill={COLOR_LAVENDER}
               fontFamily={lblFont}
               style={lblStyle}
             >
@@ -371,11 +371,11 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
             strokeWidth={2.5}
             strokeLinecap="round"
           />
-          {/* Arc C at V3 (Rose) */}
+          {/* Arc C at V3 (Lavender) */}
           <path
             d={cornerArcSvg(V3, V1, V2, 18)}
             fill="none"
-            stroke={COLOR_ROSE}
+            stroke={COLOR_LAVENDER}
             strokeWidth={2.5}
             strokeLinecap="round"
           />
@@ -410,7 +410,7 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
             {angB}°
           </text>
 
-          {/* Label C / Unknown (Rose) — generous clearance above apex dot */}
+          {/* Label C / Unknown (Lavender) — generous clearance above apex dot */}
           {unknownDim === "C" ? (
             <RevealText
               x={V3.x}
@@ -418,7 +418,7 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
               variable="C"
               revealedValue={revealedAnswer}
               unit="°"
-              color={COLOR_ROSE}
+              color={COLOR_LAVENDER}
               textAnchor="middle"
             />
           ) : (
@@ -429,7 +429,7 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
               dominantBaseline="central"
               fontSize={13}
               fontWeight={800}
-              fill={COLOR_ROSE}
+              fill={COLOR_LAVENDER}
               fontFamily={lblFont}
               style={lblStyle}
             >
@@ -508,7 +508,7 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
           y1={V3.y}
           x2={V2.x}
           y2={V2.y}
-          stroke={COLOR_ROSE}
+          stroke={COLOR_LAVENDER}
           strokeWidth={3.5}
           strokeLinecap="round"
         />
@@ -570,14 +570,14 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
         </text>
       ) : null}
 
-      {/* ── Side c (Hypotenuse — Rose) ─────────────────────────────────── */}
+      {/* ── Side c (Hypotenuse — Lavender) ─────────────────────────────────── */}
       {unknownDim === "c" ? (
         <RevealText
           x={hypMidX}
           y={hypMidY}
           variable="c"
           revealedValue={revealedAnswer}
-          color={COLOR_ROSE}
+          color={COLOR_LAVENDER}
           textAnchor="start"
           fontSize={17}
           fontWeight={900}
@@ -590,7 +590,7 @@ export function RightTriangle({ dims, mutation }: { dims: Record<string, number 
           dominantBaseline="central"
           fontSize={13}
           fontWeight={800}
-          fill={COLOR_ROSE}
+          fill={COLOR_LAVENDER}
           fontFamily={lblFont}
           style={lblStyle}
         >

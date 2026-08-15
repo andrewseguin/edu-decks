@@ -11,7 +11,7 @@ const PX_PER_UNIT = 12;
 
 const COLOR_A = "#5ee8ff"; // cyan - side a (left)
 const COLOR_B = "#ffd45e"; // gold - side b (base)
-const COLOR_C = "#fb7185"; // rose - side c (right)
+const COLOR_C = "#c084fc"; // lavender - side c (right)
 
 const rnd = (n: number) => Math.round(n * 1000) / 1000;
 
