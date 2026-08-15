@@ -79,8 +79,8 @@ export function InteractiveTrianglePerimeterExplorer({ color }: { color?: string
   const totalPerimeter = unitsA + unitsB + unitsC;
 
   // Angles of sides relative to horizontal for unrolling rotation
-  const angleAClosed = Math.atan2(apexY - BASE_Y, apexX - B1_X); // negative rad
-  const angleAUnrolled = Math.PI; // 180° = flat left
+  const angleAClosed = Math.atan2(apexY - BASE_Y, apexX - B1_X); // negative rad (~ -0.8 to -1.2)
+  const angleAUnrolled = -Math.PI; // -180° = flat left (rotates outward counter-clockwise)
   const currentAngleA = angleAClosed + (angleAUnrolled - angleAClosed) * unrollProgress;
 
   const currentAEnd = {
@@ -126,9 +126,15 @@ export function InteractiveTrianglePerimeterExplorer({ color }: { color?: string
   };
 
   // Midpoints for labels
-  const midA = { x: (B1_X + currentAEnd.x) / 2 - 10, y: (BASE_Y + currentAEnd.y) / 2 - 4 };
+  const midA = {
+    x: (B1_X + currentAEnd.x) / 2 - 10 * (1 - unrollProgress),
+    y: (BASE_Y + currentAEnd.y) / 2 - 4 * (1 - unrollProgress) + 16 * unrollProgress,
+  };
   const midB = { x: (B1_X + B2_X) / 2, y: BASE_Y + 16 };
-  const midC = { x: (B2_X + currentCEnd.x) / 2 + 10, y: (BASE_Y + currentCEnd.y) / 2 - 4 };
+  const midC = {
+    x: (B2_X + currentCEnd.x) / 2 + 10 * (1 - unrollProgress),
+    y: (BASE_Y + currentCEnd.y) / 2 - 4 * (1 - unrollProgress) + 16 * unrollProgress,
+  };
 
   return (
     <div className="flex flex-col items-center gap-2 w-full pb-3 select-none" onClick={stop} onPointerDown={stop}>
