@@ -142,7 +142,7 @@ export function InteractiveScaleneExplorer({ color }: InteractiveScaleneExplorer
 
   const COLOR_A = "#5ee8ff"; // cyan
   const COLOR_B = "#ffd45e"; // yellow
-  const COLOR_C = "#ffa756"; // orange
+  const COLOR_C = "#fb7185"; // rose
 
   return (
     <div className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>

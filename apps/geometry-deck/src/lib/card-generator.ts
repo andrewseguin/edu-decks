@@ -274,10 +274,10 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "triangle", dimensions: { angA: A, angB: B, unknown: "C", style: "scalene", labelMode: "numeric" }, labelMode: "numeric" },
       frontSpeechText: `A is ${A} degrees, B is ${B} degrees. Find C.`,
       backSteps: [
-        { equationTokens: [tok("A","A","#5ee8ff"), dim("p1"," + "), tok("B","B","#ffd45e"), dim("p2"," + "), tok("C","C","#ffa756"), eq(), tok("sum","180°")], reason: "Triangle angle sum theorem" },
-        { equationTokens: [tok("A",`${A}°`,"#5ee8ff"), dim("p1"," + "), tok("B",`${B}°`,"#ffd45e"), dim("p2"," + "), tok("C","C","#ffa756"), eq(), tok("sum","180°")], reason: "Substitute known values" },
-        { equationTokens: [tok("lhs","C","#ffa756"), eq(), tok("r1","180°"), op("−"), tok("r2",`${A}°`,"#5ee8ff"), op("−"), tok("r3",`${B}°`,"#ffd45e")], reason: "Isolate C" },
-        { equationTokens: [tok("lhs","C","#ffa756"), eq(), tok("rhs",`${C}°`,"#ffa756")], reason: "Evaluate" },
+        { equationTokens: [tok("A","A","#5ee8ff"), dim("p1"," + "), tok("B","B","#ffd45e"), dim("p2"," + "), tok("C","C","#fb7185"), eq(), tok("sum","180°")], reason: "Triangle angle sum theorem" },
+        { equationTokens: [tok("A",`${A}°`,"#5ee8ff"), dim("p1"," + "), tok("B",`${B}°`,"#ffd45e"), dim("p2"," + "), tok("C","C","#fb7185"), eq(), tok("sum","180°")], reason: "Substitute known values" },
+        { equationTokens: [tok("lhs","C","#fb7185"), eq(), tok("r1","180°"), op("−"), tok("r2",`${A}°`,"#5ee8ff"), op("−"), tok("r3",`${B}°`,"#ffd45e")], reason: "Isolate C" },
+        { equationTokens: [tok("lhs","C","#fb7185"), eq(), tok("rhs",`${C}°`,"#fb7185")], reason: "Evaluate" },
       ],
       backSpeechText: `C equals ${C} degrees`, numericAnswer: C, color,
     };
@@ -287,9 +287,9 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
     const A = Math.round(0.5 * b * h * 10) / 10;
     return {
       id: nextId(), topic: "triangles", cardType: "calculation", variant: "compute",
-      frontPrompt: "Calculate the area",
+      frontPrompt: "Solve for the triangle area",
       frontSvg: { shape: "triangle", dimensions: { b, h, style: "scalene", labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "A" },
-      frontSpeechText: `Base is ${b}, height is ${h}. Find the area.`,
+      frontSpeechText: `Base is ${b}, height is ${h}. Find the triangle area.`,
       backSteps: [
         { equationTokens: [tok("lhs","A"), eq(), tok("half","½"), op("×"), tok("b","b","#ffd45e"), op("×"), tok("h","h","#5ee8ff")], reason: "Triangle area formula" },
         { equationTokens: [tok("lhs","A"), eq(), tok("half","½"), op("×"), tok("b",`${b}`,"#ffd45e"), op("×"), tok("h",`${h}`,"#5ee8ff")], svgMutation: { fillInterior: true }, reason: "Substitute known values" },
@@ -303,12 +303,12 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
     const P = a + b + c;
     return {
       id: nextId(), topic: "triangles", cardType: "calculation", variant: "compute",
-      frontPrompt: "Calculate the perimeter",
+      frontPrompt: "Solve for the triangle perimeter",
       frontSvg: { shape: "triangle", dimensions: { a, b, c, style: "scalene", labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "P" },
-      frontSpeechText: `Sides are ${a}, ${b}, and ${c}. Find the perimeter.`,
+      frontSpeechText: `Sides are ${a}, ${b}, and ${c}. Find the triangle perimeter.`,
       backSteps: [
-        { equationTokens: [tok("lhs","P"), eq(), tok("a","a","#5ee8ff"), op("+"), tok("b","b","#ffd45e"), op("+"), tok("c","c","#ffa756")], svgMutation: { traceStroke: "perimeter" }, reason: "Perimeter = sum of all sides" },
-        { equationTokens: [tok("lhs","P"), eq(), tok("a",`${a}`,"#5ee8ff"), op("+"), tok("b",`${b}`,"#ffd45e"), op("+"), tok("c",`${c}`,"#ffa756")], reason: "Substitute known values" },
+        { equationTokens: [tok("lhs","P"), eq(), tok("a","a","#5ee8ff"), op("+"), tok("b","b","#ffd45e"), op("+"), tok("c","c","#fb7185")], svgMutation: { traceStroke: "perimeter" }, reason: "Triangle perimeter formula" },
+        { equationTokens: [tok("lhs","P"), eq(), tok("a",`${a}`,"#5ee8ff"), op("+"), tok("b",`${b}`,"#ffd45e"), op("+"), tok("c",`${c}`,"#fb7185")], reason: "Substitute known values" },
         { equationTokens: [tok("lhs","P"), eq(), tok("rhs",`${P}${u}`)], reason: "Evaluate" },
       ],
       backSpeechText: `P equals ${P}`, numericAnswer: P, color,
@@ -325,10 +325,10 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "right-triangle", dimensions: { a, b, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "c" },
       frontSpeechText: `a is ${a}, b is ${b}. Find c.`,
       backSteps: [
-        { equationTokens: [tok("a","a²","#5ee8ff"), op("+"), tok("b","b²","#ffd45e"), eq(), tok("c","c²","#ffa756")], reason: "Pythagorean theorem" },
-        { equationTokens: [tok("a",`${a}²`,"#5ee8ff"), op("+"), tok("b",`${b}²`,"#ffd45e"), eq(), tok("c","c²","#ffa756")], reason: "Substitute known values" },
-        { equationTokens: [tok("a",`${a * a}`,"#5ee8ff"), op("+"), tok("b",`${b * b}`,"#ffd45e"), eq(), tok("c",`${c2}`,"#ffa756")], svgMutation: { traceStroke: "hypotenuse" }, reason: "Square both values" },
-        { equationTokens: [tok("c","c","#ffa756"), eq(), tok("rhs",`${cDisp}${u}`,"#ffa756")], reason: "Take the square root" },
+        { equationTokens: [tok("a","a²","#5ee8ff"), op("+"), tok("b","b²","#ffd45e"), eq(), tok("c","c²","#fb7185")], reason: "Pythagorean theorem" },
+        { equationTokens: [tok("a",`${a}²`,"#5ee8ff"), op("+"), tok("b",`${b}²`,"#ffd45e"), eq(), tok("c","c²","#fb7185")], reason: "Substitute known values" },
+        { equationTokens: [tok("a",`${a * a}`,"#5ee8ff"), op("+"), tok("b",`${b * b}`,"#ffd45e"), eq(), tok("c",`${c2}`,"#fb7185")], svgMutation: { traceStroke: "hypotenuse" }, reason: "Square both values" },
+        { equationTokens: [tok("c","c","#fb7185"), eq(), tok("rhs",`${cDisp}${u}`,"#fb7185")], reason: "Take the square root" },
       ],
       backSpeechText: `c equals ${cDisp}`, numericAnswer: Number.isInteger(c) ? c : 0, color,
     };
@@ -345,9 +345,9 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
     frontSvg: { shape: "right-triangle", dimensions: { b, c, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "a" },
     frontSpeechText: `b is ${b}, c is ${c}. Find a.`,
     backSteps: [
-      { equationTokens: [tok("a","a²","#5ee8ff"), op("+"), tok("b","b²","#ffd45e"), eq(), tok("c","c²","#ffa756")], reason: "Pythagorean theorem" },
-      { equationTokens: [tok("a","a²","#5ee8ff"), op("+"), tok("b",`${b}²`,"#ffd45e"), eq(), tok("c",`${c}²`,"#ffa756")], reason: "Substitute known values" },
-      { equationTokens: [tok("a","a²","#5ee8ff"), eq(), tok("c",`${c * c}`,"#ffa756"), op("−"), tok("b",`${b * b}`,"#ffd45e"), eq(), tok("ans",`${a2}`,"#5ee8ff")], reason: "Isolate a²" },
+      { equationTokens: [tok("a","a²","#5ee8ff"), op("+"), tok("b","b²","#ffd45e"), eq(), tok("c","c²","#fb7185")], reason: "Pythagorean theorem" },
+      { equationTokens: [tok("a","a²","#5ee8ff"), op("+"), tok("b",`${b}²`,"#ffd45e"), eq(), tok("c",`${c}²`,"#fb7185")], reason: "Substitute known values" },
+      { equationTokens: [tok("a","a²","#5ee8ff"), eq(), tok("c",`${c * c}`,"#fb7185"), op("−"), tok("b",`${b * b}`,"#ffd45e"), eq(), tok("ans",`${a2}`,"#5ee8ff")], reason: "Isolate a²" },
       { equationTokens: [tok("a","a","#5ee8ff"), eq(), tok("rhs",`${aDisp}${u}`,"#5ee8ff")], svgMutation: { traceStroke: "hypotenuse" }, reason: "Take the square root" },
     ],
     backSpeechText: `a equals ${aDisp}`, numericAnswer: Number.isInteger(a) ? a : 0, color,

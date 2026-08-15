@@ -25,19 +25,19 @@ const COLOR_KEYWORDS: Record<string, string> = {
   "base": "#ffd45e",
   "height (h)": "#5ee8ff", // cyan
   "height": "#5ee8ff",
-  "hypotenuse (c)": "#ffa756", // orange
+  "hypotenuse (c)": "#fb7185", // rose
   // Lowercase side lengths:
   "a²": "#5ee8ff", // cyan
   "b²": "#ffd45e", // gold
-  "c²": "#ffa756", // orange
+  "c²": "#fb7185", // rose
   "a": "#5ee8ff",
   "b": "#ffd45e",
-  "c": "#ffa756",
+  "c": "#fb7185",
   "h": "#5ee8ff",
   // Specific angle notations:
   "∠A": "#5ee8ff",
   "∠B": "#ffd45e",
-  "∠C": "#ffa756",
+  "∠C": "#fb7185",
 };
 
 export function StackedFraction({
@@ -82,7 +82,7 @@ export function FormattedMathText({
               {" + "}
               <span style={{ color: "#ffd45e" }} className="font-bold">B</span>
               {" + "}
-              <span style={{ color: "#ffa756" }} className="font-bold">C</span>
+              <span style={{ color: "#fb7185" }} className="font-bold">C</span>
             </React.Fragment>
           );
         }

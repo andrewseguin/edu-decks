@@ -16,7 +16,7 @@ const LABEL_R = ARC_R + 14;
 
 const COLOR_A = "#5ee8ff"; // cyan  – angle A (bottom-left)
 const COLOR_B = "#ffd45e"; // gold  – angle B (bottom-right)
-const COLOR_C = "#ffa756"; // orange – angle C (apex)
+const COLOR_C = "#fb7185"; // rose – angle C (apex)
 
 const rnd = (n: number) => Math.round(n * 10000) / 10000;
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;

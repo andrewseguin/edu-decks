@@ -155,7 +155,7 @@ Colors must be consistent and intuitive within each topic. As new topic categori
 | :--- | :--- | :--- | :--- |
 | **Angle 1 / Base Angle / Side $a$** | Cyan | `#5ee8ff` | Bottom-left angle, base angles on isosceles, vertical altitude $h$, side $a$ |
 | **Angle 2 / Apex Angle / Base $b$** | Gold | `#ffd45e` | Bottom-right angle, apex angle on isosceles, baseline $b$, length $l$, side $b$ |
-| **Angle 3 / Hypotenuse $c$** | Orange | `#ffa756` | Third angle in scalene, hypotenuse $c$ in right triangles |
+| **Angle 3 / Hypotenuse $c$** | Luminous Rose | `#fb7185` | Third angle in scalene, hypotenuse $c$ in right triangles (high-contrast complement on green) |
 | **Right Angle ($90^\circ$)** | Cyan / White | `#5ee8ff` / `#ffffff` | Perpendicular right-angle square marker ($\llcorner$) at base of altitude or right vertex |
 | **Calculated Answer / Totals** | Bold White | `#ffffff` | Crisp bold white text inside the bottom frosted equation banner |
 | **Grid Lines & Bounding Boxes** | Translucent White | `rgba(255,255,255,0.35)` | Unit square grid lines (`strokeDasharray="2 2"`), bounding boxes (`strokeDasharray="4 3"`) |
@@ -207,8 +207,8 @@ Colors must be consistent and intuitive within each topic. As new topic categori
    - `FormattedMathText` automatically color-codes mathematical keywords:
      - `a²`, `a`, `height (h)`, `height`, `h`, `base angles` $\rightarrow$ **Cyan (`#5ee8ff`)**
      - `b²`, `b`, `base (b)`, `base` $\rightarrow$ **Gold (`#ffd45e`)**
-     - `c²`, `c`, `hypotenuse (c)` $\rightarrow$ **Orange (`#ffa756`)**
-     - `A + B + C` $\rightarrow$ Angle $A$ (Cyan), Angle $B$ (Gold), Angle $C$ (Orange)
+     - `c²`, `c`, `hypotenuse (c)` $\rightarrow$ **Luminous Rose (`#fb7185`)**
+     - `A + B + C` $\rightarrow$ Angle $A$ (Cyan), Angle $B$ (Gold), Angle $C$ (Luminous Rose)
 7. **Diagram Simplicity & Pure Value Labels**:
    - Because the top frosted hero banner explicitly explains variable names and color tokens (e.g. $b = \text{base}$, $h = \text{height}$, $a, b, c$), diagrams should display clean numeric values directly (`10`, `7`, `40°`) in their matching semantic color rather than redundant prefixes (`b = 10`, `h = 7`). This keeps diagrams uncluttered and modern.
 
