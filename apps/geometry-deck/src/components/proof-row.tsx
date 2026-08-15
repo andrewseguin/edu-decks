@@ -27,7 +27,7 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
           {tokens.map((t) => (
             <span
               key={t.id}
-              className={cn(t.dim ? "text-white/50" : undefined)}
+              className={cn(t.dim ? "text-white/70" : undefined)}
               style={t.color ? { color: t.color } : undefined}
             >
               {t.color || t.dim ? t.value : <FormattedMathText text={t.value} />}
@@ -58,17 +58,17 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
       <div className="flex items-center justify-end pr-4 min-w-0">
         <span
           className={cn(
-            "leading-tight italic text-right",
+            "leading-tight text-right",
             isAnswer
-              ? "text-white/80 text-xs sm:text-sm font-semibold not-italic"
-              : "text-white/55 text-[11px] sm:text-xs",
+              ? "text-white font-bold text-xs sm:text-sm"
+              : "text-white/90 font-medium text-xs sm:text-sm italic",
           )}
         >
           {reason}
         </span>
       </div>
 
-      <div className="self-stretch bg-white/15 min-h-[20px]" />
+      <div className="self-stretch bg-white/20 min-h-[20px]" />
 
       <div className="flex justify-start pl-4 min-w-0">
         {equationNode}
