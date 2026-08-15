@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { RotateCcw } from "lucide-react";
+import { cn } from "@decks/core";
 
 /* ── types & constants ────────────────────────────────────────────────────── */
 
@@ -46,8 +48,6 @@ function buildDots(t: Triple): DotInfo[] {
   });
 
   // ── Cyan dots: explicit mapping that preserves grid topology ──
-  // Source (col, row) → Target (i=col, j=c-1-row)
-  // top-left source → top of target, bottom-right → bottom. No crossing.
   for (let row = 0; row < a; row++) {
     for (let col = 0; col < a; col++) {
       const idx = row * a + col;
@@ -91,6 +91,12 @@ function buildDots(t: Triple): DotInfo[] {
   return dots;
 }
 
+const STEPS = [
+  { step: 1, label: "Triangle" },
+  { step: 2, label: "Squares" },
+  { step: 3, label: "Combined" },
+];
+
 /* ── component ────────────────────────────────────────────────────────────── */
 
 export function InteractivePythagorasExplorer({ color }: { color?: string }) {
@@ -98,10 +104,11 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
   const triple = PRESETS[presetIdx];
   const { a, b, c, unit } = triple;
 
-  const [phase, setPhase] = useState<"idle" | "grow" | "migrate" | "hold" | "shrink">("idle");
+  const [activeStep, setActiveStep] = useState<number>(1);
   const [growP, setGrowP] = useState(0);
   const [migrateP, setMigrateP] = useState(0);
-  const phaseRef = useRef<number>(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+  const animRef = useRef<number | null>(null);
 
   const dots = useMemo(() => buildDots(triple), [triple]);
 
@@ -140,46 +147,85 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
   const lblAreaStyle = { filter: "drop-shadow(0px 2px 3px rgba(0, 0, 0, 0.95))" } as React.CSSProperties;
   const lblFont = "var(--font-heading, system-ui)";
 
-  /* ── animation ─────────────────────────────────────────────────────────── */
-  const handleShow = useCallback((e: React.MouseEvent | React.PointerEvent) => {
-    e.stopPropagation();
-    if (phase !== "idle") return;
+  /* ── step animation transitions ────────────────────────────────────────── */
+  const transitionTo = useCallback((targetGrow: number, targetMigrate: number, targetStep: number, duration = 400) => {
+    if (animRef.current) cancelAnimationFrame(animRef.current);
+    setIsAutoPlaying(false);
+    setActiveStep(targetStep);
 
-    const GROW = 1500, MIGRATE = 2500, HOLD = 2500, SHRINK = 1200;
+    const startG = growP;
+    const startM = migrateP;
     const t0 = performance.now();
 
-    const tick = (ts: number) => {
-      const el = ts - t0;
-      if (el < GROW) {
-        setPhase("grow");
-        setGrowP(ease(el / GROW));
+    const tick = (now: number) => {
+      const elapsed = now - t0;
+      const t = Math.min(1, elapsed / duration);
+      const eased = ease(t);
+      setGrowP(startG + (targetGrow - startG) * eased);
+      setMigrateP(startM + (targetMigrate - startM) * eased);
+
+      if (t < 1) {
+        animRef.current = requestAnimationFrame(tick);
+      } else {
+        setGrowP(targetGrow);
+        setMigrateP(targetMigrate);
+      }
+    };
+    animRef.current = requestAnimationFrame(tick);
+  }, [growP, migrateP]);
+
+  const handleStepClick = (stepNum: number) => {
+    if (stepNum === 1) {
+      transitionTo(0, 0, 1);
+    } else if (stepNum === 2) {
+      transitionTo(1, 0, 2);
+    } else if (stepNum === 3) {
+      transitionTo(1, 1, 3);
+    }
+  };
+
+  /* ── auto replay sequence ──────────────────────────────────────────────── */
+  const handleReplay = useCallback(() => {
+    if (animRef.current) cancelAnimationFrame(animRef.current);
+    setIsAutoPlaying(true);
+    setActiveStep(1);
+    setGrowP(0);
+    setMigrateP(0);
+
+    const GROW_TIME = 1000;
+    const PAUSE = 400;
+    const MIGRATE_TIME = 1800;
+    const t0 = performance.now();
+
+    const tick = (now: number) => {
+      const elapsed = now - t0;
+      if (elapsed < GROW_TIME) {
+        setActiveStep(2);
+        setGrowP(ease(elapsed / GROW_TIME));
         setMigrateP(0);
-      } else if (el < GROW + MIGRATE) {
-        setPhase("migrate");
+      } else if (elapsed < GROW_TIME + PAUSE) {
         setGrowP(1);
-        setMigrateP(ease((el - GROW) / MIGRATE));
-      } else if (el < GROW + MIGRATE + HOLD) {
-        setPhase("hold");
+        setMigrateP(0);
+      } else if (elapsed < GROW_TIME + PAUSE + MIGRATE_TIME) {
+        setActiveStep(3);
+        setGrowP(1);
+        setMigrateP(ease((elapsed - GROW_TIME - PAUSE) / MIGRATE_TIME));
+      } else {
         setGrowP(1);
         setMigrateP(1);
-      } else if (el < GROW + MIGRATE + HOLD + SHRINK) {
-        setPhase("shrink");
-        const t = ease((el - GROW - MIGRATE - HOLD) / SHRINK);
-        setGrowP(1 - t);
-        setMigrateP(1 - t);
-      } else {
-        setPhase("idle");
-        setGrowP(0);
-        setMigrateP(0);
+        setActiveStep(3);
+        setIsAutoPlaying(false);
         return;
       }
-      phaseRef.current = requestAnimationFrame(tick);
+      animRef.current = requestAnimationFrame(tick);
     };
-    phaseRef.current = requestAnimationFrame(tick);
-  }, [phase]);
+    animRef.current = requestAnimationFrame(tick);
+  }, []);
 
   useEffect(() => {
-    return () => { if (phaseRef.current) cancelAnimationFrame(phaseRef.current); };
+    return () => {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+    };
   }, []);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
@@ -223,7 +269,6 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
         {/* ── Unit squares ──────────────────────────────────────────── */}
         {gp > 0.8 && dots.map((dot, i) => {
           const dotMp = clamp01((mp - dot.delay) / (1 - 0.35));
-          // Phase 1: rotate in place (0–20%), Phase 2: translate (20–100%)
           const transP = ease(clamp01((dotMp - 0.2) / 0.8));
           const cx = rnd(lerp(dot.srcX, dot.tgtX, transP));
           const cy = rnd(lerp(dot.srcY, dot.tgtY, transP));
@@ -234,7 +279,7 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
           return (
             <rect key={i}
               x={-hs} y={-hs} width={cellSize} height={cellSize} rx={1}
-              fill={dot.color} fillOpacity={0.65} opacity={opacity}
+              fill={dot.color} fillOpacity={0.7} opacity={opacity}
               stroke={dot.color} strokeWidth={0.5} strokeOpacity={0.3}
               transform={`translate(${cx},${cy}) rotate(${rot})`}
             />
@@ -352,7 +397,7 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
       </svg>
 
       {/* ── Live Equation (Morphs to 9 + 16 = 25 during proof) ─────────── */}
-      <div className="flex justify-center my-1">
+      <div className="flex justify-center my-0.5">
         <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none transition-all duration-300">
           {mp > 0.3 ? (
             <>
@@ -374,18 +419,48 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
         </div>
       </div>
 
-      {/* ── Presets ───────────────────────────────────────────────────────── */}
-      <div className="flex gap-1.5 justify-center my-0.5">
+      {/* ── Step Controls (Triangle -> Squares -> Combined) ───────────── */}
+      <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5 bg-black/35 backdrop-blur-md px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border border-white/20 shadow-sm pointer-events-auto z-30 select-none">
+        {STEPS.map((s) => (
+          <button
+            key={`step-btn-${s.step}`}
+            type="button"
+            onClick={() => handleStepClick(s.step)}
+            className={cn(
+              "px-2 sm:px-2.5 py-0.5 rounded-full text-[11px] sm:text-xs font-headline font-bold transition-all duration-200 cursor-pointer border",
+              activeStep === s.step
+                ? "bg-white/25 text-white border-white/60 shadow-sm"
+                : "bg-transparent text-white/70 border-transparent hover:text-white hover:bg-white/15"
+            )}
+          >
+            {s.label}
+          </button>
+        ))}
+        <div className="w-px h-3 bg-white/25 mx-0.5" />
+        <button
+          type="button"
+          onClick={handleReplay}
+          title="Replay full animation"
+          className={cn(
+            "p-1 rounded-full text-white/70 hover:text-white hover:bg-white/20 transition-all active:scale-95 cursor-pointer",
+            isAutoPlaying && "animate-spin text-white"
+          )}
+        >
+          <RotateCcw className="w-3 sm:w-3.5 h-3 sm:h-3.5" />
+        </button>
+      </div>
+
+      {/* ── Triple Presets ────────────────────────────────────────────── */}
+      <div className="flex gap-1.5 justify-center mt-0.5">
         {PRESETS.map((p, i) => (
           <button
             key={i}
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              if (phase === "idle") setPresetIdx(i);
+              setPresetIdx(i);
             }}
-            disabled={phase !== "idle"}
-            className={`px-3 py-1 rounded-full text-xs font-semibold tracking-wide transition-all border ${
+            className={`px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold tracking-wide transition-all border ${
               i === presetIdx
                 ? "bg-white/25 text-white border-white/60 shadow-sm"
                 : "bg-black/25 text-white/70 border-white/15 hover:bg-white/10 hover:text-white"
@@ -395,17 +470,6 @@ export function InteractivePythagorasExplorer({ color }: { color?: string }) {
           </button>
         ))}
       </div>
-
-      {/* ── Show proof button ───────────────────────────────────────────── */}
-      <button
-        type="button"
-        onClick={handleShow}
-        onPointerDown={stop}
-        disabled={phase !== "idle"}
-        className="mt-1 px-4 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm disabled:opacity-50 disabled:cursor-default"
-      >
-        {phase !== "idle" ? "Showing…" : "Show proof"}
-      </button>
     </div>
   );
 }
