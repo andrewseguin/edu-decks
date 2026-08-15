@@ -70,27 +70,24 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
 - Draggable vertices with `touch-none` and continuous 2D pointer dragging.
 - **Zero auto-play**: Card stays completely stationary until the user drags or clicks a control.
 
-### 2.3 Live Open Equation (Bottom)
-- Open, unboxed equation layout with text drop-shadow (`filter: drop-shadow(0px 1px 2px rgba(0,0,0,0.4))`).
+### 2.3 Bottom Frosted Equation Banner (Unboxed Typographic Flow)
+- Live calculations are wrapped in a frosted glass banner matching the top hero banner (`px-5 py-1.5 rounded-2xl bg-black/25 backdrop-blur-md border border-white/20 shadow-md flex items-center gap-2 text-base sm:text-lg font-bold font-headline select-none`).
+- **No Inner Sub-Boxes**: The equation reads naturally from left to right as a clean, continuous statement without nested boxes or boxes inside boxes.
 - Operators (`+`, `−`, `·`, `=`) render in muted translucent white (`text-white/50`).
-- Values match their semantic diagram colors.
-
-### 2.4 Bordered Calculated Answer Pill
-- The result of the calculation or target property is rendered inside a translucent, white-bordered pill (`border: 1.5px solid rgba(255, 255, 255, 0.65); bg: rgba(255, 255, 255, 0.15)`).
-- **Text Color Rule**:
-  - **Aggregated / Calculated Totals** (e.g. Angle sum `180°`, Area `35`, Perimeter `24`): Render in **crisp white text** (`text-white`).
-  - **Semantic Target Properties** (e.g. Hypotenuse `c²` / `5²` in Pythagorean theorem): Render in the **matching semantic token color** (e.g. Orange `#fb923c` for hypotenuse $c$) to preserve 1:1 color continuity across the formula, diagram, and equation.
+- **Color Coding**:
+  - Semantic terms ($a, b, c, A, B, C$) match their diagram colors.
+  - Answers ($180^\circ$, calculated Area, Perimeter) render in crisp bold white (`text-white font-bold`).
+  - When the answer directly corresponds to a semantic component (e.g. hypotenuse $c²$ in Pythagorean theorem), it uses its matching semantic color ($c² = 5²$ in Orange).
   ```tsx
-  <span
-    className="px-2.5 py-0.5 rounded-lg font-bold shadow-sm"
-    style={{
-      color: isSemanticTarget ? SEMANTIC_COLOR : "white",
-      backgroundColor: "rgba(255, 255, 255, 0.15)",
-      border: "1.5px solid rgba(255, 255, 255, 0.65)",
-    }}
-  >
-    {answer}
-  </span>
+  <div className="flex justify-center my-1">
+    <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/25 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
+      <span style={{ color: COLOR_A }}>{a}²</span>
+      <span className="text-white/50">+</span>
+      <span style={{ color: COLOR_B }}>{b}²</span>
+      <span className="text-white/50">=</span>
+      <span style={{ color: COLOR_C }}>{c}²</span>
+    </div>
+  </div>
   ```
 
 ### 2.5 Frosted Controls & Action Buttons

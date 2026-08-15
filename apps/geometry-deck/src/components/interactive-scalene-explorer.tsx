@@ -196,25 +196,16 @@ export function InteractiveScaleneExplorer({ color }: InteractiveScaleneExplorer
 
 
       {/* Equation: A + B + C = 180° */}
-      <div
-        className="flex items-center gap-2 justify-center text-base sm:text-lg font-bold font-headline select-none px-2 mt-2"
-        style={{ filter: "drop-shadow(0px 1px 2px rgba(0,0,0,0.4))" }}
-      >
-        <span style={{ color: COLOR_A }}>{degA}°</span>
-        <span className="text-white/50">+</span>
-        <span style={{ color: COLOR_B }}>{degB}°</span>
-        <span className="text-white/50">+</span>
-        <span style={{ color: COLOR_C }}>{degC}°</span>
-        <span className="text-white/50">=</span>
-        <span
-          className="px-2.5 py-0.5 rounded-lg font-bold text-white shadow-sm"
-          style={{
-            backgroundColor: "rgba(255, 255, 255, 0.15)",
-            border: "1.5px solid rgba(255, 255, 255, 0.65)",
-          }}
-        >
-          180°
-        </span>
+      <div className="flex justify-center mt-2">
+        <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/25 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
+          <span style={{ color: COLOR_A }}>{degA}°</span>
+          <span className="text-white/50">+</span>
+          <span style={{ color: COLOR_B }}>{degB}°</span>
+          <span className="text-white/50">+</span>
+          <span style={{ color: COLOR_C }}>{degC}°</span>
+          <span className="text-white/50">=</span>
+          <span className="text-white font-bold">180°</span>
+        </div>
       </div>
     </div>
   );
