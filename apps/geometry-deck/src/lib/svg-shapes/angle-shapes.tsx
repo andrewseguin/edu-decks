@@ -47,11 +47,11 @@ export function AngleSupplementary({ dims, mutation }: { dims: Record<string, nu
   const aAngle = typeof dims.A === "number" ? dims.A : 53;
   const bAngle = 180 - aAngle;
   const unknownDim = dims.unknown as string | undefined;
-  const vx = 110, vy = 85, rayLen = 80;
+  const vx = 110, vy = 95, rayLen = 95;
   const leftEnd = { x: vx - rayLen, y: vy }, rightEnd = { x: vx + rayLen, y: vy };
   const rad = (aAngle * Math.PI) / 180;
   const midEnd = { x: vx + rayLen * Math.cos(Math.PI - rad), y: vy - rayLen * Math.sin(rad) };
-  const arcR = 32;
+  const arcR = 30;
   const midArcX = vx + arcR * Math.cos(Math.PI - rad);
   const midArcY = vy - arcR * Math.sin(rad);
   const arcBPath = `M ${vx + arcR} ${vy} A ${arcR} ${arcR} 0 ${bAngle > 180 ? 1 : 0} 0 ${midArcX} ${midArcY}`;
@@ -60,25 +60,25 @@ export function AngleSupplementary({ dims, mutation }: { dims: Record<string, nu
   const COLOR_B = "#d8b4fe"; // Neon Lilac
 
   // Wedge fills
-  const wr = 28;
+  const wr = 26;
   const mwx = vx + wr * Math.cos(Math.PI - rad);
   const mwy = vy - wr * Math.sin(rad);
   const wedgeA = `M ${vx} ${vy} L ${vx - wr} ${vy} A ${wr} ${wr} 0 ${aAngle > 180 ? 1 : 0} 1 ${mwx} ${mwy} Z`;
   const wedgeB = `M ${vx} ${vy} L ${mwx} ${mwy} A ${wr} ${wr} 0 ${bAngle > 180 ? 1 : 0} 1 ${vx + wr} ${vy} Z`;
 
   // Label positions along angle bisectors
-  const aMid = 180 - aAngle / 2;
-  const aDist = arcR + 18;
+  const aMid = 180 - Math.max(Math.min(aAngle / 2, aAngle - 7), 10);
+  const aDist = 56 + Math.max(0, (30 - aAngle) * 0.7);
   const aLx = vx + aDist * Math.cos(-(aMid * Math.PI) / 180);
   const aLy = vy + aDist * Math.sin(-(aMid * Math.PI) / 180);
 
-  const bMid = bAngle / 2;
-  const bDist = arcR + 18;
+  const bMid = Math.max(Math.min(bAngle / 2, bAngle - 7), 10);
+  const bDist = 56 + Math.max(0, (30 - bAngle) * 0.7);
   const bLx = vx + bDist * Math.cos(-(bMid * Math.PI) / 180);
   const bLy = vy + bDist * Math.sin(-(bMid * Math.PI) / 180);
 
   return (
-    <svg viewBox="0 0 220 105" className="w-full h-full" aria-hidden>
+    <svg viewBox="0 0 220 115" className="w-full h-full" aria-hidden>
       <path d={wedgeA} fill={COLOR_A} fillOpacity={0.12} />
       <path d={wedgeB} fill={COLOR_B} fillOpacity={0.12} />
       <line x1={leftEnd.x} y1={leftEnd.y} x2={rightEnd.x} y2={rightEnd.y} stroke={WHITE70} strokeWidth={STROKE_W} strokeLinecap="round" />
@@ -107,11 +107,11 @@ export function AngleComplementary({ dims, mutation }: { dims: Record<string, nu
   const aAngle = typeof dims.A === "number" ? dims.A : 34;
   const bAngle = 90 - aAngle;
   const unknownDim = dims.unknown as string | undefined;
-  const vx = 45, vy = 92, rayLen = 80;
+  const vx = 38, vy = 100, rayLen = 92;
   const rightEnd = { x: vx + rayLen, y: vy }, upEnd = { x: vx, y: vy - rayLen };
   const rad = (aAngle * Math.PI) / 180;
   const midEnd = { x: vx + rayLen * Math.cos(-rad), y: vy + rayLen * Math.sin(-rad) };
-  const arcR = 30;
+  const arcR = 28;
   const midArcX = vx + arcR * Math.cos(-rad);
   const midArcY = vy + arcR * Math.sin(-rad);
   const arcAPath = `M ${vx + arcR} ${vy} A ${arcR} ${arcR} 0 0 0 ${midArcX} ${midArcY}`;
@@ -120,25 +120,25 @@ export function AngleComplementary({ dims, mutation }: { dims: Record<string, nu
   const COLOR_B = "#d8b4fe"; // Neon Lilac
 
   // Wedge fills
-  const wr = 26;
+  const wr = 24;
   const mwx = vx + wr * Math.cos(-rad);
   const mwy = vy + wr * Math.sin(-rad);
   const wedgeA = `M ${vx} ${vy} L ${vx + wr} ${vy} A ${wr} ${wr} 0 0 0 ${mwx} ${mwy} Z`;
   const wedgeB = `M ${vx} ${vy} L ${mwx} ${mwy} A ${wr} ${wr} 0 0 0 ${vx} ${vy - wr} Z`;
 
   // Label positions along angle bisectors
-  const aMid = aAngle / 2;
-  const aDist = arcR + 18;
+  const aMid = Math.max(Math.min(aAngle / 2, aAngle - 7), 10);
+  const aDist = 58 + Math.max(0, (28 - aAngle) * 0.7);
   const aLx = vx + aDist * Math.cos((-aMid * Math.PI) / 180);
   const aLy = vy + aDist * Math.sin((-aMid * Math.PI) / 180);
 
-  const bMid = aAngle + bAngle / 2;
-  const bDist = arcR + 18;
+  const bMid = Math.min(Math.max(aAngle + bAngle / 2, aAngle + 8), 80);
+  const bDist = 58 + Math.max(0, (28 - bAngle) * 0.7);
   const bLx = vx + bDist * Math.cos((-bMid * Math.PI) / 180);
   const bLy = vy + bDist * Math.sin((-bMid * Math.PI) / 180);
 
   return (
-    <svg viewBox="0 0 160 105" className="w-full h-full" aria-hidden>
+    <svg viewBox="0 0 170 115" className="w-full h-full" aria-hidden>
       <path d={wedgeA} fill={COLOR_A} fillOpacity={0.12} />
       <path d={wedgeB} fill={COLOR_B} fillOpacity={0.12} />
       <rect x={vx} y={vy - 14} width={14} height={14} fill="none" stroke={WHITE50} strokeWidth={1.5} />
@@ -174,7 +174,7 @@ export function AngleVerticallyOpposite({ dims, mutation }: { dims: Record<strin
   const COLOR_B = "#d8b4fe"; // Neon Lilac
   const COLOR_C = unknownDim ? COLOR_B : COLOR_A;
 
-  const vx = 110, vy = 60, rayLen = 65;
+  const vx = 110, vy = 60, rayLen = 75;
   const rad = (aAngle * Math.PI) / 180;
 
   // Four ray endpoints
@@ -184,7 +184,7 @@ export function AngleVerticallyOpposite({ dims, mutation }: { dims: Record<strin
     { x: vx + rayLen * Math.cos(-rad), y: vy + rayLen * Math.sin(-rad) }, // upper-right
     { x: vx - rayLen * Math.cos(-rad), y: vy - rayLen * Math.sin(-rad) }, // lower-left
   ];
-  const arcR = 24;
+  const arcR = 22;
   const eArcX = vx + arcR, eArcY = vy;
   const wArcX = vx - arcR, wArcY = vy;
   const urArcX = vx + arcR * Math.cos(-rad), urArcY = vy + arcR * Math.sin(-rad);
@@ -199,7 +199,7 @@ export function AngleVerticallyOpposite({ dims, mutation }: { dims: Record<strin
   const arcBPath2 = `M ${llArcX} ${llArcY} A ${arcR} ${arcR} 0 ${lb} 0 ${eArcX} ${eArcY}`;
 
   // Label positions
-  const labelDist = arcR + 15;
+  const labelDist = 46;
   const aMid = aAngle / 2;
   const aLx = vx + labelDist * Math.cos((-aMid * Math.PI) / 180);
   const aLy = vy + labelDist * Math.sin((-aMid * Math.PI) / 180);
