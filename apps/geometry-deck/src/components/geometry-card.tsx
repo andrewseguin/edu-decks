@@ -13,6 +13,7 @@ import { InteractiveScaleneExplorer } from "./interactive-scalene-explorer";
 import { InteractiveRightTriangleExplorer } from "./interactive-right-triangle-explorer";
 import { InteractiveEquilateralExplorer } from "./interactive-equilateral-explorer";
 import { InteractiveAngleSumExplorer } from "./interactive-angle-sum-explorer";
+import { InteractivePythagorasExplorer } from "./interactive-pythagoras-explorer";
 import type {
   GeometryCard as GeometryCardType,
   SvgMutation,
@@ -123,6 +124,9 @@ export function GeometryCard({
       if (card.frontLabel === "Right triangles") {
         return <InteractiveRightTriangleExplorer color={card.color} />;
       }
+      if (card.frontLabel === "The Pythagorean theorem") {
+        return <InteractivePythagorasExplorer color={card.color} />;
+      }
       if (hasSvg) {
         return (
           <div className={cn("flex gap-3 justify-center w-full shrink-0", multiSvg ? "flex-row items-center" : "flex-col items-center")}>
@@ -169,7 +173,7 @@ export function GeometryCard({
         revealContent={
           <div className="min-h-0 overflow-y-auto flex flex-col gap-2 items-center px-4 pt-1 pb-6">
             {card.backDefinition && (
-              <p className="text-white text-center font-bold leading-snug text-lg sm:text-xl shrink-0">
+              <p className="text-white text-center font-bold leading-snug text-2xl sm:text-3xl shrink-0 tracking-wide">
                 {card.backDefinition}
               </p>
             )}
