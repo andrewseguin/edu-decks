@@ -308,14 +308,14 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
               opacity={flapOpacity}
             />
 
-            {/* Internal paper crease lines (strictly dotted) */}
+            {/* Internal paper crease lines (subtle dotted) */}
             <line
               x1={ML.x} y1={ML.y} x2={BM.x} y2={BM.y}
-              stroke="rgba(255,255,255,0.85)" strokeWidth={1.5} strokeDasharray="2 4" strokeLinecap="round"
+              stroke="rgba(255,255,255,0.35)" strokeWidth={1.2} strokeDasharray="1.5 3.5" strokeLinecap="round"
             />
             <line
               x1={MR.x} y1={MR.y} x2={BM.x} y2={BM.y}
-              stroke="rgba(255,255,255,0.85)" strokeWidth={1.5} strokeDasharray="2 4" strokeLinecap="round"
+              stroke="rgba(255,255,255,0.35)" strokeWidth={1.2} strokeDasharray="1.5 3.5" strokeLinecap="round"
             />
           </>
         )}
