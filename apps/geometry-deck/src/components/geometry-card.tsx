@@ -182,7 +182,7 @@ export function GeometryCard({
         revealContent={
           <div className="min-h-0 overflow-y-auto flex flex-col gap-2 items-center w-full pt-1 pb-6">
             {card.backDefinition && (
-              <div className="w-[calc(100%+1.5rem)] -mx-3 sm:w-[calc(100%+2.5rem)] sm:-mx-5 md:w-[calc(100%+3rem)] md:-mx-6 px-4 py-2.5 my-1 bg-black/35 border-y border-white/20 flex flex-col items-center justify-center gap-1">
+              <div className="w-full px-4 py-2.5 my-1 bg-black/35 border-y border-white/20 flex flex-col items-center justify-center gap-1">
                 <p className="text-white text-center font-bold leading-tight text-xl sm:text-2xl md:text-3xl shrink-0 tracking-wide">
                   <FormattedMathText text={card.backDefinition} />
                 </p>
@@ -249,7 +249,7 @@ export function GeometryCard({
         </div>
       }
       revealContent={
-        <div className="proof-table-container w-[calc(100%+1.5rem)] -mx-3 sm:w-[calc(100%+2.5rem)] sm:-mx-5 md:w-[calc(100%+3rem)] md:-mx-6 flex-1 min-h-0 flex flex-col items-center justify-center">
+        <div className="proof-table-container w-full flex-1 min-h-0 flex flex-col items-center justify-center">
           {isFlipped && (
             <div className="proof-table-banner w-full bg-black/35 border-y border-white/20 px-4 sm:px-6 py-2 divide-y divide-white/10">
               {steps.map((step, i) => (
