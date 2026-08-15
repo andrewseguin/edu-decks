@@ -55,8 +55,8 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
   })();
 
   return (
-    <div className="grid w-full items-center grid-cols-[minmax(0,1fr)_1px_minmax(0,1.2fr)] gap-x-0 py-1 sm:py-1.5 min-w-0">
-      <div className="flex items-center justify-end pr-2 sm:pr-4 min-w-0">
+    <div className="relative grid w-full items-center grid-cols-[minmax(0,0.85fr)_1px_minmax(0,1.15fr)] gap-x-0 py-1 sm:py-1.5 min-w-0">
+      <div className="flex items-center justify-end pr-2 sm:pr-3.5 min-w-0">
         <ProofReasonTooltip
           reason={reason}
           className={cn(
@@ -68,7 +68,7 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
 
       <div className="self-stretch bg-white/20 min-h-[18px]" />
 
-      <div className="flex justify-start pl-2 sm:pl-4 min-w-0">
+      <div className="flex justify-start pl-2 sm:pl-3.5 min-w-0 overflow-hidden">
         {equationNode}
       </div>
     </div>

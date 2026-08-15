@@ -274,8 +274,8 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "triangle", dimensions: { angA: A, angB: B, unknown: "C", style: "scalene", labelMode: "numeric" }, labelMode: "numeric" },
       frontSpeechText: `A is ${A} degrees, B is ${B} degrees. Find C.`,
       backSteps: [
-        { equationTokens: [tok("A","A","#5ee8ff"), dim("p1"," + "), tok("B","B","#ffd45e"), dim("p2"," + "), tok("C","C","#ffa756"), eq(), tok("sum","180°")], reason: "Angle sum theorem" },
-        { equationTokens: [tok("A",`${A}°`,"#5ee8ff"), dim("p1"," + "), tok("B",`${B}°`,"#ffd45e"), dim("p2"," + "), tok("C","C","#ffa756"), eq(), tok("sum","180°")], reason: "Substitute known values" },
+        { equationTokens: [tok("A","A","#5ee8ff"), dim("p1"," + "), tok("B","B","#ffd45e"), dim("p2"," + "), tok("C","C","#ffa756"), eq(), tok("sum","180°")], reason: "Angle sum" },
+        { equationTokens: [tok("A",`${A}°`,"#5ee8ff"), dim("p1"," + "), tok("B",`${B}°`,"#ffd45e"), dim("p2"," + "), tok("C","C","#ffa756"), eq(), tok("sum","180°")], reason: "Substitute" },
         { equationTokens: [tok("lhs","C","#ffa756"), eq(), tok("r1","180°"), op("−"), tok("r2",`${A}°`,"#5ee8ff"), op("−"), tok("r3",`${B}°`,"#ffd45e")], reason: "Isolate C" },
         { equationTokens: [tok("lhs","C","#ffa756"), eq(), tok("rhs",`${C}°`,"#ffa756")], reason: "Evaluate" },
       ],

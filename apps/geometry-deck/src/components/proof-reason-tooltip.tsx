@@ -44,7 +44,7 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
       {/* Mobile touch backdrop to dismiss without accidentally flipping the card */}
       {isOpen && (
         <div
-          className="fixed inset-0 z-40 sm:hidden"
+          className="fixed inset-0 z-40"
           onClick={(e) => {
             e.stopPropagation();
             setIsOpen(false);
@@ -57,7 +57,7 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
         />
       )}
 
-      <div className="relative inline-flex items-center justify-end">
+      <div className="inline-flex items-center justify-end">
         <button
           ref={triggerRef}
           type="button"
@@ -72,7 +72,7 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
           className={cn(
             "text-right cursor-help transition-all duration-150 inline-flex items-center gap-1",
             "underline decoration-dotted decoration-white/40 underline-offset-4 hover:decoration-white focus:outline-none",
-            "-my-1.5 py-1.5 -mx-1 px-1 touch-manipulation", // Generous touch target for fingers
+            "-my-1 py-1 -mx-0.5 px-0.5 touch-manipulation",
             className,
           )}
           aria-label={`Learn more about ${entry.title}`}
@@ -80,7 +80,7 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
           <span>{reason}</span>
         </button>
 
-        {/* Frosted Floating Glossary Tooltip */}
+        {/* Frosted Floating Glossary Tooltip — Centered over the card row to prevent edge clipping */}
         {isOpen && (
           <div
             ref={tooltipRef}
@@ -89,10 +89,9 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
             onPointerDown={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
             className={cn(
-              "z-50 p-3.5 rounded-xl text-left shadow-2xl animate-fade-in select-none pointer-events-auto",
+              "absolute z-50 bottom-full mb-2 left-1/2 -translate-x-1/2",
+              "w-[calc(100%-1.5rem)] max-w-[280px] sm:max-w-xs p-3 sm:p-3.5 rounded-xl text-left shadow-2xl animate-fade-in select-none pointer-events-auto",
               "bg-slate-950/95 backdrop-blur-xl border border-white/20 text-white",
-              // Mobile: centered bottom popup | Desktop: anchored above reason
-              "fixed inset-x-4 bottom-6 sm:static sm:absolute sm:inset-auto sm:bottom-full sm:mb-2.5 sm:right-0 sm:w-72",
             )}
           >
             {/* Tooltip Header */}
@@ -107,14 +106,13 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
                 <span className="text-[10px] text-white/50 uppercase tracking-widest font-mono">
                   Glossary
                 </span>
-                {/* Mobile tap close button */}
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     setIsOpen(false);
                   }}
-                  className="sm:hidden text-white/60 hover:text-white px-1 text-xs font-bold"
+                  className="text-white/60 hover:text-white px-1 text-xs font-bold sm:hidden"
                   aria-label="Close glossary"
                 >
                   ✕
@@ -123,25 +121,25 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
             </div>
 
             {/* Explanation */}
-            <p className="pt-2 text-xs text-white/90 leading-relaxed not-italic font-normal">
+            <p className="pt-2 text-[11px] sm:text-xs text-white/90 leading-relaxed not-italic font-normal">
               {entry.explanation}
             </p>
 
             {/* Example (if provided) */}
             {entry.example && (
-              <div className="mt-2.5 pt-2 border-t border-white/10 flex flex-col gap-0.5">
+              <div className="mt-2 pt-1.5 border-t border-white/10 flex flex-col gap-0.5">
                 <span className="text-[10px] uppercase font-mono font-semibold tracking-wider" style={{ color: "#ffd45e" }}>
                   Example:
                 </span>
-                <p className="font-mono text-white/90 not-italic text-[11px] sm:text-xs leading-relaxed">
+                <p className="font-mono text-white/90 not-italic text-[10px] sm:text-[11px] leading-relaxed break-words">
                   {entry.example}
                 </p>
               </div>
             )}
 
-            {/* Desktop Subtle Pointer Arrow */}
+            {/* Subtle Pointer Arrow */}
             <div
-              className="hidden sm:block absolute top-full right-4 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-slate-950/95"
+              className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-x-4 border-x-transparent border-t-4 border-t-slate-950/95"
               aria-hidden="true"
             />
           </div>
