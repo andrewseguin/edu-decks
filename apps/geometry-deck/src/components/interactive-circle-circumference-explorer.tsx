@@ -16,6 +16,7 @@ const COLOR_GOLD = "#ffd45e";   // Warm Gold (Contact dot / angle tip)
 const COLOR_PI = "#f472b6";     // Vibrant Rose Pink for Pi marker
 
 const PRESETS = [1, 2, 3];
+const NUM_SEGMENTS = 16; // 16 tape-measure teeth/ribs around the perimeter
 
 export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCircleCircumferenceProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
@@ -34,10 +35,6 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     setHasInteracted(true);
   }, []);
 
-  // Number line setup depending on radius:
-  // r=1: maxVal = 7, ticks at [0..7], markers at π (3.14) & 2π (6.28)
-  // r=2: maxVal = 14, ticks at [0, 2, 4, 6, 8, 10, 12, 14], markers at 2π (6.28) & 4π (12.57)
-  // r=3: maxVal = 21, ticks at [0, 3, 6, 9, 12, 15, 18, 21], markers at 3π (9.42) & 6π (18.85)
   const maxVal = radiusUnits * 7;
   const tickStep = radiusUnits === 1 ? 1 : radiusUnits;
   const numTicks = maxVal / tickStep;
@@ -49,8 +46,8 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const groundY = 112;
   const centerY = groundY - rPx;
 
-  const cValue = 2 * Math.PI * radiusUnits; // exact circumference in units
-  const fullRollDist = cValue * pxPerUnit;   // distance on screen in px
+  const cValue = 2 * Math.PI * radiusUnits;
+  const fullRollDist = cValue * pxPerUnit;
   const endX = startX + fullRollDist;
   const cCoeff = 2 * radiusUnits;
   const cApprox = Math.round(cValue * 100) / 100;
@@ -64,7 +61,6 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     const step = (ts: number) => {
       if (!start) start = ts;
       const elapsed = ts - start;
-      // Cosine ease in/out for smooth continuous turnaround at 0 and 1
       const prog = 0.5 * (1 - Math.cos((elapsed / period) * 2 * Math.PI));
       setUnrollProgress(prog);
       if (!hasInteracted) {
@@ -116,8 +112,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
 
   const currentWheelX = startX + unrollProgress * fullRollDist;
 
-  // Unspooling Tape Geometry:
-  // Continuous smooth angle: starts at 90° (6 o'clock), sweeps counter-clockwise 360° back to 90°
+  // Unspooling Tape Geometry
   const remainingFraction = 1 - unrollProgress;
   const remainingArcDeg = remainingFraction * 360;
 
@@ -131,7 +126,6 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 ${largeArc} 0 ${tipX} ${tipY}`;
   }
 
-  // Ticks list
   const ticks = Array.from({ length: numTicks + 1 }, (_, i) => i * tickStep);
 
   return (
@@ -210,18 +204,49 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           <circle cx={startX} cy={centerY} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.15)" strokeWidth={1.5} strokeDasharray="3 3" />
         )}
 
-        {/* Vibrant Orange Circumference Ribbon Laid Down Along Ground */}
+        {/* Unrolled Segmented Ribbon Laid Down Along Ground */}
         {unrollProgress > 0 && (
-          <line
-            x1={startX}
-            y1={groundY}
-            x2={currentWheelX}
-            y2={groundY}
-            stroke={COLOR_CIRCUM}
-            strokeWidth={4}
-            strokeLinecap="round"
-            style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.65))" }}
-          />
+          <g>
+            {/* Base Glowing Orange Ribbon */}
+            <line
+              x1={startX}
+              y1={groundY}
+              x2={currentWheelX}
+              y2={groundY}
+              stroke={COLOR_CIRCUM}
+              strokeWidth={4}
+              strokeLinecap="round"
+              style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.65))" }}
+            />
+            {/* Subtle Measuring Tape Stitching/Dashes */}
+            <line
+              x1={startX}
+              y1={groundY}
+              x2={currentWheelX}
+              y2={groundY}
+              stroke="rgba(0, 0, 0, 0.35)"
+              strokeWidth={1.5}
+              strokeDasharray="4 3"
+            />
+            {/* Segment Notches on Ground */}
+            {Array.from({ length: NUM_SEGMENTS + 1 }, (_, i) => {
+              const segFraction = i / NUM_SEGMENTS;
+              if (segFraction > unrollProgress) return null;
+              const segX = startX + segFraction * fullRollDist;
+              return (
+                <line
+                  key={`ground-notch-${i}`}
+                  x1={segX}
+                  y1={groundY - 3}
+                  x2={segX}
+                  y2={groundY + 3}
+                  stroke="#ffffff"
+                  strokeWidth={1.2}
+                  opacity={0.85}
+                />
+              );
+            })}
+          </g>
         )}
 
         {/* Rolling Wheel Group */}
@@ -229,36 +254,99 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           {/* Wheel Disc Body */}
           <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.08)" />
 
-          {/* At Zero State: Full Solid Vibrant Orange Circle */}
+          {/* At Zero State: Full Solid Vibrant Orange Circle with Tape Ribs */}
           {unrollProgress === 0 ? (
-            <circle
-              cx={0}
-              cy={0}
-              r={rPx}
-              fill="none"
-              stroke={COLOR_CIRCUM}
-              strokeWidth={3.5}
-              style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.6))" }}
-            />
+            <g>
+              <circle
+                cx={0}
+                cy={0}
+                r={rPx}
+                fill="none"
+                stroke={COLOR_CIRCUM}
+                strokeWidth={3.5}
+                style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.6))" }}
+              />
+              {/* Inner stitching */}
+              <circle
+                cx={0}
+                cy={0}
+                r={rPx}
+                fill="none"
+                stroke="rgba(0, 0, 0, 0.35)"
+                strokeWidth={1.5}
+                strokeDasharray="4 3"
+              />
+              {/* Perimeter Segment Teeth around circle */}
+              {Array.from({ length: NUM_SEGMENTS }, (_, i) => {
+                const ang = (90 - (i / NUM_SEGMENTS) * 360) * (Math.PI / 180);
+                const x1 = (rPx - 3) * Math.cos(ang);
+                const y1 = (rPx - 3) * Math.sin(ang);
+                const x2 = (rPx + 3) * Math.cos(ang);
+                const y2 = (rPx + 3) * Math.sin(ang);
+                return (
+                  <line
+                    key={`wheel-tooth-${i}`}
+                    x1={x1}
+                    y1={y1}
+                    x2={x2}
+                    y2={y2}
+                    stroke="#ffffff"
+                    strokeWidth={1.2}
+                    opacity={0.8}
+                  />
+                );
+              })}
+            </g>
           ) : (
             <>
               {/* Bare Spool Ghost track */}
               <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
-              {/* Vibrant Orange Ribbon Unspooling on Front/Top of Wheel */}
+              {/* Vibrant Orange Ribbon Unspooling on Front/Top */}
               {remainingArcPath && (
-                <path
-                  d={remainingArcPath}
-                  fill="none"
-                  stroke={COLOR_CIRCUM}
-                  strokeWidth={3.5}
-                  strokeLinecap="round"
-                  style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.6))" }}
-                />
+                <g>
+                  <path
+                    d={remainingArcPath}
+                    fill="none"
+                    stroke={COLOR_CIRCUM}
+                    strokeWidth={3.5}
+                    strokeLinecap="round"
+                    style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.6))" }}
+                  />
+                  <path
+                    d={remainingArcPath}
+                    fill="none"
+                    stroke="rgba(0, 0, 0, 0.35)"
+                    strokeWidth={1.5}
+                    strokeDasharray="4 3"
+                  />
+                  {/* Segment Teeth on the remaining arc of the wheel */}
+                  {Array.from({ length: NUM_SEGMENTS }, (_, i) => {
+                    const segFraction = i / NUM_SEGMENTS;
+                    if (segFraction < unrollProgress) return null; // already unrolled to ground
+                    const ang = (90 - (segFraction * 360)) * (Math.PI / 180);
+                    const x1 = (rPx - 3) * Math.cos(ang);
+                    const y1 = (rPx - 3) * Math.sin(ang);
+                    const x2 = (rPx + 3) * Math.cos(ang);
+                    const y2 = (rPx + 3) * Math.sin(ang);
+                    return (
+                      <line
+                        key={`rem-tooth-${i}`}
+                        x1={x1}
+                        y1={y1}
+                        x2={x2}
+                        y2={y2}
+                        stroke="#ffffff"
+                        strokeWidth={1.2}
+                        opacity={0.85}
+                      />
+                    );
+                  })}
+                </g>
               )}
             </>
           )}
 
-          {/* Fully Continuous Radius Spoke pointing to unspooling tip (starts cleanly at 6 o'clock bottom contact) */}
+          {/* Continuous Radius Spoke pointing to unspooling tip */}
           <line x1={0} y1={0} x2={tipX} y2={tipY} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
           <circle cx={0} cy={0} r={3} fill="#ffffff" />
           {/* Gold marker dot at the leading tip */}
