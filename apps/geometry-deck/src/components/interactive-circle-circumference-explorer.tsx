@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
 import { cn } from "@/lib/utils";
-import { Play, Pause, RotateCcw } from "lucide-react";
+import { Play, Pause, RotateCcw, Minus, Plus } from "lucide-react";
 
 type InteractiveCircleCircumferenceProps = {
   color?: string;
@@ -16,17 +16,18 @@ const COLOR_CIRCUM = "#fb923c"; // Vibrant Radiant Orange (Circumference ribbon 
 const COLOR_GOLD = "#ffd45e";   // Warm Gold (Contact dot / angle tip)
 const COLOR_PI = "#f472b6";     // Vibrant Rose Pink (Consistent color for all Pi markers)
 
-const PRESETS = [1, 2, 3];
+const MIN_RADIUS = 1;
+const MAX_RADIUS = 5;
 const NUM_SEGMENTS = 16;
-const ALL_PI_MULTIPLES = [1, 2, 3, 4, 5, 6];
-const ALL_INTEGER_TICKS = Array.from({ length: 22 }, (_, i) => i); // 0 .. 21
+const ALL_PI_MULTIPLES = Array.from({ length: MAX_RADIUS * 2 }, (_, i) => i + 1); // 1..10
+const ALL_INTEGER_TICKS = Array.from({ length: MAX_RADIUS * 7 + 1 }, (_, i) => i); // 0..35
 
 export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCircleCircumferenceProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
   const SVG_W = Math.max(300, Math.min(500, rawW - 24));
 
   const [radiusUnits, setRadiusUnits] = useState(1);
-  const [animatedRadius, setAnimatedRadius] = useState(1); // Smoothly interpolated camera zoom [1.0 .. 3.0]
+  const [animatedRadius, setAnimatedRadius] = useState(1); // Smoothly interpolated camera zoom [1.0 .. 5.0]
   const [unrollProgress, setUnrollProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isDraggingHandle, setIsDraggingHandle] = useState(false);
@@ -39,7 +40,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     e.stopPropagation();
   }, []);
 
-  // Smoothly animate camera zoom when switching radius presets
+  // Smoothly animate camera zoom when switching radius
   useEffect(() => {
     let start: number | null = null;
     const startR = animatedRadius;
@@ -73,8 +74,8 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const rightEdge = startX + availableRulerW;
   const pxPerUnit = availableRulerW / maxVal;
   
-  // Continuous smooth visual circle radius (grows with animatedRadius)
-  const rPx = 28 + (animatedRadius - 1) * 5.0;
+  // Continuous smooth visual circle radius (scales with animatedRadius)
+  const rPx = 28 + (animatedRadius - 1) * 3.5;
   const groundY = 98;
   const centerY = groundY - rPx;
 
@@ -158,6 +159,15 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     }
   };
 
+  const changeRadius = (delta: number) => {
+    const nextR = Math.max(MIN_RADIUS, Math.min(MAX_RADIUS, radiusUnits + delta));
+    if (nextR !== radiusUnits) {
+      setRadiusUnits(nextR);
+      setUnrollProgress(0);
+      setIsPlaying(true);
+    }
+  };
+
   const currentWheelX = startX + unrollProgress * fullRollDist;
 
   // Unspooling Tape Geometry
@@ -192,8 +202,8 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
 
         {/* Integer Ticks and Labels (smoothly glides & fades at right boundary) */}
         {ALL_INTEGER_TICKS.map((t) => {
-          // Hide odd ticks when zoomed out on r=2 or r=3 to prevent crowding
-          if (radiusUnits > 1 && t % radiusUnits !== 0 && t > 0) return null;
+          // Hide small non-multiple ticks when zoomed out to prevent text crowding
+          if (radiusUnits >= 2 && t % radiusUnits !== 0 && t > 0) return null;
           const tickX = startX + t * pxPerUnit;
           if (tickX > rightEdge + 25) return null;
           const opacity = tickX <= rightEdge ? 1 : Math.max(0, 1 - (tickX - rightEdge) / 20);
@@ -215,7 +225,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           );
         })}
 
-        {/* Continuous Pi Markers (π, 2π, 3π, 4π, 5π, 6π) that smoothly slide on/off edge */}
+        {/* Continuous Pi Markers (π, 2π, 3π... 10π) that smoothly slide on/off edge */}
         {ALL_PI_MULTIPLES.map((k) => {
           const val = k * Math.PI;
           const markerX = startX + val * pxPerUnit;
@@ -401,28 +411,43 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
         </g>
       </svg>
 
-      {/* Preset Radius Pills & Direct Controls */}
-      <div className="flex items-center gap-1.5 sm:gap-2 select-none">
-        <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm">
-          {PRESETS.map((pr) => (
-            <button
-              key={pr}
-              onClick={() => {
-                setRadiusUnits(pr);
-                setUnrollProgress(0);
-                setIsPlaying(true);
-              }}
-              className={cn(
-                "px-2.5 py-0.5 rounded-full text-[11px] font-headline font-bold transition-all border-none",
-                radiusUnits === pr ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
-              )}
-            >
-              r = {pr}
-            </button>
-          ))}
+      {/* Frosted Controls: [- / +] Stepper & Play/Pause/Replay Action Button */}
+      <div className="flex items-center gap-2 select-none">
+        {/* [- r = N +] Radius Stepper */}
+        <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
+          <button
+            onClick={() => changeRadius(-1)}
+            disabled={radiusUnits <= MIN_RADIUS}
+            className={cn(
+              "w-6 h-6 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+              radiusUnits <= MIN_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
+            )}
+            aria-label="Decrease radius"
+          >
+            <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
+          </button>
+
+          <span
+            style={{ color: COLOR_RADIUS }}
+            className="px-1 text-xs font-headline font-black tracking-wide min-w-[34px] text-center"
+          >
+            r = {radiusUnits}
+          </span>
+
+          <button
+            onClick={() => changeRadius(1)}
+            disabled={radiusUnits >= MAX_RADIUS}
+            className={cn(
+              "w-6 h-6 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+              radiusUnits >= MAX_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
+            )}
+            aria-label="Increase radius"
+          >
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+          </button>
         </div>
 
-        {/* Play / Pause / Replay Frosted Action Button */}
+        {/* Play / Pause / Replay Action Button */}
         <button
           onClick={togglePlay}
           className="flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm backdrop-blur-md active:scale-95"
