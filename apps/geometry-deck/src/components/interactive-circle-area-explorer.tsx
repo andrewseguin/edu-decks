@@ -20,7 +20,7 @@ const COLOR_SECTOR = "rgba(255, 255, 255, 0.18)"; // Neutral dim translucent whi
 const MIN_RADIUS = 1;
 const MAX_RADIUS = 5;
 
-type SectorCount = 8 | 16 | 32 | 64;
+type SectorCount = 4 | 8 | 16 | 32 | 64;
 
 export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
@@ -501,7 +501,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         {/* Slices Selector */}
         <div className="flex items-center gap-0.5 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm">
           <span className="text-[10px] text-white/60 font-bold px-0.5">Slices:</span>
-          {([8, 16, 32, 64] as const).map((cnt) => (
+          {([4, 8, 16, 32, 64] as const).map((cnt) => (
             <button
               key={cnt}
               onClick={() => {
