@@ -85,7 +85,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const fullRollDist = fullCircumVal * pxPerUnit; // distance along ruler corresponding to 2πr
   const halfRollDist = Math.PI * radiusUnits * pxPerUnit; // distance corresponding to πr
 
-  // Active number of slices across all steps (8, 16, 32, or 64)
+  // Active number of slices across all steps (4, 8, 16, 32, or 64)
   const activeN = sectorCount;
   const singleToothW = fullRollDist / activeN;
   const halfW = singleToothW / 2;
@@ -174,11 +174,15 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const tickStep = radiusUnits === 1 ? 1 : radiusUnits <= 4 ? radiusUnits : 5;
   const maxTickToRender = Math.ceil(maxVal) + 5;
 
-  // Cyan Radius Line Scoot Math:
-  // At end of Step 2 (p1 = 1, p2 = 0): wheel finished at startX + fullRollDist with spoke pointing straight down.
-  // During Step 3: teeth drop into place by p2 = 0.70.
-  // Only THEN (p2 in 0.70 .. 1.0), the radius line smoothly scoots over to become the height callout!
-  const targetHeightX = startX + halfRollDist + halfW + 10;
+  // Exact Trigonometric Edge-Sharing Geometry for Step 3:
+  // Each pair of adjacent sectors shares a straight radial edge vector of (rPx * sinH, rPx * cosH).
+  // Upright apex: (startX + sinH * rPx + pairIdx * 2 * sinH * rPx, groundY - cosH * rPx)
+  // Inverted apex: (startX + 2 * sinH * rPx + pairIdx * 2 * sinH * rPx, groundY)
+  const trigSlotW = 2 * rPx * sinH;
+  const trigHeight = rPx * cosH;
+
+  // Height callout x position at right edge of assembled parallelogram
+  const targetHeightX = startX + (activeN / 2) * trigSlotW + 12;
   const startRadiusScootX = startX + fullRollDist;
   const scootT = Math.min(1, Math.max(0, (p2 - 0.70) / 0.30));
   const scootEase = 0.5 * (1 - Math.cos(scootT * Math.PI));
@@ -306,20 +310,23 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </g>
         )}
 
-        {/* Active N Slices on Ground (Fully dynamic across 8, 16, 32, 64 slices) */}
+        {/* Active N Slices on Ground (With exact trigonometric edge alignment) */}
         {Array.from({ length: activeN }, (_, k) => {
           const handoverProgress = (k + 0.5) / activeN;
           if (p1 < handoverProgress && p1 < 0.999) return null; // still attached to rolling wheel!
 
           const isEven = k % 2 === 0;
 
+          // Ground position during unrolling (Step 2)
           const groundX = startX + k * singleToothW + halfW;
           const groundApexY = groundY - rPx;
 
+          // Exact trigonometric target position for interlocking Step 3
           const pairIdx = Math.floor(k / 2);
           const targetX = isEven
-            ? startX + pairIdx * singleToothW + halfW
-            : startX + pairIdx * singleToothW + singleToothW;
+            ? startX + rPx * sinH + pairIdx * trigSlotW
+            : startX + 2 * rPx * sinH + pairIdx * trigSlotW;
+          const targetSlotApexY = isEven ? groundY - trigHeight : groundY;
 
           let curX = groundX;
           let curY = groundApexY;
@@ -340,11 +347,11 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
             if (isEven) {
               curX = groundX + (targetX - groundX) * ease3;
-              curY = groundApexY;
+              curY = groundApexY + (targetSlotApexY - groundApexY) * ease3;
               curRot = 180;
             } else {
               const hoverApexY = groundY - rPx - 8;
-              const finalSlotApexY = groundY;
+              const finalSlotApexY = targetSlotApexY;
 
               const liftedApexY = groundApexY - (rPx + 8);
               const yLifted = groundApexY + (liftedApexY - groundApexY) * ease1;
