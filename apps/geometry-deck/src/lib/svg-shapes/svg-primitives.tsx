@@ -28,15 +28,44 @@ export function arcPath(cx: number, cy: number, r: number, startAngle: number, e
   return `M ${start.x} ${start.y} A ${r} ${r} 0 ${large} 0 ${end.x} ${end.y}`;
 }
 
-export function SvgLabel({ x, y, text, size = LABEL_SIZE, opacity = 0.95, color }: {
-  x: number; y: number; text: string; size?: number; opacity?: number; color?: string;
+export function SvgLabel({
+  x,
+  y,
+  text,
+  size = LABEL_SIZE,
+  opacity = 0.95,
+  color,
+  textAnchor = "middle",
+  dominantBaseline = "central",
+  fontWeight = "700",
+}: {
+  x: number;
+  y: number;
+  text: string;
+  size?: number;
+  opacity?: number;
+  color?: string;
+  textAnchor?: "start" | "middle" | "end";
+  dominantBaseline?: "central" | "alphabetic" | "hanging" | "middle";
+  fontWeight?: string | number;
 }) {
   const rx = Math.round(x * 100) / 100;
   const ry = Math.round(y * 100) / 100;
   const fill = color ?? `rgba(255,255,255,${opacity})`;
   return (
-    <text x={rx} y={ry} textAnchor="middle" fontSize={size} fontWeight="600"
-      fill={fill} fontFamily={LABEL_FONT} style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}>{text}</text>
+    <text
+      x={rx}
+      y={ry}
+      textAnchor={textAnchor}
+      dominantBaseline={dominantBaseline}
+      fontSize={size}
+      fontWeight={fontWeight}
+      fill={fill}
+      fontFamily={LABEL_FONT}
+      style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}
+    >
+      {text}
+    </text>
   );
 }
 

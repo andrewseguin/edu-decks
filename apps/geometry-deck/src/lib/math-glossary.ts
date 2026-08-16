@@ -117,6 +117,26 @@ export const MATH_GLOSSARY: Record<string, GlossaryEntry> = {
     explanation: "The sum of the exterior angles (one per vertex) of any convex polygon is always exactly 360°.",
     formula: "Sum = 360°",
   },
+  "trapezoid perimeter": {
+    title: "Trapezoid Perimeter Formula",
+    explanation: "Add up the lengths of all 4 outer boundary sides (a, b, c, and d).",
+    formula: "P = a + b + c + d",
+  },
+  "cone volume": {
+    title: "Cone Volume Formula",
+    explanation: "The volume of a cone is exactly ⅓ the volume of an equivalent cylinder with the same base and height.",
+    formula: "V = ⅓πr²h",
+  },
+  "sphere volume": {
+    title: "Sphere Volume Formula",
+    explanation: "Multiply ⁴⁄₃ by π and the cube of the radius (r³).",
+    formula: "V = ⁴⁄₃πr³",
+  },
+  "sphere surface area": {
+    title: "Sphere Surface Area Formula",
+    explanation: "The surface area of a sphere equals the area of exactly 4 great circles (4 × πr²).",
+    formula: "SA = 4πr²",
+  },
   "regular polygon angle": {
     title: "Regular Polygon Interior Angle",
     explanation: "Divide the total interior angle sum by the number of equal sides (n).",
@@ -160,6 +180,7 @@ export function lookupGlossary(reason: string): GlossaryEntry | null {
   if (lower.includes("rectangle perimeter")) return MATH_GLOSSARY["rectangle perimeter"];
   if (lower.includes("parallelogram area")) return MATH_GLOSSARY["parallelogram area"];
   if (lower.includes("trapezoid area")) return MATH_GLOSSARY["trapezoid area"];
+  if (lower.includes("trapezoid perimeter") || lower.includes("sum of all 4") || lower.includes("sum of all sides")) return MATH_GLOSSARY["trapezoid perimeter"];
   if (lower.includes("triangle perimeter")) return MATH_GLOSSARY["triangle perimeter"];
   if (lower.includes("perimeter")) return MATH_GLOSSARY.perimeter;
   if (lower.includes("circle area")) return MATH_GLOSSARY["circle area"];
@@ -169,6 +190,9 @@ export function lookupGlossary(reason: string): GlossaryEntry | null {
   if (lower.includes("exterior sum") || lower.includes("exterior angle sum")) return MATH_GLOSSARY["polygon exterior sum"];
   if (lower.includes("regular polygon angle") || lower.includes("regular polygon interior angle") || lower.includes("regular polygon")) return MATH_GLOSSARY["regular polygon angle"];
   if (lower.includes("circumference")) return MATH_GLOSSARY.circumference;
+  if (lower.includes("cone volume") || lower.includes("volume of a cone")) return MATH_GLOSSARY["cone volume"];
+  if (lower.includes("sphere volume") || lower.includes("volume of a sphere")) return MATH_GLOSSARY["sphere volume"];
+  if (lower.includes("sphere surface area") || lower.includes("surface area of a sphere")) return MATH_GLOSSARY["sphere surface area"];
   if (lower.includes("prism volume") || lower.includes("volume of a prism")) return MATH_GLOSSARY["prism volume"];
   if (lower.includes("cube surface area") || lower.includes("surface area of a cube")) return MATH_GLOSSARY["cube surface area"];
   if (lower.includes("cylinder volume") || lower.includes("volume of a cylinder")) return MATH_GLOSSARY["cylinder volume"];

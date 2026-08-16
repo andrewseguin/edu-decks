@@ -373,31 +373,30 @@ function makeQuadTermCards(): GeometryCard[] {
       id: nextId(), topic: "quadrilaterals", cardType: "term", variant: "definition",
       frontLabel: "Parallelograms", frontPrompt: "are…?",
       frontSpeechText: "Parallelograms are…?",
-      backDefinition: "Opposite sides equal and parallel, opposite angles equal",
-      backDefinitionSubtitle: "Consecutive interior angles sum to 180°",
+      backDefinition: "Two pairs of parallel sides",
+      backDefinitionSubtitle: "Opposite sides & opposite angles are equal",
       backSvgExamples: [{ shape: "parallelogram", dimensions: { b: "b", h: "h", labelMode: "variable" }, labelMode: "variable" }],
-      backSteps: [{ formulaLine: "Opposite sides ∥ and equal" }, { formulaLine: "Opposite angles equal" }],
-      backSpeechText: "Parallelograms have opposite sides equal and parallel, and opposite angles equal", color,
+      backSteps: [{ formulaLine: "Two pairs of parallel sides" }, { formulaLine: "Opposite sides & angles equal" }],
+      backSpeechText: "Parallelograms have two pairs of parallel sides, with opposite sides and angles equal", color,
     },
     {
       id: nextId(), topic: "quadrilaterals", cardType: "term", variant: "definition",
       frontLabel: "Rhombuses", frontPrompt: "are…?",
       frontSpeechText: "Rhombuses are…?",
-      backDefinition: "4 equal sides, opposite angles equal",
-      backDefinitionSubtitle: "Diagonals perpendicular bisect at 90°",
+      backDefinition: "All 4 sides are equal",
+      backDefinitionSubtitle: "Diagonals bisect each other at 90°",
       backSvgExamples: [{ shape: "rhombus", dimensions: { b: "s", labelMode: "variable" }, labelMode: "variable" }],
-      backSteps: [{ formulaLine: "All 4 sides equal" }, { formulaLine: "Diagonals bisect at 90°" }],
-      backSpeechText: "Rhombuses have 4 equal sides and diagonals bisecting at 90 degrees", color,
+      backSteps: [{ formulaLine: "All 4 sides are equal" }, { formulaLine: "Diagonals bisect at 90°" }],
+      backSpeechText: "Rhombuses have all four sides equal and diagonals bisecting at 90 degrees", color,
     },
     {
       id: nextId(), topic: "quadrilaterals", cardType: "term", variant: "definition",
       frontLabel: "Trapezoids", frontPrompt: "are…?",
       frontSpeechText: "Trapezoids are…?",
-      backDefinition: "Exactly one pair of parallel sides",
-      backDefinitionSubtitle: "Parallel sides are called bases (a and b)",
+      backDefinition: "One pair of parallel sides",
       backSvgExamples: [{ shape: "trapezoid", dimensions: { a: 4, b: 8, h: 5, labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ formulaLine: "Exactly 1 pair of parallel sides" }],
-      backSpeechText: "Trapezoids have exactly one pair of parallel sides", color,
+      backSteps: [{ formulaLine: "One pair of parallel sides (bases a & b)" }],
+      backSpeechText: "Trapezoids have one pair of parallel sides", color,
     },
     {
       id: nextId(), topic: "quadrilaterals", cardType: "term", variant: "definition",
@@ -413,7 +412,7 @@ function makeQuadTermCards(): GeometryCard[] {
       id: nextId(), topic: "quadrilaterals", cardType: "term", variant: "definition",
       frontLabel: "Perimeter of a rectangle", frontPrompt: "formula is…?",
       frontSpeechText: "The formula for the perimeter of a rectangle is…?",
-      backDefinition: "P = 2(l + w)",
+      backDefinition: "P = 2l + 2w",
       backDefinitionSubtitle: "Perimeter = 2 · length + 2 · width",
       backSvgExamples: [{ shape: "rectangle", dimensions: { l: "l", w: "w", labelMode: "variable" }, labelMode: "variable" }],
       backSteps: [{ formulaLine: "P = 2(l + w)" }],
@@ -424,10 +423,20 @@ function makeQuadTermCards(): GeometryCard[] {
       frontLabel: "Area of a parallelogram", frontPrompt: "formula is…?",
       frontSpeechText: "The formula for the area of a parallelogram is…?",
       backDefinition: "A = b · h",
-      backDefinitionSubtitle: "Area = base · perpendicular height",
+      backDefinitionSubtitle: "Area = base · height",
       backSvgExamples: [{ shape: "parallelogram", dimensions: { b: "b", h: "h", labelMode: "variable" }, labelMode: "variable" }],
       backSteps: [{ formulaLine: "A = base · perpendicular height" }],
       backSpeechText: "Area equals base times height", color,
+    },
+    {
+      id: nextId(), topic: "quadrilaterals", cardType: "term", variant: "definition",
+      frontLabel: "Perimeter of a parallelogram", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the perimeter of a parallelogram is…?",
+      backDefinition: "P = 2a + 2b",
+      backDefinitionSubtitle: "Perimeter = 2 · side a + 2 · side b",
+      backSvgExamples: [{ shape: "parallelogram", dimensions: { a: "a", b: "b", labelMode: "variable", unknownDimension: "P" }, labelMode: "variable" }],
+      backSteps: [{ formulaLine: "P = 2(a + b)" }],
+      backSpeechText: "Perimeter equals 2 times a plus 2 times b", color,
     },
     {
       id: nextId(), topic: "quadrilaterals", cardType: "term", variant: "definition",
@@ -439,13 +448,33 @@ function makeQuadTermCards(): GeometryCard[] {
       backSteps: [{ formulaLine: "A = ½ · (sum of parallel sides) · height" }],
       backSpeechText: "Area equals one half a plus b times height", color,
     },
+    {
+      id: nextId(), topic: "quadrilaterals", cardType: "term", variant: "definition",
+      frontLabel: "Perimeter of a trapezoid", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the perimeter of a trapezoid is…?",
+      backDefinition: "P = a + b + c + d",
+      backDefinitionSubtitle: "Perimeter = sum of all 4 outer boundary sides",
+      backSvgExamples: [{ shape: "trapezoid", dimensions: { a: "a", b: "b", c: "c", d: "d", labelMode: "variable", unknownDimension: "P" }, labelMode: "variable" }],
+      backSteps: [{ formulaLine: "P = a + b + c + d" }],
+      backSpeechText: "Perimeter equals the sum of all four sides", color,
+    },
+    {
+      id: nextId(), topic: "quadrilaterals", cardType: "term", variant: "definition",
+      frontLabel: "Perimeter of a rhombus", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the perimeter of a rhombus is…?",
+      backDefinition: "P = 4s",
+      backDefinitionSubtitle: "Perimeter = 4 · side length (all 4 sides equal)",
+      backSvgExamples: [{ shape: "rhombus", dimensions: { s: "s", labelMode: "variable", unknownDimension: "P" }, labelMode: "variable" }],
+      backSteps: [{ formulaLine: "P = 4s" }],
+      backSpeechText: "Perimeter equals 4 times side length", color,
+    },
   ];
 }
 
 function makeQuadCalcCard(settings: GeneratorSettings): GeometryCard {
   const color = TOPIC_COLORS.quadrilaterals;
   const u = uid(settings.measurementUnit);
-  const t = pick(["rect-area", "rect-perim", "para-area", "trap-area", "rect-reverse"] as const);
+  const t = pick(["rect-area", "rect-perim", "para-area", "para-perim", "trap-area", "trap-perim", "rhombus-perim", "rect-reverse"] as const);
 
   if (t === "rect-area") {
     const l = randInt(4, 15), w = randInt(3, 10);
@@ -472,8 +501,8 @@ function makeQuadCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "rectangle", dimensions: { l, w, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "P" },
       frontSpeechText: `Length is ${l}, width is ${w}. Find the rectangle perimeter.`,
       backSteps: [
-        { equationTokens: [tok("lhs","P"), eq(), dim("two","2("), tok("l","l","#ffd45e"), op("+"), tok("w","w","#5ee8ff"), dim("cp",")")], svgMutation: { traceStroke: "perimeter" }, reason: "Rectangle perimeter formula" },
-        { equationTokens: [tok("lhs","P"), eq(), dim("two","2("), tok("l",`${l}`,"#ffd45e"), op("+"), tok("w",`${w}`,"#5ee8ff"), dim("cp",")")], reason: "Substitute known values" },
+        { equationTokens: [tok("lhs","P"), eq(), dim("two","2"), tok("l","l","#ffd45e"), op("+"), dim("two2","2"), tok("w","w","#5ee8ff")], svgMutation: { traceStroke: "perimeter" }, reason: "Rectangle perimeter formula" },
+        { equationTokens: [tok("lhs","P"), eq(), dim("two","2("), tok("l",`${l}`,"#ffd45e"), dim("cp",")"), op("+"), dim("two2","2("), tok("w",`${w}`,"#5ee8ff"), dim("cp2",")")], reason: "Substitute known values" },
         { equationTokens: [tok("lhs","P"), eq(), tok("rhs",`${P}${u}`)], reason: "Evaluate" },
       ],
       backSpeechText: `P equals ${P}`, numericAnswer: P, color,
@@ -495,6 +524,22 @@ function makeQuadCalcCard(settings: GeneratorSettings): GeometryCard {
       backSpeechText: `A equals ${A}`, numericAnswer: A, color,
     };
   }
+  if (t === "para-perim") {
+    const b = randInt(5, 14), a = randInt(3, 10);
+    const P = 2 * (a + b);
+    return {
+      id: nextId(), topic: "quadrilaterals", cardType: "calculation", variant: "compute",
+      frontPrompt: "Solve for the parallelogram perimeter",
+      frontSvg: { shape: "parallelogram", dimensions: { b, a, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "P" },
+      frontSpeechText: `Base is ${b}, side is ${a}. Find the parallelogram perimeter.`,
+      backSteps: [
+        { equationTokens: [tok("lhs","P"), eq(), dim("two1","2"), tok("a","a","#5ee8ff"), op("+"), dim("two2","2"), tok("b","b","#ffd45e")], svgMutation: { traceStroke: "perimeter" }, reason: "Parallelogram perimeter formula" },
+        { equationTokens: [tok("lhs","P"), eq(), dim("two1","2("), tok("a",`${a}`,"#5ee8ff"), dim("cp1",")"), op("+"), dim("two2","2("), tok("b",`${b}`,"#ffd45e"), dim("cp2",")")], reason: "Substitute known values" },
+        { equationTokens: [tok("lhs","P"), eq(), tok("rhs",`${P}${u}`)], reason: "Evaluate" },
+      ],
+      backSpeechText: `P equals ${P}`, numericAnswer: P, color,
+    };
+  }
   if (t === "trap-area") {
     const a = randInt(3, 8), b = randInt(6, 14), h = randInt(3, 10);
     const A = Math.round(0.5 * (a + b) * h * 10) / 10;
@@ -504,11 +549,43 @@ function makeQuadCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "trapezoid", dimensions: { a, b, h, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "A" },
       frontSpeechText: `a is ${a}, b is ${b}, h is ${h}. Find the trapezoid area.`,
       backSteps: [
-        { equationTokens: [tok("lhs","A"), eq(), tok("half","½"), dim("op","("), tok("a","a","#5ee8ff"), op("+"), tok("b","b","#ffd45e"), dim("cp",")·"), tok("h","h","#5ee8ff")], reason: "Trapezoid area formula" },
-        { equationTokens: [tok("lhs","A"), eq(), tok("half","½"), dim("op","("), tok("a",`${a}`,"#5ee8ff"), op("+"), tok("b",`${b}`,"#ffd45e"), dim("cp",")·"), tok("h",`${h}`,"#5ee8ff")], svgMutation: { fillInterior: true }, reason: "Substitute known values" },
+        { equationTokens: [tok("lhs","A"), eq(), tok("half","½"), dim("op","("), tok("a","a","#d8b4fe"), op("+"), tok("b","b","#ffd45e"), dim("cp",")·"), tok("h","h","#5ee8ff")], reason: "Trapezoid area formula" },
+        { equationTokens: [tok("lhs","A"), eq(), tok("half","½"), dim("op","("), tok("a",`${a}`,"#d8b4fe"), op("+"), tok("b",`${b}`,"#ffd45e"), dim("cp",")·"), tok("h",`${h}`,"#5ee8ff")], svgMutation: { fillInterior: true }, reason: "Substitute known values" },
         { equationTokens: [tok("lhs","A"), eq(), tok("rhs",`${A}${u}²`)], reason: "Evaluate" },
       ],
       backSpeechText: `A equals ${A}`, numericAnswer: A, color,
+    };
+  }
+  if (t === "trap-perim") {
+    const a = randInt(3, 8), b = randInt(7, 14), c = randInt(4, 9), d = randInt(4, 9);
+    const P = a + b + c + d;
+    return {
+      id: nextId(), topic: "quadrilaterals", cardType: "calculation", variant: "compute",
+      frontPrompt: "Solve for the trapezoid perimeter",
+      frontSvg: { shape: "trapezoid", dimensions: { a, b, c, d, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "P" },
+      frontSpeechText: `Sides are ${a}, ${b}, ${c}, and ${d}. Find the trapezoid perimeter.`,
+      backSteps: [
+        { equationTokens: [tok("lhs","P"), eq(), tok("a","a","#d8b4fe"), op("+"), tok("b","b","#ffd45e"), op("+"), tok("c","c","#5ee8ff"), op("+"), tok("d","d","#5ee8ff")], svgMutation: { traceStroke: "perimeter" }, reason: "Sum of all 4 outer sides" },
+        { equationTokens: [tok("lhs","P"), eq(), tok("a",`${a}`,"#d8b4fe"), op("+"), tok("b",`${b}`,"#ffd45e"), op("+"), tok("c",`${c}`,"#5ee8ff"), op("+"), tok("d",`${d}`,"#5ee8ff")], reason: "Substitute known values" },
+        { equationTokens: [tok("lhs","P"), eq(), tok("rhs",`${P}${u}`)], reason: "Evaluate" },
+      ],
+      backSpeechText: `P equals ${P}`, numericAnswer: P, color,
+    };
+  }
+  if (t === "rhombus-perim") {
+    const s = randInt(4, 15);
+    const P = 4 * s;
+    return {
+      id: nextId(), topic: "quadrilaterals", cardType: "calculation", variant: "compute",
+      frontPrompt: "Solve for the rhombus perimeter",
+      frontSvg: { shape: "rhombus", dimensions: { s, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "P" },
+      frontSpeechText: `Side is ${s}. Find the rhombus perimeter.`,
+      backSteps: [
+        { equationTokens: [tok("lhs","P"), eq(), dim("four","4"), tok("s","s","#ffd45e")], svgMutation: { traceStroke: "perimeter" }, reason: "Rhombus perimeter formula (4 equal sides)" },
+        { equationTokens: [tok("lhs","P"), eq(), dim("four","4("), tok("s",`${s}`,"#ffd45e"), dim("cp",")")], reason: "Substitute known values" },
+        { equationTokens: [tok("lhs","P"), eq(), tok("rhs",`${P}${u}`)], reason: "Evaluate" },
+      ],
+      backSpeechText: `P equals ${P}`, numericAnswer: P, color,
     };
   }
   // rect-reverse

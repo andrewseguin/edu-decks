@@ -18,7 +18,9 @@ import { InteractiveTriangleAreaExplorer } from "./interactive-triangle-area-exp
 import { InteractiveTrianglePerimeterExplorer } from "./interactive-triangle-perimeter-explorer";
 import { InteractiveRectangleAreaExplorer } from "./interactive-rectangle-area-explorer";
 import { InteractiveParallelogramExplorer } from "./interactive-parallelogram-explorer";
+import { InteractiveParallelogramPropertyExplorer } from "./interactive-parallelogram-property-explorer";
 import { InteractiveTrapezoidExplorer } from "./interactive-trapezoid-explorer";
+import { InteractiveTrapezoidPropertyExplorer } from "./interactive-trapezoid-property-explorer";
 import { InteractiveRhombusExplorer } from "./interactive-rhombus-explorer";
 import { InteractiveCircleCircumferenceExplorer } from "./interactive-circle-circumference-explorer";
 import { InteractiveCircleAreaExplorer } from "./interactive-circle-area-explorer";
@@ -29,6 +31,9 @@ import { InteractiveRegularPolygonExplorer } from "./interactive-regular-polygon
 import { InteractiveEulerExplorer } from "./interactive-euler-explorer";
 import { InteractivePrismVolumeExplorer } from "./interactive-prism-volume-explorer";
 import { InteractiveCylinderVolumeExplorer } from "./interactive-cylinder-volume-explorer";
+import { InteractiveConeVolumeExplorer } from "./interactive-cone-volume-explorer";
+import { InteractiveSphereVolumeExplorer } from "./interactive-sphere-volume-explorer";
+import { InteractiveSphereSurfaceAreaExplorer } from "./interactive-sphere-surface-area-explorer";
 import { InteractiveSolidFeatureExplorer } from "./interactive-solid-feature-explorer";
 import { FormattedMathText } from "./ui/formatted-math-text";
 import type {
@@ -150,17 +155,35 @@ export function GeometryCard({
       if (card.frontLabel === "Perimeter of a triangle") {
         return <InteractiveTrianglePerimeterExplorer color={card.color} />;
       }
-      if (card.frontLabel === "Area of a rectangle" || card.frontLabel === "Perimeter of a rectangle") {
-        return <InteractiveRectangleAreaExplorer color={card.color} />;
+      if (card.frontLabel === "Area of a rectangle") {
+        return <InteractiveRectangleAreaExplorer mode="area" color={card.color} />;
       }
-      if (card.frontLabel === "Parallelograms" || card.frontLabel === "Area of a parallelogram") {
-        return <InteractiveParallelogramExplorer color={card.color} />;
+      if (card.frontLabel === "Perimeter of a rectangle") {
+        return <InteractiveRectangleAreaExplorer mode="perimeter" color={card.color} />;
       }
-      if (card.frontLabel === "Trapezoids" || card.frontLabel === "Area of a trapezoid") {
-        return <InteractiveTrapezoidExplorer color={card.color} />;
+      if (card.frontLabel === "Parallelograms") {
+        return <InteractiveParallelogramPropertyExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "Area of a parallelogram") {
+        return <InteractiveParallelogramExplorer mode="area" color={card.color} />;
+      }
+      if (card.frontLabel === "Perimeter of a parallelogram") {
+        return <InteractiveParallelogramExplorer mode="perimeter" color={card.color} />;
+      }
+      if (card.frontLabel === "Trapezoids") {
+        return <InteractiveTrapezoidPropertyExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "Area of a trapezoid") {
+        return <InteractiveTrapezoidExplorer mode="area" color={card.color} />;
+      }
+      if (card.frontLabel === "Perimeter of a trapezoid") {
+        return <InteractiveTrapezoidExplorer mode="perimeter" color={card.color} />;
       }
       if (card.frontLabel === "Rhombuses") {
-        return <InteractiveRhombusExplorer color={card.color} />;
+        return <InteractiveRhombusExplorer mode="properties" color={card.color} />;
+      }
+      if (card.frontLabel === "Perimeter of a rhombus") {
+        return <InteractiveRhombusExplorer mode="perimeter" color={card.color} />;
       }
       if (card.frontLabel === "Circumference of a circle") {
         return <InteractiveCircleCircumferenceExplorer color={card.color} />;
@@ -178,7 +201,10 @@ export function GeometryCard({
         return <InteractiveRadiusExplorer mode="pi" color={card.color} />;
       }
       if (card.frontLabel === "Regular polygons") {
-        return <InteractiveRegularPolygonExplorer color={card.color} />;
+        return <InteractiveRegularPolygonExplorer mode="regular" color={card.color} />;
+      }
+      if (card.frontLabel === "Regular polygon interior angle") {
+        return <InteractiveRegularPolygonExplorer mode="each-angle" color={card.color} />;
       }
       if (card.frontLabel === "Interior angle sum of an n-gon") {
         return <InteractivePolygonInteriorSumExplorer color={card.color} />;
@@ -194,6 +220,15 @@ export function GeometryCard({
       }
       if (card.frontLabel === "Volume of a cylinder") {
         return <InteractiveCylinderVolumeExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "Volume of a cone") {
+        return <InteractiveConeVolumeExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "Volume of a sphere") {
+        return <InteractiveSphereVolumeExplorer color={card.color} />;
+      }
+      if (card.frontLabel === "Surface area of a sphere") {
+        return <InteractiveSphereSurfaceAreaExplorer color={card.color} />;
       }
       if (card.frontLabel === "A face") {
         return <InteractiveSolidFeatureExplorer feature="face" color={card.color} />;

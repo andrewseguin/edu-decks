@@ -128,7 +128,47 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
     - **Active**: `bg-white/20 text-white shadow-none px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold border-none`
 - **Gentle Auto-Pulse on Reveal**: Single-step interactive explorer cards gently pulse on initial reveal to demonstrate dynamic interactivity, immediately canceling and yielding permanent 100% control the instant the user touches or drags any handle. Multi-step proofs (e.g. Pythagoras square dissection, triangle fold) are user-triggered via step clicks or replay pills.
 
-### 2.5 Two-Column Calculation Proofs & Interactive Glossary
+### 2.5 Area vs. Perimeter Structural Specifications
+Geometry cards are fundamentally divided into **Area concepts** and **Perimeter concepts**, each with strict visual and structural rules:
+
+- **Area Cards (Interior Focus)**:
+  - **Unit Grid Visualization**: Subtle, neutral unit grid lines (`rgba(255, 255, 255, 0.12)`) across the enclosing bounding box to concretely ground square units.
+  - **Perpendicular Altitude Lines ($h$)**: Dashed vertical height lines with $90^\circ$ right-angle markers in Cyan (`#5ee8ff`).
+  - **Multi-Step Geometric Proofs**: Interactive step navigation pills (`[ 1. Shape ] [ 2. Proof ]`) demonstrating dissections (e.g. Parallelogram cut-and-slide, Trapezoid $180^\circ$ hinge duplicate flip).
+  - **Live Banner**: $A = b \cdot h$ or $A = \frac{1}{2}(a+b)h$ in stacked fractions.
+
+- **Perimeter Cards (Boundary Focus)**:
+  - **No Interior Grid Lines**: Unit grids must be strictly omitted on perimeter cards to keep total visual focus on the 1D outer boundary path.
+  - **No Altitude Lines or Interior Markers**: Omit interior dashed height lines and right-angle markers.
+  - **Minimal Information Principle**:
+    - Provide strictly the minimal sufficient set of dimensions.
+    - On shapes with opposite equal sides (Rectangles, Parallelograms), only label **two adjacent sides** (e.g. bottom base $b$ in Gold and left slanted side $a$ in Cyan). This actively reinforces to the student that because opposite sides are equal by definition, $P = 2a + 2b$ or $P = 2l + 2w$ only requires two side measurements.
+  - **Boundary Glow Tracing**: Reveal steps feature `traceStroke: "perimeter"` which animates a luminous perimeter trace around the outer edge.
+  - **Live Banner**: $P = 2(a) + 2(b) = \text{total}$ or $P = a + b + c + d = \text{total}$.
+
+### 2.6 Full Interactive Explorer Requirement for All Formulas
+- **Every Formula Term Card Must Be Interactive**:
+  - Every formula card (both Area AND Perimeter across Triangles, Quadrilaterals, Circles, Polygons) must have a dedicated interactive explorer component with live dynamic calculation banners and 1:1 drag handles rather than falling back to static SVGs.
+  - Interactive explorers must support both `mode="area"` and `mode="perimeter"` with seamless resizing, clean responsive typography, and instant numeric-algebraic feedback.
+
+### 2.7 Multi-Step Physical Proof Animations & Duplication
+- **Physical 180° Hinge-Flip Duplication**:
+  - Multi-step proofs that show shape duplication (e.g. Trapezoid $\to$ $2\times$ Parallelogram) must use physical $180^\circ$ hinge rotations around the shared seam (`transformOrigin: seamMidX seamMidY`) with 100% full opacity visibility throughout, rather than fading in out of nowhere.
+- **Continuous Component Mounting**:
+  - Sliding wedges and animated dissection parts must remain mounted continuously in the DOM so CSS transitions (`cubic-bezier(0.4, 0, 0.2, 1)`) smoothly glide across without snapping or layout popping.
+
+### 2.8 Dynamic Container Responsiveness (`useContainerWidth`)
+- **Card-Width Responsive Freedom**:
+  - Interactive SVGs must dynamically adapt to the exact rendered card width using `useContainerWidth()` (backed by `ResizeObserver`).
+  - Eliminates hardcoded small canvas widths so desktop cards can expand to `480px+` while mobile viewports cleanly scale down without horizontal clipping or empty dead space.
+- **Symmetric 1:1 Center-Expansion Drag Math**:
+  - For shapes centered horizontally at $C_X = \text{SVG\_W} / 2$ (e.g. rectangles, trapezoids), the delta calculation for horizontal dragging must use the centered distance:
+    $$\text{rawUnits} = \text{round}\left(\frac{(p_x - C_X) \cdot 2}{\text{pxPerUnit}}\right)$$
+  - This ensures the outer drag handle stays locked **1:1 directly underneath the cursor** at full speed with 0 lag, while the shape expands and contracts symmetrically from the exact center of the card.
+- **Altitude Label Placement on the Interior**:
+  - Height ($h$) labels must always be placed on the **interior side** of the altitude line (away from the slanted diagonal leg / vertex) to guarantee ample breathing room and prevent crowding or overlapping the slanted boundary edge.
+
+### 2.9 Two-Column Calculation Proofs & Interactive Glossary
 - **Responsive Layout via CSS Container Queries (`.proof-table-container`)**:
   - **Wide Containers ($\ge 480\text{px}$)**: Classic formal two-column proof table (Reason on Left `|` Equation on Right) separated by a subtle vertical divider (`bg-white/20`).
   - **Narrow Containers ($< 480\text{px}$)**: Centered stacked step layout (Reason on top, full-width bold Equation below). Eliminates horizontal line clipping and preserves full, precise theorem language on small mobile screens.
@@ -140,17 +180,25 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
   - Front prompts on calculation cards must explicitly name the specific target variable shown in the diagram (e.g. *"Solve for angle B"*, *"Solve for angle C"*, *"Solve for the triangle area"*, *"Solve for hypotenuse (c)"*).
   - This establishes an immediate, unambiguous link between the question prompt and the corresponding target letter label on the canvas.
   - On flip, the front prompt smoothly collapses and fades (`opacity-0 max-h-0`) so learners focus entirely on the calculation proof.
-### 2.6 Standard Diagram Typography Scale
-All SVG vector diagrams and interactive explorer components adhere to a unified typographic scale:
 
-| Role | Font Size | Weight | Usage |
-| :--- | :--- | :--- | :--- |
-| **Unknown Target Variables** | `17px` | `900` (Black/Heavy) | Target unknown variables on front diagrams before reveal ($C, a, b, c$) |
-| **Known Angle Readouts & Side Dimensions** | `12px` – `13px` | `800` (Extra Bold) | Live interactive angle values ($67^\circ, 23^\circ$), side dimensions ($3, 4, 12$) |
-| **Secondary Helper Annotations** | `11px` | `600` (Semi Bold) | Diagram helper notes (e.g. *alternate angles equal*, $180^\circ < \text{reflex} < 360^\circ$) |
-
-- **No Concatenated Variable Prefixes**: Angle arcs in diagrams cleanly display only the pure numeric degree value (e.g. `67°`, `23°`) rather than wide, cluttered prefixes like `A=67°` or `B=23°`.
-- **Always Include Drop Shadows**: Any text rendered directly over the card background includes `style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}`.
+### 2.10 Interactive Step Navigation Pills & Action Buttons
+- **Multi-Step Proofs**:
+  - When demonstrating geometric proofs (e.g. Parallelogram Cut & Slide, Trapezoid 2× Parallelogram Docking, Triangle Angle Sum Fold), wrap steps in a standardized numbered pill bar:
+    ```tsx
+    <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5 bg-white/10 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-white/25 shadow-sm pointer-events-auto select-none">
+      <button className={cn("px-2.5 sm:px-3 py-0.5 rounded-full text-[11px] sm:text-xs font-headline font-bold transition-all border-none", !showProof ? "bg-white/20 text-white" : "bg-transparent text-white/70 hover:text-white hover:bg-white/10")}>
+        1. Parallelogram
+      </button>
+      <button className={cn("px-2.5 sm:px-3 py-0.5 rounded-full text-[11px] sm:text-xs font-headline font-bold transition-all border-none", showProof ? "bg-white/20 text-white" : "bg-transparent text-white/70 hover:text-white hover:bg-white/10")}>
+        2. Rectangle Proof
+      </button>
+    </div>
+    ```
+- **Seamless Morphing Transitions**:
+  - In cut-and-slide or docking animations, the remaining shape body must stay static while only the moving piece translates (`transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1)`).
+  - All moving proof pieces retain **neutral translucent white fill and stroke** (`fill="rgba(255, 255, 255, 0.14)" stroke="rgba(255, 255, 255, 0.95)"`) to avoid distracting or conflicting color shifts.
+- **Definition Term Cards (No Redundant Bottom Formula Chip)**:
+  - Pure definition cards (e.g. Parallelograms, Rhombuses, Trapezoids) do not require a bottom equation chip. The top hero banner + interactive diagram provide complete, unencumbered visual clarity.
 
 ---
 
@@ -179,12 +227,6 @@ Colors on Angles cards follow a strict **progressive allocation order**:
 | **Angle 3 ($C$)** | Mint Green | `#4ade80` | Third angle in multi-angle systems |
 | **Right Angle / Rays** | Crisp White | `#ffffff` | Ray line segments, square $90^\circ$ perpendicular markers |
 
-> [!IMPORTANT]
-> **Text Drop Shadows on Cards**: Any text element rendered directly on top of the card background (without a frosted/dimmed banner container) must include `style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))" }}` for maximum legibility and contrast.
-
-> [!IMPORTANT]
-> **Touch Points & Draggable Handles (Direct Shape Manipulation, Always White)**: All interactive controls are **100% direct vector drag manipulations** on vertex/ray endpoints (no disconnected horizontal range sliders). All drag handles strictly share the **unified white drag affordance** (solid white center dot with a frosted translucent grab ring: `fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.5)"` in SVG, paired with an invisible `r=24` touch hit area for effortless touch interaction). Semantic colors are strictly reserved for mathematical properties (angles, lengths, heights, areas), while frosted white serves as the universal signature for draggable controls.
-
 ### 3.2 Triangles Topic Palette *(Optimized for `#10b981` Emerald/Green)*
 
 | Concept | Token / Color | Hex | Usage |
@@ -194,21 +236,28 @@ Colors on Angles cards follow a strict **progressive allocation order**:
 | **Side $c$ / Hypotenuse $c$ / Angle $C$** | Neon Lilac | `#d8b4fe` | Hypotenuse $c$ in right triangles, third angle $C$ in scalene/angle sum |
 | **Right Angle ($90^\circ$)** | Cyan / White | `#5ee8ff` / `#ffffff` | Perpendicular right-angle square marker ($\llcorner$) at base of altitude or right vertex |
 | **Calculated Answer / Totals** | Bold White | `#ffffff` | Crisp bold white text inside the bottom frosted equation banner |
-| **Grid Lines & Bounding Boxes** | Translucent White | `rgba(255,255,255,0.35)` | Unit square grid lines (`strokeDasharray="2 2"`), bounding boxes (`strokeDasharray="4 3"`) |
+| **Grid Lines & Bounding Boxes** | Translucent White | `rgba(255,255,255,0.12)` / `0.25` | Subtle unit square grid lines (`rgba(255,255,255,0.12)`, `strokeDasharray="2 4"`), bounding boxes (`rgba(255,255,255,0.25)`, `strokeDasharray="4 3"`) |
 | **Shape Fills** | Soft Luminous White | `rgba(255,255,255,0.15)` | Interior fill of geometric shapes |
 | **Shape Outlines** | Solid White | `rgba(255,255,255,0.95)` | Primary polygon boundary edges (`strokeWidth={2.5}`) |
 
 ### 3.3 Quadrilaterals Topic Palette *(Optimized for `#6366f1` Indigo)*
 
+> [!IMPORTANT]
+> **1:1 Variable-to-Color Exclusivity (Never Reuse a Color for Multiple Dimensions on the Same Card)**:
+> In any geometric figure (such as a trapezoid with dimensions $a, b, h$ or a 3D prism with $l, w, h$), every distinct dimension/variable must have its own unique color from the palette. Never reuse Cyan or Gold for two different dimensions on the same card.
+
 | Concept | Token / Color | Hex | Usage |
 | :--- | :--- | :--- | :--- |
-| **Side $a$ / Altitude $h$ / Width $w$ / Base $a$** | Electric Cyan | `#5ee8ff` | Vertical altitude $h$, width $w$, top parallel base $a$ on trapezoid |
-| **Side $b$ / Base $b$ / Length $l$** | Warm Gold | `#ffd45e` | Horizontal baseline $b$, length $l$, bottom parallel base $b$ on trapezoid |
-| **Diagonals / Parallel Markers** | Neon Lilac | `#d8b4fe` | Bisecting diagonals ($d_1, d_2$), opposite parallel arrow indicators |
+| **Top Base ($a$) / Angle $B$** | Soft Lilac | `#d8b4fe` | Top parallel base $a$ on trapezoids, second angle $B$ |
+| **Bottom Base ($b$) / Length ($l$) / Angle $A$** | Warm Gold | `#ffd45e` | Horizontal baseline $b$, length $l$, bottom parallel base $b$ on trapezoid |
+| **Vertical Altitude ($h$) / Width ($w$)** | Electric Cyan | `#5ee8ff` | Vertical altitude $h$, width $w$ |
+| **Parallel Side Indicators** | Neutral White | `rgba(255,255,255,0.85)` | Solid parallel chevrons ($\blacktriangleright$ single on bases, $\blacktriangleright\blacktriangleright$ double on legs) |
+| **Diagonals** | Neutral Translucent White | `rgba(255,255,255,0.55)` | Dashed bisecting diagonals ($d_1, d_2$) |
+| **Equal Side Tick Marks** | Neutral White | `rgba(255,255,255,0.85)` | Clean hash marks (`|`) on equal sides |
 | **Right Angle ($90^\circ$)** | Cyan / White | `#5ee8ff` / `#ffffff` | Corner right-angle boxes ($\llcorner$) on rectangles & altitude base |
 | **Calculated Answer / Totals** | Bold White | `#ffffff` | Crisp bold white text inside the bottom frosted equation banner ($A$, $P$) |
-| **Grid Lines & Bounding Boxes** | Translucent White | `rgba(255,255,255,0.35)` | Unit square grid lines (`strokeDasharray="2 2"`), bounding boxes |
-| **Shape Fills** | Soft Luminous White | `rgba(255,255,255,0.15)` | Interior fill of geometric figures |
+| **Grid Lines & Bounding Boxes** | Translucent White | `rgba(255,255,255,0.12)` | Subtle unit square grid lines (skips rendering at altitude $x$-coordinate to avoid dash overlap) |
+| **Shape Fills** | Soft Luminous White | `rgba(255,255,255,0.14)` | Interior fill of geometric figures |
 | **Shape Outlines** | Solid White | `rgba(255,255,255,0.95)` | Primary quadrilateral perimeter boundary edges (`strokeWidth={2.5}`) |
 
 ### 3.4 Circles Topic Palette *(Optimized for `#8b5cf6` Violet)*
@@ -256,6 +305,7 @@ Colors on Angles cards follow a strict **progressive allocation order**:
 1. **Unit Grid Visualization**:
    - All area cards (triangle, rectangle, parallelogram, trapezoid, circle) must display subtle, neutral unit grid lines across the enclosing bounding rectangle ($b \times h$).
    - Concretely teaches that area is a countable measure of unit squares ($1 \times 1$).
+   - **Grid Cleanliness**: The grid generator must skip rendering a white grid line at the altitude line's exact $x$-coordinate to prevent distracting double-stroke or overlapping dashes.
 2. **Grid Snapping on Area Cards**:
    - On area cards with unit grids, drag handles snap cleanly to unit grid coordinates (e.g. integer width columns and height rows).
    - Ensures visual honesty: the apex, altitude line, and bounding box edges always align 1:1 with visible unit grid cells.

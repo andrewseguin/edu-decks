@@ -26,22 +26,24 @@ const COLOR_KEYWORDS: Record<string, string> = {
   "hypotenuse (c)": "#d8b4fe", // neon lilac
   "length (l)": "#ffd45e", // gold
   "width (w)": "#5ee8ff", // cyan
-  "length": "#ffd45e",
-  "width": "#5ee8ff",
   "radius (r)": "#5ee8ff", // cyan
   "radius²": "#5ee8ff",
-  "radius": "#5ee8ff",
+  "radius³": "#5ee8ff",
   "diameter (d)": "#ffd45e", // gold
-  "diameter": "#ffd45e",
   "circumference (C)": "#d8b4fe", // neon lilac
-  "circumference": "#d8b4fe",
   "vertices (V)": "#ffffff",
-  "vertices": "#ffffff",
   "edges (E)": "#ffd45e",
-  "edges": "#ffd45e",
   "faces (F)": "#5ee8ff",
-  "faces": "#5ee8ff",
-  // Lowercase squared side lengths:
+  // Standalone word keywords:
+  "length": "#ffd45e", // gold
+  "width": "#5ee8ff",  // cyan
+  "base": "#ffd45e",   // gold
+  "height": "#5ee8ff", // cyan
+  "radius": "#5ee8ff", // cyan
+  "diameter": "#ffd45e", // gold
+  "hypotenuse": "#d8b4fe", // neon lilac
+  "circumference": "#d8b4fe", // neon lilac
+  // Lowercase squared / cubed terms:
   "a²": "#5ee8ff", // cyan
   "b²": "#ffd45e", // gold
   "c²": "#d8b4fe", // neon lilac
@@ -81,8 +83,8 @@ export function FormattedMathText({
   text: string;
   className?: string;
 }) {
-  // Regex to match fractions and specific math keywords in descending order of specificity
-  const pattern = /(V − E \+ F = 2|V − E \+ F|A \+ B \+ C|½|⅓|⅔|¼|¾|⅕|⅖|⅗|⅘|⅙|⅚|⅛|⅜|⅝|⅞|⁴⁄₃|base angles|base \(b\)|height \(h\)|hypotenuse \(c\)|length \(l\)|width \(w\)|length|width|radius \(r\)|radius²|radius|diameter \(d\)|diameter|circumference \(C\)|circumference|vertices \(V\)|vertices|edges \(E\)|edges|faces \(F\)|faces|a²|b²|c²|r²|r³|∠A|∠B|∠C|[Aa]ngle [ABC])/g;
+  // Regex to match fractions, specific compound formulas, and math keywords
+  const pattern = /(V − E \+ F = 2|V − E \+ F|A \+ B \+ C = 180°|A \+ B \+ C|A = ½\(a \+ b\)h|A = ½ · \(a \+ b\) · h|P = a \+ b \+ c|P = 2\(l \+ w\)|P = 2l \+ 2w|A = l · w|A = b · h|V = l · w · h|V = πr²h|V = ⅓πr²h|V = ⁴⁄₃πr³|SA = 4πr²|A = πr²|C = 2πr|½|⅓|⅔|¼|¾|⅕|⅖|⅗|⅘|⅙|⅚|⅛|⅜|⅝|⅞|⁴⁄₃|base angles|base \(b\)|height \(h\)|hypotenuse \(c\)|length \(l\)|width \(w\)|radius \(r\)|radius²|radius³|diameter \(d\)|circumference \(C\)|vertices \(V\)|edges \(E\)|faces \(F\)|\blength\b|\bwidth\b|\bbase\b|\bheight\b|\bradius\b|\bdiameter\b|\bhypotenuse\b|\bcircumference\b|a²|b²|c²|r²|r³|∠A|∠B|∠C|[Aa]ngle [ABC])/g;
   const parts = text.split(pattern);
 
   return (
@@ -100,7 +102,7 @@ export function FormattedMathText({
             </React.Fragment>
           );
         }
-        if (part === "A + B + C") {
+        if (part === "A + B + C = 180°" || part === "A + B + C") {
           return (
             <React.Fragment key={idx}>
               <span style={{ color: "#5ee8ff" }} className="font-bold">A</span>
@@ -108,6 +110,140 @@ export function FormattedMathText({
               <span style={{ color: "#ffd45e" }} className="font-bold">B</span>
               {" + "}
               <span style={{ color: "#d8b4fe" }} className="font-bold">C</span>
+              {part.includes("= 180°") ? " = 180°" : ""}
+            </React.Fragment>
+          );
+        }
+        if (part === "A = ½(a + b)h" || part === "A = ½ · (a + b) · h") {
+          return (
+            <React.Fragment key={idx}>
+              <span>A = </span>
+              <StackedFraction numerator="1" denominator="2" />
+              <span>(</span>
+              <span style={{ color: "#d8b4fe" }} className="font-bold">a</span>
+              <span> + </span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">b</span>
+              <span>)</span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">h</span>
+            </React.Fragment>
+          );
+        }
+        if (part === "P = a + b + c") {
+          return (
+            <React.Fragment key={idx}>
+              <span>P = </span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">a</span>
+              <span> + </span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">b</span>
+              <span> + </span>
+              <span style={{ color: "#d8b4fe" }} className="font-bold">c</span>
+            </React.Fragment>
+          );
+        }
+        if (part === "P = 2(l + w)") {
+          return (
+            <React.Fragment key={idx}>
+              <span>P = 2(</span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">l</span>
+              <span> + </span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">w</span>
+              <span>)</span>
+            </React.Fragment>
+          );
+        }
+        if (part === "P = 2l + 2w") {
+          return (
+            <React.Fragment key={idx}>
+              <span>P = 2</span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">l</span>
+              <span> + 2</span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">w</span>
+            </React.Fragment>
+          );
+        }
+        if (part === "A = l · w") {
+          return (
+            <React.Fragment key={idx}>
+              <span>A = </span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">l</span>
+              <span> · </span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">w</span>
+            </React.Fragment>
+          );
+        }
+        if (part === "A = b · h") {
+          return (
+            <React.Fragment key={idx}>
+              <span>A = </span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">b</span>
+              <span> · </span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">h</span>
+            </React.Fragment>
+          );
+        }
+        if (part === "V = l · w · h") {
+          return (
+            <React.Fragment key={idx}>
+              <span>V = </span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">l</span>
+              <span> · </span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">w</span>
+              <span> · </span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">h</span>
+            </React.Fragment>
+          );
+        }
+        if (part === "V = πr²h") {
+          return (
+            <React.Fragment key={idx}>
+              <span>V = π</span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">r²</span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">h</span>
+            </React.Fragment>
+          );
+        }
+        if (part === "V = ⅓πr²h") {
+          return (
+            <React.Fragment key={idx}>
+              <span>V = </span>
+              <StackedFraction numerator="1" denominator="3" />
+              <span>π</span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">r²</span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">h</span>
+            </React.Fragment>
+          );
+        }
+        if (part === "V = ⁴⁄₃πr³") {
+          return (
+            <React.Fragment key={idx}>
+              <span>V = </span>
+              <StackedFraction numerator="4" denominator="3" />
+              <span>π</span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">r³</span>
+            </React.Fragment>
+          );
+        }
+        if (part === "SA = 4πr²") {
+          return (
+            <React.Fragment key={idx}>
+              <span>SA = 4π</span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">r²</span>
+            </React.Fragment>
+          );
+        }
+        if (part === "A = πr²") {
+          return (
+            <React.Fragment key={idx}>
+              <span>A = π</span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">r²</span>
+            </React.Fragment>
+          );
+        }
+        if (part === "C = 2πr") {
+          return (
+            <React.Fragment key={idx}>
+              <span>C = 2π</span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">r</span>
             </React.Fragment>
           );
         }

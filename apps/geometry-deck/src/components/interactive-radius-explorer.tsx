@@ -1,28 +1,53 @@
 "use client";
 
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useCallback, useRef, useEffect } from "react";
+import { useContainerWidth } from "@/hooks/use-container-width";
+import { StackedFraction } from "./ui/formatted-math-text";
 
 type InteractiveRadiusExplorerProps = {
   mode?: "radius" | "diameter" | "pi";
   color?: string;
 };
 
-const SVG_W = 240;
-const SVG_H = 150;
-const CX = 120;
-const CY = 75;
-const CR = 54;
+const SVG_H = 160;
+const CR = 58;
 
 const COLOR_RADIUS = "#5ee8ff";  // Electric Cyan
 const COLOR_DIAMETER = "#ffd45e";// Warm Gold
 const COLOR_CIRCUM = "#d8b4fe";  // Neon Lilac
 
 export function InteractiveRadiusExplorer({ mode = "radius", color }: InteractiveRadiusExplorerProps) {
+  const { containerRef, width: rawW } = useContainerWidth(320);
+  const SVG_W = Math.max(260, Math.min(460, rawW - 24));
+  const CX = SVG_W / 2;
+  const CY = SVG_H / 2;
+
   const [angleDeg, setAngleDeg] = useState(35);
   const [isDragging, setIsDragging] = useState(false);
-  const svgRef = useRef<SVGSVGElement>(null);
+  const [hasInteracted, setHasInteracted] = useState(false);
 
-  const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
+  const svgRef = useRef<SVGSVGElement>(null);
+  const ambientRef = useRef<number>(0);
+
+  const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => {
+    e.stopPropagation();
+    setHasInteracted(true);
+  }, []);
+
+  // Gentle ambient angle sweeping on initial reveal
+  useEffect(() => {
+    if (hasInteracted || isDragging) return;
+    let start: number | null = null;
+    const animate = (ts: number) => {
+      if (!start) start = ts;
+      const elapsed = ts - start;
+      const ang = 35 + Math.sin(elapsed / 1000) * 35;
+      setAngleDeg(Math.round(ang));
+      ambientRef.current = requestAnimationFrame(animate);
+    };
+    ambientRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(ambientRef.current);
+  }, [hasInteracted, isDragging]);
 
   const rad = (angleDeg * Math.PI) / 180;
   const pX = CX + CR * Math.cos(rad);
@@ -34,6 +59,7 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setHasInteracted(true);
     setIsDragging(true);
 
     const svg = svgRef.current;
@@ -60,78 +86,114 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
 
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
-  }, []);
+  }, [CX, CY, SVG_W]);
 
   const isDiameter = mode === "diameter";
   const isPi = mode === "pi";
 
   return (
-    <div className="flex flex-col items-center gap-2 w-full pb-2" onClick={stop} onPointerDown={stop}>
+    <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
-        className="w-full max-w-[300px] sm:max-w-[340px] touch-none select-none overflow-visible"
+        className="w-full touch-none select-none overflow-visible"
         style={{ cursor: isDragging ? "grabbing" : "default" }}
       >
-        {/* Circle Boundary */}
-        <circle cx={CX} cy={CY} r={CR} fill="rgba(255, 255, 255, 0.10)" stroke={isPi ? COLOR_CIRCUM : "rgba(255, 255, 255, 0.9)"} strokeWidth={isPi ? 3 : 2} />
+        {/* Circle Disk Fill & Boundary */}
+        <circle
+          cx={CX}
+          cy={CY}
+          r={CR}
+          fill="rgba(255, 255, 255, 0.12)"
+          stroke={isPi ? COLOR_CIRCUM : "rgba(255, 255, 255, 0.95)"}
+          strokeWidth={isPi ? 3.5 : 2.5}
+        />
 
-        {/* Center Dot */}
+        {/* Center Point Dot */}
         <circle cx={CX} cy={CY} r={3.5} fill="#ffffff" />
 
         {/* Diameter Line or Radius Line */}
-        {isDiameter ? (
+        {isDiameter || isPi ? (
           <>
-            <line x1={oppX} y1={oppY} x2={pX} y2={pY} stroke={COLOR_DIAMETER} strokeWidth={2.5} />
+            <line x1={oppX} y1={oppY} x2={pX} y2={pY} stroke={COLOR_DIAMETER} strokeWidth={2.5} strokeLinecap="round" />
             <circle cx={oppX} cy={oppY} r={3.5} fill={COLOR_DIAMETER} />
             <circle cx={pX} cy={pY} r={3.5} fill={COLOR_DIAMETER} />
             {/* Label */}
-            <text x={CX} y={CY - 12} textAnchor="middle" fontSize={13} fontWeight="800" fill={COLOR_DIAMETER} style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}>
-              d = 2r
+            <text
+              x={CX}
+              y={CY - 14}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={13.5}
+              fontWeight="800"
+              fill={COLOR_DIAMETER}
+              fontFamily="var(--font-heading, system-ui)"
+              style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
+            >
+              diameter (d)
             </text>
           </>
         ) : (
           <>
-            <line x1={CX} y1={CY} x2={pX} y2={pY} stroke={COLOR_RADIUS} strokeWidth={2.5} strokeDasharray="3 2" />
+            <line x1={CX} y1={CY} x2={pX} y2={pY} stroke={COLOR_RADIUS} strokeWidth={2.5} strokeDasharray="4 3" strokeLinecap="round" />
             <circle cx={pX} cy={pY} r={3.5} fill={COLOR_RADIUS} />
             {/* Label */}
-            <text x={(CX + pX) / 2} y={(CY + pY) / 2 - 10} textAnchor="middle" fontSize={13} fontWeight="800" fill={COLOR_RADIUS} style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}>
+            <text
+              x={(CX + pX) / 2}
+              y={(CY + pY) / 2 - 12}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={13.5}
+              fontWeight="800"
+              fill={COLOR_RADIUS}
+              fontFamily="var(--font-heading, system-ui)"
+              style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
+            >
               radius (r)
             </text>
           </>
         )}
 
-        {/* Drag Handle on circumference */}
+        {/* Interactive Drag Handle on circumference */}
         <g transform={`translate(${pX}, ${pY})`} className="cursor-grab active:cursor-grabbing" onPointerDown={handlePointerDown}>
-          <circle r={24} fill="transparent" />
+          <circle r={26} fill="transparent" />
           <circle r={9} fill="rgba(255, 255, 255, 0.2)" stroke="rgba(255, 255, 255, 0.6)" strokeWidth={1.5} />
           <circle r={4.5} fill="#ffffff" />
         </g>
       </svg>
 
-      {/* Live Typographic Status Banner */}
-      <div className="flex justify-center my-0.5">
-        <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/35 backdrop-blur-md border border-white/20 shadow-md text-xs sm:text-sm font-bold font-headline select-none">
-          {isDiameter ? (
-            <>
-              <span style={{ color: COLOR_DIAMETER }}>d = 2 · r</span>
-              <span className="text-white/40">·</span>
-              <span className="text-white/80">Straight chord through centre</span>
-            </>
-          ) : isPi ? (
-            <>
-              <span style={{ color: COLOR_CIRCUM }}>π = C ÷ d</span>
-              <span className="text-white/40">≈</span>
-              <span className="text-white font-extrabold">3.14159…</span>
-            </>
-          ) : (
-            <>
-              <span style={{ color: COLOR_RADIUS }}>r = centre to edge</span>
-              <span className="text-white/40">·</span>
-              <span className="text-white/80">Equal in all 360° directions</span>
-            </>
-          )}
-        </div>
+      {/* Live Definition / Formula Banner */}
+      <div className="flex justify-center mt-1">
+        {isPi ? (
+          <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none">
+            <span className="text-white">π</span>
+            <span className="text-white/50">=</span>
+            <span style={{ color: COLOR_CIRCUM }}>Circumference (C)</span>
+            <span className="text-white/50">÷</span>
+            <span style={{ color: COLOR_DIAMETER }}>diameter (d)</span>
+            <span className="text-white/50">≈</span>
+            <span className="text-white font-bold">3.14159…</span>
+          </div>
+        ) : isDiameter ? (
+          <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none">
+            <span style={{ color: COLOR_DIAMETER }}>d</span>
+            <span className="text-white/50">=</span>
+            <span className="text-white/80">2 ·</span>
+            <span style={{ color: COLOR_RADIUS }}>r</span>
+            <span className="text-white/40">·</span>
+            <span className="text-white/80">Full straight chord through center</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none">
+            <span style={{ color: COLOR_RADIUS }}>r</span>
+            <span className="text-white/50">=</span>
+            <span style={{ color: COLOR_DIAMETER }}>d</span>
+            <span className="text-white/50">÷</span>
+            <span className="text-white/80">2</span>
+            <span className="text-white/40">·</span>
+            <span className="text-white/80">Distance from center to edge</span>
+          </div>
+        )}
       </div>
     </div>
   );

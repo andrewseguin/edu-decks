@@ -59,8 +59,8 @@ export function ProofReasonTooltip({ reason, className }: ProofReasonTooltipProp
           )}
         >
           {/* Tooltip Header */}
-          <div className="flex items-center justify-between gap-2 pb-1">
-            <h4 className="font-bold text-xs sm:text-sm text-cyan-300 tracking-wide truncate min-w-0">
+          <div className="flex items-start justify-between gap-2 pb-1">
+            <h4 className="font-bold text-xs sm:text-sm text-cyan-300 tracking-wide leading-snug min-w-0 break-words">
               {reason}
             </h4>
             <button
