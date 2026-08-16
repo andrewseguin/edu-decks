@@ -459,60 +459,65 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         </div>
       </div>
 
-      {/* Row 2: Secondary Settings ([ - r = N + ] Radius Stepper & [ Slices: 8 | 16 | 32 | 64 ]) */}
-      <div className="flex items-center gap-2 select-none justify-center">
-        {/* [- r = N +] Radius Stepper */}
-        <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
-          <button
-            onClick={() => changeRadius(-1)}
-            disabled={radiusUnits <= MIN_RADIUS}
-            className={cn(
-              "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
-              radiusUnits <= MIN_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
-            )}
-            aria-label="Decrease radius"
-          >
-            <Minus className="w-3 h-3 stroke-[2.5]" />
-          </button>
+      {/* Row 2: Secondary Settings with Stacked Labels */}
+      <div className="flex items-center gap-4 select-none justify-center mt-0.5">
+        {/* Radius Stepper */}
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-[10px] uppercase font-bold tracking-wider text-white/60">Radius</span>
+          <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm">
+            <button
+              onClick={() => changeRadius(-1)}
+              disabled={radiusUnits <= MIN_RADIUS}
+              className={cn(
+                "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+                radiusUnits <= MIN_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
+              )}
+              aria-label="Decrease radius"
+            >
+              <Minus className="w-3 h-3 stroke-[2.5]" />
+            </button>
 
-          <span
-            style={{ color: COLOR_RADIUS }}
-            className="px-1 text-xs font-headline font-black tracking-wide min-w-[32px] text-center"
-          >
-            r = {radiusUnits}
-          </span>
+            <span
+              style={{ color: COLOR_RADIUS }}
+              className="px-1.5 text-xs font-headline font-black tracking-wide min-w-[18px] text-center"
+            >
+              {radiusUnits}
+            </span>
 
-          <button
-            onClick={() => changeRadius(1)}
-            disabled={radiusUnits >= MAX_RADIUS}
-            className={cn(
-              "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
-              radiusUnits >= MAX_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
-            )}
-            aria-label="Increase radius"
-          >
-            <Plus className="w-3 h-3 stroke-[2.5]" />
-          </button>
+            <button
+              onClick={() => changeRadius(1)}
+              disabled={radiusUnits >= MAX_RADIUS}
+              className={cn(
+                "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+                radiusUnits >= MAX_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
+              )}
+              aria-label="Increase radius"
+            >
+              <Plus className="w-3 h-3 stroke-[2.5]" />
+            </button>
+          </div>
         </div>
 
-        {/* Slices Subdivider Selector [ 8 | 16 | 32 | 64 ] */}
-        <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
-          <span className="text-[11px] text-white/60 font-bold px-0.5 select-none">Slices:</span>
-          {([8, 16, 32, 64] as const).map((cnt) => (
-            <button
-              key={cnt}
-              onClick={() => {
-                setIsPlaying(false);
-                setSectorCount(cnt);
-              }}
-              className={cn(
-                "px-2 py-0.5 rounded-full text-[11px] font-headline font-bold transition-all border-none",
-                sectorCount === cnt ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/65 hover:text-white"
-              )}
-            >
-              {cnt}
-            </button>
-          ))}
+        {/* Slices Selector */}
+        <div className="flex flex-col items-center gap-1">
+          <span className="text-[10px] uppercase font-bold tracking-wider text-white/60">Slices</span>
+          <div className="flex items-center gap-0.5 bg-white/10 backdrop-blur-md p-0.5 rounded-full border border-white/25 shadow-sm">
+            {([8, 16, 32, 64] as const).map((cnt) => (
+              <button
+                key={cnt}
+                onClick={() => {
+                  setIsPlaying(false);
+                  setSectorCount(cnt);
+                }}
+                className={cn(
+                  "px-2.5 py-0.5 rounded-full text-[11px] font-headline font-bold transition-all border-none",
+                  sectorCount === cnt ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/65 hover:text-white"
+                )}
+              >
+                {cnt}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
