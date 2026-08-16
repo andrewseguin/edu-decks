@@ -97,9 +97,9 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
     const targetP = targetProgress;
     if (Math.abs(startP - targetP) < 0.005) return;
 
-    // 2.6s for unrolling (step 1->2), 3.2s for 3-stage elevator proof (step 2->3)
+    // 2.6s for unrolling (step 1->2), 3.0s for 3-stage elevator proof (step 2->3)
     const stepDiff = Math.abs(targetP - startP);
-    const duration = Math.round((startP >= 0.99 || targetP >= 1.99 ? 3200 : 2600) * stepDiff);
+    const duration = Math.round((startP >= 0.99 || targetP >= 1.99 ? 3000 : 2600) * stepDiff);
 
     const stepAnim = (ts: number) => {
       if (!start) start = ts;
@@ -332,7 +332,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </g>
         )}
 
-        {/* 8 Slices Laid Down on Ground / 3-Stage Elevator Proof (Zero overlap) */}
+        {/* 8 Slices Laid Down on Ground / 3-Stage Elevator Proof (Zero overlap, tight comfortable clearance) */}
         {Array.from({ length: NUM_SECTORS }, (_, k) => {
           const handoverProgress = (k + 0.5) / NUM_SECTORS;
           if (p1 < handoverProgress && p1 < 0.999) return null; // still attached to rolling wheel!
@@ -355,7 +355,6 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
           if (p2 > 0) {
             const t = p2; // 0..1
-            const liftHeight = 44; // lifts 44px above ground line into clear air space
 
             // 3 Clean Sequential Subphases:
             // Subphase 1: Lift & Flip in place (t in 0 .. 0.32)
@@ -378,16 +377,19 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               curRot = 180;
             } else {
               // Top Flipping Slices (k = 1, 3, 5, 7):
-              // 1. Lift straight up + rotate to 0° (pointing down) in place:
-              const liftedY = groundYPos - liftHeight;
-              const yAfterLift = groundYPos + (liftedY - groundYPos) * ease1;
+              // Hover height: apex at groundY - 14px (giving clean 14px clearance above ground with plenty of top headroom)
+              const hoverApexY = groundY - 14;
+              const finalSlotApexY = groundY;
 
-              // 2. Slide horizontally while hovering safely above:
+              // 1. Lift & Flip from ground pose (groundYPos, 180°) to hover pose (hoverApexY, 0°):
+              const startApexY = groundYPos;
+              const yAfterLift = startApexY + (hoverApexY - startApexY) * ease1;
+
+              // 2. Slide horizontally while hovering comfortably above:
               curX = groundX + (targetX - groundX) * ease2;
 
-              // 3. Lower straight down from hover height into slot at y = groundY:
-              const finalSlotY = groundY;
-              curY = yAfterLift + (finalSlotY - liftedY) * ease3;
+              // 3. Lower straight down from hover apex into slot at y = groundY:
+              curY = yAfterLift + (finalSlotApexY - hoverApexY) * ease3;
 
               // Rotation flips during sub1 from 180° to 0°
               curRot = 180 - 180 * ease1;
