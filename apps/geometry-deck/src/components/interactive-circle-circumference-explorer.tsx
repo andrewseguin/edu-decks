@@ -9,19 +9,18 @@ type InteractiveCircleCircumferenceProps = {
   color?: string;
 };
 
-const SVG_H = 175;
+const SVG_H = 170;
 
 const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan
 const COLOR_CIRCUM = "#fb923c"; // Vibrant Radiant Orange (Circumference ribbon & Target finish)
-const COLOR_GOLD = "#ffd45e";   // Warm Gold (Contact dot / angle tip)
-const COLOR_PI = "#f472b6";     // Vibrant Rose Pink (Consistent color for all Pi markers)
+const COLOR_PI = "#f472b6";     // Vibrant Rose Pink (Intermediate Pi markers)
 
 const MIN_RADIUS = 1;
 const MAX_RADIUS = 10;
 
 export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCircleCircumferenceProps) {
-  const { containerRef, width: rawW } = useContainerWidth(360);
-  const SVG_W = Math.max(340, Math.min(460, rawW - 16));
+  const { containerRef, width: rawW } = useContainerWidth(320);
+  const SVG_W = Math.max(300, Math.min(500, rawW - 24));
 
   const [radiusUnits, setRadiusUnits] = useState(1);
   const [animatedRadius, setAnimatedRadius] = useState(1); // Smoothly interpolated camera zoom [1.0 .. 10.0]
@@ -64,24 +63,35 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     return () => cancelAnimationFrame(zoomAnimRef.current);
   }, [radiusUnits]);
 
-  // Spatial Dimensions with 1:1 crisp display sizing:
+  // Comfortable Sizing & Generous Margins on all 4 sides:
+  // Target circle radius in pixels: ~34px (diameter ~68px)
+  // To keep 100% no-slip physical rolling: availableRulerW = 7 * rPx
   const maxVal = animatedRadius * 7;
-  const targetRulerW = SVG_W - 44;
-  const rPx = targetRulerW / 7; // ~42px to 56px (huge & readable!)
+  const targetRulerW = Math.min(SVG_W - 120, Math.max(210, Math.min(300, (SVG_W - 80) * 0.78)));
+  const rPx = targetRulerW / 7; // ~32px to 38px
   const availableRulerW = targetRulerW;
   const startX = Math.round((SVG_W - availableRulerW) / 2);
   const rightEdge = startX + availableRulerW;
   const pxPerUnit = availableRulerW / maxVal;
   
-  // Vertical positioning with ample headspace above circle and room for Pi labels below
-  const groundY = Math.round(rPx * 2 + 10);
-  const centerY = groundY - rPx;
-  const SVG_H = groundY + 42; // ~145px
+  // Vertical positioning with ample headspace (24px) above circle and room for Pi labels below
+  const groundY = Math.round(rPx * 2 + 24); // ~92px
+  const centerY = groundY - rPx; // ~58px (headspace at top: 58 - 34 = 24px!)
 
   // Actual physical circumference values for current active radius
   const cValue = 2 * Math.PI * radiusUnits;
-  const fullRollDist = cValue * pxPerUnit;
-  const cCoeff = 2 * radiusUnits;
+  const fullRollDist = cValue * pxPerUnit; // distance along ruler corresponding to 2*pi*r
+
+  // Wheel horizontal position based on unroll progress [0..1]
+  const currentWheelX = startX + unrollProgress * fullRollDist;
+
+  // Wheel rotation angle (starts with seam pointing straight down at 6 o'clock)
+  const wheelRotationDeg = unrollProgress * 360;
+
+  // Radius spoke pointing straight DOWN at start (6 o'clock) and rotating with wheel
+  const spokeAngleRad = (90 + wheelRotationDeg) * (Math.PI / 180);
+  const spokeTipX = rPx * Math.cos(spokeAngleRad);
+  const spokeTipY = rPx * Math.sin(spokeAngleRad);
 
   // Smooth forward/backward animation when isPlaying is true
   useEffect(() => {
@@ -156,13 +166,11 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   }, [SVG_W, fullRollDist, startX]);
 
   const togglePlay = () => {
-    if (isPlaying) {
-      setIsPlaying(false);
-    } else {
-      if (unrollProgress >= 0.98) {
-        setUnrollProgress(0);
-      }
+    if (unrollProgress >= 0.98) {
+      setUnrollProgress(0);
       setIsPlaying(true);
+    } else {
+      setIsPlaying(!isPlaying);
     }
   };
 
@@ -175,60 +183,77 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     }
   };
 
-  const currentWheelX = startX + unrollProgress * fullRollDist;
-
-  // Unspooling Tape Geometry
-  const remainingFraction = 1 - unrollProgress;
-  const remainingArcDeg = remainingFraction * 360;
-
-  const tipAngleRad = (90 - remainingArcDeg) * (Math.PI / 180);
-  const tipX = rPx * Math.cos(tipAngleRad);
-  const tipY = rPx * Math.sin(tipAngleRad);
-
-  let remainingArcPath = "";
-  if (unrollProgress > 0 && remainingFraction > 0.005) {
-    const largeArc = remainingArcDeg > 180 ? 1 : 0;
-    remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 ${largeArc} 0 ${tipX} ${tipY}`;
+  // Pi milestone ticks up to 2*pi*r
+  const milestones: { fraction: number; val: number; label: string }[] = [];
+  const maxPiK = 2 * radiusUnits;
+  for (let k = 1; k <= maxPiK; k++) {
+    const piVal = k * Math.PI;
+    const fraction = piVal / cValue;
+    if (fraction <= 1.001) {
+      milestones.push({
+        fraction,
+        val: piVal,
+        label: k === 1 ? "π" : `${k}π`,
+      });
+    }
   }
 
-  const targetFinishMultiple = 2 * radiusUnits;
-
-  // Strict threshold: at most 8 Pi labels across the ruler at any radius
-  const totalPis = 2 * radiusUnits;
-  const piStep = totalPis <= 8 ? 1 : totalPis <= 16 ? 2 : totalPis <= 40 ? 5 : 10;
-  const maxPiToRender = Math.min(20, Math.ceil(maxVal / Math.PI) + 2);
-  const piMultiples = Array.from({ length: maxPiToRender }, (_, i) => i + 1).filter(
-    (k) => k % piStep === 0 || k === targetFinishMultiple
-  );
-
-  // Dynamic integer ticks spanning full visible range with clean steps
+  // Integer unit ticks matching active scale
   const tickStep = radiusUnits === 1 ? 1 : radiusUnits <= 4 ? radiusUnits : 5;
   const maxTickToRender = Math.ceil(maxVal) + 5;
 
-  // Unit Teeth on the wheel placed at EXACT integer unit arc lengths (1, 2, 3, 4, 5, 6...)
-  // These land EXACTLY on the number line's integer ticks as the circle rolls!
-  const maxIntegerUnitsOnCircle = Math.floor(cValue);
-  const unitTeeth = Array.from({ length: maxIntegerUnitsOnCircle }, (_, i) => {
-    const u = i + 1; // unit 1, 2, 3...
-    const fraction = u / cValue; // fractional position along circumference (0 to 1)
-    return { u, fraction };
-  });
+  // Precise 1-unit ticks for wheel ribbon
+  const totalUnitTeeth = Math.floor(cValue);
+  const unitTeeth: { u: number; fraction: number }[] = [];
+  for (let u = 1; u <= totalUnitTeeth; u++) {
+    unitTeeth.push({
+      u,
+      fraction: u / cValue,
+    });
+  }
+
+  // Active circumference formula formatting
+  const formattedC = (2 * radiusUnits * Math.PI).toFixed(2);
+
+  // SVG Arc Path for remaining ribbon on the wheel:
+  // Starts at unrolled point (contact point: straight down at 6 o'clock, which is -90 deg in standard cartesian with y-down)
+  // and wraps clockwise around the wheel for the remaining angle (360 - wheelRotationDeg).
+  const remainingAngleDeg = 360 - wheelRotationDeg;
+  const startAngRad = 90 * (Math.PI / 180); // 6 o'clock contact point
+  const endAngRad = (90 - remainingAngleDeg) * (Math.PI / 180);
+  
+  const arcStartX = rPx * Math.cos(startAngRad);
+  const arcStartY = rPx * Math.sin(startAngRad);
+  const arcEndX = rPx * Math.cos(endAngRad);
+  const arcEndY = rPx * Math.sin(endAngRad);
+  const largeArcFlag = remainingAngleDeg > 180 ? 1 : 0;
+  
+  const remainingWheelArcPath = remainingAngleDeg > 0.5
+    ? `M ${arcStartX} ${arcStartY} A ${rPx} ${rPx} 0 ${largeArcFlag} 0 ${arcEndX} ${arcEndY}`
+    : "";
 
   return (
-    <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
+    <div ref={containerRef} className="flex flex-col items-center gap-2 w-full select-none" onClick={stop} onPointerDown={stop}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
-        className="w-full touch-none select-none overflow-visible cursor-pointer"
-        onPointerDown={handleTrackPointerDown}
+        className="w-full touch-none select-none overflow-visible"
       >
-        {/* Track Hitbox */}
-        <rect x={startX - 20} y={groundY - 60} width={availableRulerW + 40} height={90} fill="transparent" />
+        {/* Interactive Track Hitbox for Scrubbing */}
+        <rect
+          x={startX - 20}
+          y={groundY - 60}
+          width={availableRulerW + 40}
+          height={90}
+          fill="transparent"
+          className="cursor-pointer"
+          onPointerDown={handleTrackPointerDown}
+        />
 
         {/* Ruler Axis */}
         <line x1={startX - 10} y1={groundY} x2={rightEdge + 10} y2={groundY} stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
 
-        {/* Integer Ticks and Labels (Large, bold, high-contrast) */}
+        {/* Integer Ticks and Labels (major ticks with labels, subtle minor ticks at unit intervals) */}
         {Array.from({ length: maxTickToRender + 1 }, (_, t) => {
           const tickX = startX + t * pxPerUnit;
           if (tickX > rightEdge + 25) return null;
@@ -239,21 +264,21 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
             <g key={t} opacity={opacity}>
               <line
                 x1={tickX}
-                y1={groundY - (isMajor ? 5 : 2.5)}
+                y1={groundY - (isMajor ? 3 : 1.8)}
                 x2={tickX}
-                y2={groundY + (isMajor ? 5 : 2.5)}
-                stroke="rgba(255, 255, 255, 0.65)"
-                strokeWidth={isMajor ? 2 : 1.2}
-                opacity={isMajor ? 1 : 0.45}
+                y2={groundY + (isMajor ? 3 : 1.8)}
+                stroke="rgba(255, 255, 255, 0.45)"
+                strokeWidth={isMajor ? 1.5 : 1}
+                opacity={isMajor ? 1 : 0.4}
               />
               {isMajor && (
                 <text
                   x={tickX}
-                  y={groundY + 16}
+                  y={groundY + 13}
                   textAnchor="middle"
-                  fontSize={15}
-                  fontWeight="900"
-                  fill="rgba(255, 255, 255, 0.85)"
+                  fontSize={10}
+                  fontWeight="bold"
+                  fill="rgba(255, 255, 255, 0.65)"
                   fontFamily="var(--font-heading, system-ui)"
                 >
                   {t}
@@ -263,37 +288,34 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           );
         })}
 
-        {/* Continuous Pi Markers (π, 2π, 3π... 20π) that smoothly slide on/off edge */}
-        {piMultiples.map((k) => {
-          const val = k * Math.PI;
-          const markerX = startX + val * pxPerUnit;
-          if (markerX > rightEdge + 30) return null;
-          const opacity = markerX <= rightEdge ? 1 : Math.max(0, 1 - (markerX - rightEdge) / 25);
-          const isTargetFinish = k === targetFinishMultiple;
+        {/* Milestone Markers: 1π, 2π, etc. */}
+        {milestones.map(({ fraction, label }) => {
+          const mX = startX + fraction * fullRollDist;
+          if (mX > rightEdge + 25) return null;
+          const isTargetFinish = Math.abs(fraction - 1) < 0.001;
           const markerColor = isTargetFinish ? COLOR_CIRCUM : COLOR_PI;
-          const label = k === 1 ? "π" : `${k}π`;
 
           return (
-            <g key={k} transform={`translate(${markerX}, ${groundY})`} opacity={opacity}>
+            <g key={label} transform={`translate(${mX}, ${groundY})`}>
               <line
                 x1={0}
                 y1={isTargetFinish ? -5 : -4}
                 x2={0}
-                y2={18}
+                y2={17}
                 stroke={markerColor}
-                strokeWidth={isTargetFinish ? 3 : 2}
-                strokeDasharray={isTargetFinish ? undefined : "3 2"}
+                strokeWidth={isTargetFinish ? 2.5 : 1.8}
+                strokeDasharray={isTargetFinish ? undefined : "2 2"}
               />
-              <circle cx={0} cy={0} r={isTargetFinish ? 3 : 2.5} fill={markerColor} />
+              <circle cx={0} cy={0} r={isTargetFinish ? 3 : 2.2} fill={markerColor} />
               <text
                 x={0}
-                y={32}
+                y={28}
                 textAnchor="middle"
-                fontSize={isTargetFinish ? 18 : 16}
+                fontSize={isTargetFinish ? 13 : 12}
                 fontWeight="900"
                 fill={markerColor}
                 fontFamily="var(--font-heading, system-ui)"
-                style={{ filter: "drop-shadow(0px 1px 4px rgba(0, 0, 0, 0.95))" }}
+                style={{ filter: "drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.9))" }}
               >
                 {label}
               </text>
@@ -360,7 +382,46 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                 const y2 = (rPx + 3.5) * Math.sin(ang);
                 return (
                   <line
-                    key={`wheel-tooth-${u}`}
+                    key={`wheel-notch-${u}`}
+                    x1={x1}
+                    y1={y1}
+                    x2={x2}
+                    y2={y2}
+                    stroke="#ffffff"
+                    strokeWidth={1.2}
+                    opacity={0.9}
+                  />
+                );
+              })}
+            </g>
+          ) : remainingAngleDeg > 0.5 ? (
+            /* During Rolling: Remaining coiled ribbon on the wheel */
+            <g>
+              {/* Ghost track showing where ribbon peeled off */}
+              <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.15)" strokeWidth={1.5} strokeDasharray="3 3" />
+              
+              {/* Active remaining orange perimeter arc */}
+              <path
+                d={remainingWheelArcPath}
+                fill="none"
+                stroke={COLOR_CIRCUM}
+                strokeWidth={3.5}
+                strokeLinecap="round"
+                style={{ filter: "drop-shadow(0px 0px 4px rgba(251, 146, 60, 0.6))" }}
+              />
+              
+              {/* Unit Teeth remaining on wheel */}
+              {unitTeeth.map(({ u, fraction }) => {
+                if (fraction <= unrollProgress) return null; // already peeled off and laid on ground!
+                const teethAngDeg = 90 - (fraction - unrollProgress) * 360;
+                const ang = teethAngDeg * (Math.PI / 180);
+                const x1 = (rPx - 3.5) * Math.cos(ang);
+                const y1 = (rPx - 3.5) * Math.sin(ang);
+                const x2 = (rPx + 3.5) * Math.cos(ang);
+                const y2 = (rPx + 3.5) * Math.sin(ang);
+                return (
+                  <line
+                    key={`wheel-notch-${u}`}
                     x1={x1}
                     y1={y1}
                     x2={x2}
@@ -373,53 +434,26 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
               })}
             </g>
           ) : (
-            <>
-              {/* Bare Spool Ghost track */}
-              <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
-              {/* Vibrant Orange Ribbon Unspooling on Front/Top */}
-              {remainingArcPath && (
-                <g>
-                  <path
-                    d={remainingArcPath}
-                    fill="none"
-                    stroke={COLOR_CIRCUM}
-                    strokeWidth={3.5}
-                    strokeLinecap="round"
-                    style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.6))" }}
-                  />
-                  {/* Rotating Unit Teeth on remaining front/top arc (lands exactly on integer ticks!) */}
-                  {unitTeeth.map(({ u, fraction }) => {
-                    if (fraction <= unrollProgress) return null; // already landed on ruler at tick u!
-                    const ang = (90 - (fraction - unrollProgress) * 360) * (Math.PI / 180);
-                    const x1 = (rPx - 3.5) * Math.cos(ang);
-                    const y1 = (rPx - 3.5) * Math.sin(ang);
-                    const x2 = (rPx + 3.5) * Math.cos(ang);
-                    const y2 = (rPx + 3.5) * Math.sin(ang);
-                    return (
-                      <line
-                        key={`rem-tooth-${u}`}
-                        x1={x1}
-                        y1={y1}
-                        x2={x2}
-                        y2={y2}
-                        stroke="#ffffff"
-                        strokeWidth={1.2}
-                        opacity={0.95}
-                      />
-                    );
-                  })}
-                </g>
-              )}
-            </>
+            /* Fully Unrolled: Empty ghost wheel */
+            <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.2)" strokeWidth={1.5} strokeDasharray="3 3" />
           )}
 
-          {/* Continuous Radius Spoke pointing to unspooling tip */}
-          <line x1={0} y1={0} x2={tipX} y2={tipY} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
+          {/* Center Hub */}
           <circle cx={0} cy={0} r={3} fill="#ffffff" />
-          {/* Gold marker dot at the leading tip */}
-          <circle cx={tipX} cy={tipY} r={4.5} fill={COLOR_GOLD} stroke="rgba(0,0,0,0.5)" strokeWidth={1} />
 
-          {/* Radius label */}
+          {/* Cyan Radius Spoke from Center to Perimeter (Rotating with wheel) */}
+          <line
+            x1={0}
+            y1={0}
+            x2={spokeTipX}
+            y2={spokeTipY}
+            stroke={COLOR_RADIUS}
+            strokeWidth={2.2}
+            strokeDasharray="3 2"
+          />
+          <circle cx={spokeTipX} cy={spokeTipY} r={3.5} fill={COLOR_RADIUS} />
+
+          {/* Radius Value Label above center point */}
           <text
             x={0}
             y={-12}
@@ -507,15 +541,23 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
         </button>
       </div>
 
-      {/* Live Typographic Equation Banner */}
+      {/* Frosted Typographic Equation Banner */}
       <div className="flex justify-center mt-1">
         <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
           <span className="text-white">C</span>
           <span className="text-white/50">=</span>
-          <span className="text-white/80">2 · π ·</span>
+          <span style={{ color: COLOR_CIRCUM }} className="font-bold">2 · π ·</span>
           <span style={{ color: COLOR_RADIUS }}>{radiusUnits}</span>
           <span className="text-white/50">=</span>
-          <span style={{ color: COLOR_CIRCUM }} className="font-bold">{cCoeff}π</span>
+          <span style={{ color: COLOR_CIRCUM }} className="font-bold">{2 * radiusUnits}π</span>
+          {radiusUnits > 1 && (
+            <>
+              <span className="text-white/40">≈</span>
+              <span className="text-white/80 text-sm font-semibold tracking-normal font-sans">
+                {formattedC}
+              </span>
+            </>
+          )}
         </div>
       </div>
     </div>
