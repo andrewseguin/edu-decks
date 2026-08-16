@@ -15,7 +15,7 @@ const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan (Radius r & Height)
 const COLOR_BASE = "#ffd45e";   // Warm Gold (Base πr & Circumference)
 const COLOR_AREA = "#ffffff";   // Crisp Bold White
 const COLOR_PI = "#f472b6";     // Vibrant Rose Pink (Pi markers)
-const COLOR_SECTOR = "rgba(94, 232, 255, 0.45)"; // Unified Electric Cyan translucent fill
+const COLOR_SECTOR = "rgba(255, 255, 255, 0.18)"; // Neutral dim translucent white fill
 
 const MIN_RADIUS = 1;
 const MAX_RADIUS = 5;
