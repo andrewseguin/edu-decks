@@ -117,6 +117,7 @@ export function GeometryCard({
 
     // Render the interactive visual for the reveal content
     const renderInteractive = () => {
+      if (!isFlipped) return null;
       if (angleRange) {
         return <InteractiveAngleExplorer minAngle={angleRange.minAngle} maxAngle={angleRange.maxAngle} label={angleRange.label} color={card.color} />;
       }
