@@ -194,7 +194,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   // Exact true curved sector (pointing UP from apex at (0,0) to curved arc of radius rPx at top)
   const canonicalSectorPath = `M 0 0 L ${arcLeftX} ${arcLeftY} A ${rPx} ${rPx} 0 0 1 ${arcRightX} ${arcRightY} Z`;
 
-  // Radius spoke pointing DOWN at start (90 deg / 6 o'clock contact point) and rotating with wheel
+  // Radius spoke pointing DOWN at start (180 deg in canonical coords / 6 o'clock) and rotating with wheel
   const spokeAngleRad = (90 + p1 * 360) * (Math.PI / 180);
   const spokeTipX = rPx * Math.cos(spokeAngleRad);
   const spokeTipY = rPx * Math.sin(spokeAngleRad);
@@ -333,10 +333,10 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </g>
         )}
 
-        {/* 8 Slices Laid Down on Ground / Meshing into Solid Parallelogram (Zero snap, true curved arcs) */}
+        {/* 8 Slices Laid Down on Ground / Meshing into Solid Parallelogram */}
         {Array.from({ length: NUM_SECTORS }, (_, k) => {
-          const sliceFraction = (k + 1) / NUM_SECTORS;
-          if (sliceFraction > p1) return null; // not yet unrolled from wheel
+          const peelThreshold = k / NUM_SECTORS;
+          if (p1 <= peelThreshold) return null; // not yet unrolled from wheel
 
           const isEven = k % 2 === 0;
 
@@ -346,8 +346,6 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           const lineRot = 180; // apex pointing up, arc touching ground
 
           // Stage 2 target pose in assembled parallelogram:
-          // Even wedges (k = 0, 2, 4, 6): apex at (startX + (k/2)*singleToothW + halfW, groundY - rPx), rot = 180
-          // Odd wedges (k = 1, 3, 5, 7): apex at (startX + ((k-1)/2)*singleToothW + singleToothW, groundY), rot = 0 (pointing down into gaps)
           const pairIdx = Math.floor(k / 2);
           const paraApexX = isEven
             ? startX + pairIdx * singleToothW + halfW
@@ -390,20 +388,22 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           );
         })}
 
-        {/* Rolling Wheel Group (Identical canonical sector path, true continuous unspooling) */}
+        {/* Rolling Wheel Group (Exact physical rotation matching circumference roll) */}
         {p1 < 1 && (
           <g transform={`translate(${currentWheelX}, ${centerY})`}>
             {/* Ghost wheel outline */}
             <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
             <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.06)" />
 
-            {/* Slices Remaining on Wheel (Sharing EXACT canonicalSectorPath with ground slices) */}
+            {/* Slices Remaining on Wheel */}
             {Array.from({ length: NUM_SECTORS }, (_, i) => {
-              const sliceFraction = (i + 1) / NUM_SECTORS;
-              if (sliceFraction <= p1) return null; // already unrolled onto ground!
+              const peelThreshold = i / NUM_SECTORS;
+              if (p1 > peelThreshold) return null; // already peeled off onto ground!
 
-              // Exact rotation angle matching wheel's physical clockwise roll from 6 o'clock
-              const angleDeg = (sliceFraction - p1) * 360 - 90 - (360 / NUM_SECTORS) / 2;
+              // Exact physical orientation: Slice 0 starts pointing straight down (180 deg) at 6 o'clock.
+              // As wheel rolls, it rotates clockwise by p1 * 360 deg.
+              // When p1 reaches i / 8, slice i rotates to 180 deg and lands cleanly on the floor!
+              const angleDeg = 180 - i * (360 / NUM_SECTORS) + p1 * 360;
 
               return (
                 <g key={`wheel-slice-${i}`} transform={`rotate(${angleDeg})`}>
