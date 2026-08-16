@@ -24,7 +24,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const SVG_W = Math.max(300, Math.min(500, rawW - 24));
 
   const [radiusUnits, setRadiusUnits] = useState(1);
-  const [animatedRadius, setAnimatedRadius] = useState(1); // Smoothly interpolated radius [1.0 .. 3.0]
+  const [animatedRadius, setAnimatedRadius] = useState(1); // Smoothly interpolated camera zoom [1.0 .. 3.0]
   const [unrollProgress, setUnrollProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isDraggingHandle, setIsDraggingHandle] = useState(false);
@@ -37,7 +37,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     e.stopPropagation();
   }, []);
 
-  // Smoothly animate radius transition (growing circle & zooming out number line)
+  // Smoothly animate camera zoom when switching radius presets
   useEffect(() => {
     let start: number | null = null;
     const startR = animatedRadius;
@@ -64,20 +64,23 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     return () => cancelAnimationFrame(zoomAnimRef.current);
   }, [radiusUnits]);
 
-  // Dynamic scale based on smoothly animated radius
+  // Camera scale: ruler shows 0 .. (animatedRadius * 7)
   const maxVal = animatedRadius * 7;
   const startX = 46;
   const availableRulerW = SVG_W - 92;
   const pxPerUnit = availableRulerW / maxVal;
   
-  // Continuous smooth radius interpolation: r=1 -> 28px, r=2 -> 34px, r=3 -> 38px
+  // Continuous smooth visual circle radius (grows with animatedRadius)
   const rPx = 28 + (animatedRadius - 1) * 5.0;
   const groundY = 102;
   const centerY = groundY - rPx;
 
+  // Actual physical circumference values for current active radius
   const cValue = 2 * Math.PI * radiusUnits;
-  const fullRollDist = 2 * Math.PI * animatedRadius * pxPerUnit;
-  const halfRollDist = Math.PI * animatedRadius * pxPerUnit;
+  const fullRollDist = cValue * pxPerUnit;
+  const halfRollDist = Math.PI * radiusUnits * pxPerUnit;
+
+  // Dynamic positions that smoothly glide across screen during camera zoom
   const halfX = startX + halfRollDist;
   const endX = startX + fullRollDist;
 
@@ -174,13 +177,12 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   let remainingArcPath = "";
   if (unrollProgress > 0 && remainingFraction > 0.005) {
     const largeArc = remainingArcDeg > 180 ? 1 : 0;
-    // Sweep-flag 0 draws counter-clockwise from bottom (6 o'clock: (0, rPx)) up through front/right to tip
     remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 ${largeArc} 0 ${tipX} ${tipY}`;
   }
 
-  // Ticks list for current radius
+  // Ticks list spanning full visible range 0 .. 21
   const tickStep = radiusUnits === 1 ? 1 : radiusUnits;
-  const maxIntTick = radiusUnits * 7;
+  const maxIntTick = Math.ceil(maxVal);
   const ticks = Array.from({ length: Math.floor(maxIntTick / tickStep) + 1 }, (_, i) => i * tickStep);
 
   return (
@@ -197,7 +199,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
         {/* Ruler Axis */}
         <line x1={startX - 10} y1={groundY} x2={startX + availableRulerW + 10} y2={groundY} stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
 
-        {/* Integer Ticks and Labels (smoothly positions with camera zoom) */}
+        {/* Integer Ticks and Labels (smoothly glides with camera zoom) */}
         {ticks.map((t) => {
           const tickX = startX + t * pxPerUnit;
           if (tickX > startX + availableRulerW + 5) return null;
@@ -219,7 +221,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           );
         })}
 
-        {/* Highlighted π (Half-Turn) Marker — smoothly animates position */}
+        {/* Highlighted π (Half-Turn) Marker — smoothly glides in real-time */}
         <g transform={`translate(${halfX}, ${groundY})`}>
           <line x1={0} y1={-4} x2={0} y2={17} stroke={COLOR_PI} strokeWidth={1.5} strokeDasharray="2 2" />
           <circle cx={0} cy={0} r={2} fill={COLOR_PI} />
@@ -237,7 +239,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           </text>
         </g>
 
-        {/* Finish 2πr (Full-Turn) Marker — smoothly animates position */}
+        {/* Finish 2πr (Full-Turn) Marker — smoothly glides in real-time */}
         <g transform={`translate(${endX}, ${groundY})`}>
           <line x1={0} y1={-5} x2={0} y2={17} stroke={COLOR_CIRCUM} strokeWidth={2} />
           <circle cx={0} cy={0} r={2.5} fill={COLOR_CIRCUM} />
