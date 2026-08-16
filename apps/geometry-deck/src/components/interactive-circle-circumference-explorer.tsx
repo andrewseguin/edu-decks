@@ -220,11 +220,6 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           </text>
         </g>
 
-        {/* Ghost Starting Circle outline (when rolled away from origin) */}
-        {unrollProgress > 0.02 && (
-          <circle cx={startX} cy={centerY} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.15)" strokeWidth={1.5} strokeDasharray="3 3" />
-        )}
-
         {/* Unrolled Orange Ribbon Laid Down Along Ground */}
         {unrollProgress > 0 && (
           <g>
