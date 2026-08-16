@@ -123,7 +123,6 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   let remainingArcPath = "";
   if (unrollProgress > 0 && remainingFraction > 0.005) {
     const largeArc = remainingArcDeg > 180 ? 1 : 0;
-    // Sweep-flag 0 draws counter-clockwise from bottom (6 o'clock: (0, rPx)) up through front/right to tip
     remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 ${largeArc} 0 ${tipX} ${tipY}`;
   }
 
@@ -205,7 +204,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           <circle cx={startX} cy={centerY} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.15)" strokeWidth={1.5} strokeDasharray="3 3" />
         )}
 
-        {/* Unrolled Segmented Ribbon Laid Down Along Ground */}
+        {/* Unrolled Orange Ribbon Laid Down Along Ground */}
         {unrollProgress > 0 && (
           <g>
             {/* Base Glowing Orange Ribbon */}
@@ -219,17 +218,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
               strokeLinecap="round"
               style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.65))" }}
             />
-            {/* Subtle Measuring Tape Stitching/Dashes */}
-            <line
-              x1={startX}
-              y1={groundY}
-              x2={currentWheelX}
-              y2={groundY}
-              stroke="rgba(0, 0, 0, 0.35)"
-              strokeWidth={1.5}
-              strokeDasharray="4 3"
-            />
-            {/* Segment Notches on Ground */}
+            {/* Stamped Segment Notches on Ground */}
             {Array.from({ length: NUM_SEGMENTS + 1 }, (_, i) => {
               const segFraction = i / NUM_SEGMENTS;
               if (segFraction > unrollProgress) return null;
@@ -243,7 +232,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                   y2={groundY + 3.5}
                   stroke="#ffffff"
                   strokeWidth={1.2}
-                  opacity={0.9}
+                  opacity={0.95}
                 />
               );
             })}
@@ -267,16 +256,6 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                 strokeWidth={3.5}
                 style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.6))" }}
               />
-              {/* Inner stitching */}
-              <circle
-                cx={0}
-                cy={0}
-                r={rPx}
-                fill="none"
-                stroke="rgba(0, 0, 0, 0.35)"
-                strokeWidth={1.5}
-                strokeDasharray="4 3"
-              />
               {/* Perimeter Segment Teeth around full circle */}
               {Array.from({ length: NUM_SEGMENTS }, (_, i) => {
                 const ang = (90 - (i / NUM_SEGMENTS) * 360) * (Math.PI / 180);
@@ -293,7 +272,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                     y2={y2}
                     stroke="#ffffff"
                     strokeWidth={1.2}
-                    opacity={0.85}
+                    opacity={0.9}
                   />
                 );
               })}
@@ -313,13 +292,6 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                     strokeLinecap="round"
                     style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.6))" }}
                   />
-                  <path
-                    d={remainingArcPath}
-                    fill="none"
-                    stroke="rgba(0, 0, 0, 0.35)"
-                    strokeWidth={1.5}
-                    strokeDasharray="4 3"
-                  />
                   {/* Rotating Segment Teeth on the remaining front/top arc */}
                   {Array.from({ length: NUM_SEGMENTS }, (_, i) => {
                     const segFraction = i / NUM_SEGMENTS;
@@ -338,7 +310,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                         y2={y2}
                         stroke="#ffffff"
                         strokeWidth={1.2}
-                        opacity={0.9}
+                        opacity={0.95}
                       />
                     );
                   })}
