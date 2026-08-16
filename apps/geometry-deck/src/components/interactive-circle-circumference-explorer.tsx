@@ -184,9 +184,15 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
 
   const targetFinishMultiple = 2 * radiusUnits;
 
-  // Dynamic list of Pi multiples up to current range + extra buffer for smooth zoom
+  // Intelligently step Pi multiples as radius grows so labels never crowd:
+  // r <= 3: step by 1 (π, 2π, 3π...)
+  // r 4..6: step by 2 (2π, 4π, 6π...)
+  // r >= 7: step by 5 (5π, 10π, 15π, 20π)
+  const piStep = radiusUnits <= 3 ? 1 : radiusUnits <= 6 ? 2 : 5;
   const maxPiToRender = Math.min(20, Math.ceil(maxVal / Math.PI) + 2);
-  const piMultiples = Array.from({ length: maxPiToRender }, (_, i) => i + 1);
+  const piMultiples = Array.from({ length: maxPiToRender }, (_, i) => i + 1).filter(
+    (k) => k % piStep === 0 || k === targetFinishMultiple
+  );
 
   // Dynamic integer ticks spanning full visible range with clean steps
   const tickStep = radiusUnits === 1 ? 1 : radiusUnits <= 4 ? radiusUnits : 5;
