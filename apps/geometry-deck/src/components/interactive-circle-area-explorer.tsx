@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
 import { cn } from "@/lib/utils";
-import { Play, Pause, Minus, Plus } from "lucide-react";
+import { Minus, Plus } from "lucide-react";
 
 type InteractiveCircleAreaProps = {
   color?: string;
@@ -266,35 +266,30 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </text>
         </g>
 
-        {/* Base Dimension Bracket Along Bottom (b = πr in Step 3) */}
-        {p2 > 0.4 && (
-          <g opacity={Math.min(1, (p2 - 0.4) * 2.5)}>
+        {/* Dimension Callouts for Interlocked Parallelogram (Step 3) */}
+        {p2 > 0.88 && (
+          <g opacity={Math.min(1, (p2 - 0.88) * 8)}>
+            {/* Base Dimension Bracket Along Bottom (b = πr) */}
             <line x1={startX} y1={groundY + 6} x2={startX + halfRollDist} y2={groundY + 6} stroke={COLOR_BASE} strokeWidth={2.5} strokeLinecap="round" />
             <line x1={startX} y1={groundY + 2} x2={startX} y2={groundY + 10} stroke={COLOR_BASE} strokeWidth={2} />
             <line x1={startX + halfRollDist} y1={groundY + 2} x2={startX + halfRollDist} y2={groundY + 10} stroke={COLOR_BASE} strokeWidth={2} />
-          </g>
-        )}
 
-        {/* Persisted Cyan Radius Line Scooting over to become Height Callout (h = r) */}
-        {p1 >= 0.999 && (
-          <g>
+            {/* Height Callout (h = r) */}
             <line
-              x1={currentHeightCalloutX}
+              x1={startX + halfRollDist + halfW + 10}
               y1={groundY - rPx}
-              x2={currentHeightCalloutX}
+              x2={startX + halfRollDist + halfW + 10}
               y2={groundY}
               stroke={COLOR_RADIUS}
               strokeWidth={2.5}
-              strokeDasharray={p2 > 0.6 ? "3 2" : "none"}
+              strokeDasharray="3 2"
             />
-            <circle cx={currentHeightCalloutX} cy={groundY - rPx} r={2.5} fill={COLOR_RADIUS} />
-            <circle cx={currentHeightCalloutX} cy={groundY} r={2.5} fill={COLOR_RADIUS} />
-            
-            {/* Label smoothly morphs from r = 1 to h = r (1) */}
+            <circle cx={startX + halfRollDist + halfW + 10} cy={groundY - rPx} r={2.5} fill={COLOR_RADIUS} />
+            <circle cx={startX + halfRollDist + halfW + 10} cy={groundY} r={2.5} fill={COLOR_RADIUS} />
             <text
-              x={currentHeightCalloutX + (p2 > 0.6 ? 8 : 0)}
-              y={p2 > 0.6 ? groundY - rPx / 2 : groundY - rPx - 8}
-              textAnchor={p2 > 0.6 ? "start" : "middle"}
+              x={startX + halfRollDist + halfW + 18}
+              y={groundY - rPx / 2}
+              textAnchor="start"
               dominantBaseline="central"
               fontSize={12}
               fontWeight="900"
@@ -302,105 +297,75 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               fontFamily="var(--font-heading, system-ui)"
               style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
             >
-              {p2 > 0.6 ? `h = r (${radiusUnits})` : `r = ${radiusUnits}`}
+              h = r ({radiusUnits})
             </text>
           </g>
         )}
 
-        {/* Step 3: Exact Flat Rectangle Overlay if sectorCount is 'inf' and fully assembled */}
-        {p2 >= 0.99 && sectorCount === ("inf" as any) ? (
-          <g>
-            <rect
-              x={startX}
-              y={groundY - rPx}
-              width={halfRollDist}
-              height={rPx}
-              fill={COLOR_SECTOR}
-              stroke="rgba(255, 255, 255, 0.85)"
-              strokeWidth={1.5}
-            />
-            {/* Infinitesimal vertical slice grid lines */}
-            {Array.from({ length: 32 }, (_, k) => {
-              const sx = startX + (k / 32) * halfRollDist;
-              return (
-                <line
-                  key={`inf-line-${k}`}
-                  x1={sx}
-                  y1={groundY - rPx}
-                  x2={sx}
-                  y2={groundY}
-                  stroke="rgba(255, 255, 255, 0.25)"
-                  strokeWidth={0.75}
-                />
-              );
-            })}
-          </g>
-        ) : (
-          /* Active N Slices on Ground (Fully dynamic across 8, 16, 32, 64 slices) */
-          Array.from({ length: activeN }, (_, k) => {
-            const handoverProgress = (k + 0.5) / activeN;
-            if (p1 < handoverProgress && p1 < 0.999) return null; // still attached to rolling wheel!
+        {/* Active N Slices on Ground (Fully dynamic across 8, 16, 32, 64 slices) */}
+        {Array.from({ length: activeN }, (_, k) => {
+          const handoverProgress = (k + 0.5) / activeN;
+          if (p1 < handoverProgress && p1 < 0.999) return null; // still attached to rolling wheel!
 
-            const isEven = k % 2 === 0;
+          const isEven = k % 2 === 0;
 
-            const groundX = startX + k * singleToothW + halfW;
-            const groundApexY = groundY - rPx;
+          const groundX = startX + k * singleToothW + halfW;
+          const groundApexY = groundY - rPx;
 
-            const pairIdx = Math.floor(k / 2);
-            const targetX = isEven
-              ? startX + pairIdx * singleToothW + halfW
-              : startX + pairIdx * singleToothW + singleToothW;
+          const pairIdx = Math.floor(k / 2);
+          const targetX = isEven
+            ? startX + pairIdx * singleToothW + halfW
+            : startX + pairIdx * singleToothW + singleToothW;
 
-            let curX = groundX;
-            let curY = groundApexY;
-            let curRot = 180;
+          let curX = groundX;
+          let curY = groundApexY;
+          let curRot = 180;
 
-            if (p2 > 0) {
-              const t = p2;
+          if (p2 > 0) {
+            const t = p2;
 
-              const sub1 = Math.min(1, Math.max(0, t / 0.20));
-              const sub2 = Math.min(1, Math.max(0, (t - 0.20) / 0.20));
-              const sub3 = Math.min(1, Math.max(0, (t - 0.40) / 0.30));
-              const sub4 = Math.min(1, Math.max(0, (t - 0.70) / 0.30));
+            const sub1 = Math.min(1, Math.max(0, t / 0.20));
+            const sub2 = Math.min(1, Math.max(0, (t - 0.20) / 0.20));
+            const sub3 = Math.min(1, Math.max(0, (t - 0.40) / 0.30));
+            const sub4 = Math.min(1, Math.max(0, (t - 0.70) / 0.30));
 
-              const ease1 = 0.5 * (1 - Math.cos(sub1 * Math.PI));
-              const ease2 = 0.5 * (1 - Math.cos(sub2 * Math.PI));
-              const ease3 = 0.5 * (1 - Math.cos(sub3 * Math.PI));
-              const ease4 = 0.5 * (1 - Math.cos(sub4 * Math.PI));
+            const ease1 = 0.5 * (1 - Math.cos(sub1 * Math.PI));
+            const ease2 = 0.5 * (1 - Math.cos(sub2 * Math.PI));
+            const ease3 = 0.5 * (1 - Math.cos(sub3 * Math.PI));
+            const ease4 = 0.5 * (1 - Math.cos(sub4 * Math.PI));
 
-              if (isEven) {
-                curX = groundX + (targetX - groundX) * ease3;
-                curY = groundApexY;
-                curRot = 180;
-              } else {
-                const hoverApexY = groundY - rPx - 8;
-                const finalSlotApexY = groundY;
+            if (isEven) {
+              curX = groundX + (targetX - groundX) * ease3;
+              curY = groundApexY;
+              curRot = 180;
+            } else {
+              const hoverApexY = groundY - rPx - 8;
+              const finalSlotApexY = groundY;
 
-                const liftedApexY = groundApexY - (rPx + 8);
-                const yLifted = groundApexY + (liftedApexY - groundApexY) * ease1;
-                const yAfterFlip = yLifted + (hoverApexY - liftedApexY) * ease2;
+              const liftedApexY = groundApexY - (rPx + 8);
+              const yLifted = groundApexY + (liftedApexY - groundApexY) * ease1;
+              const yAfterFlip = yLifted + (hoverApexY - liftedApexY) * ease2;
 
-                curX = groundX + (targetX - groundX) * ease3;
-                curY = yAfterFlip + (finalSlotApexY - hoverApexY) * ease4;
-                curRot = 180 - 180 * ease2;
-              }
+              curX = groundX + (targetX - groundX) * ease3;
+              curY = yAfterFlip + (finalSlotApexY - hoverApexY) * ease4;
+              curRot = 180 - 180 * ease2;
             }
+          }
 
-            return (
-              <g
-                key={`ground-slice-${k}`}
-                transform={`translate(${curX}, ${curY}) rotate(${curRot})`}
-              >
-                <path
-                  d={activeSectorPath}
-                  fill={COLOR_SECTOR}
-                  stroke="rgba(255, 255, 255, 0.65)"
-                  strokeWidth={activeN >= 64 ? 0.5 : activeN >= 32 ? 0.75 : activeN >= 16 ? 1 : 1.2}
-                />
-              </g>
-            );
-          })
-        )}
+          return (
+            <g
+              key={`ground-slice-${k}`}
+              transform={`translate(${curX}, ${curY}) rotate(${curRot})`}
+            >
+              <path
+                d={activeSectorPath}
+                fill={COLOR_SECTOR}
+                stroke="rgba(255, 255, 255, 0.65)"
+                strokeWidth={activeN >= 64 ? 0.5 : activeN >= 32 ? 0.75 : activeN >= 16 ? 1 : 1.2}
+              />
+            </g>
+          );
+        })}
 
         {/* Rolling Wheel Group (Slices on wheel dynamically match activeN across Step 1 and Step 2) */}
         {p1 < 1 && (
@@ -452,9 +417,8 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         )}
       </svg>
 
-      {/* Row 1: Primary Navigation Controls ([1. Circle | 2. Unroll | 3. Parallelogram] & [Play/Pause]) */}
+      {/* Row 1: Primary Navigation Controls ([1. Circle | 2. Unroll | 3. Parallelogram]) */}
       <div className="flex items-center gap-2 select-none justify-center">
-        {/* Multi-Step Frosted Navigation Pills */}
         <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm">
           <button
             onClick={() => {
@@ -493,24 +457,6 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             3. Parallelogram
           </button>
         </div>
-
-        {/* Play / Pause Auto-Tour Button */}
-        <button
-          onClick={() => setIsPlaying(!isPlaying)}
-          className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm backdrop-blur-md active:scale-95"
-        >
-          {isPlaying ? (
-            <>
-              <Pause className="w-3 h-3 fill-current text-white/90" />
-              <span>Pause</span>
-            </>
-          ) : (
-            <>
-              <Play className="w-3 h-3 fill-current text-white/90" />
-              <span>Play</span>
-            </>
-          )}
-        </button>
       </div>
 
       {/* Row 2: Secondary Settings ([ - r = N + ] Radius Stepper & [ Slices: 8 | 16 | 32 | 64 ]) */}
@@ -570,44 +516,16 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         </div>
       </div>
 
-      {/* Live Typographic Equation Banner */}
-      <div className="flex justify-center mt-0.5">
-        {step === 1 && (
-          <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
-            <span className="text-white">A</span>
-            <span className="text-white/50">=</span>
-            <span className="text-white/80">π ·</span>
-            <span style={{ color: COLOR_RADIUS }}>{radiusUnits}²</span>
-            <span className="text-white/50">=</span>
-            <span style={{ color: COLOR_AREA }} className="font-bold">{areaCoeff}π</span>
-          </div>
-        )}
-
-        {step === 2 && (
-          <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none">
-            <span className="text-white">Row Length</span>
-            <span className="text-white/50">=</span>
-            <span className="text-white/80">Circumference</span>
-            <span className="text-white/50">=</span>
-            <span style={{ color: COLOR_BASE }} className="font-bold">2 · π · {radiusUnits}</span>
-            <span className="text-white/50">=</span>
-            <span style={{ color: COLOR_BASE }} className="font-bold">{2 * radiusUnits}π</span>
-          </div>
-        )}
-
-        {step === 3 && (
-          <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none">
-            <span className="text-white">A</span>
-            <span className="text-white/50">=</span>
-            <span className="text-white/80">base · height</span>
-            <span className="text-white/50">=</span>
-            <span style={{ color: COLOR_BASE }} className="font-bold">(π · {radiusUnits})</span>
-            <span className="text-white/50">·</span>
-            <span style={{ color: COLOR_RADIUS }} className="font-bold">{radiusUnits}</span>
-            <span className="text-white/50">=</span>
-            <span style={{ color: COLOR_AREA }} className="font-bold">{areaCoeff}π</span>
-          </div>
-        )}
+      {/* Live Typographic Equation Banner (Consistent across all steps) */}
+      <div className="flex justify-center mt-1">
+        <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
+          <span className="text-white">A</span>
+          <span className="text-white/50">=</span>
+          <span className="text-white/80">π ·</span>
+          <span style={{ color: COLOR_RADIUS }}>{radiusUnits}²</span>
+          <span className="text-white/50">=</span>
+          <span style={{ color: COLOR_AREA }} className="font-bold">{areaCoeff}π</span>
+        </div>
       </div>
     </div>
   );
