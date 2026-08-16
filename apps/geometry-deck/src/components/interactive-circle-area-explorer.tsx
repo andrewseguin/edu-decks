@@ -182,7 +182,6 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const currentWheelX = startX + p1 * fullRollDist;
 
   // CANONICAL TRUE PIE SECTOR PATH (Apex at origin (0,0), radius rPx, subtending 45 deg)
-  // Half-angle = 22.5 deg = PI / 8
   const halfAngleRad = Math.PI / NUM_SECTORS;
   const sinHalf = Math.sin(halfAngleRad);
   const cosHalf = Math.cos(halfAngleRad);
@@ -194,7 +193,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   // Exact true curved sector (pointing UP from apex at (0,0) to curved arc of radius rPx at top)
   const canonicalSectorPath = `M 0 0 L ${arcLeftX} ${arcLeftY} A ${rPx} ${rPx} 0 0 1 ${arcRightX} ${arcRightY} Z`;
 
-  // Radius spoke pointing DOWN at start (180 deg in canonical coords / 6 o'clock) and rotating with wheel
+  // Radius spoke pointing straight DOWN at start (180 deg in canonical coords / 6 o'clock)
   const spokeAngleRad = (90 + p1 * 360) * (Math.PI / 180);
   const spokeTipX = rPx * Math.cos(spokeAngleRad);
   const spokeTipY = rPx * Math.sin(spokeAngleRad);
@@ -335,8 +334,8 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
         {/* 8 Slices Laid Down on Ground / Meshing into Solid Parallelogram */}
         {Array.from({ length: NUM_SECTORS }, (_, k) => {
-          const peelThreshold = k / NUM_SECTORS;
-          if (p1 <= peelThreshold) return null; // not yet unrolled from wheel
+          const peelThreshold = (k + 1) / NUM_SECTORS;
+          if (p1 < peelThreshold && p1 < 0.999) return null; // not yet unrolled from wheel
 
           const isEven = k % 2 === 0;
 
@@ -397,13 +396,13 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
             {/* Slices Remaining on Wheel */}
             {Array.from({ length: NUM_SECTORS }, (_, i) => {
-              const peelThreshold = i / NUM_SECTORS;
-              if (p1 > peelThreshold) return null; // already peeled off onto ground!
+              const peelThreshold = (i + 1) / NUM_SECTORS;
+              if (p1 >= peelThreshold) return null; // already peeled off onto ground!
 
-              // Exact physical orientation: Slice 0 starts pointing straight down (180 deg) at 6 o'clock.
-              // As wheel rolls, it rotates clockwise by p1 * 360 deg.
-              // When p1 reaches i / 8, slice i rotates to 180 deg and lands cleanly on the floor!
-              const angleDeg = 180 - i * (360 / NUM_SECTORS) + p1 * 360;
+              // Exact physical orientation:
+              // At p1 = 0: trailing edge of slice 0 is at 180 deg (touching ground at x = 0).
+              // Center of slice i is at (180 - 22.5) - i * 45 + p1 * 360 deg.
+              const angleDeg = 157.5 - i * (360 / NUM_SECTORS) + p1 * 360;
 
               return (
                 <g key={`wheel-slice-${i}`} transform={`rotate(${angleDeg})`}>
@@ -576,7 +575,6 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         {step === 3 && (
           <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none">
             <span className="text-white">A</span>
-            <span className="text-white/50">=</span>
             <span className="text-white/80">base · height</span>
             <span className="text-white/50">=</span>
             <span style={{ color: COLOR_BASE }} className="font-bold">(π · {radiusUnits})</span>
