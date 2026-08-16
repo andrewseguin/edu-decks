@@ -186,11 +186,11 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const currentHeightCalloutX = startRadiusScootX + (targetHeightX - startRadiusScootX) * scootEase;
 
   return (
-    <div ref={containerRef} className="flex flex-col items-center gap-1 w-full select-none" onClick={stop} onPointerDown={stop}>
+    <div ref={containerRef} className="flex flex-col items-center gap-1 w-full max-w-[460px] mx-auto select-none" onClick={stop} onPointerDown={stop}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
-        className="w-full touch-none select-none overflow-visible"
+        className="w-full max-w-[460px] max-h-[118px] touch-none select-none overflow-visible"
       >
         {/* Ruler Axis Line */}
         <line x1={startX - 10} y1={groundY} x2={rightEdge + 10} y2={groundY} stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
