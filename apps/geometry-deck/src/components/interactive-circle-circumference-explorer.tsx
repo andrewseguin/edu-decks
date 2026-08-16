@@ -69,20 +69,19 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     return () => cancelAnimationFrame(zoomAnimRef.current);
   }, [radiusUnits]);
 
-  // Wide Spatial Dimensions extending near edges:
-  // Circle left edge is at (startX - rPx) = 8px from left border!
+  // Wide Spatial Dimensions extending near edges without clipping:
   const maxVal = animatedRadius * 7;
   const SVG_W = containerW;
-  const rPx = Math.floor((SVG_W - 24) / 8.2); // ~40px on mobile, ~72px on desktop!
+  const rPx = Math.floor((SVG_W - 36) / 8.3);
   const availableRulerW = 7 * rPx;
-  const startX = rPx + 10;
+  const startX = rPx + 18;
   const rightEdge = startX + availableRulerW;
   const pxPerUnit = availableRulerW / maxVal;
   
-  // Vertical positioning: 10px headspace, room for Pi labels below
-  const groundY = Math.round(rPx * 2 + 10);
+  // Vertical positioning: 14px headspace, room for Pi labels below
+  const groundY = Math.round(rPx * 2 + 14);
   const centerY = groundY - rPx;
-  const SVG_H = groundY + 36;
+  const SVG_H = groundY + 42;
 
   // Actual physical circumference values for current active radius
   const cValue = 2 * Math.PI * radiusUnits;
@@ -228,12 +227,14 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     ? `M ${arcStartX} ${arcStartY} A ${rPx} ${rPx} 0 ${largeArcFlag} 0 ${arcEndX} ${arcEndY}`
     : "";
 
+  const isCompact = rawW < 460;
+
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-1.5 w-full max-w-[650px] mx-auto select-none" onClick={stop} onPointerDown={stop}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
-        style={{ maxHeight: 136 }}
+        style={{ maxHeight: 155 }}
         className="w-full touch-none select-none overflow-visible"
       >
         {/* Interactive Track Hitbox for Scrubbing */}
@@ -478,65 +479,129 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
         </g>
       </svg>
 
-      {/* Frosted Controls: [- / +] Stepper & Play/Pause/Replay Action Button */}
-      <div className="flex items-center gap-2 select-none">
-        {/* [- r = N +] Radius Stepper */}
-        <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
-          <button
-            onClick={() => changeRadius(-1)}
-            disabled={radiusUnits <= MIN_RADIUS}
-            className={cn(
-              "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
-              radiusUnits <= MIN_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
-            )}
-            aria-label="Decrease radius"
-          >
-            <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
-          </button>
+      {/* Frosted Controls: Radius Stepper & Play/Pause/Replay Action Button */}
+      {isCompact ? (
+        <div className="flex items-end gap-3 select-none justify-center">
+          {/* Radius Stepper with stacked label */}
+          <div className="flex flex-col items-center gap-0.5">
+            <span className="text-[11px] font-medium text-white/75">Radius:</span>
+            <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm">
+              <button
+                onClick={() => changeRadius(-1)}
+                disabled={radiusUnits <= MIN_RADIUS}
+                className={cn(
+                  "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+                  radiusUnits <= MIN_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
+                )}
+                aria-label="Decrease radius"
+              >
+                <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
+              </button>
 
-          <span
-            style={{ color: COLOR_RADIUS }}
-            className="px-1 text-xs font-headline font-black tracking-wide min-w-[34px] text-center"
-          >
-            r = {radiusUnits}
-          </span>
+              <span
+                style={{ color: COLOR_RADIUS }}
+                className="px-1 text-sm font-headline font-black tracking-wide min-w-[18px] text-center"
+              >
+                {radiusUnits}
+              </span>
 
+              <button
+                onClick={() => changeRadius(1)}
+                disabled={radiusUnits >= MAX_RADIUS}
+                className={cn(
+                  "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+                  radiusUnits >= MAX_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
+                )}
+                aria-label="Increase radius"
+              >
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              </button>
+            </div>
+          </div>
+
+          {/* Play / Pause / Replay Action Button */}
           <button
-            onClick={() => changeRadius(1)}
-            disabled={radiusUnits >= MAX_RADIUS}
-            className={cn(
-              "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
-              radiusUnits >= MAX_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
-            )}
-            aria-label="Increase radius"
+            onClick={togglePlay}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm backdrop-blur-md active:scale-95 mb-0.5"
           >
-            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            {isPlaying ? (
+              <>
+                <Pause className="w-3 h-3 fill-current text-white/90" />
+                <span>Pause</span>
+              </>
+            ) : unrollProgress >= 0.98 ? (
+              <>
+                <RotateCcw className="w-3 h-3 text-white/90" />
+                <span>Replay</span>
+              </>
+            ) : (
+              <>
+                <Play className="w-3 h-3 fill-current text-white/90" />
+                <span>Play</span>
+              </>
+            )}
           </button>
         </div>
+      ) : (
+        <div className="flex items-center gap-2 select-none">
+          {/* [- r = N +] Radius Stepper */}
+          <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
+            <button
+              onClick={() => changeRadius(-1)}
+              disabled={radiusUnits <= MIN_RADIUS}
+              className={cn(
+                "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+                radiusUnits <= MIN_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
+              )}
+              aria-label="Decrease radius"
+            >
+              <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
+            </button>
 
-        {/* Play / Pause / Replay Action Button */}
-        <button
-          onClick={togglePlay}
-          className="flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm backdrop-blur-md active:scale-95"
-        >
-          {isPlaying ? (
-            <>
-              <Pause className="w-3 h-3 fill-current text-white/90" />
-              <span>Pause</span>
-            </>
-          ) : unrollProgress >= 0.98 ? (
-            <>
-              <RotateCcw className="w-3 h-3 text-white/90" />
-              <span>Replay</span>
-            </>
-          ) : (
-            <>
-              <Play className="w-3 h-3 fill-current text-white/90" />
-              <span>Play</span>
-            </>
-          )}
-        </button>
-      </div>
+            <span
+              style={{ color: COLOR_RADIUS }}
+              className="px-1 text-xs font-headline font-black tracking-wide min-w-[34px] text-center"
+            >
+              r = {radiusUnits}
+            </span>
+
+            <button
+              onClick={() => changeRadius(1)}
+              disabled={radiusUnits >= MAX_RADIUS}
+              className={cn(
+                "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+                radiusUnits >= MAX_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
+              )}
+              aria-label="Increase radius"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            </button>
+          </div>
+
+          {/* Play / Pause / Replay Action Button */}
+          <button
+            onClick={togglePlay}
+            className="flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm backdrop-blur-md active:scale-95"
+          >
+            {isPlaying ? (
+              <>
+                <Pause className="w-3 h-3 fill-current text-white/90" />
+                <span>Pause</span>
+              </>
+            ) : unrollProgress >= 0.98 ? (
+              <>
+                <RotateCcw className="w-3 h-3 text-white/90" />
+                <span>Replay</span>
+              </>
+            ) : (
+              <>
+                <Play className="w-3 h-3 fill-current text-white/90" />
+                <span>Play</span>
+              </>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Frosted Typographic Equation Banner */}
       <div className="flex justify-center mt-0.5">

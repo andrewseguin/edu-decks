@@ -16,8 +16,9 @@ const COLOR_DIAMETER = "#ffd45e";// Warm Gold
 const COLOR_CIRCUM = "#d8b4fe";  // Neon Lilac
 
 export function InteractiveRadiusExplorer({ mode = "radius", color }: InteractiveRadiusExplorerProps) {
-  const { containerRef, width: rawW } = useContainerWidth(320);
-  const SVG_W = Math.max(260, Math.min(460, rawW - 24));
+  const { containerRef, width: rawW } = useContainerWidth(360);
+  const containerW = Math.max(340, Math.min(650, rawW - 16));
+  const SVG_W = containerW;
   const CX = SVG_W / 2;
   const CY = SVG_H / 2;
 
@@ -72,12 +73,12 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
   const isPi = mode === "pi";
 
   return (
-    <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
+    <div ref={containerRef} className="flex flex-col items-center gap-1.5 w-full max-w-[650px] mx-auto select-none" onClick={stop} onPointerDown={stop}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
         className="w-full touch-none select-none overflow-visible"
-        style={{ cursor: isDragging ? "grabbing" : "default" }}
+        style={{ cursor: isDragging ? "grabbing" : "default", maxHeight: 155 }}
       >
         {/* Circle Disk Fill & Boundary */}
         <circle

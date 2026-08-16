@@ -22,7 +22,8 @@ type SectorCount = 4 | 8 | 16 | 32 | 64;
 
 export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaProps) {
   const { containerRef, width: rawW } = useContainerWidth(360);
-  const SVG_W = Math.max(340, Math.min(460, rawW - 16));
+  const containerW = Math.max(340, Math.min(650, rawW - 16));
+  const SVG_W = containerW;
 
   const [radiusUnits, setRadiusUnits] = useState(1);
   const [animatedRadius, setAnimatedRadius] = useState(1); // Smooth camera zoom
@@ -66,18 +67,17 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
     return () => cancelAnimationFrame(zoomAnimRef.current);
   }, [radiusUnits]);
 
-  // Spatial Dimensions with 1:1 crisp display sizing
+  // Wide Spatial Dimensions extending near edges without clipping:
   const maxVal = animatedRadius * 7;
-  const targetRulerW = SVG_W - 44;
-  const rPx = targetRulerW / 7; // ~42px to 56px (huge & readable!)
-  const availableRulerW = targetRulerW;
-  const startX = Math.round((SVG_W - availableRulerW) / 2);
+  const rPx = Math.floor((SVG_W - 36) / 8.3);
+  const availableRulerW = 7 * rPx;
+  const startX = rPx + 18;
   const rightEdge = startX + availableRulerW;
   const pxPerUnit = availableRulerW / maxVal;
 
-  const groundY = Math.round(rPx * 2 + 10);
+  const groundY = Math.round(rPx * 2 + 14);
   const centerY = groundY - rPx;
-  const SVG_H = groundY + 42; // ~145px
+  const SVG_H = groundY + 42;
 
   // Real world math
   const fullCircumVal = 2 * Math.PI * radiusUnits;
@@ -177,24 +177,28 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const trigSlotW = 2 * rPx * sinH;
   const trigHeight = rPx * cosH;
 
-  // Height callout x position at right edge of assembled parallelogram
-  const targetHeightX = startX + (activeN / 2) * trigSlotW + 14;
+  // Height callout x position at right edge of assembled parallelogram (strictly outside slices)
+  const rightmostSliceX = startX + (activeN + 1) * rPx * sinH;
+  const targetHeightX = rightmostSliceX + 12;
   const startRadiusScootX = startX + fullRollDist;
   const scootT = Math.min(1, Math.max(0, (p2 - 0.70) / 0.30));
   const scootEase = 0.5 * (1 - Math.cos(scootT * Math.PI));
   const currentHeightCalloutX = startRadiusScootX + (targetHeightX - startRadiusScootX) * scootEase;
 
+  const isCompact = rawW < 460;
+
   return (
-    <div ref={containerRef} className="flex flex-col items-center gap-1.5 w-full max-w-[480px] mx-auto select-none" onClick={stop} onPointerDown={stop}>
+    <div ref={containerRef} className="flex flex-col items-center gap-1.5 w-full max-w-[650px] mx-auto select-none" onClick={stop} onPointerDown={stop}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
+        style={{ maxHeight: 155 }}
         className="w-full touch-none select-none overflow-visible"
       >
         {/* Ruler Axis Line */}
-        <line x1={startX - 14} y1={groundY} x2={rightEdge + 14} y2={groundY} stroke="rgba(255, 255, 255, 0.45)" strokeWidth={2.5} />
+        <line x1={startX - 8} y1={groundY} x2={rightEdge + 8} y2={groundY} stroke="rgba(255, 255, 255, 0.35)" strokeWidth={2} />
 
-        {/* Integer Ticks and Labels (Super large, bold, high-contrast) */}
+        {/* Integer Ticks and Labels (Large, bold, high-contrast) */}
         {Array.from({ length: maxTickToRender + 1 }, (_, t) => {
           const tickX = startX + t * pxPerUnit;
           if (tickX > rightEdge + 25) return null;
@@ -205,21 +209,21 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             <g key={t} opacity={opacity}>
               <line
                 x1={tickX}
-                y1={groundY - (isMajor ? 6 : 3)}
+                y1={groundY - (isMajor ? 5 : 2.5)}
                 x2={tickX}
-                y2={groundY + (isMajor ? 6 : 3)}
-                stroke="rgba(255, 255, 255, 0.75)"
-                strokeWidth={isMajor ? 2.5 : 1.5}
-                opacity={isMajor ? 1 : 0.5}
+                y2={groundY + (isMajor ? 5 : 2.5)}
+                stroke="rgba(255, 255, 255, 0.65)"
+                strokeWidth={isMajor ? 2 : 1.2}
+                opacity={isMajor ? 1 : 0.45}
               />
               {isMajor && (
                 <text
                   x={tickX}
-                  y={groundY + 18}
+                  y={groundY + 15}
                   textAnchor="middle"
-                  fontSize={16}
+                  fontSize={13.5}
                   fontWeight="900"
-                  fill="rgba(255, 255, 255, 0.9)"
+                  fill="rgba(255, 255, 255, 0.85)"
                   fontFamily="var(--font-heading, system-ui)"
                 >
                   {t}
@@ -231,17 +235,17 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
         {/* Half-turn π marker below number line */}
         <g transform={`translate(${startX + halfRollDist}, ${groundY})`}>
-          <line x1={0} y1={-6} x2={0} y2={22} stroke={COLOR_BASE} strokeWidth={3.5} />
-          <circle cx={0} cy={0} r={3.5} fill={COLOR_BASE} />
+          <line x1={0} y1={-5} x2={0} y2={16} stroke={COLOR_BASE} strokeWidth={2.5} />
+          <circle cx={0} cy={0} r={3} fill={COLOR_BASE} />
           <text
             x={0}
-            y={38}
+            y={29}
             textAnchor="middle"
-            fontSize={20}
+            fontSize={14}
             fontWeight="900"
             fill={COLOR_BASE}
             fontFamily="var(--font-heading, system-ui)"
-            style={{ filter: "drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.95))" }}
+            style={{ filter: "drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.9))" }}
           >
             {radiusUnits === 1 ? "π" : `${radiusUnits}π`}
           </text>
@@ -249,17 +253,17 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
         {/* Finish 2π marker below number line */}
         <g transform={`translate(${startX + fullRollDist}, ${groundY})`}>
-          <line x1={0} y1={-6} x2={0} y2={22} stroke={COLOR_PI} strokeWidth={3} strokeDasharray="3 2" />
-          <circle cx={0} cy={0} r={3.5} fill={COLOR_PI} />
+          <line x1={0} y1={-4} x2={0} y2={16} stroke={COLOR_PI} strokeWidth={1.8} strokeDasharray="2.5 2" />
+          <circle cx={0} cy={0} r={2.2} fill={COLOR_PI} />
           <text
             x={0}
-            y={38}
+            y={29}
             textAnchor="middle"
-            fontSize={19}
+            fontSize={13.5}
             fontWeight="900"
             fill={COLOR_PI}
             fontFamily="var(--font-heading, system-ui)"
-            style={{ filter: "drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.95))" }}
+            style={{ filter: "drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.9))" }}
           >
             {2 * radiusUnits}π
           </text>
@@ -268,9 +272,9 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         {/* Base Dimension Bracket Along Bottom (b = πr in Step 3) */}
         {p2 > 0.4 && (
           <g opacity={Math.min(1, (p2 - 0.4) * 2.5)}>
-            <line x1={startX} y1={groundY + 7} x2={startX + halfRollDist} y2={groundY + 7} stroke={COLOR_BASE} strokeWidth={3.5} strokeLinecap="round" />
-            <line x1={startX} y1={groundY + 1} x2={startX} y2={groundY + 13} stroke={COLOR_BASE} strokeWidth={3} />
-            <line x1={startX + halfRollDist} y1={groundY + 1} x2={startX + halfRollDist} y2={groundY + 13} stroke={COLOR_BASE} strokeWidth={3} />
+            <line x1={startX} y1={groundY + 6} x2={startX + halfRollDist} y2={groundY + 6} stroke={COLOR_BASE} strokeWidth={2.5} strokeLinecap="round" />
+            <line x1={startX} y1={groundY + 1} x2={startX} y2={groundY + 11} stroke={COLOR_BASE} strokeWidth={2} />
+            <line x1={startX + halfRollDist} y1={groundY + 1} x2={startX + halfRollDist} y2={groundY + 11} stroke={COLOR_BASE} strokeWidth={2} />
           </g>
         )}
 
@@ -283,23 +287,23 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               x2={currentHeightCalloutX}
               y2={groundY}
               stroke={COLOR_RADIUS}
-              strokeWidth={3.5}
+              strokeWidth={2.5}
               strokeDasharray={p2 > 0.6 ? "4 2.5" : "none"}
             />
-            <circle cx={currentHeightCalloutX} cy={groundY - rPx} r={3.5} fill={COLOR_RADIUS} />
-            <circle cx={currentHeightCalloutX} cy={groundY} r={3.5} fill={COLOR_RADIUS} />
+            <circle cx={currentHeightCalloutX} cy={groundY - rPx} r={3} fill={COLOR_RADIUS} />
+            <circle cx={currentHeightCalloutX} cy={groundY} r={3} fill={COLOR_RADIUS} />
             
-            {/* Label smoothly morphs from r = 1 to h = r (1) */}
+            {/* Label smoothly morphs from r = N to h = r (N) */}
             <text
-              x={currentHeightCalloutX + (p2 > 0.6 ? 10 : 0)}
-              y={p2 > 0.6 ? groundY - rPx / 2 : groundY - rPx - 12}
+              x={currentHeightCalloutX + (p2 > 0.6 ? 8 : 0)}
+              y={p2 > 0.6 ? groundY - rPx / 2 : groundY - rPx - 13}
               textAnchor={p2 > 0.6 ? "start" : "middle"}
               dominantBaseline="central"
-              fontSize={19}
+              fontSize={13.5}
               fontWeight="900"
               fill={COLOR_RADIUS}
               fontFamily="var(--font-heading, system-ui)"
-              style={{ filter: "drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.95))" }}
+              style={{ filter: "drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.9))" }}
             >
               {p2 > 0.6 ? `h = r (${radiusUnits})` : `r = ${radiusUnits}`}
             </text>
@@ -402,21 +406,21 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             })}
 
             {/* Center Hub & Radius Spoke Facing DOWN at Start (and rotating with wheel) */}
-            <circle cx={0} cy={0} r={3.5} fill="#ffffff" />
-            <line x1={0} y1={0} x2={spokeTipX} y2={spokeTipY} stroke={COLOR_RADIUS} strokeWidth={3} strokeDasharray="4 2.5" />
-            <circle cx={spokeTipX} cy={spokeTipY} r={4} fill={COLOR_RADIUS} />
+            <circle cx={0} cy={0} r={3} fill="#ffffff" />
+            <line x1={0} y1={0} x2={spokeTipX} y2={spokeTipY} stroke={COLOR_RADIUS} strokeWidth={2.5} strokeDasharray="3 2" />
+            <circle cx={spokeTipX} cy={spokeTipY} r={3.5} fill={COLOR_RADIUS} />
 
             {/* Static Radius Label above center point */}
             <text
               x={0}
-              y={-14}
+              y={-13}
               textAnchor="middle"
               dominantBaseline="central"
-              fontSize={19}
+              fontSize={13.5}
               fontWeight="900"
               fill={COLOR_RADIUS}
               fontFamily="var(--font-heading, system-ui)"
-              style={{ filter: "drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.95))" }}
+              style={{ filter: "drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.9))" }}
             >
               r = {radiusUnits}
             </text>
@@ -464,63 +468,125 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         </button>
       </div>
 
-      {/* Row 2: Compact Inline Settings (Radius + Slices) */}
-      <div className="flex items-center gap-3 select-none justify-center">
-        {/* Radius Stepper */}
-        <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
-          <span className="text-xs text-white/70 font-bold px-0.5">r:</span>
-          <button
-            onClick={() => changeRadius(-1)}
-            disabled={radiusUnits <= MIN_RADIUS}
-            className={cn(
-              "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
-              radiusUnits <= MIN_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
-            )}
-            aria-label="Decrease radius"
-          >
-            <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
-          </button>
+      {/* Row 2: Settings Controls (Stacked labels on mobile, inline on desktop) */}
+      {isCompact ? (
+        <div className="flex items-end gap-3 select-none justify-center">
+          {/* Radius Stepper with stacked label */}
+          <div className="flex flex-col items-center gap-0.5">
+            <span className="text-[11px] font-medium text-white/75">Radius:</span>
+            <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm">
+              <button
+                onClick={() => changeRadius(-1)}
+                disabled={radiusUnits <= MIN_RADIUS}
+                className={cn(
+                  "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+                  radiusUnits <= MIN_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
+                )}
+                aria-label="Decrease radius"
+              >
+                <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
+              </button>
 
-          <span
-            style={{ color: COLOR_RADIUS }}
-            className="px-1 text-sm font-headline font-black tracking-wide min-w-[18px] text-center"
-          >
-            {radiusUnits}
-          </span>
+              <span
+                style={{ color: COLOR_RADIUS }}
+                className="px-1 text-sm font-headline font-black tracking-wide min-w-[18px] text-center"
+              >
+                {radiusUnits}
+              </span>
 
-          <button
-            onClick={() => changeRadius(1)}
-            disabled={radiusUnits >= MAX_RADIUS}
-            className={cn(
-              "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
-              radiusUnits >= MAX_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
-            )}
-            aria-label="Increase radius"
-          >
-            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-          </button>
+              <button
+                onClick={() => changeRadius(1)}
+                disabled={radiusUnits >= MAX_RADIUS}
+                className={cn(
+                  "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+                  radiusUnits >= MAX_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
+                )}
+                aria-label="Increase radius"
+              >
+                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+              </button>
+            </div>
+          </div>
+
+          {/* Slices Selector with stacked label */}
+          <div className="flex flex-col items-center gap-0.5">
+            <span className="text-[11px] font-medium text-white/75">Slices:</span>
+            <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm">
+              {([4, 8, 16, 32, 64] as const).map((cnt) => (
+                <button
+                  key={cnt}
+                  onClick={() => {
+                    setIsPlaying(false);
+                    setSectorCount(cnt);
+                  }}
+                  className={cn(
+                    "px-2 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
+                    sectorCount === cnt ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/65 hover:text-white"
+                  )}
+                >
+                  {cnt}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
-
-        {/* Slices Selector */}
-        <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
-          <span className="text-xs text-white/70 font-bold px-0.5">Slices:</span>
-          {([4, 8, 16, 32, 64] as const).map((cnt) => (
+      ) : (
+        <div className="flex items-center gap-3 select-none justify-center">
+          {/* Radius Stepper with inline r = N label */}
+          <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
             <button
-              key={cnt}
-              onClick={() => {
-                setIsPlaying(false);
-                setSectorCount(cnt);
-              }}
+              onClick={() => changeRadius(-1)}
+              disabled={radiusUnits <= MIN_RADIUS}
               className={cn(
-                "px-2 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
-                sectorCount === cnt ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/65 hover:text-white"
+                "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+                radiusUnits <= MIN_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
               )}
+              aria-label="Decrease radius"
             >
-              {cnt}
+              <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
             </button>
-          ))}
+
+            <span
+              style={{ color: COLOR_RADIUS }}
+              className="px-1 text-xs font-headline font-black tracking-wide min-w-[34px] text-center"
+            >
+              r = {radiusUnits}
+            </span>
+
+            <button
+              onClick={() => changeRadius(1)}
+              disabled={radiusUnits >= MAX_RADIUS}
+              className={cn(
+                "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+                radiusUnits >= MAX_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
+              )}
+              aria-label="Increase radius"
+            >
+              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            </button>
+          </div>
+
+          {/* Slices Selector with inline Slices: label */}
+          <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
+            <span className="text-xs text-white/70 font-bold px-0.5">Slices:</span>
+            {([4, 8, 16, 32, 64] as const).map((cnt) => (
+              <button
+                key={cnt}
+                onClick={() => {
+                  setIsPlaying(false);
+                  setSectorCount(cnt);
+                }}
+                className={cn(
+                  "px-2 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
+                  sectorCount === cnt ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/65 hover:text-white"
+                )}
+              >
+                {cnt}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Live Typographic Equation Banner */}
       <div className="flex justify-center mt-0.5">
