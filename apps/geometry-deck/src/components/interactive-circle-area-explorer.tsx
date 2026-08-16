@@ -175,7 +175,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   };
 
   // Stage 1 (p1 in [0..1]): Wheel rolls 2πr and unrolls 8 slices in a line on the ground
-  // Stage 2 (p2 in [0..1]): Alternating slices flip 180° into the gaps to form the parallelogram of width πr
+  // Stage 2 (p2 in [0..1]): Rotating shapes move up, bottom shapes slide together without overlap, then top shapes lower into gaps
   const p1 = Math.min(1, unrollProgress);
   const p2 = Math.max(0, unrollProgress - 1);
 
@@ -290,8 +290,8 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         </g>
 
         {/* Dimension Callouts for Interlocked Parallelogram (Step 3) */}
-        {p2 > 0.2 && (
-          <g opacity={Math.min(1, (p2 - 0.2) * 1.5)}>
+        {p2 > 0.4 && (
+          <g opacity={Math.min(1, (p2 - 0.4) * 2)}>
             {/* Base Dimension Bracket Along Bottom (b = πr) */}
             <line x1={startX} y1={groundY + 6} x2={startX + halfRollDist} y2={groundY + 6} stroke={COLOR_BASE} strokeWidth={2.5} strokeLinecap="round" />
             <line x1={startX} y1={groundY + 2} x2={startX} y2={groundY + 10} stroke={COLOR_BASE} strokeWidth={2} />
@@ -337,21 +337,33 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           const lineY = groundY;
           const lineRot = 0; // pointing UP
 
-          // Stage 2 parallelogram target position (mesh strictly into 0..πr):
-          // Even wedges (k = 0, 2, 4, 6): upright at startX + (k/2) * singleToothW
-          // Odd wedges (k = 1, 3, 5, 7): flipped at startX + ((k-1)/2) * singleToothW + 1.5 * singleToothW, y = groundY - rPx
+          // Stage 2 target positions in parallelogram (spanning 0..πr):
           const paraX = isEven
             ? startX + (k / 2) * singleToothW
             : startX + ((k - 1) / 2) * singleToothW + singleToothW * 1.5;
           const paraY = isEven ? groundY : groundY - rPx;
           const paraRot = isEven ? 0 : 180;
 
-          // Smooth interpolation between Stage 1 line (0..2πr) and Stage 2 parallelogram (0..πr)
-          const t = p2;
-          const curX = lineX + (paraX - lineX) * t;
-          const liftY = !isEven ? Math.sin(t * Math.PI) * 22 : 0;
-          const curY = lineY + (paraY - lineY) * t - liftY;
-          const curRot = lineRot + (paraRot - lineRot) * t;
+          const t = p2; // 0 (unrolled line) to 1 (assembled parallelogram)
+
+          let curX: number, curY: number, curRot: number;
+
+          if (isEven) {
+            // Bottom Upright Slices: Smoothly slide left along ground into compact row
+            curX = lineX + (paraX - lineX) * t;
+            curY = groundY;
+            curRot = 0;
+          } else {
+            // Top Flipping Slices:
+            // 1. Lift straight up into air + rotate 180° (t in 0..0.5)
+            // 2. Travel horizontally and lower cleanly into gaps (t in 0.5..1.0)
+            const liftApex = 32; // lifts 32px up above line
+            const liftProgress = Math.sin(t * Math.PI); // 0 -> 1 -> 0
+
+            curX = lineX + (paraX - lineX) * t;
+            curY = lineY + (paraY - lineY) * t - liftProgress * liftApex;
+            curRot = lineRot + (paraRot - lineRot) * t;
+          }
 
           return (
             <g
