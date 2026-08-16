@@ -11,7 +11,7 @@ type InteractiveCircleCircumferenceProps = {
 const SVG_H = 160;
 
 const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan
-const COLOR_CIRCUM = "#d8b4fe"; // Vibrant Neon Lilac (Circumference ribbon)
+const COLOR_CIRCUM = "#fb923c"; // Vibrant Radiant Orange (Circumference ribbon)
 const COLOR_GOLD = "#ffd45e";   // Warm Gold (Contact dot / angle tip)
 const COLOR_PI = "#f472b6";     // Vibrant Rose Pink for Pi marker
 
@@ -210,7 +210,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           <circle cx={startX} cy={centerY} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.15)" strokeWidth={1.5} strokeDasharray="3 3" />
         )}
 
-        {/* Vibrant Colored Lilac Boundary Ribbon Laid Down Along Ground */}
+        {/* Vibrant Orange Circumference Ribbon Laid Down Along Ground */}
         {unrollProgress > 0 && (
           <line
             x1={startX}
@@ -220,7 +220,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
             stroke={COLOR_CIRCUM}
             strokeWidth={4}
             strokeLinecap="round"
-            style={{ filter: "drop-shadow(0px 0px 4px rgba(216, 180, 254, 0.6))" }}
+            style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.65))" }}
           />
         )}
 
@@ -229,7 +229,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           {/* Wheel Disc Body */}
           <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.08)" />
 
-          {/* At Zero State: Full Solid Vibrant Colored Lilac Circle */}
+          {/* At Zero State: Full Solid Vibrant Orange Circle */}
           {unrollProgress === 0 ? (
             <circle
               cx={0}
@@ -238,13 +238,13 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
               fill="none"
               stroke={COLOR_CIRCUM}
               strokeWidth={3.5}
-              style={{ filter: "drop-shadow(0px 0px 4px rgba(216, 180, 254, 0.5))" }}
+              style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.6))" }}
             />
           ) : (
             <>
               {/* Bare Spool Ghost track */}
               <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
-              {/* Vibrant Colored Ribbon Unspooling on Front/Top of Wheel */}
+              {/* Vibrant Orange Ribbon Unspooling on Front/Top of Wheel */}
               {remainingArcPath && (
                 <path
                   d={remainingArcPath}
@@ -252,7 +252,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                   stroke={COLOR_CIRCUM}
                   strokeWidth={3.5}
                   strokeLinecap="round"
-                  style={{ filter: "drop-shadow(0px 0px 4px rgba(216, 180, 254, 0.5))" }}
+                  style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.6))" }}
                 />
               )}
             </>
@@ -298,7 +298,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           onPointerDown={handleTrackPointerDown}
         >
           <circle r={26} fill="transparent" />
-          <circle r={9} fill="rgba(216, 180, 254, 0.25)" stroke={COLOR_CIRCUM} strokeWidth={1.5} />
+          <circle r={9} fill="rgba(251, 146, 60, 0.25)" stroke={COLOR_CIRCUM} strokeWidth={1.5} />
           <circle r={4.5} fill={COLOR_CIRCUM} />
         </g>
       </svg>
