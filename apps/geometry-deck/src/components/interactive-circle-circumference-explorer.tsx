@@ -12,9 +12,9 @@ type InteractiveCircleCircumferenceProps = {
 const SVG_H = 160;
 
 const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan
-const COLOR_CIRCUM = "#fb923c"; // Vibrant Radiant Orange (Circumference ribbon)
+const COLOR_CIRCUM = "#fb923c"; // Vibrant Radiant Orange (Circumference ribbon & Target finish)
 const COLOR_GOLD = "#ffd45e";   // Warm Gold (Contact dot / angle tip)
-const COLOR_PI = "#f472b6";     // Vibrant Rose Pink for Pi marker
+const COLOR_PI = "#f472b6";     // Vibrant Rose Pink (Consistent color for all Pi markers)
 
 const PRESETS = [1, 2, 3];
 const NUM_SEGMENTS = 16;
@@ -78,14 +78,6 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   // Actual physical circumference values for current active radius
   const cValue = 2 * Math.PI * radiusUnits;
   const fullRollDist = cValue * pxPerUnit;
-  const halfRollDist = Math.PI * radiusUnits * pxPerUnit;
-
-  // Dynamic positions that smoothly glide across screen during camera zoom
-  const halfX = startX + halfRollDist;
-  const endX = startX + fullRollDist;
-
-  const halfCoeff = radiusUnits === 1 ? "π" : `${radiusUnits}π`;
-  const halfApprox = Math.round(Math.PI * radiusUnits * 100) / 100;
   const cCoeff = 2 * radiusUnits;
   const cApprox = Math.round(cValue * 100) / 100;
 
@@ -185,6 +177,22 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const maxIntTick = Math.ceil(maxVal);
   const ticks = Array.from({ length: Math.floor(maxIntTick / tickStep) + 1 }, (_, i) => i * tickStep);
 
+  // Cumulative Pi markers: 1π, 2π, 3π, 4π, 5π, 6π
+  // As we zoom out, previous Pi markers are kept and new ones are continuously tacked on!
+  const maxPiMultiple = 2 * radiusUnits;
+  const piMarkers = Array.from({ length: maxPiMultiple }, (_, i) => {
+    const k = i + 1;
+    const val = k * Math.PI;
+    const isTargetFinish = k === maxPiMultiple;
+    return {
+      k,
+      val,
+      isTargetFinish,
+      label: `${k === 1 ? "π" : `${k}π`} (${Math.round(val * 100) / 100})`,
+      x: startX + val * pxPerUnit,
+    };
+  });
+
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
       <svg
@@ -221,41 +229,37 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           );
         })}
 
-        {/* Highlighted π (Half-Turn) Marker — smoothly glides in real-time */}
-        <g transform={`translate(${halfX}, ${groundY})`}>
-          <line x1={0} y1={-4} x2={0} y2={17} stroke={COLOR_PI} strokeWidth={1.5} strokeDasharray="2 2" />
-          <circle cx={0} cy={0} r={2} fill={COLOR_PI} />
-          <text
-            x={0}
-            y={27}
-            textAnchor="middle"
-            fontSize={10}
-            fontWeight="900"
-            fill={COLOR_PI}
-            fontFamily="var(--font-heading, system-ui)"
-            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
-          >
-            {halfCoeff} ({halfApprox})
-          </text>
-        </g>
-
-        {/* Finish 2πr (Full-Turn) Marker — smoothly glides in real-time */}
-        <g transform={`translate(${endX}, ${groundY})`}>
-          <line x1={0} y1={-5} x2={0} y2={17} stroke={COLOR_CIRCUM} strokeWidth={2} />
-          <circle cx={0} cy={0} r={2.5} fill={COLOR_CIRCUM} />
-          <text
-            x={0}
-            y={27}
-            textAnchor="middle"
-            fontSize={10.5}
-            fontWeight="900"
-            fill={COLOR_CIRCUM}
-            fontFamily="var(--font-heading, system-ui)"
-            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
-          >
-            {cCoeff}π ({cApprox})
-          </text>
-        </g>
+        {/* Consistent, Cumulative Pi Markers tacked onto the line */}
+        {piMarkers.map((m) => {
+          if (m.x > startX + availableRulerW + 15) return null;
+          const markerColor = m.isTargetFinish ? COLOR_CIRCUM : COLOR_PI;
+          return (
+            <g key={m.k} transform={`translate(${m.x}, ${groundY})`}>
+              <line
+                x1={0}
+                y1={m.isTargetFinish ? -5 : -4}
+                x2={0}
+                y2={17}
+                stroke={markerColor}
+                strokeWidth={m.isTargetFinish ? 2 : 1.5}
+                strokeDasharray={m.isTargetFinish ? undefined : "2 2"}
+              />
+              <circle cx={0} cy={0} r={m.isTargetFinish ? 2.5 : 2} fill={markerColor} />
+              <text
+                x={0}
+                y={27}
+                textAnchor="middle"
+                fontSize={m.isTargetFinish ? 10.5 : 9.5}
+                fontWeight="900"
+                fill={markerColor}
+                fontFamily="var(--font-heading, system-ui)"
+                style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
+              >
+                {m.label}
+              </text>
+            </g>
+          );
+        })}
 
         {/* Unrolled Orange Ribbon Laid Down Along Ground */}
         {unrollProgress > 0 && (
