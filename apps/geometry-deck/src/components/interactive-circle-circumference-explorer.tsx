@@ -44,7 +44,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const availableRulerW = SVG_W - 65;
   const pxPerUnit = availableRulerW / maxVal;
   const rPx = Math.min(38, Math.max(26, radiusUnits * pxPerUnit)); // visual radius in px
-  const groundY = 112;
+  const groundY = 104;
   const centerY = groundY - rPx;
 
   const cValue = 2 * Math.PI * radiusUnits;
@@ -171,9 +171,9 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
               <line x1={tickX} y1={groundY - 3} x2={tickX} y2={groundY + 3} stroke="rgba(255, 255, 255, 0.45)" strokeWidth={1.5} />
               <text
                 x={tickX}
-                y={groundY + 16}
+                y={groundY + 13}
                 textAnchor="middle"
-                fontSize={10}
+                fontSize={9.5}
                 fontWeight="bold"
                 fill="rgba(255, 255, 255, 0.55)"
                 fontFamily="var(--font-heading, system-ui)"
@@ -184,15 +184,15 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           );
         })}
 
-        {/* Highlighted π Marker on Number Line */}
+        {/* Highlighted π Marker below Number Line */}
         {radiusUnits === 1 && (
           <g transform={`translate(${startX + Math.PI * pxPerUnit}, ${groundY})`}>
-            <line x1={0} y1={-6} x2={0} y2={6} stroke={COLOR_PI} strokeWidth={2} strokeDasharray="2 2" />
+            <line x1={0} y1={-3} x2={0} y2={6} stroke={COLOR_PI} strokeWidth={1.8} strokeDasharray="2 2" />
             <text
               x={0}
-              y={-9}
+              y={26}
               textAnchor="middle"
-              fontSize={10.5}
+              fontSize={10}
               fontWeight="900"
               fill={COLOR_PI}
               fontFamily="var(--font-heading, system-ui)"
@@ -203,14 +203,14 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           </g>
         )}
 
-        {/* Finish 2πr Tick on Number Line */}
+        {/* Finish 2πr Tick below Number Line */}
         <g transform={`translate(${endX}, ${groundY})`}>
-          <line x1={0} y1={-7} x2={0} y2={7} stroke={COLOR_CIRCUM} strokeWidth={2.5} />
+          <line x1={0} y1={-4} x2={0} y2={8} stroke={COLOR_CIRCUM} strokeWidth={2.5} />
           <text
             x={0}
-            y={-10}
+            y={26}
             textAnchor="middle"
-            fontSize={11.5}
+            fontSize={10.5}
             fontWeight="900"
             fill={COLOR_CIRCUM}
             fontFamily="var(--font-heading, system-ui)"
