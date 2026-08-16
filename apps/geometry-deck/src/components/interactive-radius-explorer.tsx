@@ -4,7 +4,7 @@ import React, { useState, useCallback, useRef } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
 
 type InteractiveRadiusExplorerProps = {
-  mode?: "radius" | "diameter" | "pi";
+  mode?: "radius" | "diameter";
   color?: string;
 };
 
@@ -70,7 +70,6 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
   }, [CX, CY, SVG_W]);
 
   const isDiameter = mode === "diameter";
-  const isPi = mode === "pi";
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-1.5 w-full max-w-[650px] mx-auto select-none" onClick={stop} onPointerDown={stop}>
@@ -86,15 +85,15 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
           cy={CY}
           r={CR}
           fill="rgba(255, 255, 255, 0.12)"
-          stroke={isPi ? COLOR_CIRCUM : "rgba(255, 255, 255, 0.95)"}
-          strokeWidth={isPi ? 3.5 : 2.5}
+          stroke="rgba(255, 255, 255, 0.95)"
+          strokeWidth={2.5}
         />
 
         {/* Center Point Dot */}
         <circle cx={CX} cy={CY} r={3.5} fill="#ffffff" />
 
         {/* Diameter Line or Radius Line */}
-        {isDiameter || isPi ? (
+        {isDiameter ? (
           <>
             <line x1={oppX} y1={oppY} x2={pX} y2={pY} stroke={COLOR_DIAMETER} strokeWidth={2.5} strokeLinecap="round" />
             <circle cx={oppX} cy={oppY} r={3.5} fill={COLOR_DIAMETER} />
@@ -145,17 +144,7 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
 
       {/* Live Definition / Formula Banner */}
       <div className="flex justify-center mt-1">
-        {isPi ? (
-          <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none">
-            <span className="text-white">π</span>
-            <span className="text-white/50">=</span>
-            <span style={{ color: COLOR_CIRCUM }}>Circumference (C)</span>
-            <span className="text-white/50">÷</span>
-            <span style={{ color: COLOR_DIAMETER }}>diameter (d)</span>
-            <span className="text-white/50">≈</span>
-            <span className="text-white font-bold">3.14159…</span>
-          </div>
-        ) : isDiameter ? (
+        {isDiameter ? (
           <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none">
             <span style={{ color: COLOR_DIAMETER }}>d</span>
             <span className="text-white/50">=</span>

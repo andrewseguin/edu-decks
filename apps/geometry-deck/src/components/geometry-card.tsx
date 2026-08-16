@@ -24,6 +24,7 @@ import { InteractiveTrapezoidPropertyExplorer } from "./interactive-trapezoid-pr
 import { InteractiveRhombusExplorer } from "./interactive-rhombus-explorer";
 import { InteractiveCircleCircumferenceExplorer } from "./interactive-circle-circumference-explorer";
 import { InteractiveCircleAreaExplorer } from "./interactive-circle-area-explorer";
+import { InteractivePiExplorer } from "./interactive-pi-explorer";
 import { InteractiveRadiusExplorer } from "./interactive-radius-explorer";
 import { InteractivePolygonInteriorSumExplorer } from "./interactive-polygon-interior-sum-explorer";
 import { InteractivePolygonExteriorSumExplorer } from "./interactive-polygon-exterior-sum-explorer";
@@ -199,7 +200,7 @@ export function GeometryCard({
         return <InteractiveRadiusExplorer mode="diameter" color={card.color} />;
       }
       if (card.frontLabel === "π (pi)") {
-        return <InteractiveRadiusExplorer mode="pi" color={card.color} />;
+        return <InteractivePiExplorer color={card.color} />;
       }
       if (card.frontLabel === "Regular polygons") {
         return <InteractiveRegularPolygonExplorer mode="regular" color={card.color} />;
