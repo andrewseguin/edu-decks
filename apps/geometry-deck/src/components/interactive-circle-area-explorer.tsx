@@ -131,41 +131,6 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
     return () => clearTimeout(timer);
   }, [isPlaying, step]);
 
-  // Step 1: Direct radius dragging on spoke
-  const handleRadiusHandlePointerDown = useCallback((e: React.PointerEvent) => {
-    if (step !== 1) return;
-    e.preventDefault();
-    e.stopPropagation();
-    setIsPlaying(false);
-
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const scY = SVG_H / rect.height;
-
-    const updateFromPointer = (clientY: number) => {
-      const py = (clientY - rect.top) * scY;
-      const distPx = Math.max(20, centerY - py);
-      const rawR = Math.round((distPx / availableRulerW) * 7);
-      const clampedR = Math.max(MIN_RADIUS, Math.min(MAX_RADIUS, rawR));
-      setRadiusUnits(clampedR);
-    };
-
-    updateFromPointer(e.clientY);
-
-    const onMove = (ev: PointerEvent) => {
-      updateFromPointer(ev.clientY);
-    };
-
-    const onUp = () => {
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-  }, [SVG_H, availableRulerW, centerY, step]);
-
   // Step 2: Direct 1:1 unrolling along ruler (0..2πr)
   const handleStep2TrackPointerDown = useCallback((e: React.PointerEvent) => {
     if (step !== 2) return;
@@ -433,21 +398,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             {/* Center Hub & Radius Spoke */}
             <circle cx={0} cy={0} r={3} fill="#ffffff" />
             <line x1={0} y1={0} x2={0} y2={-rPx} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
-            
-            {/* Radius Drag Handle on Spoke (Active in Step 1) */}
-            {step === 1 ? (
-              <g
-                transform={`translate(0, ${-rPx})`}
-                className="cursor-ns-resize"
-                onPointerDown={handleRadiusHandlePointerDown}
-              >
-                <circle r={18} fill="transparent" />
-                <circle r={7} fill="rgba(94, 232, 255, 0.25)" stroke={COLOR_RADIUS} strokeWidth={1.5} />
-                <circle r={3.5} fill={COLOR_RADIUS} />
-              </g>
-            ) : (
-              <circle cx={0} cy={-rPx} r={3.5} fill={COLOR_RADIUS} />
-            )}
+            <circle cx={0} cy={-rPx} r={3.5} fill={COLOR_RADIUS} />
 
             {/* Radius Label */}
             <text
