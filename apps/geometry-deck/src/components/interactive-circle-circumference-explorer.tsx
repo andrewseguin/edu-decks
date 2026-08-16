@@ -9,7 +9,7 @@ type InteractiveCircleCircumferenceProps = {
   color?: string;
 };
 
-const SVG_H = 160;
+const SVG_H = 155;
 
 const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan
 const COLOR_CIRCUM = "#fb923c"; // Vibrant Radiant Orange (Circumference ribbon & Target finish)
@@ -72,14 +72,13 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   
   // Continuous smooth visual circle radius (grows with animatedRadius)
   const rPx = 28 + (animatedRadius - 1) * 5.0;
-  const groundY = 102;
+  const groundY = 98;
   const centerY = groundY - rPx;
 
   // Actual physical circumference values for current active radius
   const cValue = 2 * Math.PI * radiusUnits;
   const fullRollDist = cValue * pxPerUnit;
   const cCoeff = 2 * radiusUnits;
-  const cApprox = Math.round(cValue * 100) / 100;
 
   // Smooth forward/backward animation when isPlaying is true
   useEffect(() => {
@@ -177,8 +176,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const maxIntTick = Math.ceil(maxVal);
   const ticks = Array.from({ length: Math.floor(maxIntTick / tickStep) + 1 }, (_, i) => i * tickStep);
 
-  // Cumulative Pi markers: 1π, 2π, 3π, 4π, 5π, 6π
-  // As we zoom out, previous Pi markers are kept and new ones are continuously tacked on!
+  // Cumulative Pi markers: π, 2π, 3π, 4π, 5π, 6π (clean, no decimals)
   const maxPiMultiple = 2 * radiusUnits;
   const piMarkers = Array.from({ length: maxPiMultiple }, (_, i) => {
     const k = i + 1;
@@ -188,7 +186,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
       k,
       val,
       isTargetFinish,
-      label: `${k === 1 ? "π" : `${k}π`} (${Math.round(val * 100) / 100})`,
+      label: k === 1 ? "π" : `${k}π`,
       x: startX + val * pxPerUnit,
     };
   });
@@ -229,7 +227,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           );
         })}
 
-        {/* Consistent, Cumulative Pi Markers tacked onto the line */}
+        {/* Clean, Cumulative Pi Markers (π, 2π, 3π...) with no decimals */}
         {piMarkers.map((m) => {
           if (m.x > startX + availableRulerW + 15) return null;
           const markerColor = m.isTargetFinish ? COLOR_CIRCUM : COLOR_PI;
@@ -247,9 +245,9 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
               <circle cx={0} cy={0} r={m.isTargetFinish ? 2.5 : 2} fill={markerColor} />
               <text
                 x={0}
-                y={27}
+                y={28}
                 textAnchor="middle"
-                fontSize={m.isTargetFinish ? 10.5 : 9.5}
+                fontSize={m.isTargetFinish ? 12 : 11}
                 fontWeight="900"
                 fill={markerColor}
                 fontFamily="var(--font-heading, system-ui)"
@@ -463,8 +461,6 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           <span style={{ color: COLOR_RADIUS }}>{radiusUnits}</span>
           <span className="text-white/50">=</span>
           <span style={{ color: COLOR_CIRCUM }} className="font-bold">{cCoeff}π</span>
-          <span className="text-white/50">≈</span>
-          <span className="text-white font-bold">{cApprox}</span>
         </div>
       </div>
     </div>
