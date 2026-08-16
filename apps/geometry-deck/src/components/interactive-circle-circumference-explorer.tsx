@@ -9,7 +9,7 @@ type InteractiveCircleCircumferenceProps = {
   color?: string;
 };
 
-const SVG_H = 155;
+const SVG_H = 175;
 
 const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan
 const COLOR_CIRCUM = "#fb923c"; // Vibrant Radiant Orange (Circumference ribbon & Target finish)
@@ -64,18 +64,20 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     return () => cancelAnimationFrame(zoomAnimRef.current);
   }, [radiusUnits]);
 
-  // Camera scale: ruler shows 0 .. (animatedRadius * 7)
+  // Comfortable Sizing & Generous Margins on all 4 sides:
+  // Target circle radius in pixels: ~34px (diameter ~68px)
+  // To keep 100% no-slip physical rolling: availableRulerW = 7 * rPx
   const maxVal = animatedRadius * 7;
-  const startX = 46;
-  const availableRulerW = SVG_W - 92;
+  const targetRulerW = Math.min(SVG_W - 120, Math.max(210, Math.min(300, (SVG_W - 80) * 0.78)));
+  const rPx = targetRulerW / 7; // ~32px to 38px
+  const availableRulerW = targetRulerW;
+  const startX = Math.round((SVG_W - availableRulerW) / 2);
   const rightEdge = startX + availableRulerW;
   const pxPerUnit = availableRulerW / maxVal;
   
-  // 1:1 Physical No-Slip Radius: rPx is EXACTLY animatedRadius * pxPerUnit = availableRulerW / 7
-  // This guarantees 100% physical rolling without slipping or stretching!
-  const rPx = animatedRadius * pxPerUnit;
-  const groundY = 98;
-  const centerY = groundY - rPx;
+  // Vertical positioning with ample headspace above circle and room for Pi labels below
+  const groundY = Math.round(rPx * 2 + 24); // ~92px
+  const centerY = groundY - rPx; // ~58px (headspace at top: 58 - 34 = 24px!)
 
   // Actual physical circumference values for current active radius
   const cValue = 2 * Math.PI * radiusUnits;
