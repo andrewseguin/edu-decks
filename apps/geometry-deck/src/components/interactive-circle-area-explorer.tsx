@@ -12,21 +12,21 @@ type InteractiveCircleAreaProps = {
 const SVG_H = 165;
 
 const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan (Radius r & Height)
-const COLOR_BASE = "#ffd45e";   // Warm Gold (Base πr)
+const COLOR_BASE = "#ffd45e";   // Warm Gold (Base πr & Circumference)
 const COLOR_AREA = "#ffffff";   // Crisp Bold White
-const COLOR_SECTOR_A = "#5ee8ff"; // Electric Cyan Sector
-const COLOR_SECTOR_B = "#d8b4fe"; // Radiant Lilac Sector
+const COLOR_SECTOR_A = "rgba(94, 232, 255, 0.55)"; // Electric Cyan Sector (Base teeth)
+const COLOR_SECTOR_B = "rgba(216, 180, 254, 0.55)"; // Radiant Lilac Sector (Flipping teeth)
 
 const MIN_RADIUS = 1;
 const MAX_RADIUS = 5;
-const NUM_SECTORS = 8; // 8 sectors (4 pairs interlocking into parallelogram)
+const NUM_SECTORS = 8;
 
 export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
   const SVG_W = Math.max(300, Math.min(500, rawW - 24));
 
   const [radiusUnits, setRadiusUnits] = useState(3);
-  const [unrollProgress, setUnrollProgress] = useState(0); // 0 (full circle) to 1 (fully unrolled parallelogram)
+  const [unrollProgress, setUnrollProgress] = useState(0); // 0.0 to 1.0 (0..0.5 = unroll 8 in line, 0.5..1.0 = flip half into parallelogram)
   const [isPlaying, setIsPlaying] = useState(true);
   const [isDraggingHandle, setIsDraggingHandle] = useState(false);
 
@@ -38,20 +38,21 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   }, []);
 
   // Radius sizing
-  const startX = 48;
-  const availableW = SVG_W - 96;
-  const maxVal = 3.5 * Math.PI; // total roll distance corresponds to π * r
-  const rPx = Math.min(36, Math.max(26, (availableW / (3.5 * Math.PI)) * 0.95)); // visual radius
-  const totalBaseW = Math.PI * rPx; // length of laid down parallelogram = πr
-  const toothW = totalBaseW / 4; // width of 1 pair of interlocking teeth
-  const halfTooth = toothW / 2;
+  const startX = 46;
+  const availableW = SVG_W - 92;
+  const maxLineW = availableW;
+  // Total unrolled length of all 8 slices is 2πr
+  const rPx = Math.min(34, Math.max(22, maxLineW / (2 * Math.PI))); // visual radius
+  const fullCircumW = 2 * Math.PI * rPx; // 2πr length
+  const halfCircumW = Math.PI * rPx; // πr length
+  const singleToothW = fullCircumW / NUM_SECTORS; // width of 1 wedge along arc
 
-  const groundY = 106;
+  const groundY = 108;
   const centerY = groundY - rPx;
-  const fullRollDist = totalBaseW;
 
   const areaCoeff = radiusUnits * radiusUnits;
-  const cApprox = Math.round(Math.PI * radiusUnits * 100) / 100;
+  const cHalfApprox = Math.round(Math.PI * radiusUnits * 100) / 100;
+  const cFullApprox = Math.round(2 * Math.PI * radiusUnits * 100) / 100;
 
   // Smooth back-and-forth rolling animation on reveal
   useEffect(() => {
@@ -61,7 +62,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
     }
 
     let start: number | null = null;
-    const period = 5600; // 5.6s full cycle
+    const period = 6400; // 6.4s full 2-stage cycle
 
     const clampedProg = Math.max(0, Math.min(1, unrollProgress));
     const initialPhi = Math.acos(Math.max(-1, Math.min(1, 1 - 2 * clampedProg)));
@@ -82,7 +83,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
     };
   }, [isPlaying, radiusUnits]);
 
-  // Direct 1:1 dragging along ruler
+  // Direct 1:1 dragging of scrubber / handle
   const handleTrackPointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -97,7 +98,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
     const updateFromPointer = (clientX: number) => {
       const px = (clientX - rect.left) * scX;
-      const prog = Math.max(0, Math.min(1, (px - startX) / fullRollDist));
+      const prog = Math.max(0, Math.min(1, (px - startX) / fullCircumW));
       setUnrollProgress(prog);
     };
 
@@ -115,7 +116,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
-  }, [SVG_W, fullRollDist, startX]);
+  }, [SVG_W, fullCircumW, startX]);
 
   const togglePlay = () => {
     if (isPlaying) {
@@ -137,15 +138,19 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
     }
   };
 
-  const currentWheelX = startX + unrollProgress * fullRollDist;
+  // 2-STAGE CHOREOGRAPHY:
+  // Stage 1 (p in 0..0.5): Circle rolls 2πr and unrolls all 8 slices in a straight row on the ground
+  // Stage 2 (p in 0.5..1.0): Odd slices lift up, flip 180°, and slot into gaps to form parallelogram
+  const stage1P = Math.min(1, unrollProgress / 0.5); // 0 to 1
+  const stage2P = Math.max(0, (unrollProgress - 0.5) / 0.5); // 0 to 1
 
-  // Wedge path templates
-  // Wedge pointing UP (arcs on ground at y=groundY, apex at y=groundY-rPx)
-  const wedgeUpPath = `M ${halfTooth / 2} ${-rPx} L ${halfTooth} 0 A ${rPx * 1.5} ${rPx * 0.35} 0 0 1 0 0 Z`;
-  // Wedge pointing DOWN (apex at y=groundY, arc at y=groundY-rPx)
-  const wedgeDownPath = `M 0 ${-rPx} A ${rPx * 1.5} ${rPx * 0.35} 0 0 1 ${halfTooth} ${-rPx} L ${halfTooth / 2} 0 Z`;
+  const currentWheelX = startX + stage1P * fullCircumW;
 
-  // Standard radial slice path for rotating wheel
+  // Single Wedge path template (pointing UP: apex at (w/2, -rPx), arc at bottom (0,0) to (w,0))
+  const halfW = singleToothW / 2;
+  const wedgeUpPath = `M ${halfW} ${-rPx} L ${singleToothW} 0 A ${rPx * 1.5} ${rPx * 0.3} 0 0 1 0 0 Z`;
+
+  // Standard radial slice angle
   const sectorAngle = (2 * Math.PI) / NUM_SECTORS;
 
   return (
@@ -157,10 +162,10 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         onPointerDown={handleTrackPointerDown}
       >
         {/* Track Hitbox */}
-        <rect x={startX - 20} y={groundY - 60} width={availableW + 40} height={90} fill="transparent" />
+        <rect x={startX - 20} y={groundY - 70} width={fullCircumW + 40} height={100} fill="transparent" />
 
         {/* Baseline Ruler */}
-        <line x1={startX - 10} y1={groundY} x2={startX + totalBaseW + 45} y2={groundY} stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
+        <line x1={startX - 10} y1={groundY} x2={startX + fullCircumW + 15} y2={groundY} stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
 
         {/* Start Tick (0) */}
         <line x1={startX} y1={groundY - 3} x2={startX} y2={groundY + 3} stroke="rgba(255, 255, 255, 0.45)" strokeWidth={1.5} />
@@ -176,64 +181,59 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           0
         </text>
 
-        {/* Finish Base Tick (πr) */}
-        <line x1={startX + totalBaseW} y1={groundY - 5} x2={startX + totalBaseW} y2={18} stroke={COLOR_BASE} strokeWidth={2} />
-        <circle cx={startX + totalBaseW} cy={groundY} r={2.5} fill={COLOR_BASE} />
-        <text
-          x={startX + totalBaseW}
-          y={groundY + 28}
-          textAnchor="middle"
-          fontSize={11.5}
-          fontWeight="900"
-          fill={COLOR_BASE}
-          fontFamily="var(--font-heading, system-ui)"
-          style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
-        >
-          base = πr ({cApprox})
-        </text>
-
-        {/* Slices Laid Down Along Ground (Peels off wheel behind it) */}
-        {Array.from({ length: NUM_SECTORS }, (_, k) => {
-          const sliceFraction = (k + 1) / NUM_SECTORS;
-          if (sliceFraction > unrollProgress) return null; // not yet unrolled onto ground
-
-          const isEven = k % 2 === 0;
-          const pairIdx = Math.floor(k / 2);
-          const segX = startX + pairIdx * toothW + (isEven ? 0 : halfTooth);
-
-          return (
-            <g
-              key={`laid-slice-${k}`}
-              transform={`translate(${segX}, ${groundY})`}
+        {/* Stage 1: Full Circumference Callout (2πr) */}
+        {stage2P < 0.6 && (
+          <g opacity={Math.max(0, 1 - stage2P * 2)}>
+            <line x1={startX + fullCircumW} y1={groundY - 5} x2={startX + fullCircumW} y2={18} stroke={COLOR_BASE} strokeWidth={2} />
+            <circle cx={startX + fullCircumW} cy={groundY} r={2.5} fill={COLOR_BASE} />
+            <text
+              x={startX + fullCircumW}
+              y={groundY + 28}
+              textAnchor="middle"
+              fontSize={11}
+              fontWeight="900"
+              fill={COLOR_BASE}
+              fontFamily="var(--font-heading, system-ui)"
+              style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
             >
-              <path
-                d={isEven ? wedgeUpPath : wedgeDownPath}
-                fill={isEven ? COLOR_SECTOR_A : COLOR_SECTOR_B}
-                stroke="rgba(255, 255, 255, 0.55)"
-                strokeWidth={1.2}
-                opacity={0.85}
-              />
-            </g>
-          );
-        })}
+              2πr ({cFullApprox})
+            </text>
+          </g>
+        )}
 
-        {/* Dimension Callouts for Interlocked Parallelogram when unrolled */}
-        {unrollProgress > 0.85 && (
-          <g opacity={Math.min(1, (unrollProgress - 0.85) * 6.6)}>
+        {/* Stage 2: Parallelogram Base Callout (b = πr) */}
+        {stage2P > 0.1 && (
+          <g opacity={Math.min(1, stage2P * 1.5)}>
+            <line x1={startX} y1={groundY + 6} x2={startX + halfCircumW} y2={groundY + 6} stroke={COLOR_BASE} strokeWidth={2.5} strokeLinecap="round" />
+            <line x1={startX} y1={groundY + 2} x2={startX} y2={groundY + 10} stroke={COLOR_BASE} strokeWidth={2} />
+            <line x1={startX + halfCircumW} y1={groundY + 2} x2={startX + halfCircumW} y2={groundY + 10} stroke={COLOR_BASE} strokeWidth={2} />
+            <text
+              x={startX + halfCircumW / 2}
+              y={groundY + 24}
+              textAnchor="middle"
+              fontSize={12}
+              fontWeight="900"
+              fill={COLOR_BASE}
+              fontFamily="var(--font-heading, system-ui)"
+              style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
+            >
+              base = π · r ({cHalfApprox})
+            </text>
+
             {/* Height Callout (h = r) */}
             <line
-              x1={startX + totalBaseW + 12}
+              x1={startX + halfCircumW + halfW + 10}
               y1={groundY - rPx}
-              x2={startX + totalBaseW + 12}
+              x2={startX + halfCircumW + halfW + 10}
               y2={groundY}
               stroke={COLOR_RADIUS}
               strokeWidth={2.5}
               strokeDasharray="3 2"
             />
-            <circle cx={startX + totalBaseW + 12} cy={groundY - rPx} r={2.5} fill={COLOR_RADIUS} />
-            <circle cx={startX + totalBaseW + 12} cy={groundY} r={2.5} fill={COLOR_RADIUS} />
+            <circle cx={startX + halfCircumW + halfW + 10} cy={groundY - rPx} r={2.5} fill={COLOR_RADIUS} />
+            <circle cx={startX + halfCircumW + halfW + 10} cy={groundY} r={2.5} fill={COLOR_RADIUS} />
             <text
-              x={startX + totalBaseW + 20}
+              x={startX + halfCircumW + halfW + 18}
               y={groundY - rPx / 2}
               textAnchor="start"
               dominantBaseline="central"
@@ -248,62 +248,107 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </g>
         )}
 
-        {/* Rolling Wheel Group */}
-        <g transform={`translate(${currentWheelX}, ${centerY})`}>
-          {/* Wheel Ghost Spool outline */}
-          <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
-          <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.06)" />
+        {/* 8 Slices Laid Down on Ground / Morphing into Parallelogram */}
+        {Array.from({ length: NUM_SECTORS }, (_, k) => {
+          const sliceFraction = (k + 1) / NUM_SECTORS;
+          if (sliceFraction > stage1P) return null; // not yet unrolled from wheel
 
-          {/* Slices Still On The Wheel (Rotating with wheel rim until they peel off) */}
-          {Array.from({ length: NUM_SECTORS }, (_, i) => {
-            const sliceFraction = (i + 1) / NUM_SECTORS;
-            if (sliceFraction <= unrollProgress) return null; // already peeled off onto ground!
+          const isEven = k % 2 === 0;
 
-            // Angle of slice i on the wheel as wheel rotates
-            const startA = (90 - (sliceFraction - unrollProgress) * 360) * (Math.PI / 180);
-            const endA = startA + sectorAngle;
-            const x1 = rPx * Math.cos(startA);
-            const y1 = rPx * Math.sin(startA);
-            const x2 = rPx * Math.cos(endA);
-            const y2 = rPx * Math.sin(endA);
-            const d = `M 0 0 L ${x1} ${y1} A ${rPx} ${rPx} 0 0 1 ${x2} ${y2} Z`;
+          // Stage 1 straight line position: x = startX + k * singleToothW
+          const lineX = startX + k * singleToothW;
+          const lineY = groundY;
+          const lineRot = 0; // pointing UP
 
-            return (
+          // Stage 2 parallelogram target position:
+          // Even slices k = 0, 2, 4, 6 stay at compacted positions x = startX + (k/2) * (2 * singleToothW)
+          // Odd slices k = 1, 3, 5, 7 flip 180° and slot into x = startX + ((k-1)/2) * (2 * singleToothW) + singleToothW
+          const pairIdx = Math.floor(k / 2);
+          const paraX = isEven
+            ? startX + pairIdx * (2 * singleToothW)
+            : startX + pairIdx * (2 * singleToothW) + 2 * singleToothW;
+          const paraY = isEven ? groundY : groundY - rPx;
+          const paraRot = isEven ? 0 : 180;
+
+          // Smooth interpolation between Stage 1 line and Stage 2 parallelogram
+          const t = stage2P;
+          const curX = lineX + (paraX - lineX) * t;
+          // Arc upward trajectory for flipping odd slices
+          const liftY = !isEven ? Math.sin(t * Math.PI) * 20 : 0;
+          const curY = lineY + (paraY - lineY) * t - liftY;
+          const curRot = lineRot + (paraRot - lineRot) * t;
+
+          return (
+            <g
+              key={`ground-slice-${k}`}
+              transform={`translate(${curX}, ${curY}) rotate(${curRot})`}
+            >
               <path
-                key={`wheel-slice-${i}`}
-                d={d}
-                fill={i % 2 === 0 ? COLOR_SECTOR_A : COLOR_SECTOR_B}
-                stroke="rgba(255, 255, 255, 0.45)"
+                d={wedgeUpPath}
+                fill={isEven ? COLOR_SECTOR_A : COLOR_SECTOR_B}
+                stroke="rgba(255, 255, 255, 0.6)"
                 strokeWidth={1.2}
-                opacity={0.85}
               />
-            );
-          })}
+            </g>
+          );
+        })}
 
-          {/* Center Hub & Radius Spoke */}
-          <circle cx={0} cy={0} r={3} fill="#ffffff" />
-          <line x1={0} y1={0} x2={0} y2={-rPx} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
-          <circle cx={0} cy={-rPx} r={3.5} fill={COLOR_RADIUS} />
+        {/* Rolling Wheel Group (Rolls across distance 2πr during Stage 1) */}
+        {stage1P < 1 && (
+          <g transform={`translate(${currentWheelX}, ${centerY})`}>
+            {/* Ghost wheel outline */}
+            <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
+            <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.06)" />
 
-          {/* Radius Label */}
-          <text
-            x={12}
-            y={-rPx / 2}
-            textAnchor="start"
-            dominantBaseline="central"
-            fontSize={11.5}
-            fontWeight="800"
-            fill={COLOR_RADIUS}
-            fontFamily="var(--font-heading, system-ui)"
-            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
-          >
-            r = {radiusUnits}
-          </text>
-        </g>
+            {/* Slices Remaining on Wheel */}
+            {Array.from({ length: NUM_SECTORS }, (_, i) => {
+              const sliceFraction = (i + 1) / NUM_SECTORS;
+              if (sliceFraction <= stage1P) return null; // already unrolled onto ground
 
-        {/* Drag Handle at bottom contact point */}
+              const startA = (90 - (sliceFraction - stage1P) * 360) * (Math.PI / 180);
+              const endA = startA + sectorAngle;
+              const x1 = rPx * Math.cos(startA);
+              const y1 = rPx * Math.sin(startA);
+              const x2 = rPx * Math.cos(endA);
+              const y2 = rPx * Math.sin(endA);
+              const d = `M 0 0 L ${x1} ${y1} A ${rPx} ${rPx} 0 0 1 ${x2} ${y2} Z`;
+
+              return (
+                <path
+                  key={`wheel-slice-${i}`}
+                  d={d}
+                  fill={i % 2 === 0 ? COLOR_SECTOR_A : COLOR_SECTOR_B}
+                  stroke="rgba(255, 255, 255, 0.45)"
+                  strokeWidth={1.2}
+                />
+              );
+            })}
+
+            {/* Center Hub & Radius Spoke */}
+            <circle cx={0} cy={0} r={3} fill="#ffffff" />
+            <line x1={0} y1={0} x2={0} y2={-rPx} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
+            <circle cx={0} cy={-rPx} r={3.5} fill={COLOR_RADIUS} />
+
+            {/* Radius Label */}
+            <text
+              x={10}
+              y={-rPx / 2}
+              textAnchor="start"
+              dominantBaseline="central"
+              fontSize={11.5}
+              fontWeight="800"
+              fill={COLOR_RADIUS}
+              fontFamily="var(--font-heading, system-ui)"
+              style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
+            >
+              r = {radiusUnits}
+            </text>
+          </g>
+        )}
+
+        {/* Drag Handle at leading edge */}
         <g
-          transform={`translate(${currentWheelX}, ${groundY})`}
+          transform={`translate(${startX + unrollProgress * fullCircumW}, ${groundY})`}
           className="cursor-grab active:cursor-grabbing"
           onPointerDown={handleTrackPointerDown}
         >
@@ -375,17 +420,27 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
       {/* Live Typographic Equation Banner */}
       <div className="flex justify-center mt-1">
-        <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
-          <span className="text-white">A</span>
-          <span className="text-white/50">=</span>
-          <span className="text-white/80">base · height</span>
-          <span className="text-white/50">=</span>
-          <span style={{ color: COLOR_BASE }} className="font-bold">(π · {radiusUnits})</span>
-          <span className="text-white/50">·</span>
-          <span style={{ color: COLOR_RADIUS }} className="font-bold">{radiusUnits}</span>
-          <span className="text-white/50">=</span>
-          <span style={{ color: COLOR_AREA }} className="font-bold">{areaCoeff}π</span>
-        </div>
+        {stage2P < 0.5 ? (
+          <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
+            <span className="text-white">Circumference</span>
+            <span className="text-white/50">=</span>
+            <span style={{ color: COLOR_BASE }} className="font-bold">2 · π · {radiusUnits}</span>
+            <span className="text-white/50">=</span>
+            <span style={{ color: COLOR_BASE }} className="font-bold">{2 * radiusUnits}π</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
+            <span className="text-white">A</span>
+            <span className="text-white/50">=</span>
+            <span className="text-white/80">base · height</span>
+            <span className="text-white/50">=</span>
+            <span style={{ color: COLOR_BASE }} className="font-bold">(π · {radiusUnits})</span>
+            <span className="text-white/50">·</span>
+            <span style={{ color: COLOR_RADIUS }} className="font-bold">{radiusUnits}</span>
+            <span className="text-white/50">=</span>
+            <span style={{ color: COLOR_AREA }} className="font-bold">{areaCoeff}π</span>
+          </div>
+        )}
       </div>
     </div>
   );
