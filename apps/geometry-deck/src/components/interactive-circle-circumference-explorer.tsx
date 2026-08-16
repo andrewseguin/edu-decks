@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
 import { cn } from "@/lib/utils";
+import { Play, Pause, RotateCcw } from "lucide-react";
 
 type InteractiveCircleCircumferenceProps = {
   color?: string;
@@ -24,15 +25,15 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
 
   const [radiusUnits, setRadiusUnits] = useState(1); // Default r = 1 (Unit circle on real number line)
   const [unrollProgress, setUnrollProgress] = useState(0); // 0 (start) to 1 (fully unrolled: 2πr)
-  const [hasInteracted, setHasInteracted] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [isDraggingHandle, setIsDraggingHandle] = useState(false);
 
   const svgRef = useRef<SVGSVGElement>(null);
   const autoplayRef = useRef<number>(0);
+  const animTimeOffsetRef = useRef<number>(0);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => {
     e.stopPropagation();
-    setHasInteracted(true);
   }, []);
 
   const maxVal = radiusUnits * 7;
@@ -52,20 +53,28 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const cCoeff = 2 * radiusUnits;
   const cApprox = Math.round(cValue * 100) / 100;
 
-  // Smooth back-and-forth rolling animation on reveal until user interacts
+  // Smooth forward/backward animation when isPlaying is true
   useEffect(() => {
-    if (hasInteracted) return;
+    if (!isPlaying) {
+      cancelAnimationFrame(autoplayRef.current);
+      return;
+    }
+
     let start: number | null = null;
     const period = 5200; // 5.2s full forward-and-back cycle
 
+    // Convert current progress to initial elapsed time so resuming is completely seamless
+    // prog = 0.5 * (1 - cos(phi)) => cos(phi) = 1 - 2*prog
+    const clampedProg = Math.max(0, Math.min(1, unrollProgress));
+    const initialPhi = Math.acos(Math.max(-1, Math.min(1, 1 - 2 * clampedProg)));
+    const initialElapsed = (initialPhi / (2 * Math.PI)) * period;
+
     const step = (ts: number) => {
-      if (!start) start = ts;
+      if (!start) start = ts - initialElapsed;
       const elapsed = ts - start;
       const prog = 0.5 * (1 - Math.cos((elapsed / period) * 2 * Math.PI));
       setUnrollProgress(prog);
-      if (!hasInteracted) {
-        autoplayRef.current = requestAnimationFrame(step);
-      }
+      autoplayRef.current = requestAnimationFrame(step);
     };
 
     autoplayRef.current = requestAnimationFrame(step);
@@ -73,13 +82,13 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     return () => {
       cancelAnimationFrame(autoplayRef.current);
     };
-  }, [hasInteracted, radiusUnits]);
+  }, [isPlaying, radiusUnits]);
 
   // Direct 1:1 dragging of the wheel / handle along the ruler
   const handleTrackPointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setHasInteracted(true);
+    setIsPlaying(false);
     cancelAnimationFrame(autoplayRef.current);
     setIsDraggingHandle(true);
 
@@ -110,6 +119,17 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     window.addEventListener("pointerup", onUp);
   }, [SVG_W, fullRollDist, startX]);
 
+  const togglePlay = () => {
+    if (isPlaying) {
+      setIsPlaying(false);
+    } else {
+      if (unrollProgress >= 0.98) {
+        setUnrollProgress(0);
+      }
+      setIsPlaying(true);
+    }
+  };
+
   const currentWheelX = startX + unrollProgress * fullRollDist;
 
   // Unspooling Tape Geometry on Front & Top of Wheel:
@@ -123,6 +143,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   let remainingArcPath = "";
   if (unrollProgress > 0 && remainingFraction > 0.005) {
     const largeArc = remainingArcDeg > 180 ? 1 : 0;
+    // Sweep-flag 0 draws counter-clockwise from bottom (6 o'clock: (0, rPx)) up through front/right to tip
     remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 ${largeArc} 0 ${tipX} ${tipY}`;
   }
 
@@ -360,10 +381,9 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
             <button
               key={pr}
               onClick={() => {
-                setHasInteracted(true);
-                cancelAnimationFrame(autoplayRef.current);
                 setRadiusUnits(pr);
                 setUnrollProgress(0);
+                setIsPlaying(true);
               }}
               className={cn(
                 "px-2.5 py-0.5 rounded-full text-[11px] font-headline font-bold transition-all border-none",
@@ -375,15 +395,27 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           ))}
         </div>
 
+        {/* Play / Pause / Replay Frosted Action Button */}
         <button
-          onClick={() => {
-            setHasInteracted(true);
-            cancelAnimationFrame(autoplayRef.current);
-            setUnrollProgress(unrollProgress > 0 ? 0 : 1);
-          }}
-          className="px-3.5 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm backdrop-blur-md active:scale-95"
+          onClick={togglePlay}
+          className="flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm backdrop-blur-md active:scale-95"
         >
-          {unrollProgress > 0 ? "↺ Reset" : `Unroll (${cCoeff}π)`}
+          {isPlaying ? (
+            <>
+              <Pause className="w-3 h-3 fill-current text-white/90" />
+              <span>Pause</span>
+            </>
+          ) : unrollProgress >= 0.98 ? (
+            <>
+              <RotateCcw className="w-3 h-3 text-white/90" />
+              <span>Replay</span>
+            </>
+          ) : (
+            <>
+              <Play className="w-3 h-3 fill-current text-white/90" />
+              <span>Play</span>
+            </>
+          )}
         </button>
       </div>
 
