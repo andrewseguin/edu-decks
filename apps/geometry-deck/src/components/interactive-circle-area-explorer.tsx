@@ -9,7 +9,7 @@ type InteractiveCircleAreaProps = {
   color?: string;
 };
 
-const SVG_H = 165;
+const SVG_H = 135;
 
 const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan (Radius r & Height)
 const COLOR_BASE = "#ffd45e";   // Warm Gold (Base πr & Circumference)
@@ -77,7 +77,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const rightEdge = startX + availableRulerW;
   const pxPerUnit = availableRulerW / maxVal;
 
-  const groundY = Math.round(rPx * 2 + 24); // ~92px
+  const groundY = Math.round(rPx * 2 + 16); // ~84px (compacted)
   const centerY = groundY - rPx;
 
   // Real world math
@@ -102,7 +102,6 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
     const targetP = targetProgress;
     if (Math.abs(startP - targetP) < 0.005) return;
 
-    // 2.6s for unrolling (step 1->2), 3.2s for 4-stage elevator proof (step 2->3)
     const stepDiff = Math.abs(targetP - startP);
     const duration = Math.round((startP >= 0.99 || targetP >= 1.99 ? 3200 : 2600) * stepDiff);
 
@@ -186,7 +185,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const currentHeightCalloutX = startRadiusScootX + (targetHeightX - startRadiusScootX) * scootEase;
 
   return (
-    <div ref={containerRef} className="flex flex-col items-center gap-2.5 w-full pb-2" onClick={stop} onPointerDown={stop}>
+    <div ref={containerRef} className="flex flex-col items-center gap-1.5 w-full select-none" onClick={stop} onPointerDown={stop}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
@@ -216,9 +215,9 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               {isMajor && (
                 <text
                   x={tickX}
-                  y={groundY + 13}
+                  y={groundY + 12}
                   textAnchor="middle"
-                  fontSize={9.5}
+                  fontSize={9}
                   fontWeight="bold"
                   fill="rgba(255, 255, 255, 0.55)"
                   fontFamily="var(--font-heading, system-ui)"
@@ -232,13 +231,13 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
         {/* Half-turn π marker below number line */}
         <g transform={`translate(${startX + halfRollDist}, ${groundY})`}>
-          <line x1={0} y1={-4} x2={0} y2={17} stroke={COLOR_BASE} strokeWidth={2} />
-          <circle cx={0} cy={0} r={2.5} fill={COLOR_BASE} />
+          <line x1={0} y1={-3} x2={0} y2={14} stroke={COLOR_BASE} strokeWidth={2} />
+          <circle cx={0} cy={0} r={2} fill={COLOR_BASE} />
           <text
             x={0}
-            y={28}
+            y={24}
             textAnchor="middle"
-            fontSize={11}
+            fontSize={10.5}
             fontWeight="900"
             fill={COLOR_BASE}
             fontFamily="var(--font-heading, system-ui)"
@@ -250,13 +249,13 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
         {/* Finish 2π marker below number line */}
         <g transform={`translate(${startX + fullRollDist}, ${groundY})`}>
-          <line x1={0} y1={-4} x2={0} y2={17} stroke={COLOR_PI} strokeWidth={1.5} strokeDasharray="2 2" />
+          <line x1={0} y1={-3} x2={0} y2={14} stroke={COLOR_PI} strokeWidth={1.5} strokeDasharray="2 2" />
           <circle cx={0} cy={0} r={2} fill={COLOR_PI} />
           <text
             x={0}
-            y={28}
+            y={24}
             textAnchor="middle"
-            fontSize={10.5}
+            fontSize={10}
             fontWeight="900"
             fill={COLOR_PI}
             fontFamily="var(--font-heading, system-ui)"
@@ -266,38 +265,43 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </text>
         </g>
 
-        {/* Dimension Callouts for Interlocked Parallelogram (Step 3) */}
-        {p2 > 0.88 && (
-          <g opacity={Math.min(1, (p2 - 0.88) * 8)}>
-            {/* Base Dimension Bracket Along Bottom (b = πr) */}
-            <line x1={startX} y1={groundY + 6} x2={startX + halfRollDist} y2={groundY + 6} stroke={COLOR_BASE} strokeWidth={2.5} strokeLinecap="round" />
-            <line x1={startX} y1={groundY + 2} x2={startX} y2={groundY + 10} stroke={COLOR_BASE} strokeWidth={2} />
-            <line x1={startX + halfRollDist} y1={groundY + 2} x2={startX + halfRollDist} y2={groundY + 10} stroke={COLOR_BASE} strokeWidth={2} />
+        {/* Base Dimension Bracket Along Bottom (b = πr in Step 3) */}
+        {p2 > 0.4 && (
+          <g opacity={Math.min(1, (p2 - 0.4) * 2.5)}>
+            <line x1={startX} y1={groundY + 5} x2={startX + halfRollDist} y2={groundY + 5} stroke={COLOR_BASE} strokeWidth={2} strokeLinecap="round" />
+            <line x1={startX} y1={groundY + 2} x2={startX} y2={groundY + 8} stroke={COLOR_BASE} strokeWidth={1.5} />
+            <line x1={startX + halfRollDist} y1={groundY + 2} x2={startX + halfRollDist} y2={groundY + 8} stroke={COLOR_BASE} strokeWidth={1.5} />
+          </g>
+        )}
 
-            {/* Height Callout (h = r) */}
+        {/* Persisted Cyan Radius Line Scooting over to become Height Callout (h = r) */}
+        {p1 >= 0.999 && (
+          <g>
             <line
-              x1={startX + halfRollDist + halfW + 10}
+              x1={currentHeightCalloutX}
               y1={groundY - rPx}
-              x2={startX + halfRollDist + halfW + 10}
+              x2={currentHeightCalloutX}
               y2={groundY}
               stroke={COLOR_RADIUS}
-              strokeWidth={2.5}
-              strokeDasharray="3 2"
+              strokeWidth={2}
+              strokeDasharray={p2 > 0.6 ? "3 2" : "none"}
             />
-            <circle cx={startX + halfRollDist + halfW + 10} cy={groundY - rPx} r={2.5} fill={COLOR_RADIUS} />
-            <circle cx={startX + halfRollDist + halfW + 10} cy={groundY} r={2.5} fill={COLOR_RADIUS} />
+            <circle cx={currentHeightCalloutX} cy={groundY - rPx} r={2} fill={COLOR_RADIUS} />
+            <circle cx={currentHeightCalloutX} cy={groundY} r={2} fill={COLOR_RADIUS} />
+            
+            {/* Label smoothly morphs from r = 1 to h = r (1) */}
             <text
-              x={startX + halfRollDist + halfW + 18}
-              y={groundY - rPx / 2}
-              textAnchor="start"
+              x={currentHeightCalloutX + (p2 > 0.6 ? 7 : 0)}
+              y={p2 > 0.6 ? groundY - rPx / 2 : groundY - rPx - 7}
+              textAnchor={p2 > 0.6 ? "start" : "middle"}
               dominantBaseline="central"
-              fontSize={12}
+              fontSize={11}
               fontWeight="900"
               fill={COLOR_RADIUS}
               fontFamily="var(--font-heading, system-ui)"
               style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
             >
-              h = r ({radiusUnits})
+              {p2 > 0.6 ? `h = r (${radiusUnits})` : `r = ${radiusUnits}`}
             </text>
           </g>
         )}
@@ -395,17 +399,17 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             })}
 
             {/* Center Hub & Radius Spoke Facing DOWN at Start (and rotating with wheel) */}
-            <circle cx={0} cy={0} r={3} fill="#ffffff" />
+            <circle cx={0} cy={0} r={2.5} fill="#ffffff" />
             <line x1={0} y1={0} x2={spokeTipX} y2={spokeTipY} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
-            <circle cx={spokeTipX} cy={spokeTipY} r={3.5} fill={COLOR_RADIUS} />
+            <circle cx={spokeTipX} cy={spokeTipY} r={3} fill={COLOR_RADIUS} />
 
             {/* Static Radius Label above center point */}
             <text
               x={0}
-              y={-12}
+              y={-10}
               textAnchor="middle"
               dominantBaseline="central"
-              fontSize={12}
+              fontSize={11.5}
               fontWeight="800"
               fill={COLOR_RADIUS}
               fontFamily="var(--font-heading, system-ui)"
@@ -417,113 +421,107 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         )}
       </svg>
 
-      {/* Row 1: Primary Navigation Controls ([1. Circle | 2. Unroll | 3. Parallelogram]) */}
-      <div className="flex items-center gap-2 select-none justify-center">
-        <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm">
-          <button
-            onClick={() => {
-              setIsPlaying(false);
-              setStep(1);
-            }}
-            className={cn(
-              "px-3 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
-              step === 1 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
-            )}
-          >
-            1. Circle
-          </button>
-          <button
-            onClick={() => {
-              setIsPlaying(false);
-              setStep(2);
-            }}
-            className={cn(
-              "px-3 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
-              step === 2 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
-            )}
-          >
-            2. Unroll
-          </button>
-          <button
-            onClick={() => {
-              setIsPlaying(false);
-              setStep(3);
-            }}
-            className={cn(
-              "px-3 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
-              step === 3 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
-            )}
-          >
-            3. Parallelogram
-          </button>
-        </div>
+      {/* Row 1: Step Pills */}
+      <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm">
+        <button
+          onClick={() => {
+            setIsPlaying(false);
+            setStep(1);
+          }}
+          className={cn(
+            "px-2.5 py-0.5 rounded-full text-[11px] font-headline font-bold transition-all border-none",
+            step === 1 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
+          )}
+        >
+          1. Circle
+        </button>
+        <button
+          onClick={() => {
+            setIsPlaying(false);
+            setStep(2);
+          }}
+          className={cn(
+            "px-2.5 py-0.5 rounded-full text-[11px] font-headline font-bold transition-all border-none",
+            step === 2 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
+          )}
+        >
+          2. Unroll
+        </button>
+        <button
+          onClick={() => {
+            setIsPlaying(false);
+            setStep(3);
+          }}
+          className={cn(
+            "px-2.5 py-0.5 rounded-full text-[11px] font-headline font-bold transition-all border-none",
+            step === 3 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
+          )}
+        >
+          3. Parallelogram
+        </button>
       </div>
 
-      {/* Row 2: Secondary Settings with Stacked Labels */}
-      <div className="flex items-center gap-4 select-none justify-center mt-0.5">
+      {/* Row 2: Compact Inline Settings (Radius + Slices) */}
+      <div className="flex items-center gap-2 select-none justify-center">
         {/* Radius Stepper */}
-        <div className="flex flex-col items-center gap-1">
-          <span className="text-[10px] uppercase font-bold tracking-wider text-white/60">Radius</span>
-          <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm">
-            <button
-              onClick={() => changeRadius(-1)}
-              disabled={radiusUnits <= MIN_RADIUS}
-              className={cn(
-                "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
-                radiusUnits <= MIN_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
-              )}
-              aria-label="Decrease radius"
-            >
-              <Minus className="w-3 h-3 stroke-[2.5]" />
-            </button>
+        <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm">
+          <span className="text-[10px] text-white/60 font-bold px-0.5">r:</span>
+          <button
+            onClick={() => changeRadius(-1)}
+            disabled={radiusUnits <= MIN_RADIUS}
+            className={cn(
+              "w-4 h-4 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+              radiusUnits <= MIN_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
+            )}
+            aria-label="Decrease radius"
+          >
+            <Minus className="w-2.5 h-2.5 stroke-[2.5]" />
+          </button>
 
-            <span
-              style={{ color: COLOR_RADIUS }}
-              className="px-1.5 text-xs font-headline font-black tracking-wide min-w-[18px] text-center"
-            >
-              {radiusUnits}
-            </span>
+          <span
+            style={{ color: COLOR_RADIUS }}
+            className="px-0.5 text-xs font-headline font-black tracking-wide min-w-[14px] text-center"
+          >
+            {radiusUnits}
+          </span>
 
-            <button
-              onClick={() => changeRadius(1)}
-              disabled={radiusUnits >= MAX_RADIUS}
-              className={cn(
-                "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
-                radiusUnits >= MAX_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
-              )}
-              aria-label="Increase radius"
-            >
-              <Plus className="w-3 h-3 stroke-[2.5]" />
-            </button>
-          </div>
+          <button
+            onClick={() => changeRadius(1)}
+            disabled={radiusUnits >= MAX_RADIUS}
+            className={cn(
+              "w-4 h-4 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+              radiusUnits >= MAX_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
+            )}
+            aria-label="Increase radius"
+          >
+            <Plus className="w-2.5 h-2.5 stroke-[2.5]" />
+          </button>
         </div>
 
         {/* Slices Selector */}
-        <div className="flex flex-col items-center gap-1">
-          <span className="text-[10px] uppercase font-bold tracking-wider text-white/60">Slices</span>
-          <div className="flex items-center gap-0.5 bg-white/10 backdrop-blur-md p-0.5 rounded-full border border-white/25 shadow-sm">
-            {([8, 16, 32, 64] as const).map((cnt) => (
-              <button
-                key={cnt}
-                onClick={() => {
-                  setIsPlaying(false);
-                  setSectorCount(cnt);
-                }}
-                className={cn(
-                  "px-2.5 py-0.5 rounded-full text-[11px] font-headline font-bold transition-all border-none",
-                  sectorCount === cnt ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/65 hover:text-white"
-                )}
-              >
-                {cnt}
-              </button>
-            ))}
-          </div>
+        <div className="flex items-center gap-0.5 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm">
+          <span className="text-[10px] text-white/60 font-bold px-0.5">Slices:</span>
+          {([8, 16, 32, 64] as const).map((cnt) => (
+            <button
+              key={cnt}
+              onClick={() => {
+                setIsPlaying(false);
+                setSectorCount(cnt);
+              }}
+              className={cn(
+                "px-1.5 py-0.5 rounded-full text-[10.5px] font-headline font-bold transition-all border-none",
+                sectorCount === cnt ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/65 hover:text-white"
+              )}
+            >
+              {cnt}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Live Typographic Equation Banner (Consistent across all steps) */}
-      <div className="flex justify-center mt-1">
-        <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
+      {/* Live Typographic Equation Banner */}
+      <div className="flex justify-center mt-0.5">
+        <div className="flex items-center gap-1.5 px-4 py-1 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none">
           <span className="text-white">A</span>
           <span className="text-white/50">=</span>
           <span className="text-white/80">π ·</span>
