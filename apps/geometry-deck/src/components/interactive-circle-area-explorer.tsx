@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
 import { cn } from "@/lib/utils";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, Play, Pause, RotateCcw } from "lucide-react";
 
 type InteractiveCircleAreaProps = {
   color?: string;
@@ -27,11 +27,15 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
   const [radiusUnits, setRadiusUnits] = useState(3); // default r = 3
   const [step, setStep] = useState<1 | 2 | 3>(1); // 1. Circle, 2. Unfold, 3. Parallelogram
+  const [isPlaying, setIsPlaying] = useState(false);
 
-  // Smooth animation progress between steps
-  // 0 = Circle, 1 = Unfold, 2 = Interlocked Parallelogram
+  // Smooth continuous animation progress:
+  // 0.0 = Circle
+  // 1.0 = Unfolded Rows
+  // 2.0 = Interlocked Parallelogram
   const [animProgress, setAnimProgress] = useState(0);
   const animRef = useRef<number>(0);
+  const playTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => {
     e.stopPropagation();
@@ -39,20 +43,20 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
   const targetProgress = step === 1 ? 0 : step === 2 ? 1 : 2;
 
-  // Smooth transition interpolation
+  // Smooth transition interpolation when target step changes
   useEffect(() => {
     let start: number | null = null;
     const startP = animProgress;
     const targetP = targetProgress;
     if (Math.abs(startP - targetP) < 0.005) return;
 
-    const duration = 500; // 500ms smooth morph
+    const duration = 650; // 650ms smooth morphing animation
 
     const stepAnim = (ts: number) => {
       if (!start) start = ts;
       const elapsed = ts - start;
       const t = Math.min(1, elapsed / duration);
-      // Smooth cubic ease
+      // Smooth cubic ease in-out
       const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
       const currentP = startP + (targetP - startP) * ease;
       setAnimProgress(currentP);
@@ -67,6 +71,22 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
     return () => cancelAnimationFrame(animRef.current);
   }, [step]);
 
+  // Autoplay loop across steps 1 -> 2 -> 3 -> 1
+  useEffect(() => {
+    if (!isPlaying) {
+      if (playTimerRef.current) clearTimeout(playTimerRef.current);
+      return;
+    }
+
+    playTimerRef.current = setTimeout(() => {
+      setStep((prev) => (prev === 1 ? 2 : prev === 2 ? 3 : 1));
+    }, 2200);
+
+    return () => {
+      if (playTimerRef.current) clearTimeout(playTimerRef.current);
+    };
+  }, [isPlaying, step]);
+
   // Radius sizing
   const rPx = 36 + (radiusUnits - 1) * 3.5;
   const areaCoeff = radiusUnits * radiusUnits;
@@ -80,13 +100,74 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   // 8 radial sectors
   const numSectors = 8;
   const halfSectors = numSectors / 2; // 4 pairs
-  const sectorAngle = (2 * Math.PI) / numSectors;
-  const sectorArcLen = (Math.PI * rPx) / halfSectors; // width of 1 wedge along arc
   const totalBaseW = Math.PI * rPx; // total length of unrolled half = πr
+  const sectorW = totalBaseW / halfSectors; // width of 1 wedge along arc
 
-  // Vertical layout centers
+  // Layout positions
   const circleCY = 72;
   const unfoldStartX = CX - totalBaseW / 2;
+
+  // Compute animated (x, y, rotation) for each sector slice i
+  const p = animProgress;
+
+  const slices = Array.from({ length: numSectors }, (_, i) => {
+    const isEven = i % 2 === 0;
+    const col = isEven ? i / 2 : (i - 1) / 2;
+
+    // 1. Circle Pose (p = 0)
+    const circleAngleDeg = (i + 0.5) * 45 - 90;
+    const circleX = CX;
+    const circleY = circleCY;
+
+    // 2. Unfolded Rows Pose (p = 1)
+    const unfoldX = unfoldStartX + col * sectorW + sectorW / 2;
+    const unfoldY = isEven ? 22 + rPx : 22 + rPx + 24;
+    const unfoldRotDeg = isEven ? 0 : 180;
+
+    // 3. Parallelogram Pose (p = 2)
+    const paraX = isEven ? unfoldStartX + col * sectorW + sectorW / 2 : unfoldStartX + col * sectorW + sectorW;
+    const paraY = isEven ? 36 + rPx : 36;
+    const paraRotDeg = isEven ? 0 : 180;
+
+    let curX: number, curY: number, curRot: number;
+
+    if (p <= 1) {
+      // Morph from Circle (0) -> Unfolded Rows (1)
+      const t = p;
+      curX = circleX + (unfoldX - circleX) * t;
+      curY = circleY + (unfoldY - circleY) * t;
+
+      // Unwind rotation from radial angle to 0 / 180
+      let rotDiff = unfoldRotDeg - circleAngleDeg;
+      // normalize shortest angle path
+      while (rotDiff > 180) rotDiff -= 360;
+      while (rotDiff < -180) rotDiff += 360;
+      curRot = circleAngleDeg + rotDiff * t;
+    } else {
+      // Morph from Unfolded Rows (1) -> Parallelogram (2)
+      const t = p - 1;
+      curX = unfoldX + (paraX - unfoldX) * t;
+      curY = unfoldY + (paraY - unfoldY) * t;
+      curRot = unfoldRotDeg;
+    }
+
+    return {
+      i,
+      isEven,
+      curX,
+      curY,
+      curRot,
+    };
+  });
+
+  // Wedge path template: Tip at (0, 0), arc at ( -w/2, -rPx ) -> ( +w/2, -rPx )
+  const halfW = sectorW / 2;
+  const wedgePath = `M 0 0 L ${-halfW} ${-rPx} A ${rPx * 1.5} ${rPx * 0.35} 0 0 1 ${halfW} ${-rPx} Z`;
+
+  // Opacity of dimension labels during transitions
+  const circleLabelOpacity = Math.max(0, 1 - animProgress * 3);
+  const unfoldLabelOpacity = Math.max(0, 1 - Math.abs(animProgress - 1) * 2.5);
+  const paraLabelOpacity = Math.max(0, (animProgress - 1.2) * 1.25);
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
@@ -94,44 +175,17 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
         className="w-full touch-none select-none overflow-visible"
       >
-        {/* STEP 1: Full Circle with 8 alternating slices */}
-        {step === 1 && (
-          <g transform={`translate(${CX}, ${circleCY})`}>
-            {/* Outer circle boundary */}
-            <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
-
-            {/* 8 Radial Sectors */}
-            {Array.from({ length: numSectors }, (_, i) => {
-              const startA = i * sectorAngle - Math.PI / 2;
-              const endA = (i + 1) * sectorAngle - Math.PI / 2;
-              const x1 = rPx * Math.cos(startA);
-              const y1 = rPx * Math.sin(startA);
-              const x2 = rPx * Math.cos(endA);
-              const y2 = rPx * Math.sin(endA);
-              const d = `M 0 0 L ${x1} ${y1} A ${rPx} ${rPx} 0 0 1 ${x2} ${y2} Z`;
-
-              return (
-                <path
-                  key={i}
-                  d={d}
-                  fill={i % 2 === 0 ? COLOR_SECTOR_A : COLOR_SECTOR_B}
-                  stroke="rgba(255, 255, 255, 0.45)"
-                  strokeWidth={1.2}
-                />
-              );
-            })}
-
-            {/* Center dot */}
-            <circle cx={0} cy={0} r={3} fill="#ffffff" />
-
+        {/* Ghost background circle outline (fades out as slices unfold) */}
+        {circleLabelOpacity > 0.01 && (
+          <g opacity={circleLabelOpacity}>
+            <circle cx={CX} cy={circleCY} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
+            <circle cx={CX} cy={circleCY} r={3} fill="#ffffff" />
             {/* Radius Spoke */}
-            <line x1={0} y1={0} x2={rPx} y2={0} stroke={COLOR_RADIUS} strokeWidth={2.5} strokeDasharray="3 2" />
-            <circle cx={rPx} cy={0} r={4} fill={COLOR_RADIUS} />
-
-            {/* Radius Label */}
+            <line x1={CX} y1={circleCY} x2={CX + rPx} y2={circleCY} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
+            <circle cx={CX + rPx} cy={circleCY} r={4} fill={COLOR_RADIUS} />
             <text
-              x={rPx / 2}
-              y={-10}
+              x={CX + rPx / 2}
+              y={circleCY - 10}
               textAnchor="middle"
               dominantBaseline="central"
               fontSize={12}
@@ -145,112 +199,59 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </g>
         )}
 
-        {/* STEP 2: Slices Unfold into Two Opposing Rows */}
-        {step === 2 && (
-          <g transform={`translate(${unfoldStartX}, 22)`}>
-            {/* Top Row of Slices (Pointing Down, Arcs on Top = πr) */}
-            <g transform="translate(0, 0)">
-              {Array.from({ length: halfSectors }, (_, i) => {
-                const sx = i * sectorArcLen;
-                const midX = sx + sectorArcLen / 2;
-                // Curved wedge pointing downward
-                const d = `M ${sx} 0 A ${rPx * 1.5} ${rPx * 0.4} 0 0 1 ${sx + sectorArcLen} 0 L ${midX} ${rPx} Z`;
-                return (
-                  <path
-                    key={`top-wedge-${i}`}
-                    d={d}
-                    fill={COLOR_SECTOR_A}
-                    stroke="rgba(255, 255, 255, 0.5)"
-                    strokeWidth={1.2}
-                  />
-                );
-              })}
-              {/* Top Arc Callout = πr */}
-              <line x1={0} y1={-4} x2={totalBaseW} y2={-4} stroke={COLOR_BASE} strokeWidth={2} strokeLinecap="round" />
-              <text
-                x={totalBaseW / 2}
-                y={-12}
-                textAnchor="middle"
-                fontSize={11.5}
-                fontWeight="800"
-                fill={COLOR_BASE}
-                fontFamily="var(--font-heading, system-ui)"
-                style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
-              >
-                Top Arcs = ½ Circumference = πr ({cApprox})
-              </text>
-            </g>
+        {/* 8 Dynamically Morphing Pie Slices */}
+        {slices.map(({ i, isEven, curX, curY, curRot }) => (
+          <g
+            key={i}
+            transform={`translate(${curX}, ${curY}) rotate(${curRot})`}
+          >
+            <path
+              d={wedgePath}
+              fill={isEven ? COLOR_SECTOR_A : COLOR_SECTOR_B}
+              stroke="rgba(255, 255, 255, 0.45)"
+              strokeWidth={1.2}
+            />
+          </g>
+        ))}
 
-            {/* Bottom Row of Slices (Pointing Up, Arcs on Bottom = πr) */}
-            <g transform={`translate(0, ${rPx + 14})`}>
-              {Array.from({ length: halfSectors }, (_, i) => {
-                const sx = i * sectorArcLen;
-                const midX = sx + sectorArcLen / 2;
-                // Curved wedge pointing upward
-                const d = `M ${midX} 0 L ${sx + sectorArcLen} ${rPx} A ${rPx * 1.5} ${rPx * 0.4} 0 0 1 ${sx} ${rPx} Z`;
-                return (
-                  <path
-                    key={`bot-wedge-${i}`}
-                    d={d}
-                    fill={COLOR_SECTOR_B}
-                    stroke="rgba(255, 255, 255, 0.5)"
-                    strokeWidth={1.2}
-                  />
-                );
-              })}
-              {/* Bottom Arc Callout = πr */}
-              <line x1={0} y1={rPx + 6} x2={totalBaseW} y2={rPx + 6} stroke={COLOR_BASE} strokeWidth={2} strokeLinecap="round" />
-              <text
-                x={totalBaseW / 2}
-                y={rPx + 18}
-                textAnchor="middle"
-                fontSize={11.5}
-                fontWeight="800"
-                fill={COLOR_BASE}
-                fontFamily="var(--font-heading, system-ui)"
-                style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
-              >
-                Bottom Arcs = ½ Circumference = πr ({cApprox})
-              </text>
-            </g>
+        {/* Step 2 Unfolded Labels: Top & Bottom Arc lengths (πr) */}
+        {unfoldLabelOpacity > 0.01 && (
+          <g opacity={unfoldLabelOpacity} transform={`translate(${unfoldStartX}, 22)`}>
+            {/* Top Arc Callout */}
+            <line x1={0} y1={-4} x2={totalBaseW} y2={-4} stroke={COLOR_BASE} strokeWidth={2} strokeLinecap="round" />
+            <text
+              x={totalBaseW / 2}
+              y={-12}
+              textAnchor="middle"
+              fontSize={11.5}
+              fontWeight="800"
+              fill={COLOR_BASE}
+              fontFamily="var(--font-heading, system-ui)"
+              style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
+            >
+              Top Arcs = ½ Circumference = πr ({cApprox})
+            </text>
+
+            {/* Bottom Arc Callout */}
+            <line x1={0} y1={rPx * 2 + 30} x2={totalBaseW} y2={rPx * 2 + 30} stroke={COLOR_BASE} strokeWidth={2} strokeLinecap="round" />
+            <text
+              x={totalBaseW / 2}
+              y={rPx * 2 + 42}
+              textAnchor="middle"
+              fontSize={11.5}
+              fontWeight="800"
+              fill={COLOR_BASE}
+              fontFamily="var(--font-heading, system-ui)"
+              style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
+            >
+              Bottom Arcs = ½ Circumference = πr ({cApprox})
+            </text>
           </g>
         )}
 
-        {/* STEP 3: Slices Interlock to Form a Parallelogram */}
-        {step === 3 && (
-          <g transform={`translate(${unfoldStartX - 10}, 36)`}>
-            {/* Top Slices (Fitted in alternating gaps) */}
-            {Array.from({ length: halfSectors }, (_, i) => {
-              const sx = i * sectorArcLen;
-              const midX = sx + sectorArcLen / 2;
-              const d = `M ${sx} 0 A ${rPx * 1.5} ${rPx * 0.35} 0 0 1 ${sx + sectorArcLen} 0 L ${midX} ${rPx} Z`;
-              return (
-                <path
-                  key={`fit-top-${i}`}
-                  d={d}
-                  fill={COLOR_SECTOR_A}
-                  stroke="rgba(255, 255, 255, 0.5)"
-                  strokeWidth={1.2}
-                />
-              );
-            })}
-
-            {/* Bottom Slices (Interlocked from bottom) */}
-            {Array.from({ length: halfSectors }, (_, i) => {
-              const sx = i * sectorArcLen + sectorArcLen / 2;
-              const midX = sx + sectorArcLen / 2;
-              const d = `M ${midX} 0 L ${sx + sectorArcLen} ${rPx} A ${rPx * 1.5} ${rPx * 0.35} 0 0 1 ${sx} ${rPx} Z`;
-              return (
-                <path
-                  key={`fit-bot-${i}`}
-                  d={d}
-                  fill={COLOR_SECTOR_B}
-                  stroke="rgba(255, 255, 255, 0.5)"
-                  strokeWidth={1.2}
-                />
-              );
-            })}
-
+        {/* Step 3 Parallelogram Labels: Base = πr and Height = r */}
+        {paraLabelOpacity > 0.01 && (
+          <g opacity={paraLabelOpacity} transform={`translate(${unfoldStartX}, 36)`}>
             {/* Base Dimension Bracket Along Bottom (b = πr) */}
             <line x1={0} y1={rPx + 7} x2={totalBaseW} y2={rPx + 7} stroke={COLOR_BASE} strokeWidth={2.5} strokeLinecap="round" />
             <line x1={0} y1={rPx + 3} x2={0} y2={rPx + 11} stroke={COLOR_BASE} strokeWidth={2} />
@@ -270,18 +271,18 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
             {/* Height Dimension Line (h = r) */}
             <line
-              x1={totalBaseW + sectorArcLen / 2 + 10}
+              x1={totalBaseW + halfW + 10}
               y1={0}
-              x2={totalBaseW + sectorArcLen / 2 + 10}
+              x2={totalBaseW + halfW + 10}
               y2={rPx}
               stroke={COLOR_RADIUS}
               strokeWidth={2.5}
               strokeDasharray="3 2"
             />
-            <circle cx={totalBaseW + sectorArcLen / 2 + 10} cy={0} r={2.5} fill={COLOR_RADIUS} />
-            <circle cx={totalBaseW + sectorArcLen / 2 + 10} cy={rPx} r={2.5} fill={COLOR_RADIUS} />
+            <circle cx={totalBaseW + halfW + 10} cy={0} r={2.5} fill={COLOR_RADIUS} />
+            <circle cx={totalBaseW + halfW + 10} cy={rPx} r={2.5} fill={COLOR_RADIUS} />
             <text
-              x={totalBaseW + sectorArcLen / 2 + 20}
+              x={totalBaseW + halfW + 20}
               y={rPx / 2}
               textAnchor="start"
               dominantBaseline="central"
@@ -297,7 +298,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         )}
       </svg>
 
-      {/* Frosted Multi-Step Navigation Tabs & Radius Stepper */}
+      {/* Frosted Multi-Step Navigation Tabs & Controls */}
       <div className="flex items-center gap-2 select-none">
         {/* [- r = N +] Radius Stepper */}
         <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
@@ -333,10 +334,13 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </button>
         </div>
 
-        {/* Multi-Step Frosted Pills */}
+        {/* Multi-Step Frosted Navigation Pills */}
         <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm">
           <button
-            onClick={() => setStep(1)}
+            onClick={() => {
+              setIsPlaying(false);
+              setStep(1);
+            }}
             className={cn(
               "px-2.5 py-0.5 rounded-full text-[11px] font-headline font-bold transition-all border-none",
               step === 1 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
@@ -345,7 +349,10 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             1. Circle
           </button>
           <button
-            onClick={() => setStep(2)}
+            onClick={() => {
+              setIsPlaying(false);
+              setStep(2);
+            }}
             className={cn(
               "px-2.5 py-0.5 rounded-full text-[11px] font-headline font-bold transition-all border-none",
               step === 2 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
@@ -354,7 +361,10 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             2. Unfold
           </button>
           <button
-            onClick={() => setStep(3)}
+            onClick={() => {
+              setIsPlaying(false);
+              setStep(3);
+            }}
             className={cn(
               "px-2.5 py-0.5 rounded-full text-[11px] font-headline font-bold transition-all border-none",
               step === 3 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
@@ -363,6 +373,24 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             3. Parallelogram
           </button>
         </div>
+
+        {/* Play / Pause Auto-Tour Button */}
+        <button
+          onClick={() => setIsPlaying(!isPlaying)}
+          className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm backdrop-blur-md active:scale-95"
+        >
+          {isPlaying ? (
+            <>
+              <Pause className="w-3 h-3 fill-current text-white/90" />
+              <span>Pause</span>
+            </>
+          ) : (
+            <>
+              <Play className="w-3 h-3 fill-current text-white/90" />
+              <span>Play</span>
+            </>
+          )}
+        </button>
       </div>
 
       {/* Live Typographic Equation Banner */}
