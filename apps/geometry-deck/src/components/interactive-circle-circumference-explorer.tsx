@@ -20,12 +20,12 @@ const MIN_RADIUS = 1;
 const MAX_RADIUS = 10;
 
 export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCircleCircumferenceProps) {
-  const { containerRef, width: rawW } = useContainerWidth(340);
-  const SVG_W = Math.max(320, Math.min(680, rawW));
+  const { containerRef, width: rawW } = useContainerWidth(360);
+  const SVG_W = Math.max(340, Math.min(460, rawW - 16));
 
   const [radiusUnits, setRadiusUnits] = useState(1);
   const [animatedRadius, setAnimatedRadius] = useState(1); // Smoothly interpolated camera zoom [1.0 .. 10.0]
-  const [unrollProgress, setUnrollProgress] = useState(0);
+  const [unrollProgress, setUnrollProgress] = useState(0); // 0 (start) -> 1 (full roll of 2*pi*r)
   const [isPlaying, setIsPlaying] = useState(true);
   const [isDraggingHandle, setIsDraggingHandle] = useState(false);
 
@@ -64,10 +64,10 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     return () => cancelAnimationFrame(zoomAnimRef.current);
   }, [radiusUnits]);
 
-  // Spatial Dimensions spanning edge-to-edge across the card:
+  // Spatial Dimensions with 1:1 crisp display sizing:
   const maxVal = animatedRadius * 7;
-  const targetRulerW = Math.min(SVG_W - 40, Math.max(260, SVG_W - 48));
-  const rPx = targetRulerW / 7; // ~38px to 48px
+  const targetRulerW = SVG_W - 44;
+  const rPx = targetRulerW / 7; // ~42px to 56px (huge & readable!)
   const availableRulerW = targetRulerW;
   const startX = Math.round((SVG_W - availableRulerW) / 2);
   const rightEdge = startX + availableRulerW;
@@ -76,7 +76,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   // Vertical positioning with ample headspace above circle and room for Pi labels below
   const groundY = Math.round(rPx * 2 + 10);
   const centerY = groundY - rPx;
-  const SVG_H = groundY + 34; // ~132px
+  const SVG_H = groundY + 42; // ~145px
 
   // Actual physical circumference values for current active radius
   const cValue = 2 * Math.PI * radiusUnits;
@@ -228,7 +228,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
         {/* Ruler Axis */}
         <line x1={startX - 10} y1={groundY} x2={rightEdge + 10} y2={groundY} stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
 
-        {/* Integer Ticks and Labels (major ticks with labels, subtle minor ticks at unit intervals) */}
+        {/* Integer Ticks and Labels (Large, bold, high-contrast) */}
         {Array.from({ length: maxTickToRender + 1 }, (_, t) => {
           const tickX = startX + t * pxPerUnit;
           if (tickX > rightEdge + 25) return null;
@@ -239,21 +239,21 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
             <g key={t} opacity={opacity}>
               <line
                 x1={tickX}
-                y1={groundY - (isMajor ? 3 : 1.8)}
+                y1={groundY - (isMajor ? 5 : 2.5)}
                 x2={tickX}
-                y2={groundY + (isMajor ? 3 : 1.8)}
-                stroke="rgba(255, 255, 255, 0.45)"
-                strokeWidth={isMajor ? 1.5 : 1}
-                opacity={isMajor ? 1 : 0.4}
+                y2={groundY + (isMajor ? 5 : 2.5)}
+                stroke="rgba(255, 255, 255, 0.65)"
+                strokeWidth={isMajor ? 2 : 1.2}
+                opacity={isMajor ? 1 : 0.45}
               />
               {isMajor && (
                 <text
                   x={tickX}
-                  y={groundY + 13}
+                  y={groundY + 16}
                   textAnchor="middle"
-                  fontSize={9.5}
-                  fontWeight="bold"
-                  fill="rgba(255, 255, 255, 0.55)"
+                  fontSize={15}
+                  fontWeight="900"
+                  fill="rgba(255, 255, 255, 0.85)"
                   fontFamily="var(--font-heading, system-ui)"
                 >
                   {t}
@@ -279,21 +279,21 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                 x1={0}
                 y1={isTargetFinish ? -5 : -4}
                 x2={0}
-                y2={17}
+                y2={18}
                 stroke={markerColor}
-                strokeWidth={isTargetFinish ? 2 : 1.5}
-                strokeDasharray={isTargetFinish ? undefined : "2 2"}
+                strokeWidth={isTargetFinish ? 3 : 2}
+                strokeDasharray={isTargetFinish ? undefined : "3 2"}
               />
-              <circle cx={0} cy={0} r={isTargetFinish ? 2.5 : 2} fill={markerColor} />
+              <circle cx={0} cy={0} r={isTargetFinish ? 3 : 2.5} fill={markerColor} />
               <text
                 x={0}
-                y={28}
+                y={32}
                 textAnchor="middle"
-                fontSize={isTargetFinish ? 12 : 11}
+                fontSize={isTargetFinish ? 18 : 16}
                 fontWeight="900"
                 fill={markerColor}
                 fontFamily="var(--font-heading, system-ui)"
-                style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
+                style={{ filter: "drop-shadow(0px 1px 4px rgba(0, 0, 0, 0.95))" }}
               >
                 {label}
               </text>

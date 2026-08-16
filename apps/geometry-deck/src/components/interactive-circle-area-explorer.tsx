@@ -21,8 +21,8 @@ const MAX_RADIUS = 5;
 type SectorCount = 4 | 8 | 16 | 32 | 64;
 
 export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaProps) {
-  const { containerRef, width: rawW } = useContainerWidth(340);
-  const SVG_W = Math.max(320, Math.min(680, rawW));
+  const { containerRef, width: rawW } = useContainerWidth(360);
+  const SVG_W = Math.max(340, Math.min(460, rawW - 16));
 
   const [radiusUnits, setRadiusUnits] = useState(1);
   const [animatedRadius, setAnimatedRadius] = useState(1); // Smooth camera zoom
@@ -66,10 +66,10 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
     return () => cancelAnimationFrame(zoomAnimRef.current);
   }, [radiusUnits]);
 
-  // Spatial Dimensions spanning edge-to-edge across the card
+  // Spatial Dimensions with 1:1 crisp display sizing
   const maxVal = animatedRadius * 7;
-  const targetRulerW = Math.min(SVG_W - 40, Math.max(260, SVG_W - 48));
-  const rPx = targetRulerW / 7; // ~38px to 48px
+  const targetRulerW = SVG_W - 44;
+  const rPx = targetRulerW / 7; // ~42px to 56px (huge & readable!)
   const availableRulerW = targetRulerW;
   const startX = Math.round((SVG_W - availableRulerW) / 2);
   const rightEdge = startX + availableRulerW;
@@ -77,7 +77,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
   const groundY = Math.round(rPx * 2 + 10);
   const centerY = groundY - rPx;
-  const SVG_H = groundY + 34; // ~132px
+  const SVG_H = groundY + 42; // ~145px
 
   // Real world math
   const fullCircumVal = 2 * Math.PI * radiusUnits;
@@ -178,24 +178,23 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const trigHeight = rPx * cosH;
 
   // Height callout x position at right edge of assembled parallelogram
-  const targetHeightX = startX + (activeN / 2) * trigSlotW + 12;
+  const targetHeightX = startX + (activeN / 2) * trigSlotW + 14;
   const startRadiusScootX = startX + fullRollDist;
   const scootT = Math.min(1, Math.max(0, (p2 - 0.70) / 0.30));
   const scootEase = 0.5 * (1 - Math.cos(scootT * Math.PI));
   const currentHeightCalloutX = startRadiusScootX + (targetHeightX - startRadiusScootX) * scootEase;
 
   return (
-    <div ref={containerRef} className="flex flex-col items-center gap-1.5 w-full max-w-[680px] mx-auto select-none" onClick={stop} onPointerDown={stop}>
+    <div ref={containerRef} className="flex flex-col items-center gap-1.5 w-full max-w-[480px] mx-auto select-none" onClick={stop} onPointerDown={stop}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
-        style={{ maxHeight: 135 }}
         className="w-full touch-none select-none overflow-visible"
       >
         {/* Ruler Axis Line */}
-        <line x1={startX - 12} y1={groundY} x2={rightEdge + 12} y2={groundY} stroke="rgba(255, 255, 255, 0.3)" strokeWidth={1.5} />
+        <line x1={startX - 14} y1={groundY} x2={rightEdge + 14} y2={groundY} stroke="rgba(255, 255, 255, 0.45)" strokeWidth={2.5} />
 
-        {/* Integer Ticks and Labels (Large, bold, high-contrast) */}
+        {/* Integer Ticks and Labels (Super large, bold, high-contrast) */}
         {Array.from({ length: maxTickToRender + 1 }, (_, t) => {
           const tickX = startX + t * pxPerUnit;
           if (tickX > rightEdge + 25) return null;
@@ -206,21 +205,21 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             <g key={t} opacity={opacity}>
               <line
                 x1={tickX}
-                y1={groundY - (isMajor ? 4 : 2)}
+                y1={groundY - (isMajor ? 6 : 3)}
                 x2={tickX}
-                y2={groundY + (isMajor ? 4 : 2)}
-                stroke="rgba(255, 255, 255, 0.55)"
-                strokeWidth={isMajor ? 1.5 : 1}
-                opacity={isMajor ? 1 : 0.4}
+                y2={groundY + (isMajor ? 6 : 3)}
+                stroke="rgba(255, 255, 255, 0.75)"
+                strokeWidth={isMajor ? 2.5 : 1.5}
+                opacity={isMajor ? 1 : 0.5}
               />
               {isMajor && (
                 <text
                   x={tickX}
-                  y={groundY + 14}
+                  y={groundY + 18}
                   textAnchor="middle"
-                  fontSize={11.5}
-                  fontWeight="bold"
-                  fill="rgba(255, 255, 255, 0.75)"
+                  fontSize={16}
+                  fontWeight="900"
+                  fill="rgba(255, 255, 255, 0.9)"
                   fontFamily="var(--font-heading, system-ui)"
                 >
                   {t}
@@ -232,17 +231,17 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
         {/* Half-turn π marker below number line */}
         <g transform={`translate(${startX + halfRollDist}, ${groundY})`}>
-          <line x1={0} y1={-4} x2={0} y2={16} stroke={COLOR_BASE} strokeWidth={2.5} />
-          <circle cx={0} cy={0} r={2.5} fill={COLOR_BASE} />
+          <line x1={0} y1={-6} x2={0} y2={22} stroke={COLOR_BASE} strokeWidth={3.5} />
+          <circle cx={0} cy={0} r={3.5} fill={COLOR_BASE} />
           <text
             x={0}
-            y={27}
+            y={38}
             textAnchor="middle"
-            fontSize={13.5}
+            fontSize={20}
             fontWeight="900"
             fill={COLOR_BASE}
             fontFamily="var(--font-heading, system-ui)"
-            style={{ filter: "drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.9))" }}
+            style={{ filter: "drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.95))" }}
           >
             {radiusUnits === 1 ? "π" : `${radiusUnits}π`}
           </text>
@@ -250,17 +249,17 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
         {/* Finish 2π marker below number line */}
         <g transform={`translate(${startX + fullRollDist}, ${groundY})`}>
-          <line x1={0} y1={-4} x2={0} y2={16} stroke={COLOR_PI} strokeWidth={2} strokeDasharray="2.5 2" />
-          <circle cx={0} cy={0} r={2.5} fill={COLOR_PI} />
+          <line x1={0} y1={-6} x2={0} y2={22} stroke={COLOR_PI} strokeWidth={3} strokeDasharray="3 2" />
+          <circle cx={0} cy={0} r={3.5} fill={COLOR_PI} />
           <text
             x={0}
-            y={27}
+            y={38}
             textAnchor="middle"
-            fontSize={13}
+            fontSize={19}
             fontWeight="900"
             fill={COLOR_PI}
             fontFamily="var(--font-heading, system-ui)"
-            style={{ filter: "drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.9))" }}
+            style={{ filter: "drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.95))" }}
           >
             {2 * radiusUnits}π
           </text>
@@ -269,9 +268,9 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         {/* Base Dimension Bracket Along Bottom (b = πr in Step 3) */}
         {p2 > 0.4 && (
           <g opacity={Math.min(1, (p2 - 0.4) * 2.5)}>
-            <line x1={startX} y1={groundY + 5} x2={startX + halfRollDist} y2={groundY + 5} stroke={COLOR_BASE} strokeWidth={2.5} strokeLinecap="round" />
-            <line x1={startX} y1={groundY + 1} x2={startX} y2={groundY + 9} stroke={COLOR_BASE} strokeWidth={2} />
-            <line x1={startX + halfRollDist} y1={groundY + 1} x2={startX + halfRollDist} y2={groundY + 9} stroke={COLOR_BASE} strokeWidth={2} />
+            <line x1={startX} y1={groundY + 7} x2={startX + halfRollDist} y2={groundY + 7} stroke={COLOR_BASE} strokeWidth={3.5} strokeLinecap="round" />
+            <line x1={startX} y1={groundY + 1} x2={startX} y2={groundY + 13} stroke={COLOR_BASE} strokeWidth={3} />
+            <line x1={startX + halfRollDist} y1={groundY + 1} x2={startX + halfRollDist} y2={groundY + 13} stroke={COLOR_BASE} strokeWidth={3} />
           </g>
         )}
 
@@ -284,23 +283,23 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               x2={currentHeightCalloutX}
               y2={groundY}
               stroke={COLOR_RADIUS}
-              strokeWidth={2.5}
-              strokeDasharray={p2 > 0.6 ? "3 2" : "none"}
+              strokeWidth={3.5}
+              strokeDasharray={p2 > 0.6 ? "4 2.5" : "none"}
             />
-            <circle cx={currentHeightCalloutX} cy={groundY - rPx} r={2.5} fill={COLOR_RADIUS} />
-            <circle cx={currentHeightCalloutX} cy={groundY} r={2.5} fill={COLOR_RADIUS} />
+            <circle cx={currentHeightCalloutX} cy={groundY - rPx} r={3.5} fill={COLOR_RADIUS} />
+            <circle cx={currentHeightCalloutX} cy={groundY} r={3.5} fill={COLOR_RADIUS} />
             
             {/* Label smoothly morphs from r = 1 to h = r (1) */}
             <text
-              x={currentHeightCalloutX + (p2 > 0.6 ? 8 : 0)}
-              y={p2 > 0.6 ? groundY - rPx / 2 : groundY - rPx - 8}
+              x={currentHeightCalloutX + (p2 > 0.6 ? 10 : 0)}
+              y={p2 > 0.6 ? groundY - rPx / 2 : groundY - rPx - 12}
               textAnchor={p2 > 0.6 ? "start" : "middle"}
               dominantBaseline="central"
-              fontSize={13}
+              fontSize={19}
               fontWeight="900"
               fill={COLOR_RADIUS}
               fontFamily="var(--font-heading, system-ui)"
-              style={{ filter: "drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.9))" }}
+              style={{ filter: "drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.95))" }}
             >
               {p2 > 0.6 ? `h = r (${radiusUnits})` : `r = ${radiusUnits}`}
             </text>
@@ -347,10 +346,10 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               curY = groundApexY + (targetSlotApexY - groundApexY) * ease3;
               curRot = 180;
             } else {
-              const hoverApexY = groundY - rPx - 6;
+              const hoverApexY = groundY - rPx - 8;
               const finalSlotApexY = targetSlotApexY;
 
-              const liftedApexY = groundApexY - (rPx + 6);
+              const liftedApexY = groundApexY - (rPx + 8);
               const yLifted = groundApexY + (liftedApexY - groundApexY) * ease1;
               const yAfterFlip = yLifted + (hoverApexY - liftedApexY) * ease2;
 
@@ -369,7 +368,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
                 d={activeSectorPath}
                 fill={COLOR_SECTOR}
                 stroke="rgba(255, 255, 255, 0.65)"
-                strokeWidth={activeN >= 64 ? 0.5 : activeN >= 32 ? 0.75 : activeN >= 16 ? 1 : 1.2}
+                strokeWidth={activeN >= 64 ? 0.75 : activeN >= 32 ? 1 : activeN >= 16 ? 1.3 : 1.6}
               />
             </g>
           );
@@ -379,7 +378,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         {p1 < 1 && (
           <g transform={`translate(${currentWheelX}, ${centerY})`}>
             {/* Ghost wheel outline */}
-            <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
+            <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.8} strokeDasharray="4 3" />
             <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.06)" />
 
             {/* Active Slices Remaining inside Wheel */}
@@ -396,28 +395,28 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
                     d={activeSectorPath}
                     fill={COLOR_SECTOR}
                     stroke="rgba(255, 255, 255, 0.45)"
-                    strokeWidth={activeN >= 64 ? 0.5 : activeN >= 32 ? 0.75 : activeN >= 16 ? 1 : 1.2}
+                    strokeWidth={activeN >= 64 ? 0.75 : activeN >= 32 ? 1 : activeN >= 16 ? 1.3 : 1.6}
                   />
                 </g>
               );
             })}
 
             {/* Center Hub & Radius Spoke Facing DOWN at Start (and rotating with wheel) */}
-            <circle cx={0} cy={0} r={3} fill="#ffffff" />
-            <line x1={0} y1={0} x2={spokeTipX} y2={spokeTipY} stroke={COLOR_RADIUS} strokeWidth={2.5} strokeDasharray="3 2" />
-            <circle cx={spokeTipX} cy={spokeTipY} r={3.5} fill={COLOR_RADIUS} />
+            <circle cx={0} cy={0} r={3.5} fill="#ffffff" />
+            <line x1={0} y1={0} x2={spokeTipX} y2={spokeTipY} stroke={COLOR_RADIUS} strokeWidth={3} strokeDasharray="4 2.5" />
+            <circle cx={spokeTipX} cy={spokeTipY} r={4} fill={COLOR_RADIUS} />
 
             {/* Static Radius Label above center point */}
             <text
               x={0}
-              y={-10}
+              y={-14}
               textAnchor="middle"
               dominantBaseline="central"
-              fontSize={13.5}
-              fontWeight="800"
+              fontSize={19}
+              fontWeight="900"
               fill={COLOR_RADIUS}
               fontFamily="var(--font-heading, system-ui)"
-              style={{ filter: "drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.9))" }}
+              style={{ filter: "drop-shadow(0px 2px 5px rgba(0, 0, 0, 0.95))" }}
             >
               r = {radiusUnits}
             </text>
@@ -426,14 +425,14 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
       </svg>
 
       {/* Row 1: Step Pills */}
-      <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm">
+      <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
         <button
           onClick={() => {
             setIsPlaying(false);
             setStep(1);
           }}
           className={cn(
-            "px-3 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
+            "px-3 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
             step === 1 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
           )}
         >
@@ -445,7 +444,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             setStep(2);
           }}
           className={cn(
-            "px-3 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
+            "px-3 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
             step === 2 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
           )}
         >
@@ -457,7 +456,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             setStep(3);
           }}
           className={cn(
-            "px-3 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
+            "px-3 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
             step === 3 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
           )}
         >
@@ -466,25 +465,25 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
       </div>
 
       {/* Row 2: Compact Inline Settings (Radius + Slices) */}
-      <div className="flex items-center gap-2.5 select-none justify-center">
+      <div className="flex items-center gap-3 select-none justify-center">
         {/* Radius Stepper */}
         <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
-          <span className="text-[11px] text-white/60 font-bold px-0.5">r:</span>
+          <span className="text-xs text-white/70 font-bold px-0.5">r:</span>
           <button
             onClick={() => changeRadius(-1)}
             disabled={radiusUnits <= MIN_RADIUS}
             className={cn(
-              "w-4.5 h-4.5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+              "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
               radiusUnits <= MIN_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
             )}
             aria-label="Decrease radius"
           >
-            <Minus className="w-3 h-3 stroke-[2.5]" />
+            <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
           </button>
 
           <span
             style={{ color: COLOR_RADIUS }}
-            className="px-0.5 text-xs font-headline font-black tracking-wide min-w-[16px] text-center"
+            className="px-1 text-sm font-headline font-black tracking-wide min-w-[18px] text-center"
           >
             {radiusUnits}
           </span>
@@ -493,18 +492,18 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             onClick={() => changeRadius(1)}
             disabled={radiusUnits >= MAX_RADIUS}
             className={cn(
-              "w-4.5 h-4.5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+              "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
               radiusUnits >= MAX_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
             )}
             aria-label="Increase radius"
           >
-            <Plus className="w-3 h-3 stroke-[2.5]" />
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
           </button>
         </div>
 
         {/* Slices Selector */}
         <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
-          <span className="text-[11px] text-white/60 font-bold px-0.5">Slices:</span>
+          <span className="text-xs text-white/70 font-bold px-0.5">Slices:</span>
           {([4, 8, 16, 32, 64] as const).map((cnt) => (
             <button
               key={cnt}
@@ -513,7 +512,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
                 setSectorCount(cnt);
               }}
               className={cn(
-                "px-2 py-0.5 rounded-full text-[11px] font-headline font-bold transition-all border-none",
+                "px-2 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
                 sectorCount === cnt ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/65 hover:text-white"
               )}
             >
@@ -525,7 +524,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
       {/* Live Typographic Equation Banner */}
       <div className="flex justify-center mt-0.5">
-        <div className="flex items-center gap-2 px-5 py-1 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none">
+        <div className="flex items-center gap-2 px-5 py-1 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
           <span className="text-white">A</span>
           <span className="text-white/50">=</span>
           <span className="text-white/80">π ·</span>
