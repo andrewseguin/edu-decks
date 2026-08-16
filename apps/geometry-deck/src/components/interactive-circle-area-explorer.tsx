@@ -181,10 +181,18 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
   const currentWheelX = startX + p1 * fullRollDist;
 
-  // Single Wedge path template (pointing UP: apex at (halfW, -rPx), arc at bottom (0,0) to (singleToothW,0))
-  const wedgeUpPath = `M ${halfW} ${-rPx} L ${singleToothW} 0 A ${rPx * 1.5} ${rPx * 0.3} 0 0 1 0 0 Z`;
+  // CANONICAL TRUE PIE SECTOR PATH (Apex at origin (0,0), radius rPx, subtending 45 deg)
+  // Half-angle = 22.5 deg = PI / 8
+  const halfAngleRad = Math.PI / NUM_SECTORS;
+  const sinHalf = Math.sin(halfAngleRad);
+  const cosHalf = Math.cos(halfAngleRad);
+  const arcLeftX = -rPx * sinHalf;
+  const arcLeftY = -rPx * cosHalf;
+  const arcRightX = rPx * sinHalf;
+  const arcRightY = -rPx * cosHalf;
 
-  const sectorAngle = (2 * Math.PI) / NUM_SECTORS;
+  // Exact true curved sector (pointing UP from apex at (0,0) to curved arc of radius rPx at top)
+  const canonicalSectorPath = `M 0 0 L ${arcLeftX} ${arcLeftY} A ${rPx} ${rPx} 0 0 1 ${arcRightX} ${arcRightY} Z`;
 
   // Radius spoke pointing DOWN at start (90 deg / 6 o'clock contact point) and rotating with wheel
   const spokeAngleRad = (90 + p1 * 360) * (Math.PI / 180);
@@ -325,24 +333,27 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </g>
         )}
 
-        {/* 8 Slices Laid Down on Ground Behind Wheel / Meshing into Solid Parallelogram */}
+        {/* 8 Slices Laid Down on Ground / Meshing into Solid Parallelogram (Zero snap, true curved arcs) */}
         {Array.from({ length: NUM_SECTORS }, (_, k) => {
           const sliceFraction = (k + 1) / NUM_SECTORS;
           if (sliceFraction > p1) return null; // not yet unrolled from wheel
 
           const isEven = k % 2 === 0;
 
-          // Stage 1 straight line position (spanning full 0..2πr):
-          const lineX = startX + k * singleToothW;
-          const lineY = groundY;
-          const lineRot = 0; // pointing UP
+          // Stage 1 straight line pose (apex at y = groundY - rPx, curved arc on ground at y = groundY, rot = 180)
+          const lineApexX = startX + k * singleToothW + halfW;
+          const lineApexY = groundY - rPx;
+          const lineRot = 180; // apex pointing up, arc touching ground
 
-          // Stage 2 target positions in parallelogram (spanning 0..πr):
-          const paraX = isEven
-            ? startX + (k / 2) * singleToothW
-            : startX + ((k - 1) / 2) * singleToothW + singleToothW * 1.5;
-          const paraY = isEven ? groundY : groundY - rPx;
-          const paraRot = isEven ? 0 : 180;
+          // Stage 2 target pose in assembled parallelogram:
+          // Even wedges (k = 0, 2, 4, 6): apex at (startX + (k/2)*singleToothW + halfW, groundY - rPx), rot = 180
+          // Odd wedges (k = 1, 3, 5, 7): apex at (startX + ((k-1)/2)*singleToothW + singleToothW, groundY), rot = 0 (pointing down into gaps)
+          const pairIdx = Math.floor(k / 2);
+          const paraApexX = isEven
+            ? startX + pairIdx * singleToothW + halfW
+            : startX + pairIdx * singleToothW + singleToothW;
+          const paraApexY = isEven ? groundY - rPx : groundY;
+          const paraRot = isEven ? 180 : 0;
 
           const t = p2; // 0 (unrolled line) to 1 (assembled parallelogram)
 
@@ -350,18 +361,17 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
           if (isEven) {
             // Bottom Upright Slices: Smoothly slide left along ground into compact row
-            curX = lineX + (paraX - lineX) * t;
-            curY = groundY;
-            curRot = 0;
+            curX = lineApexX + (paraApexX - lineApexX) * t;
+            curY = lineApexY;
+            curRot = 180;
           } else {
             // Top Flipping Slices:
-            // 1. Lift straight up into air + rotate 180° (t in 0..0.5)
-            // 2. Travel horizontally and lower cleanly into gaps (t in 0.5..1.0)
-            const liftApex = 32; // lifts 32px up above line
-            const liftProgress = Math.sin(t * Math.PI); // 0 -> 1 -> 0
+            // Lift up in smooth arc, rotate 180°, and lower into gaps with zero snap
+            const liftApex = 32;
+            const liftProgress = Math.sin(t * Math.PI);
 
-            curX = lineX + (paraX - lineX) * t;
-            curY = lineY + (paraY - lineY) * t - liftProgress * liftApex;
+            curX = lineApexX + (paraApexX - lineApexX) * t;
+            curY = lineApexY + (paraApexY - lineApexY) * t - liftProgress * liftApex;
             curRot = lineRot + (paraRot - lineRot) * t;
           }
 
@@ -371,7 +381,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               transform={`translate(${curX}, ${curY}) rotate(${curRot})`}
             >
               <path
-                d={wedgeUpPath}
+                d={canonicalSectorPath}
                 fill={COLOR_SECTOR}
                 stroke="rgba(255, 255, 255, 0.65)"
                 strokeWidth={1.2}
@@ -380,35 +390,30 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           );
         })}
 
-        {/* Rolling Wheel Group (Identical styling to Circumference card, unspooling pie slices) */}
+        {/* Rolling Wheel Group (Identical canonical sector path, true continuous unspooling) */}
         {p1 < 1 && (
           <g transform={`translate(${currentWheelX}, ${centerY})`}>
             {/* Ghost wheel outline */}
             <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
             <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.06)" />
 
-            {/* Slices Remaining on Wheel (Rotating physically with wheel body) */}
+            {/* Slices Remaining on Wheel (Sharing EXACT canonicalSectorPath with ground slices) */}
             {Array.from({ length: NUM_SECTORS }, (_, i) => {
               const sliceFraction = (i + 1) / NUM_SECTORS;
               if (sliceFraction <= p1) return null; // already unrolled onto ground!
 
-              // Slices start at 6 o'clock (90 deg) and roll clockwise
-              const startA = (90 - (sliceFraction - p1) * 360) * (Math.PI / 180);
-              const endA = startA + sectorAngle;
-              const x1 = rPx * Math.cos(startA);
-              const y1 = rPx * Math.sin(startA);
-              const x2 = rPx * Math.cos(endA);
-              const y2 = rPx * Math.sin(endA);
-              const d = `M 0 0 L ${x1} ${y1} A ${rPx} ${rPx} 0 0 1 ${x2} ${y2} Z`;
+              // Exact rotation angle matching wheel's physical clockwise roll from 6 o'clock
+              const angleDeg = (sliceFraction - p1) * 360 - 90 - (360 / NUM_SECTORS) / 2;
 
               return (
-                <path
-                  key={`wheel-slice-${i}`}
-                  d={d}
-                  fill={COLOR_SECTOR}
-                  stroke="rgba(255, 255, 255, 0.45)"
-                  strokeWidth={1.2}
-                />
+                <g key={`wheel-slice-${i}`} transform={`rotate(${angleDeg})`}>
+                  <path
+                    d={canonicalSectorPath}
+                    fill={COLOR_SECTOR}
+                    stroke="rgba(255, 255, 255, 0.45)"
+                    strokeWidth={1.2}
+                  />
+                </g>
               );
             })}
 
@@ -417,7 +422,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             <line x1={0} y1={0} x2={spokeTipX} y2={spokeTipY} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
             <circle cx={spokeTipX} cy={spokeTipY} r={3.5} fill={COLOR_RADIUS} />
 
-            {/* Static Radius Label above center point (matching circumference card exactly) */}
+            {/* Static Radius Label above center point */}
             <text
               x={0}
               y={-12}
