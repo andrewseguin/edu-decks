@@ -40,11 +40,11 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const tickStep = radiusUnits === 1 ? 1 : radiusUnits;
   const numTicks = maxVal / tickStep;
 
-  const startX = 35;
-  const availableRulerW = SVG_W - 65;
+  const startX = 46;
+  const availableRulerW = SVG_W - 92;
   const pxPerUnit = availableRulerW / maxVal;
-  const rPx = Math.min(38, Math.max(26, radiusUnits * pxPerUnit)); // visual radius in px
-  const groundY = 104;
+  const rPx = Math.min(36, Math.max(24, radiusUnits * pxPerUnit)); // visual radius in px
+  const groundY = 102;
   const centerY = groundY - rPx;
 
   const cValue = 2 * Math.PI * radiusUnits;
