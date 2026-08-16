@@ -17,38 +17,67 @@ const COLOR_GOLD = "#ffd45e";   // Warm Gold (Contact dot / angle tip)
 const COLOR_PI = "#f472b6";     // Vibrant Rose Pink for Pi marker
 
 const PRESETS = [1, 2, 3];
-const NUM_SEGMENTS = 16; // 16 tape-measure teeth/ribs around the perimeter
+const NUM_SEGMENTS = 16;
 
 export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCircleCircumferenceProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
   const SVG_W = Math.max(300, Math.min(500, rawW - 24));
 
-  const [radiusUnits, setRadiusUnits] = useState(1); // Default r = 1 (Unit circle on real number line)
-  const [unrollProgress, setUnrollProgress] = useState(0); // 0 (start) to 1 (fully unrolled: 2πr)
+  const [radiusUnits, setRadiusUnits] = useState(1);
+  const [animatedRadius, setAnimatedRadius] = useState(1); // Smoothly interpolated radius for growth/zoom
+  const [unrollProgress, setUnrollProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isDraggingHandle, setIsDraggingHandle] = useState(false);
 
   const svgRef = useRef<SVGSVGElement>(null);
   const autoplayRef = useRef<number>(0);
-  const animTimeOffsetRef = useRef<number>(0);
+  const zoomAnimRef = useRef<number>(0);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => {
     e.stopPropagation();
   }, []);
 
-  const maxVal = radiusUnits * 7;
-  const tickStep = radiusUnits === 1 ? 1 : radiusUnits;
-  const numTicks = maxVal / tickStep;
+  // Smoothly animate radius transition (growing circle & zooming out number line)
+  useEffect(() => {
+    let start: number | null = null;
+    const startR = animatedRadius;
+    const targetR = radiusUnits;
+    if (Math.abs(startR - targetR) < 0.001) return;
 
+    const duration = 650; // 650ms smooth expansion & camera zoom
+
+    const animateZoom = (ts: number) => {
+      if (!start) start = ts;
+      const elapsed = ts - start;
+      const t = Math.min(1, elapsed / duration);
+      // Smooth cubic ease out
+      const ease = 1 - Math.pow(1 - t, 3);
+      const currentR = startR + (targetR - startR) * ease;
+      setAnimatedRadius(currentR);
+
+      if (t < 1) {
+        zoomAnimRef.current = requestAnimationFrame(animateZoom);
+      }
+    };
+
+    zoomAnimRef.current = requestAnimationFrame(animateZoom);
+
+    return () => cancelAnimationFrame(zoomAnimRef.current);
+  }, [radiusUnits]);
+
+  // Dynamic scale based on smoothly animated radius
+  const maxVal = animatedRadius * 7;
   const startX = 46;
   const availableRulerW = SVG_W - 92;
   const pxPerUnit = availableRulerW / maxVal;
-  const rPx = Math.min(36, Math.max(24, radiusUnits * pxPerUnit)); // visual radius in px
+  
+  // As radius increases from 1 -> 2 -> 3, rPx grows from 28px to 38px (visible growth + camera zoom-out)
+  const rPx = animatedRadius === 1 ? 28 : animatedRadius === 2 ? 34 : 38;
   const groundY = 102;
   const centerY = groundY - rPx;
 
   const cValue = 2 * Math.PI * radiusUnits;
-  const fullRollDist = cValue * pxPerUnit;
+  const fullRollDist = 2 * Math.PI * animatedRadius * pxPerUnit;
   const endX = startX + fullRollDist;
   const cCoeff = 2 * radiusUnits;
   const cApprox = Math.round(cValue * 100) / 100;
@@ -63,8 +92,6 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     let start: number | null = null;
     const period = 5200; // 5.2s full forward-and-back cycle
 
-    // Convert current progress to initial elapsed time so resuming is completely seamless
-    // prog = 0.5 * (1 - cos(phi)) => cos(phi) = 1 - 2*prog
     const clampedProg = Math.max(0, Math.min(1, unrollProgress));
     const initialPhi = Math.acos(Math.max(-1, Math.min(1, 1 - 2 * clampedProg)));
     const initialElapsed = (initialPhi / (2 * Math.PI)) * period;
@@ -132,7 +159,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
 
   const currentWheelX = startX + unrollProgress * fullRollDist;
 
-  // Unspooling Tape Geometry on Front & Top of Wheel:
+  // Unspooling Tape Geometry
   const remainingFraction = 1 - unrollProgress;
   const remainingArcDeg = remainingFraction * 360;
 
@@ -143,11 +170,13 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   let remainingArcPath = "";
   if (unrollProgress > 0 && remainingFraction > 0.005) {
     const largeArc = remainingArcDeg > 180 ? 1 : 0;
-    // Sweep-flag 0 draws counter-clockwise from bottom (6 o'clock: (0, rPx)) up through front/right to tip
     remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 ${largeArc} 0 ${tipX} ${tipY}`;
   }
 
-  const ticks = Array.from({ length: numTicks + 1 }, (_, i) => i * tickStep);
+  // Ticks list for current radius
+  const tickStep = radiusUnits === 1 ? 1 : radiusUnits;
+  const maxIntTick = radiusUnits * 7;
+  const ticks = Array.from({ length: Math.floor(maxIntTick / tickStep) + 1 }, (_, i) => i * tickStep);
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
@@ -157,15 +186,16 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
         className="w-full touch-none select-none overflow-visible cursor-pointer"
         onPointerDown={handleTrackPointerDown}
       >
-        {/* Track Hitbox for easy dragging */}
+        {/* Track Hitbox */}
         <rect x={startX - 20} y={groundY - 60} width={availableRulerW + 40} height={90} fill="transparent" />
 
-        {/* Subtle Background Ruler Axis */}
+        {/* Ruler Axis */}
         <line x1={startX - 10} y1={groundY} x2={startX + availableRulerW + 10} y2={groundY} stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
 
-        {/* Standard Integer Ticks and Labels */}
+        {/* Integer Ticks and Labels (smoothly positions with camera zoom) */}
         {ticks.map((t) => {
           const tickX = startX + t * pxPerUnit;
+          if (tickX > startX + availableRulerW + 5) return null;
           return (
             <g key={t}>
               <line x1={tickX} y1={groundY - 3} x2={tickX} y2={groundY + 3} stroke="rgba(255, 255, 255, 0.45)" strokeWidth={1.5} />
@@ -184,10 +214,9 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           );
         })}
 
-        {/* Highlighted π Marker below Number Line with vertical pointer */}
+        {/* Highlighted π Marker (shown on r=1) */}
         {radiusUnits === 1 && (
           <g transform={`translate(${startX + Math.PI * pxPerUnit}, ${groundY})`}>
-            {/* Top tick and pointer line extending down to label */}
             <line x1={0} y1={-4} x2={0} y2={17} stroke={COLOR_PI} strokeWidth={1.5} strokeDasharray="2 2" />
             <circle cx={0} cy={0} r={2} fill={COLOR_PI} />
             <text
@@ -205,9 +234,8 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           </g>
         )}
 
-        {/* Finish 2πr Tick below Number Line with vertical pointer */}
+        {/* Finish 2πr Tick below Number Line */}
         <g transform={`translate(${endX}, ${groundY})`}>
-          {/* Top tick and pointer line extending down to label */}
           <line x1={0} y1={-5} x2={0} y2={17} stroke={COLOR_CIRCUM} strokeWidth={2} />
           <circle cx={0} cy={0} r={2.5} fill={COLOR_CIRCUM} />
           <text
@@ -227,7 +255,6 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
         {/* Unrolled Orange Ribbon Laid Down Along Ground */}
         {unrollProgress > 0 && (
           <g>
-            {/* Base Glowing Orange Ribbon */}
             <line
               x1={startX}
               y1={groundY}
@@ -264,7 +291,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           {/* Wheel Disc Body */}
           <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.08)" />
 
-          {/* At Zero State: Full Solid Vibrant Orange Circle with Tape Ribs */}
+          {/* At Zero State: Full Solid Vibrant Orange Circle */}
           {unrollProgress === 0 ? (
             <g>
               <circle
@@ -315,7 +342,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                   {/* Rotating Segment Teeth on the remaining front/top arc */}
                   {Array.from({ length: NUM_SEGMENTS }, (_, i) => {
                     const segFraction = i / NUM_SEGMENTS;
-                    if (segFraction <= unrollProgress) return null; // already stamped on ground
+                    if (segFraction <= unrollProgress) return null;
                     const ang = (90 - (segFraction - unrollProgress) * 360) * (Math.PI / 180);
                     const x1 = (rPx - 3.5) * Math.cos(ang);
                     const y1 = (rPx - 3.5) * Math.sin(ang);
