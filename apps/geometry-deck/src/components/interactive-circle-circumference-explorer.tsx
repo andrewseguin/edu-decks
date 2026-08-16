@@ -220,25 +220,37 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
         {/* Ruler Axis */}
         <line x1={startX - 10} y1={groundY} x2={rightEdge + 10} y2={groundY} stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
 
-        {/* Integer Ticks and Labels (smoothly glides & fades at right boundary) */}
-        {ticks.map((t) => {
+        {/* Integer Ticks and Labels (major ticks with labels, subtle minor ticks at unit intervals) */}
+        {Array.from({ length: maxTickToRender + 1 }, (_, t) => {
           const tickX = startX + t * pxPerUnit;
           if (tickX > rightEdge + 25) return null;
           const opacity = tickX <= rightEdge ? 1 : Math.max(0, 1 - (tickX - rightEdge) / 20);
+          const isMajor = t % tickStep === 0;
+
           return (
             <g key={t} opacity={opacity}>
-              <line x1={tickX} y1={groundY - 3} x2={tickX} y2={groundY + 3} stroke="rgba(255, 255, 255, 0.45)" strokeWidth={1.5} />
-              <text
-                x={tickX}
-                y={groundY + 13}
-                textAnchor="middle"
-                fontSize={9.5}
-                fontWeight="bold"
-                fill="rgba(255, 255, 255, 0.55)"
-                fontFamily="var(--font-heading, system-ui)"
-              >
-                {t}
-              </text>
+              <line
+                x1={tickX}
+                y1={groundY - (isMajor ? 3 : 1.8)}
+                x2={tickX}
+                y2={groundY + (isMajor ? 3 : 1.8)}
+                stroke="rgba(255, 255, 255, 0.45)"
+                strokeWidth={isMajor ? 1.5 : 1}
+                opacity={isMajor ? 1 : 0.4}
+              />
+              {isMajor && (
+                <text
+                  x={tickX}
+                  y={groundY + 13}
+                  textAnchor="middle"
+                  fontSize={9.5}
+                  fontWeight="bold"
+                  fill="rgba(255, 255, 255, 0.55)"
+                  fontFamily="var(--font-heading, system-ui)"
+                >
+                  {t}
+                </text>
+              )}
             </g>
           );
         })}
