@@ -31,7 +31,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const [step, setStep] = useState<1 | 2 | 3>(1); // 1. Circle, 2. Unroll, 3. Parallelogram
   const [unrollProgress, setUnrollProgress] = useState(0); // 0.0 (Circle) -> 1.0 (Unrolled) -> 2.0 (Parallelogram)
   const [isPlaying, setIsPlaying] = useState(true);
-  const [step3Sectors, setStep3Sectors] = useState<SectorCount>(8);
+  const [sectorCount, setSectorCount] = useState<SectorCount>(8);
 
   const svgRef = useRef<SVGSVGElement>(null);
   const autoplayRef = useRef<number>(0);
@@ -85,7 +85,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const fullRollDist = fullCircumVal * pxPerUnit; // distance along ruler corresponding to 2πr
   const halfRollDist = Math.PI * radiusUnits * pxPerUnit; // distance corresponding to πr
 
-  // 8-Sector base geometry during unrolling & initial proof
+  // Base 8-Sector geometry for unrolling
   const singleToothW = fullRollDist / 8;
   const halfW = singleToothW / 2;
 
@@ -131,7 +131,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
     const timer = setTimeout(() => {
       setStep((prev) => {
-        if (prev === 3) setStep3Sectors(8); // reset sectors on loop
+        if (prev === 3) setSectorCount(8); // reset sectors on loop
         return prev === 1 ? 2 : prev === 2 ? 3 : 1;
       });
     }, dwell);
@@ -180,7 +180,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
       setStep(1);
       setUnrollProgress(0);
       setIsPlaying(false);
-      setStep3Sectors(8);
+      setSectorCount(8);
     }
   };
 
@@ -191,7 +191,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
   const currentWheelX = startX + p1 * fullRollDist;
 
-  // CANONICAL TRUE PIE SECTOR PATH HELPER (subtending 360 / N degrees)
+  // CANONICAL TRUE PIE SECTOR PATH HELPER
   const makeSectorPath = (numSectors: number) => {
     const halfAngle = Math.PI / numSectors;
     const sinH = Math.sin(halfAngle);
@@ -217,7 +217,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const maxTickToRender = Math.ceil(maxVal) + 5;
 
   return (
-    <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
+    <div ref={containerRef} className="flex flex-col items-center gap-2.5 w-full pb-2" onClick={stop} onPointerDown={stop}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
@@ -346,9 +346,9 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </g>
         )}
 
-        {/* Step 3 Subdivided Sectors (When fully assembled at p2 >= 1 and sectors > 8 or inf) */}
-        {p2 >= 0.99 && step3Sectors !== 8 ? (
-          step3Sectors === "inf" ? (
+        {/* Step 3 Subdivided Sectors (When fully assembled at p2 >= 1 and sectorCount !== 8) */}
+        {p2 >= 0.99 && sectorCount !== 8 ? (
+          sectorCount === "inf" ? (
             /* Perfect Flat Rectangle (Limit as N -> ∞) */
             <g>
               <rect
@@ -379,8 +379,8 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           ) : (
             /* 16 or 32 Fine Interlocking Slices */
             <g>
-              {Array.from({ length: step3Sectors as number }, (_, k) => {
-                const n = step3Sectors as number;
+              {Array.from({ length: sectorCount as number }, (_, k) => {
+                const n = sectorCount as number;
                 const toothW = fullRollDist / n;
                 const hW = toothW / 2;
                 const isEven = k % 2 === 0;
@@ -534,43 +534,9 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         )}
       </svg>
 
-      {/* Frosted Controls: [- / +] Stepper, Multi-Step Navigation Pills, and Play/Pause Button */}
-      <div className="flex items-center gap-2 select-none flex-wrap justify-center">
-        {/* [- r = N +] Radius Stepper */}
-        <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
-          <button
-            onClick={() => changeRadius(-1)}
-            disabled={radiusUnits <= MIN_RADIUS}
-            className={cn(
-              "w-6 h-6 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
-              radiusUnits <= MIN_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
-            )}
-            aria-label="Decrease radius"
-          >
-            <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
-          </button>
-
-          <span
-            style={{ color: COLOR_RADIUS }}
-            className="px-1 text-xs font-headline font-black tracking-wide min-w-[34px] text-center"
-          >
-            r = {radiusUnits}
-          </span>
-
-          <button
-            onClick={() => changeRadius(1)}
-            disabled={radiusUnits >= MAX_RADIUS}
-            className={cn(
-              "w-6 h-6 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
-              radiusUnits >= MAX_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
-            )}
-            aria-label="Increase radius"
-          >
-            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-          </button>
-        </div>
-
-        {/* Multi-Step Frosted Navigation Pills: 1. Circle, 2. Unroll, 3. Parallelogram */}
+      {/* Row 1: Primary Navigation Controls ([1. Circle | 2. Unroll | 3. Parallelogram] & [Play/Pause]) */}
+      <div className="flex items-center gap-2 select-none justify-center">
+        {/* Multi-Step Frosted Navigation Pills */}
         <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm">
           <button
             onClick={() => {
@@ -578,7 +544,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               setStep(1);
             }}
             className={cn(
-              "px-2.5 py-0.5 rounded-full text-[11px] font-headline font-bold transition-all border-none",
+              "px-3 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
               step === 1 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
             )}
           >
@@ -590,7 +556,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               setStep(2);
             }}
             className={cn(
-              "px-2.5 py-0.5 rounded-full text-[11px] font-headline font-bold transition-all border-none",
+              "px-3 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
               step === 2 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
             )}
           >
@@ -602,35 +568,13 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               setStep(3);
             }}
             className={cn(
-              "px-2.5 py-0.5 rounded-full text-[11px] font-headline font-bold transition-all border-none",
+              "px-3 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
               step === 3 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
             )}
           >
             3. Parallelogram
           </button>
         </div>
-
-        {/* Step 3 Sectors Subdivider Pill [ 8 | 16 | 32 | ∞ ] */}
-        {step === 3 && p2 >= 0.8 && (
-          <div className="flex items-center gap-1 bg-white/15 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/30 shadow-sm animate-in fade-in zoom-in duration-300">
-            <span className="text-[10px] text-white/60 font-bold px-1 select-none">Slices:</span>
-            {([8, 16, 32, "inf"] as const).map((cnt) => (
-              <button
-                key={cnt}
-                onClick={() => {
-                  setIsPlaying(false);
-                  setStep3Sectors(cnt);
-                }}
-                className={cn(
-                  "px-2 py-0.5 rounded-full text-[11px] font-headline font-bold transition-all border-none",
-                  step3Sectors === cnt ? "bg-white/30 text-white shadow-none" : "bg-transparent text-white/65 hover:text-white"
-                )}
-              >
-                {cnt === "inf" ? "∞" : cnt}
-              </button>
-            ))}
-          </div>
-        )}
 
         {/* Play / Pause Auto-Tour Button */}
         <button
@@ -651,8 +595,66 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         </button>
       </div>
 
+      {/* Row 2: Secondary Settings ([ - r = N + ] Radius Stepper & [ Slices: 8 | 16 | 32 | ∞ ]) */}
+      <div className="flex items-center gap-2 select-none justify-center">
+        {/* [- r = N +] Radius Stepper */}
+        <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
+          <button
+            onClick={() => changeRadius(-1)}
+            disabled={radiusUnits <= MIN_RADIUS}
+            className={cn(
+              "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+              radiusUnits <= MIN_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
+            )}
+            aria-label="Decrease radius"
+          >
+            <Minus className="w-3 h-3 stroke-[2.5]" />
+          </button>
+
+          <span
+            style={{ color: COLOR_RADIUS }}
+            className="px-1 text-xs font-headline font-black tracking-wide min-w-[32px] text-center"
+          >
+            r = {radiusUnits}
+          </span>
+
+          <button
+            onClick={() => changeRadius(1)}
+            disabled={radiusUnits >= MAX_RADIUS}
+            className={cn(
+              "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+              radiusUnits >= MAX_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
+            )}
+            aria-label="Increase radius"
+          >
+            <Plus className="w-3 h-3 stroke-[2.5]" />
+          </button>
+        </div>
+
+        {/* Slices Subdivider Selector [ 8 | 16 | 32 | ∞ ] */}
+        <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
+          <span className="text-[11px] text-white/60 font-bold px-0.5 select-none">Slices:</span>
+          {([8, 16, 32, "inf"] as const).map((cnt) => (
+            <button
+              key={cnt}
+              onClick={() => {
+                setIsPlaying(false);
+                setSectorCount(cnt);
+                if (step !== 3) setStep(3);
+              }}
+              className={cn(
+                "px-2 py-0.5 rounded-full text-[11px] font-headline font-bold transition-all border-none",
+                sectorCount === cnt ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/65 hover:text-white"
+              )}
+            >
+              {cnt === "inf" ? "∞" : cnt}
+            </button>
+          ))}
+        </div>
+      </div>
+
       {/* Live Typographic Equation Banner */}
-      <div className="flex justify-center mt-1">
+      <div className="flex justify-center mt-0.5">
         {step === 1 && (
           <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
             <span className="text-white">A</span>
@@ -681,7 +683,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             <span className="text-white">A</span>
             <span className="text-white/50">=</span>
             <span className="text-white/80">
-              {step3Sectors === "inf" ? "base · height" : "base · height"}
+              {sectorCount === "inf" ? "base · height" : "base · height"}
             </span>
             <span className="text-white/50">=</span>
             <span style={{ color: COLOR_BASE }} className="font-bold">(π · {radiusUnits})</span>
