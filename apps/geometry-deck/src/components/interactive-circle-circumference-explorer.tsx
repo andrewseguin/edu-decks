@@ -184,11 +184,9 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
 
   const targetFinishMultiple = 2 * radiusUnits;
 
-  // Intelligently step Pi multiples as radius grows so labels never crowd:
-  // r <= 3: step by 1 (π, 2π, 3π...)
-  // r 4..6: step by 2 (2π, 4π, 6π...)
-  // r >= 7: step by 5 (5π, 10π, 15π, 20π)
-  const piStep = radiusUnits <= 3 ? 1 : radiusUnits <= 6 ? 2 : 5;
+  // Strict threshold: at most 8 Pi labels across the ruler at any radius
+  const totalPis = 2 * radiusUnits;
+  const piStep = totalPis <= 8 ? 1 : totalPis <= 16 ? 2 : totalPis <= 40 ? 5 : 10;
   const maxPiToRender = Math.min(20, Math.ceil(maxVal / Math.PI) + 2);
   const piMultiples = Array.from({ length: maxPiToRender }, (_, i) => i + 1).filter(
     (k) => k % piStep === 0 || k === targetFinishMultiple
