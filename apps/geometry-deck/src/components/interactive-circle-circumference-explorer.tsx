@@ -76,22 +76,25 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
 
   const currentWheelX = startX + unrollProgress * fullRollDist;
 
-  // Remaining circular arc that is still on the wheel (clockwise from bottom contact point 90°)
+  // Unspooling Tape Geometry:
+  // As the wheel rolls forward (right), tape peels off at the bottom contact point (6 o'clock / 90°).
+  // The remaining tape on the wheel is on the FRONT and TOP of the wheel, sweeping up through 3 o'clock (0°),
+  // 12 o'clock (270°), and 9 o'clock (180°).
   const remainingFraction = 1 - unrollProgress;
   const remainingArcDeg = remainingFraction * 360;
 
-  // Tip of the remaining arc (where the gold dot is)
-  const tipAngleRad = (90 + remainingArcDeg) * (Math.PI / 180);
+  // The end tip of the remaining ribbon on the wheel
+  const tipAngleRad = (90 - remainingArcDeg) * (Math.PI / 180);
   const tipX = rPx * Math.cos(tipAngleRad);
   const tipY = rPx * Math.sin(tipAngleRad);
 
-  // SVG path for remaining clockwise arc starting from bottom (0, rPx)
   let remainingArcPath = "";
   if (remainingFraction >= 0.999) {
-    remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 1 1 0 ${rPx - 0.01} Z`;
+    remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 1 0 0 ${rPx - 0.01} Z`;
   } else if (remainingFraction > 0.005) {
     const largeArc = remainingArcDeg > 180 ? 1 : 0;
-    remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 ${largeArc} 1 ${tipX} ${tipY}`;
+    // Sweep-flag 0 draws counter-clockwise from bottom (6 o'clock) up through front (3 o'clock) to tip
+    remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 ${largeArc} 0 ${tipX} ${tipY}`;
   }
 
   return (
@@ -157,10 +160,10 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
 
         {/* Rolling Wheel Group */}
         <g transform={`translate(${currentWheelX}, ${centerY})`}>
-          {/* Wheel Disc Body & Ghost Outline */}
+          {/* Wheel Disc Body & Ghost Outline (bare spool) */}
           <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.08)" stroke="rgba(255, 255, 255, 0.2)" strokeWidth={1.5} strokeDasharray="3 3" />
 
-          {/* Clockwise Remaining Perimeter Arc Ribbon */}
+          {/* Unspooling Perimeter Ribbon on the Front/Top of the Wheel */}
           {remainingArcPath && (
             <path
               d={remainingArcPath}
@@ -171,12 +174,12 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
             />
           )}
 
-          {/* Radius Spoke line to the leading tip */}
+          {/* Spoke line from center to the unspooling tip */}
           {remainingFraction > 0.005 && (
             <>
               <line x1={0} y1={0} x2={tipX} y2={tipY} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
               <circle cx={0} cy={0} r={3} fill="#ffffff" />
-              {/* Gold marker dot at the leading tip unraveling clockwise */}
+              {/* Gold marker dot at the leading unspooling tip */}
               <circle cx={tipX} cy={tipY} r={4.5} fill={COLOR_GOLD} stroke="rgba(0,0,0,0.5)" strokeWidth={1} />
             </>
           )}
