@@ -18,7 +18,7 @@ const MAX_RADIUS = 10;
 
 export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCircleCircumferenceProps) {
   const { containerRef, width: rawW } = useContainerWidth(360);
-  const containerW = Math.max(340, Math.min(520, rawW - 16));
+  const containerW = Math.max(340, Math.min(650, rawW - 16));
 
   const [radiusUnits, setRadiusUnits] = useState(1);
   const [animatedRadius, setAnimatedRadius] = useState(1); // Smoothly interpolated camera zoom [1.0 .. 10.0]
@@ -69,21 +69,20 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     return () => cancelAnimationFrame(zoomAnimRef.current);
   }, [radiusUnits]);
 
-  // Spatial Dimensions:
-  // Circle at x = 0 has radius rPx extending left to (startX - rPx).
-  // We need startX >= rPx + 16 so the wheel is NEVER cut off on the left edge!
+  // Wide Spatial Dimensions extending near edges:
+  // Circle left edge is at (startX - rPx) = 8px from left border!
   const maxVal = animatedRadius * 7;
   const SVG_W = containerW;
-  const rPx = Math.min(42, Math.max(30, Math.floor((SVG_W - 48) / 8.2)));
+  const rPx = Math.floor((SVG_W - 24) / 8.2); // ~40px on mobile, ~72px on desktop!
   const availableRulerW = 7 * rPx;
-  const startX = rPx + 16;
+  const startX = rPx + 10;
   const rightEdge = startX + availableRulerW;
   const pxPerUnit = availableRulerW / maxVal;
   
-  // Vertical positioning: 18px headspace above circle, room for Pi labels below
-  const groundY = Math.round(rPx * 2 + 18);
+  // Vertical positioning: 10px headspace, room for Pi labels below
+  const groundY = Math.round(rPx * 2 + 10);
   const centerY = groundY - rPx;
-  const SVG_H = groundY + 36; // ~126px
+  const SVG_H = groundY + 36;
 
   // Actual physical circumference values for current active radius
   const cValue = 2 * Math.PI * radiusUnits;
@@ -230,12 +229,12 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     : "";
 
   return (
-    <div ref={containerRef} className="flex flex-col items-center gap-1.5 w-full max-w-[520px] mx-auto select-none" onClick={stop} onPointerDown={stop}>
+    <div ref={containerRef} className="flex flex-col items-center gap-1.5 w-full max-w-[650px] mx-auto select-none" onClick={stop} onPointerDown={stop}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
-        style={{ maxHeight: 130 }}
-        className="w-full max-w-[520px] touch-none select-none overflow-visible"
+        style={{ maxHeight: 136 }}
+        className="w-full touch-none select-none overflow-visible"
       >
         {/* Interactive Track Hitbox for Scrubbing */}
         <rect
@@ -249,7 +248,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
         />
 
         {/* Ruler Axis */}
-        <line x1={startX - 10} y1={groundY} x2={rightEdge + 10} y2={groundY} stroke="rgba(255, 255, 255, 0.35)" strokeWidth={2} />
+        <line x1={startX - 8} y1={groundY} x2={rightEdge + 8} y2={groundY} stroke="rgba(255, 255, 255, 0.35)" strokeWidth={2} />
 
         {/* Integer Ticks and Labels (Large, bold, high-contrast) */}
         {Array.from({ length: maxTickToRender + 1 }, (_, t) => {
@@ -274,7 +273,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                   x={tickX}
                   y={groundY + 15}
                   textAnchor="middle"
-                  fontSize={12.5}
+                  fontSize={13.5}
                   fontWeight="900"
                   fill="rgba(255, 255, 255, 0.85)"
                   fontFamily="var(--font-heading, system-ui)"
@@ -309,7 +308,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                 x={0}
                 y={29}
                 textAnchor="middle"
-                fontSize={isTargetFinish ? 14.5 : 13}
+                fontSize={isTargetFinish ? 15 : 13.5}
                 fontWeight="900"
                 fill={markerColor}
                 fontFamily="var(--font-heading, system-ui)"
@@ -405,7 +404,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                 stroke={COLOR_CIRCUM}
                 strokeWidth={3.5}
                 strokeLinecap="round"
-                style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.65))" }}
+                style={{ filter: "drop-shadow(0px 0px 4px rgba(251, 146, 60, 0.65))" }}
               />
               
               {/* Unit Teeth remaining on wheel */}
@@ -446,7 +445,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
             x2={spokeTipX}
             y2={spokeTipY}
             stroke={COLOR_RADIUS}
-            strokeWidth={2.4}
+            strokeWidth={2.5}
             strokeDasharray="3 2"
           />
           <circle cx={spokeTipX} cy={spokeTipY} r={3.5} fill={COLOR_RADIUS} />
@@ -457,7 +456,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
             y={-13}
             textAnchor="middle"
             dominantBaseline="central"
-            fontSize={13.5}
+            fontSize={14}
             fontWeight="900"
             fill={COLOR_RADIUS}
             fontFamily="var(--font-heading, system-ui)"
