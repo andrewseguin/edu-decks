@@ -139,40 +139,6 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
     return () => clearTimeout(timer);
   }, [isPlaying, step]);
 
-  // Step 2: Direct 1:1 unrolling along ruler (0..2πr)
-  const handleStep2TrackPointerDown = useCallback((e: React.PointerEvent) => {
-    if (step !== 2) return;
-    e.preventDefault();
-    e.stopPropagation();
-    setIsPlaying(false);
-    cancelAnimationFrame(autoplayRef.current);
-
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const scX = SVG_W / rect.width;
-
-    const updateFromPointer = (clientX: number) => {
-      const px = (clientX - rect.left) * scX;
-      const prog = Math.max(0, Math.min(1, (px - startX) / fullRollDist));
-      setUnrollProgress(prog); // strictly 0..1 in Step 2
-    };
-
-    updateFromPointer(e.clientX);
-
-    const onMove = (ev: PointerEvent) => {
-      updateFromPointer(ev.clientX);
-    };
-
-    const onUp = () => {
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-  }, [SVG_W, fullRollDist, startX, step]);
-
   const changeRadius = (delta: number) => {
     const nextR = Math.max(MIN_RADIUS, Math.min(MAX_RADIUS, radiusUnits + delta));
     if (nextR !== radiusUnits) {
@@ -216,19 +182,6 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
         className="w-full touch-none select-none overflow-visible"
       >
-        {/* Step 2 Interactive Track Hitbox */}
-        {step === 2 && (
-          <rect
-            x={startX - 20}
-            y={groundY - 60}
-            width={availableRulerW + 40}
-            height={90}
-            fill="transparent"
-            className="cursor-pointer"
-            onPointerDown={handleStep2TrackPointerDown}
-          />
-        )}
-
         {/* Ruler Axis Line */}
         <line x1={startX - 10} y1={groundY} x2={rightEdge + 10} y2={groundY} stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
 
@@ -452,19 +405,6 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             </text>
           </g>
         )}
-
-        {/* Drag Handle on Ground Wheel (Only visible and active in Step 2) */}
-        {step === 2 && (
-          <g
-            transform={`translate(${currentWheelX}, ${groundY})`}
-            className="cursor-grab active:cursor-grabbing"
-            onPointerDown={handleStep2TrackPointerDown}
-          >
-            <circle r={26} fill="transparent" />
-            <circle r={9} fill="rgba(94, 232, 255, 0.25)" stroke={COLOR_RADIUS} strokeWidth={1.5} />
-            <circle r={4.5} fill={COLOR_RADIUS} />
-          </g>
-        )}
       </svg>
 
       {/* Row 1: Primary Navigation Controls ([1. Circle | 2. Unroll | 3. Parallelogram] & [Play/Pause]) */}
@@ -613,7 +553,6 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         {step === 3 && (
           <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none">
             <span className="text-white">A</span>
-            <span className="text-white/50">=</span>
             <span className="text-white/80">base · height</span>
             <span className="text-white/50">=</span>
             <span style={{ color: COLOR_BASE }} className="font-bold">(π · {radiusUnits})</span>
