@@ -71,8 +71,9 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const rightEdge = startX + availableRulerW;
   const pxPerUnit = availableRulerW / maxVal;
   
-  // Continuous smooth visual circle radius (scales with animatedRadius up to 10)
-  const rPx = 28 + Math.min(16, (animatedRadius - 1) * 2.0);
+  // 1:1 Physical No-Slip Radius: rPx is EXACTLY animatedRadius * pxPerUnit = availableRulerW / 7
+  // This guarantees 100% physical rolling without slipping or stretching!
+  const rPx = animatedRadius * pxPerUnit;
   const groundY = 98;
   const centerY = groundY - rPx;
 
@@ -194,8 +195,6 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   // Dynamic integer ticks spanning full visible range with clean steps
   const tickStep = radiusUnits === 1 ? 1 : radiusUnits <= 4 ? radiusUnits : 5;
   const maxTickToRender = Math.ceil(maxVal) + 5;
-  const numTicks = Math.floor(maxTickToRender / tickStep);
-  const ticks = Array.from({ length: numTicks + 1 }, (_, i) => i * tickStep);
 
   // Unit Teeth on the wheel placed at EXACT integer unit arc lengths (1, 2, 3, 4, 5, 6...)
   // These land EXACTLY on the number line's integer ticks as the circle rolls!
