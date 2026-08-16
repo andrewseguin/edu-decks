@@ -113,7 +113,6 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const currentWheelX = startX + unrollProgress * fullRollDist;
 
   // Unspooling Tape Geometry on Front & Top of Wheel:
-  // Starts at bottom contact point (6 o'clock: (0, rPx)), wraps up the FRONT/RIGHT (3 o'clock) and TOP (12 o'clock)
   const remainingFraction = 1 - unrollProgress;
   const remainingArcDeg = remainingFraction * 360;
 
@@ -124,7 +123,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   let remainingArcPath = "";
   if (unrollProgress > 0 && remainingFraction > 0.005) {
     const largeArc = remainingArcDeg > 180 ? 1 : 0;
-    // Sweep-flag 0 draws counter-clockwise from bottom (6 o'clock) up through front/right (3 o'clock) to tip
+    // Sweep-flag 0 draws counter-clockwise from bottom (6 o'clock: (0, rPx)) up through front/right to tip
     remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 ${largeArc} 0 ${tipX} ${tipY}`;
   }
 
@@ -321,12 +320,11 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                     strokeWidth={1.5}
                     strokeDasharray="4 3"
                   />
-                  {/* Segment Teeth locked directly on the remaining front/top arc */}
+                  {/* Rotating Segment Teeth on the remaining front/top arc */}
                   {Array.from({ length: NUM_SEGMENTS }, (_, i) => {
                     const segFraction = i / NUM_SEGMENTS;
-                    if (segFraction < unrollProgress) return null; // already unrolled to ground
-                    const relativeOffset = (segFraction - unrollProgress) * 360;
-                    const ang = (90 - relativeOffset) * (Math.PI / 180);
+                    if (segFraction <= unrollProgress) return null; // already stamped on ground
+                    const ang = (90 - (segFraction - unrollProgress) * 360) * (Math.PI / 180);
                     const x1 = (rPx - 3.5) * Math.cos(ang);
                     const y1 = (rPx - 3.5) * Math.sin(ang);
                     const x2 = (rPx + 3.5) * Math.cos(ang);
