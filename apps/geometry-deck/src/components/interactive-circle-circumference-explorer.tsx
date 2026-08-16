@@ -20,8 +20,8 @@ const MIN_RADIUS = 1;
 const MAX_RADIUS = 10;
 
 export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCircleCircumferenceProps) {
-  const { containerRef, width: rawW } = useContainerWidth(320);
-  const SVG_W = Math.max(300, Math.min(500, rawW - 24));
+  const { containerRef, width: rawW } = useContainerWidth(340);
+  const SVG_W = Math.max(320, Math.min(680, rawW));
 
   const [radiusUnits, setRadiusUnits] = useState(1);
   const [animatedRadius, setAnimatedRadius] = useState(1); // Smoothly interpolated camera zoom [1.0 .. 10.0]
@@ -64,20 +64,19 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     return () => cancelAnimationFrame(zoomAnimRef.current);
   }, [radiusUnits]);
 
-  // Comfortable Sizing & Generous Margins on all 4 sides:
-  // Target circle radius in pixels: ~34px (diameter ~68px)
-  // To keep 100% no-slip physical rolling: availableRulerW = 7 * rPx
+  // Spatial Dimensions spanning edge-to-edge across the card:
   const maxVal = animatedRadius * 7;
-  const targetRulerW = Math.min(SVG_W - 120, Math.max(210, Math.min(300, (SVG_W - 80) * 0.78)));
-  const rPx = targetRulerW / 7; // ~32px to 38px
+  const targetRulerW = Math.min(SVG_W - 40, Math.max(260, SVG_W - 48));
+  const rPx = targetRulerW / 7; // ~38px to 48px
   const availableRulerW = targetRulerW;
   const startX = Math.round((SVG_W - availableRulerW) / 2);
   const rightEdge = startX + availableRulerW;
   const pxPerUnit = availableRulerW / maxVal;
   
   // Vertical positioning with ample headspace above circle and room for Pi labels below
-  const groundY = Math.round(rPx * 2 + 24); // ~92px
-  const centerY = groundY - rPx; // ~58px (headspace at top: 58 - 34 = 24px!)
+  const groundY = Math.round(rPx * 2 + 10);
+  const centerY = groundY - rPx;
+  const SVG_H = groundY + 34; // ~132px
 
   // Actual physical circumference values for current active radius
   const cValue = 2 * Math.PI * radiusUnits;
