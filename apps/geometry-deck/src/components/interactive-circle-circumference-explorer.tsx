@@ -64,7 +64,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     const step = (ts: number) => {
       if (!start) start = ts;
       const elapsed = ts - start;
-      // Cosine ease in/out for smooth turnaround at 0 and 1
+      // Cosine ease in/out for smooth continuous turnaround at 0 and 1
       const prog = 0.5 * (1 - Math.cos((elapsed / period) * 2 * Math.PI));
       setUnrollProgress(prog);
       if (!hasInteracted) {
@@ -116,11 +116,11 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
 
   const currentWheelX = startX + unrollProgress * fullRollDist;
 
-  // Unspooling Tape Geometry
+  // Unspooling Tape Geometry:
+  // Continuous smooth angle: starts at 90° (6 o'clock), sweeps counter-clockwise 360° back to 90°
   const remainingFraction = 1 - unrollProgress;
   const remainingArcDeg = remainingFraction * 360;
 
-  // Tip of the remaining ribbon on the wheel
   const tipAngleRad = (90 - remainingArcDeg) * (Math.PI / 180);
   const tipX = rPx * Math.cos(tipAngleRad);
   const tipY = rPx * Math.sin(tipAngleRad);
@@ -205,8 +205,8 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           </text>
         </g>
 
-        {/* Ghost Starting Circle outline (when rolled away) */}
-        {unrollProgress > 0.03 && (
+        {/* Ghost Starting Circle outline (when rolled away from origin) */}
+        {unrollProgress > 0.02 && (
           <circle cx={startX} cy={centerY} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.15)" strokeWidth={1.5} strokeDasharray="3 3" />
         )}
 
@@ -258,22 +258,11 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
             </>
           )}
 
-          {/* Radius Spoke */}
-          {unrollProgress === 0 ? (
-            <>
-              <line x1={0} y1={0} x2={rPx} y2={0} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
-              <circle cx={0} cy={0} r={3} fill="#ffffff" />
-              <circle cx={rPx} cy={0} r={4} fill={COLOR_RADIUS} />
-            </>
-          ) : (
-            remainingFraction > 0.005 && (
-              <>
-                <line x1={0} y1={0} x2={tipX} y2={tipY} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
-                <circle cx={0} cy={0} r={3} fill="#ffffff" />
-                <circle cx={tipX} cy={tipY} r={4.5} fill={COLOR_GOLD} stroke="rgba(0,0,0,0.5)" strokeWidth={1} />
-              </>
-            )
-          )}
+          {/* Fully Continuous Radius Spoke pointing to unspooling tip (starts cleanly at 6 o'clock bottom contact) */}
+          <line x1={0} y1={0} x2={tipX} y2={tipY} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
+          <circle cx={0} cy={0} r={3} fill="#ffffff" />
+          {/* Gold marker dot at the leading tip */}
+          <circle cx={tipX} cy={tipY} r={4.5} fill={COLOR_GOLD} stroke="rgba(0,0,0,0.5)" strokeWidth={1} />
 
           {/* Radius label */}
           <text
