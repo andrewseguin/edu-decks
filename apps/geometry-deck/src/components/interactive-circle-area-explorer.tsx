@@ -92,20 +92,23 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   // Step target progress
   const targetProgress = step === 1 ? 0 : step === 2 ? 1 : 2;
 
-  // Smooth transition when changing step tabs
+  // Smooth transition when changing step tabs (matching circumference unrolling speed)
   useEffect(() => {
     let start: number | null = null;
     const startP = unrollProgress;
     const targetP = targetProgress;
     if (Math.abs(startP - targetP) < 0.005) return;
 
-    const duration = 750; // 750ms smooth transition
+    // 2.6s per full stage (identical velocity to circumference card)
+    const stepDiff = Math.abs(targetP - startP);
+    const duration = Math.round(2600 * stepDiff);
 
     const stepAnim = (ts: number) => {
       if (!start) start = ts;
       const elapsed = ts - start;
       const t = Math.min(1, elapsed / duration);
-      const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      // Smooth cosine ease matching circumference card
+      const ease = 0.5 * (1 - Math.cos(t * Math.PI));
       const currentP = startP + (targetP - startP) * ease;
       setUnrollProgress(currentP);
 
@@ -125,7 +128,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
     const timer = setTimeout(() => {
       setStep((prev) => (prev === 1 ? 2 : prev === 2 ? 3 : 1));
-    }, 2800);
+    }, 4600); // 4.6s cycle matching comfortable observation time
 
     return () => clearTimeout(timer);
   }, [isPlaying, step]);
