@@ -18,7 +18,6 @@ const COLOR_PI = "#f472b6";     // Vibrant Rose Pink (Consistent color for all P
 
 const MIN_RADIUS = 1;
 const MAX_RADIUS = 10;
-const NUM_SEGMENTS = 16;
 
 export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCircleCircumferenceProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
@@ -198,6 +197,15 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const numTicks = Math.floor(maxTickToRender / tickStep);
   const ticks = Array.from({ length: numTicks + 1 }, (_, i) => i * tickStep);
 
+  // Unit Teeth on the wheel placed at EXACT integer unit arc lengths (1, 2, 3, 4, 5, 6...)
+  // These land EXACTLY on the number line's integer ticks as the circle rolls!
+  const maxIntegerUnitsOnCircle = Math.floor(cValue);
+  const unitTeeth = Array.from({ length: maxIntegerUnitsOnCircle }, (_, i) => {
+    const u = i + 1; // unit 1, 2, 3...
+    const fraction = u / cValue; // fractional position along circumference (0 to 1)
+    return { u, fraction };
+  });
+
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
       <svg
@@ -286,14 +294,13 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
               strokeLinecap="round"
               style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.65))" }}
             />
-            {/* Stamped Segment Notches on Ground */}
-            {Array.from({ length: NUM_SEGMENTS + 1 }, (_, i) => {
-              const segFraction = i / NUM_SEGMENTS;
-              if (segFraction > unrollProgress) return null;
-              const segX = startX + segFraction * fullRollDist;
+            {/* Stamped Unit Notches on Ground (Lays down EXACTLY at integer ticks 1, 2, 3...) */}
+            {unitTeeth.map(({ u, fraction }) => {
+              if (fraction > unrollProgress) return null;
+              const segX = startX + u * pxPerUnit; // lands EXACTLY on integer tick u!
               return (
                 <line
-                  key={`ground-notch-${i}`}
+                  key={`ground-notch-${u}`}
                   x1={segX}
                   y1={groundY - 3.5}
                   x2={segX}
@@ -324,16 +331,16 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                 strokeWidth={3.5}
                 style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.6))" }}
               />
-              {/* Perimeter Segment Teeth around full circle */}
-              {Array.from({ length: NUM_SEGMENTS }, (_, i) => {
-                const ang = (90 - (i / NUM_SEGMENTS) * 360) * (Math.PI / 180);
+              {/* Unit Teeth placed at exact 1-unit intervals around perimeter */}
+              {unitTeeth.map(({ u, fraction }) => {
+                const ang = (90 - fraction * 360) * (Math.PI / 180);
                 const x1 = (rPx - 3.5) * Math.cos(ang);
                 const y1 = (rPx - 3.5) * Math.sin(ang);
                 const x2 = (rPx + 3.5) * Math.cos(ang);
                 const y2 = (rPx + 3.5) * Math.sin(ang);
                 return (
                   <line
-                    key={`wheel-tooth-${i}`}
+                    key={`wheel-tooth-${u}`}
                     x1={x1}
                     y1={y1}
                     x2={x2}
@@ -360,18 +367,17 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                     strokeLinecap="round"
                     style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.6))" }}
                   />
-                  {/* Rotating Segment Teeth on the remaining front/top arc */}
-                  {Array.from({ length: NUM_SEGMENTS }, (_, i) => {
-                    const segFraction = i / NUM_SEGMENTS;
-                    if (segFraction <= unrollProgress) return null;
-                    const ang = (90 - (segFraction - unrollProgress) * 360) * (Math.PI / 180);
+                  {/* Rotating Unit Teeth on remaining front/top arc (lands exactly on integer ticks!) */}
+                  {unitTeeth.map(({ u, fraction }) => {
+                    if (fraction <= unrollProgress) return null; // already landed on ruler at tick u!
+                    const ang = (90 - (fraction - unrollProgress) * 360) * (Math.PI / 180);
                     const x1 = (rPx - 3.5) * Math.cos(ang);
                     const y1 = (rPx - 3.5) * Math.sin(ang);
                     const x2 = (rPx + 3.5) * Math.cos(ang);
                     const y2 = (rPx + 3.5) * Math.sin(ang);
                     return (
                       <line
-                        key={`rem-tooth-${i}`}
+                        key={`rem-tooth-${u}`}
                         x1={x1}
                         y1={y1}
                         x2={x2}
