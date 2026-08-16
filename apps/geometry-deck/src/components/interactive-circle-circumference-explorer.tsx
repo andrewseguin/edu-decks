@@ -12,7 +12,7 @@ const SVG_H = 155;
 
 const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan
 const COLOR_CIRCUM = "#d8b4fe"; // Neon Lilac
-const COLOR_DIAMETER = "#ffd45e";// Warm Gold
+const COLOR_GOLD = "#ffd45e";   // Warm Gold
 
 const PRESETS = [2, 3, 4, 5];
 
@@ -21,7 +21,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const SVG_W = Math.max(280, Math.min(480, rawW - 24));
 
   const [radiusUnits, setRadiusUnits] = useState(3);
-  const [unrollProgress, setUnrollProgress] = useState(0); // 0 (closed circle) to 1 (fully unrolled: 2πr)
+  const [unrollProgress, setUnrollProgress] = useState(0); // 0 (start) to 1 (fully unrolled: 2πr)
   const [isDraggingHandle, setIsDraggingHandle] = useState(false);
 
   const svgRef = useRef<SVGSVGElement>(null);
@@ -75,10 +75,24 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   }, [SVG_W, fullRollDist, startX]);
 
   const currentWheelX = startX + unrollProgress * fullRollDist;
-  const rotationDeg = unrollProgress * 360;
 
-  // Remaining circular arc length: decreases from 360° to 0°
-  const remainingArcDeg = (1 - unrollProgress) * 360;
+  // Remaining circular arc that is still on the wheel (clockwise from bottom contact point 90°)
+  const remainingFraction = 1 - unrollProgress;
+  const remainingArcDeg = remainingFraction * 360;
+
+  // Tip of the remaining arc (where the gold dot is)
+  const tipAngleRad = (90 + remainingArcDeg) * (Math.PI / 180);
+  const tipX = rPx * Math.cos(tipAngleRad);
+  const tipY = rPx * Math.sin(tipAngleRad);
+
+  // SVG path for remaining clockwise arc starting from bottom (0, rPx)
+  let remainingArcPath = "";
+  if (remainingFraction >= 0.999) {
+    remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 1 1 0 ${rPx - 0.01} Z`;
+  } else if (remainingFraction > 0.005) {
+    const largeArc = remainingArcDeg > 180 ? 1 : 0;
+    remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 ${largeArc} 1 ${tipX} ${tipY}`;
+  }
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
@@ -88,8 +102,8 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
         className="w-full touch-none select-none overflow-visible cursor-pointer"
         onPointerDown={handleTrackPointerDown}
       >
-        {/* Track Hitbox for easy scrubbing */}
-        <rect x={startX - 20} y={groundY - 40} width={fullRollDist + 40} height={70} fill="transparent" />
+        {/* Track Hitbox for easy dragging */}
+        <rect x={startX - 25} y={groundY - 50} width={fullRollDist + 50} height={80} fill="transparent" />
 
         {/* Ground Baseline Ruler */}
         <line x1={startX} y1={groundY} x2={endX} y2={groundY} stroke="rgba(255, 255, 255, 0.35)" strokeWidth={2} />
@@ -125,7 +139,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
 
         {/* Ghost Starting Circle outline */}
         {unrollProgress > 0 && (
-          <circle cx={startX} cy={centerY} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.2)" strokeWidth={1.5} strokeDasharray="3 3" />
+          <circle cx={startX} cy={centerY} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
         )}
 
         {/* Unrolled Lilac Boundary Ribbon along the ground */}
@@ -141,33 +155,35 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           />
         )}
 
-        {/* Rolling / Peeling Wheel */}
+        {/* Rolling Wheel Group */}
         <g transform={`translate(${currentWheelX}, ${centerY})`}>
-          {/* Wheel Interior Fill */}
-          <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.12)" />
+          {/* Wheel Disc Body & Ghost Outline */}
+          <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.08)" stroke="rgba(255, 255, 255, 0.2)" strokeWidth={1.5} strokeDasharray="3 3" />
 
-          {/* Remaining circular perimeter arc */}
-          <circle
-            cx={0}
-            cy={0}
-            r={rPx}
-            fill="none"
-            stroke={COLOR_CIRCUM}
-            strokeWidth={2.5}
-            strokeDasharray={`${(remainingArcDeg / 360) * (2 * Math.PI * rPx)} ${2 * Math.PI * rPx}`}
-            transform="rotate(90)"
-          />
+          {/* Clockwise Remaining Perimeter Arc Ribbon */}
+          {remainingArcPath && (
+            <path
+              d={remainingArcPath}
+              fill="none"
+              stroke={COLOR_CIRCUM}
+              strokeWidth={3}
+              strokeLinecap="round"
+            />
+          )}
 
-          {/* Rotating Spoke and Ground Marker Dot */}
-          <g transform={`rotate(${rotationDeg})`}>
-            <line x1={0} y1={0} x2={0} y2={rPx} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
-            <circle cx={0} cy={0} r={3} fill="#ffffff" />
-            <circle cx={0} cy={rPx} r={4.5} fill={COLOR_DIAMETER} />
-          </g>
+          {/* Radius Spoke line to the leading tip */}
+          {remainingFraction > 0.005 && (
+            <>
+              <line x1={0} y1={0} x2={tipX} y2={tipY} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
+              <circle cx={0} cy={0} r={3} fill="#ffffff" />
+              {/* Gold marker dot at the leading tip unraveling clockwise */}
+              <circle cx={tipX} cy={tipY} r={4.5} fill={COLOR_GOLD} stroke="rgba(0,0,0,0.5)" strokeWidth={1} />
+            </>
+          )}
 
-          {/* Radius label (always upright above center) */}
+          {/* Radius label */}
           <text
-            x={rPx / 2 + 4}
+            x={0}
             y={-10}
             textAnchor="middle"
             dominantBaseline="central"
@@ -181,19 +197,19 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           </text>
         </g>
 
-        {/* Interactive Drag Handle attached to the unrolling edge */}
+        {/* Drag Handle at bottom contact point */}
         <g
           transform={`translate(${currentWheelX}, ${groundY})`}
           className="cursor-grab active:cursor-grabbing"
           onPointerDown={handleTrackPointerDown}
         >
           <circle r={26} fill="transparent" />
-          <circle r={10} fill="rgba(255, 255, 255, 0.25)" stroke="rgba(255, 255, 255, 0.8)" strokeWidth={1.5} />
-          <circle r={5} fill={COLOR_CIRCUM} />
+          <circle r={9} fill="rgba(255, 255, 255, 0.25)" stroke="rgba(255, 255, 255, 0.8)" strokeWidth={1.5} />
+          <circle r={4.5} fill={COLOR_CIRCUM} />
         </g>
       </svg>
 
-      {/* Preset Radius Pills & Direct Unroll Controls */}
+      {/* Preset Radius Pills & Direct Controls */}
       <div className="flex items-center gap-1.5 sm:gap-2 select-none">
         <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm">
           {PRESETS.map((pr) => (
@@ -217,11 +233,11 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           onClick={() => setUnrollProgress(unrollProgress > 0 ? 0 : 1)}
           className="px-3.5 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm backdrop-blur-md active:scale-95"
         >
-          {unrollProgress > 0 ? "↺ Reset" : "Unroll full perimeter (2πr)"}
+          {unrollProgress > 0 ? "↺ Reset" : "Unroll full turn (2πr)"}
         </button>
       </div>
 
-      {/* Live Typographic Equation Banner with Real-Time Scrubbing Value */}
+      {/* Live Typographic Equation Banner */}
       <div className="flex justify-center mt-1">
         <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
           <span className="text-white">C</span>
