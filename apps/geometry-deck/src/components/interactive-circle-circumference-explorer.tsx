@@ -77,23 +77,18 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const currentWheelX = startX + unrollProgress * fullRollDist;
 
   // Unspooling Tape Geometry:
-  // As the wheel rolls forward (right), tape peels off at the bottom contact point (6 o'clock / 90°).
-  // The remaining tape on the wheel is on the FRONT and TOP of the wheel, sweeping up through 3 o'clock (0°),
-  // 12 o'clock (270°), and 9 o'clock (180°).
   const remainingFraction = 1 - unrollProgress;
   const remainingArcDeg = remainingFraction * 360;
 
-  // The end tip of the remaining ribbon on the wheel
+  // The leading tip of the remaining ribbon on the wheel
   const tipAngleRad = (90 - remainingArcDeg) * (Math.PI / 180);
   const tipX = rPx * Math.cos(tipAngleRad);
   const tipY = rPx * Math.sin(tipAngleRad);
 
   let remainingArcPath = "";
-  if (remainingFraction >= 0.999) {
-    remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 1 0 0 ${rPx - 0.01} Z`;
-  } else if (remainingFraction > 0.005) {
+  if (unrollProgress > 0 && remainingFraction > 0.005) {
     const largeArc = remainingArcDeg > 180 ? 1 : 0;
-    // Sweep-flag 0 draws counter-clockwise from bottom (6 o'clock) up through front (3 o'clock) to tip
+    // Sweep counter-clockwise from bottom (6 o'clock: (0, rPx)) up through front to tip
     remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 ${largeArc} 0 ${tipX} ${tipY}`;
   }
 
@@ -106,7 +101,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
         onPointerDown={handleTrackPointerDown}
       >
         {/* Track Hitbox for easy dragging */}
-        <rect x={startX - 25} y={groundY - 50} width={fullRollDist + 50} height={80} fill="transparent" />
+        <rect x={startX - 25} y={groundY - 60} width={fullRollDist + 50} height={90} fill="transparent" />
 
         {/* Ground Baseline Ruler */}
         <line x1={startX} y1={groundY} x2={endX} y2={groundY} stroke="rgba(255, 255, 255, 0.35)" strokeWidth={2} />
@@ -140,8 +135,8 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           {cCoeff}π
         </text>
 
-        {/* Ghost Starting Circle outline */}
-        {unrollProgress > 0 && (
+        {/* Ghost Starting Circle outline (only when rolled away from start) */}
+        {unrollProgress > 0.03 && (
           <circle cx={startX} cy={centerY} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
         )}
 
@@ -160,37 +155,54 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
 
         {/* Rolling Wheel Group */}
         <g transform={`translate(${currentWheelX}, ${centerY})`}>
-          {/* Wheel Disc Body & Ghost Outline (bare spool) */}
-          <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.08)" stroke="rgba(255, 255, 255, 0.2)" strokeWidth={1.5} strokeDasharray="3 3" />
+          {/* Wheel Disc Body */}
+          <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.12)" />
 
-          {/* Unspooling Perimeter Ribbon on the Front/Top of the Wheel */}
-          {remainingArcPath && (
-            <path
-              d={remainingArcPath}
-              fill="none"
-              stroke={COLOR_CIRCUM}
-              strokeWidth={3}
-              strokeLinecap="round"
-            />
-          )}
-
-          {/* Spoke line from center to the unspooling tip */}
-          {remainingFraction > 0.005 && (
+          {/* At Zero State: Full Solid Lilac Circle */}
+          {unrollProgress === 0 ? (
+            <circle cx={0} cy={0} r={rPx} fill="none" stroke={COLOR_CIRCUM} strokeWidth={3} />
+          ) : (
             <>
-              <line x1={0} y1={0} x2={tipX} y2={tipY} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
-              <circle cx={0} cy={0} r={3} fill="#ffffff" />
-              {/* Gold marker dot at the leading unspooling tip */}
-              <circle cx={tipX} cy={tipY} r={4.5} fill={COLOR_GOLD} stroke="rgba(0,0,0,0.5)" strokeWidth={1} />
+              {/* Spool ghost track */}
+              <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.2)" strokeWidth={1.5} strokeDasharray="3 3" />
+              {/* Unspooling Perimeter Ribbon on the Front/Top */}
+              {remainingArcPath && (
+                <path
+                  d={remainingArcPath}
+                  fill="none"
+                  stroke={COLOR_CIRCUM}
+                  strokeWidth={3}
+                  strokeLinecap="round"
+                />
+              )}
             </>
           )}
 
-          {/* Radius label */}
+          {/* Radius Spoke line */}
+          {unrollProgress === 0 ? (
+            /* Clean Horizontal Radius at zero state */
+            <>
+              <line x1={0} y1={0} x2={rPx} y2={0} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
+              <circle cx={0} cy={0} r={3} fill="#ffffff" />
+              <circle cx={rPx} cy={0} r={4} fill={COLOR_RADIUS} />
+            </>
+          ) : (
+            remainingFraction > 0.005 && (
+              <>
+                <line x1={0} y1={0} x2={tipX} y2={tipY} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
+                <circle cx={0} cy={0} r={3} fill="#ffffff" />
+                <circle cx={tipX} cy={tipY} r={4.5} fill={COLOR_GOLD} stroke="rgba(0,0,0,0.5)" strokeWidth={1} />
+              </>
+            )
+          )}
+
+          {/* Radius label (always clean above center) */}
           <text
             x={0}
-            y={-10}
+            y={-12}
             textAnchor="middle"
             dominantBaseline="central"
-            fontSize={12}
+            fontSize={12.5}
             fontWeight="800"
             fill={COLOR_RADIUS}
             fontFamily="var(--font-heading, system-ui)"
