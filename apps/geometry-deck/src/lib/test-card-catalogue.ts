@@ -671,10 +671,10 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     color: TOPIC_COLORS.circles,
     frontLabel: "The radius", frontPrompt: "is…?",
     frontSpeechText: "The radius is…?",
-    backDefinition: "r = distance from centre to edge",
-    backDefinitionSubtitle: "Half of the diameter (r = d ÷ 2)",
+    backDefinition: "Center to edge",
+    backDefinitionSubtitle: "Equal distance in all directions (r)",
     backSvgExamples: [{ shape: "circle", dimensions: { r: 5, labelMode: "numeric" }, labelMode: "numeric" }],
-    backSteps: [{ formulaLine: "radius = centre to edge" }],
+    backSteps: [{ formulaLine: "radius = center to edge" }],
     backSpeechText: "The radius is the distance from the center to any point on the edge",
   },
 
@@ -684,7 +684,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontLabel: "The diameter", frontPrompt: "is…?",
     frontSpeechText: "The diameter is…?",
     backDefinition: "d = 2r",
-    backDefinitionSubtitle: "Straight chord through the centre from edge to edge",
+    backDefinitionSubtitle: "Straight chord through the center from edge to edge",
     backSvgExamples: [{ shape: "circle", dimensions: { r: 5, showDiameter: 1, labelMode: "numeric" }, labelMode: "numeric" }],
     backSteps: [
       { formulaLine: "d = 2r" },
