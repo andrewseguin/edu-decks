@@ -112,20 +112,20 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
 
   const currentWheelX = startX + unrollProgress * fullRollDist;
 
-  // True Clockwise Unrolling Ribbon Geometry:
-  // Starts at bottom contact point (6 o'clock: (0, rPx)), sweeps CLOCKWISE around left (9 o'clock), top (12 o'clock), right (3 o'clock)
+  // Unspooling Tape Geometry on Front & Top of Wheel:
+  // Starts at bottom contact point (6 o'clock: (0, rPx)), wraps up the FRONT/RIGHT (3 o'clock) and TOP (12 o'clock)
   const remainingFraction = 1 - unrollProgress;
   const remainingArcDeg = remainingFraction * 360;
 
-  const tipAngleRad = (90 + remainingArcDeg) * (Math.PI / 180);
+  const tipAngleRad = (90 - remainingArcDeg) * (Math.PI / 180);
   const tipX = rPx * Math.cos(tipAngleRad);
   const tipY = rPx * Math.sin(tipAngleRad);
 
   let remainingArcPath = "";
   if (unrollProgress > 0 && remainingFraction > 0.005) {
     const largeArc = remainingArcDeg > 180 ? 1 : 0;
-    // Sweep-flag 1 draws clockwise from bottom (6 o'clock) up through left/back to tip
-    remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 ${largeArc} 1 ${tipX} ${tipY}`;
+    // Sweep-flag 0 draws counter-clockwise from bottom (6 o'clock) up through front/right (3 o'clock) to tip
+    remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 ${largeArc} 0 ${tipX} ${tipY}`;
   }
 
   const ticks = Array.from({ length: numTicks + 1 }, (_, i) => i * tickStep);
@@ -280,7 +280,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
               />
               {/* Perimeter Segment Teeth around full circle */}
               {Array.from({ length: NUM_SEGMENTS }, (_, i) => {
-                const ang = (90 + (i / NUM_SEGMENTS) * 360) * (Math.PI / 180);
+                const ang = (90 - (i / NUM_SEGMENTS) * 360) * (Math.PI / 180);
                 const x1 = (rPx - 3.5) * Math.cos(ang);
                 const y1 = (rPx - 3.5) * Math.sin(ang);
                 const x2 = (rPx + 3.5) * Math.cos(ang);
@@ -303,7 +303,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
             <>
               {/* Bare Spool Ghost track */}
               <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
-              {/* Vibrant Orange Ribbon Unspooling on Clockwise Arc of Wheel */}
+              {/* Vibrant Orange Ribbon Unspooling on Front/Top */}
               {remainingArcPath && (
                 <g>
                   <path
@@ -321,12 +321,12 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                     strokeWidth={1.5}
                     strokeDasharray="4 3"
                   />
-                  {/* Segment Teeth on the remaining arc of the wheel */}
+                  {/* Segment Teeth locked directly on the remaining front/top arc */}
                   {Array.from({ length: NUM_SEGMENTS }, (_, i) => {
                     const segFraction = i / NUM_SEGMENTS;
-                    if (segFraction < unrollProgress) return null; // already laid on ground
+                    if (segFraction < unrollProgress) return null; // already unrolled to ground
                     const relativeOffset = (segFraction - unrollProgress) * 360;
-                    const ang = (90 + relativeOffset) * (Math.PI / 180);
+                    const ang = (90 - relativeOffset) * (Math.PI / 180);
                     const x1 = (rPx - 3.5) * Math.cos(ang);
                     const y1 = (rPx - 3.5) * Math.sin(ang);
                     const x2 = (rPx + 3.5) * Math.cos(ang);
