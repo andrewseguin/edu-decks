@@ -334,33 +334,16 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
         {/* 8 Slices Laid Down on Ground / Meshing into Solid Parallelogram */}
         {Array.from({ length: NUM_SECTORS }, (_, k) => {
-          const startThreshold = k / NUM_SECTORS;
-          const endThreshold = (k + 1) / NUM_SECTORS;
-          if (p1 <= startThreshold) return null; // not yet reached by rolling wheel
+          // Handover point from wheel to ground: exactly when wheel center passes over slice midpoint (k + 0.5)/8
+          const handoverProgress = (k + 0.5) / NUM_SECTORS;
+          if (p1 < handoverProgress && p1 < 0.999) return null; // still attached to rolling wheel!
 
           const isEven = k % 2 === 0;
 
-          // Target resting pose on ground in Step 2:
+          // Resting pose on ground in Step 2:
           const groundRestApexX = startX + k * singleToothW + halfW;
           const groundRestApexY = groundY - rPx;
           const groundRestRot = 180;
-
-          // Seamless ground roll-in for active slice:
-          let lineApexX: number, lineApexY: number, lineRot: number;
-
-          if (p1 < endThreshold && p2 === 0) {
-            // Local progress u in [0 .. 1] as wheel rolls through slice k's segment
-            const u = (p1 - startThreshold) / (endThreshold - startThreshold);
-            
-            // Slice seamlessly rolls into place from departure angle to 180 deg
-            lineApexX = groundRestApexX;
-            lineApexY = groundRestApexY;
-            lineRot = 157.5 + u * 22.5; // rotates smoothly into 180
-          } else {
-            lineApexX = groundRestApexX;
-            lineApexY = groundRestApexY;
-            lineRot = groundRestRot;
-          }
 
           // Step 3 target pose in assembled parallelogram:
           const pairIdx = Math.floor(k / 2);
@@ -376,17 +359,17 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
           if (isEven) {
             // Bottom Upright Slices: Smoothly slide left along ground into compact row
-            curX = lineApexX + (paraApexX - lineApexX) * t;
-            curY = lineApexY;
+            curX = groundRestApexX + (paraApexX - groundRestApexX) * t;
+            curY = groundRestApexY;
             curRot = 180;
           } else {
             // Top Flipping Slices: Lift up in smooth arc, rotate 180°, and lower into gaps with zero snap
             const liftApex = 32;
             const liftProgress = Math.sin(t * Math.PI);
 
-            curX = lineApexX + (paraApexX - lineApexX) * t;
-            curY = lineApexY + (paraApexY - lineApexY) * t - liftProgress * liftApex;
-            curRot = lineRot + (paraRot - lineRot) * t;
+            curX = groundRestApexX + (paraApexX - groundRestApexX) * t;
+            curY = groundRestApexY + (paraApexY - groundRestApexY) * t - liftProgress * liftApex;
+            curRot = groundRestRot + (paraRot - groundRestRot) * t;
           }
 
           return (
@@ -404,19 +387,22 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           );
         })}
 
-        {/* Rolling Wheel Group (Slices remaining inside wheel disc) */}
+        {/* Rolling Wheel Group (Slices rotate smoothly around wheel center until released) */}
         {p1 < 1 && (
           <g transform={`translate(${currentWheelX}, ${centerY})`}>
             {/* Ghost wheel outline */}
             <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
             <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.06)" />
 
-            {/* Slices Remaining inside Wheel (Only slices not yet unrolled) */}
+            {/* Slices Remaining inside Wheel (Rotating around wheel center (0,0)) */}
             {Array.from({ length: NUM_SECTORS }, (_, i) => {
-              const startThreshold = i / NUM_SECTORS;
-              if (p1 >= startThreshold) return null; // already unrolled / unrolling on ground!
+              const handoverProgress = (i + 0.5) / NUM_SECTORS;
+              if (p1 >= handoverProgress) return null; // cleanly handed over to ground!
 
-              // Exact physical orientation: Slice i sits in its position on the wheel and spins with it
+              // Exact physical rotation around wheel center:
+              // At p1 = 0, slice 0 center is at 157.5 deg.
+              // At p1 = 0.5 / 8 = 0.0625, slice 0 rotates to 157.5 + 22.5 = 180 deg (straight down)!
+              // At that exact moment, it transfers to ground with zero offset!
               const angleDeg = 157.5 - i * (360 / NUM_SECTORS) + p1 * 360;
 
               return (
