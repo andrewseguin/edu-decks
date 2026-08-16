@@ -261,14 +261,6 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           <span style={{ color: COLOR_RADIUS }}>{radiusUnits}</span>
           <span className="text-white/50">=</span>
           <span style={{ color: COLOR_CIRCUM }} className="font-bold">{cCoeff}π</span>
-          {unrollProgress > 0 && unrollProgress < 1 && (
-            <>
-              <span className="text-white/40">·</span>
-              <span className="text-xs text-white/70 font-mono">
-                {Math.round(unrollProgress * 100)}% unrolled
-              </span>
-            </>
-          )}
         </div>
       </div>
     </div>
