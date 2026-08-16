@@ -9,8 +9,6 @@ type InteractiveCircleCircumferenceProps = {
   color?: string;
 };
 
-const SVG_H = 170;
-
 const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan
 const COLOR_CIRCUM = "#fb923c"; // Vibrant Radiant Orange (Circumference ribbon & Target finish)
 const COLOR_PI = "#f472b6";     // Vibrant Rose Pink (Intermediate Pi markers)
@@ -19,8 +17,8 @@ const MIN_RADIUS = 1;
 const MAX_RADIUS = 10;
 
 export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCircleCircumferenceProps) {
-  const { containerRef, width: rawW } = useContainerWidth(320);
-  const SVG_W = Math.max(300, Math.min(500, rawW - 24));
+  const { containerRef, width: rawW } = useContainerWidth(340);
+  const SVG_W = Math.max(320, Math.min(460, rawW - 16));
 
   const [radiusUnits, setRadiusUnits] = useState(1);
   const [animatedRadius, setAnimatedRadius] = useState(1); // Smoothly interpolated camera zoom [1.0 .. 10.0]
@@ -71,18 +69,19 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     return () => cancelAnimationFrame(zoomAnimRef.current);
   }, [radiusUnits]);
 
-  // Comfortable Sizing & Generous Margins on all 4 sides:
+  // Spatial Dimensions bounded to fit standard reveal height without expansion
   const maxVal = animatedRadius * 7;
-  const targetRulerW = Math.min(SVG_W - 120, Math.max(210, Math.min(300, (SVG_W - 80) * 0.78)));
-  const rPx = targetRulerW / 7; // ~32px to 38px
+  const targetRulerW = SVG_W - 54;
+  const rPx = targetRulerW / 7; // ~36px to 42px
   const availableRulerW = targetRulerW;
   const startX = Math.round((SVG_W - availableRulerW) / 2);
   const rightEdge = startX + availableRulerW;
   const pxPerUnit = availableRulerW / maxVal;
   
-  // Vertical positioning with ample headspace (24px) above circle and room for Pi labels below
-  const groundY = Math.round(rPx * 2 + 24); // ~92px
-  const centerY = groundY - rPx; // ~58px (headspace at top: 58 - 34 = 24px!)
+  // Vertical positioning: 18px headspace above circle, room for Pi labels below
+  const groundY = Math.round(rPx * 2 + 18);
+  const centerY = groundY - rPx;
+  const SVG_H = groundY + 34; // ~126px
 
   // Actual physical circumference values for current active radius
   const cValue = 2 * Math.PI * radiusUnits;
@@ -214,8 +213,6 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const formattedC = (2 * radiusUnits * Math.PI).toFixed(2);
 
   // SVG Arc Path for remaining ribbon on the wheel:
-  // Starts at unrolled point (contact point: straight down at 6 o'clock, which is -90 deg in standard cartesian with y-down)
-  // and wraps clockwise around the wheel for the remaining angle (360 - wheelRotationDeg).
   const remainingAngleDeg = 360 - wheelRotationDeg;
   const startAngRad = 90 * (Math.PI / 180); // 6 o'clock contact point
   const endAngRad = (90 - remainingAngleDeg) * (Math.PI / 180);
@@ -231,11 +228,11 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     : "";
 
   return (
-    <div ref={containerRef} className="flex flex-col items-center gap-2 w-full select-none" onClick={stop} onPointerDown={stop}>
+    <div ref={containerRef} className="flex flex-col items-center gap-1.5 w-full max-w-[460px] mx-auto select-none" onClick={stop} onPointerDown={stop}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
-        className="w-full touch-none select-none overflow-visible"
+        className="w-full max-w-[460px] max-h-[128px] touch-none select-none overflow-visible"
       >
         {/* Interactive Track Hitbox for Scrubbing */}
         <rect
@@ -249,9 +246,9 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
         />
 
         {/* Ruler Axis */}
-        <line x1={startX - 10} y1={groundY} x2={rightEdge + 10} y2={groundY} stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
+        <line x1={startX - 10} y1={groundY} x2={rightEdge + 10} y2={groundY} stroke="rgba(255, 255, 255, 0.3)" strokeWidth={1.8} />
 
-        {/* Integer Ticks and Labels (major ticks with labels, subtle minor ticks at unit intervals) */}
+        {/* Integer Ticks and Labels (Large, bold, high-contrast) */}
         {Array.from({ length: maxTickToRender + 1 }, (_, t) => {
           const tickX = startX + t * pxPerUnit;
           if (tickX > rightEdge + 25) return null;
@@ -262,21 +259,21 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
             <g key={t} opacity={opacity}>
               <line
                 x1={tickX}
-                y1={groundY - (isMajor ? 3 : 1.8)}
+                y1={groundY - (isMajor ? 4.5 : 2.2)}
                 x2={tickX}
-                y2={groundY + (isMajor ? 3 : 1.8)}
-                stroke="rgba(255, 255, 255, 0.45)"
-                strokeWidth={isMajor ? 1.5 : 1}
-                opacity={isMajor ? 1 : 0.4}
+                y2={groundY + (isMajor ? 4.5 : 2.2)}
+                stroke="rgba(255, 255, 255, 0.65)"
+                strokeWidth={isMajor ? 1.8 : 1}
+                opacity={isMajor ? 1 : 0.45}
               />
               {isMajor && (
                 <text
                   x={tickX}
-                  y={groundY + 13}
+                  y={groundY + 14}
                   textAnchor="middle"
-                  fontSize={10}
-                  fontWeight="bold"
-                  fill="rgba(255, 255, 255, 0.65)"
+                  fontSize={12}
+                  fontWeight="900"
+                  fill="rgba(255, 255, 255, 0.85)"
                   fontFamily="var(--font-heading, system-ui)"
                 >
                   {t}
@@ -299,17 +296,17 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                 x1={0}
                 y1={isTargetFinish ? -5 : -4}
                 x2={0}
-                y2={17}
+                y2={16}
                 stroke={markerColor}
                 strokeWidth={isTargetFinish ? 2.5 : 1.8}
-                strokeDasharray={isTargetFinish ? undefined : "2 2"}
+                strokeDasharray={isTargetFinish ? undefined : "2.5 2"}
               />
-              <circle cx={0} cy={0} r={isTargetFinish ? 3 : 2.2} fill={markerColor} />
+              <circle cx={0} cy={0} r={isTargetFinish ? 2.8 : 2.2} fill={markerColor} />
               <text
                 x={0}
                 y={28}
                 textAnchor="middle"
-                fontSize={isTargetFinish ? 13 : 12}
+                fontSize={isTargetFinish ? 14 : 12.5}
                 fontWeight="900"
                 fill={markerColor}
                 fontFamily="var(--font-heading, system-ui)"
@@ -330,7 +327,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
               x2={currentWheelX}
               y2={groundY}
               stroke={COLOR_CIRCUM}
-              strokeWidth={4}
+              strokeWidth={3.5}
               strokeLinecap="round"
               style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.65))" }}
             />
@@ -342,9 +339,9 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                 <line
                   key={`ground-notch-${u}`}
                   x1={segX}
-                  y1={groundY - 3.5}
+                  y1={groundY - 3}
                   x2={segX}
-                  y2={groundY + 3.5}
+                  y2={groundY + 3}
                   stroke="#ffffff"
                   strokeWidth={1.2}
                   opacity={0.95}
@@ -368,7 +365,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                 r={rPx}
                 fill="none"
                 stroke={COLOR_CIRCUM}
-                strokeWidth={3.5}
+                strokeWidth={3}
                 style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.6))" }}
               />
               {/* Unit Teeth placed at exact 1-unit intervals around perimeter */}
@@ -403,7 +400,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                 d={remainingWheelArcPath}
                 fill="none"
                 stroke={COLOR_CIRCUM}
-                strokeWidth={3.5}
+                strokeWidth={3}
                 strokeLinecap="round"
                 style={{ filter: "drop-shadow(0px 0px 4px rgba(251, 146, 60, 0.6))" }}
               />
@@ -457,11 +454,11 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
             y={-12}
             textAnchor="middle"
             dominantBaseline="central"
-            fontSize={12}
-            fontWeight="800"
+            fontSize={13}
+            fontWeight="900"
             fill={COLOR_RADIUS}
             fontFamily="var(--font-heading, system-ui)"
-            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
+            style={{ filter: "drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.9))" }}
           >
             r = {radiusUnits}
           </text>
@@ -487,17 +484,17 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
             onClick={() => changeRadius(-1)}
             disabled={radiusUnits <= MIN_RADIUS}
             className={cn(
-              "w-6 h-6 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+              "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
               radiusUnits <= MIN_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
             )}
             aria-label="Decrease radius"
           >
-            <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
+            <Minus className="w-3 h-3 stroke-[2.5]" />
           </button>
 
           <span
             style={{ color: COLOR_RADIUS }}
-            className="px-1 text-xs font-headline font-black tracking-wide min-w-[34px] text-center"
+            className="px-1 text-xs font-headline font-black tracking-wide min-w-[32px] text-center"
           >
             r = {radiusUnits}
           </span>
@@ -506,19 +503,19 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
             onClick={() => changeRadius(1)}
             disabled={radiusUnits >= MAX_RADIUS}
             className={cn(
-              "w-6 h-6 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+              "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
               radiusUnits >= MAX_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
             )}
             aria-label="Increase radius"
           >
-            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+            <Plus className="w-3 h-3 stroke-[2.5]" />
           </button>
         </div>
 
         {/* Play / Pause / Replay Action Button */}
         <button
           onClick={togglePlay}
-          className="flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm backdrop-blur-md active:scale-95"
+          className="flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm backdrop-blur-md active:scale-95"
         >
           {isPlaying ? (
             <>
@@ -540,8 +537,8 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
       </div>
 
       {/* Frosted Typographic Equation Banner */}
-      <div className="flex justify-center mt-1">
-        <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
+      <div className="flex justify-center mt-0.5">
+        <div className="flex items-center gap-2 px-5 py-1 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none">
           <span className="text-white">C</span>
           <span className="text-white/50">=</span>
           <span style={{ color: COLOR_CIRCUM }} className="font-bold">2 · π ·</span>
@@ -551,7 +548,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           {radiusUnits > 1 && (
             <>
               <span className="text-white/40">≈</span>
-              <span className="text-white/80 text-sm font-semibold tracking-normal font-sans">
+              <span className="text-white/80 text-xs sm:text-sm font-semibold tracking-normal font-sans">
                 {formattedC}
               </span>
             </>
