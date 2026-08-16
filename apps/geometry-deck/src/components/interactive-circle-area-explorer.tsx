@@ -193,7 +193,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   // Exact true curved sector (pointing UP from apex at (0,0) to curved arc of radius rPx at top)
   const canonicalSectorPath = `M 0 0 L ${arcLeftX} ${arcLeftY} A ${rPx} ${rPx} 0 0 1 ${arcRightX} ${arcRightY} Z`;
 
-  // Radius spoke pointing straight DOWN at start (180 deg in canonical coords / 6 o'clock)
+  // Radius spoke pointing straight DOWN at start (6 o'clock) and rotating with wheel
   const spokeAngleRad = (90 + p1 * 360) * (Math.PI / 180);
   const spokeTipX = rPx * Math.cos(spokeAngleRad);
   const spokeTipY = rPx * Math.sin(spokeAngleRad);
@@ -334,17 +334,41 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
         {/* 8 Slices Laid Down on Ground / Meshing into Solid Parallelogram */}
         {Array.from({ length: NUM_SECTORS }, (_, k) => {
-          const peelThreshold = (k + 1) / NUM_SECTORS;
-          if (p1 < peelThreshold && p1 < 0.999) return null; // not yet unrolled from wheel
+          const startThreshold = k / NUM_SECTORS;
+          const endThreshold = (k + 1) / NUM_SECTORS;
+          if (p1 <= startThreshold) return null; // not yet reached by rolling wheel
 
           const isEven = k % 2 === 0;
 
-          // Stage 1 straight line pose (apex at y = groundY - rPx, curved arc on ground at y = groundY, rot = 180)
-          const lineApexX = startX + k * singleToothW + halfW;
-          const lineApexY = groundY - rPx;
-          const lineRot = 180; // apex pointing up, arc touching ground
+          // Target resting pose on ground in Step 2:
+          const groundRestApexX = startX + k * singleToothW + halfW;
+          const groundRestApexY = groundY - rPx;
+          const groundRestRot = 180;
 
-          // Stage 2 target pose in assembled parallelogram:
+          // If slice k is currently active (being unrolled in real-time as wheel rolls through this segment):
+          let lineApexX: number, lineApexY: number, lineRot: number;
+
+          if (p1 < endThreshold && p2 === 0) {
+            // Local segment progress u in [0 .. 1]
+            const u = (p1 - startThreshold) / (endThreshold - startThreshold);
+            
+            // Slice unrolls smoothly from wheel contact point onto the ground:
+            // At u = 0, apex is at wheel center (currentWheelX, centerY) with departure angle 180
+            // At u = 1, apex rests at groundRestApexX, groundRestApexY with rotation 180
+            const departureApexX = startX + k * singleToothW + halfW;
+            const departureApexY = groundY - rPx;
+            
+            // Smooth natural pivot directly onto floor
+            lineApexX = departureApexX;
+            lineApexY = centerY + (departureApexY - centerY) * u;
+            lineRot = 180;
+          } else {
+            lineApexX = groundRestApexX;
+            lineApexY = groundRestApexY;
+            lineRot = groundRestRot;
+          }
+
+          // Step 3 target pose in assembled parallelogram:
           const pairIdx = Math.floor(k / 2);
           const paraApexX = isEven
             ? startX + pairIdx * singleToothW + halfW
@@ -362,8 +386,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             curY = lineApexY;
             curRot = 180;
           } else {
-            // Top Flipping Slices:
-            // Lift up in smooth arc, rotate 180°, and lower into gaps with zero snap
+            // Top Flipping Slices: Lift up in smooth arc, rotate 180°, and lower into gaps with zero snap
             const liftApex = 32;
             const liftProgress = Math.sin(t * Math.PI);
 
@@ -387,21 +410,19 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           );
         })}
 
-        {/* Rolling Wheel Group (Exact physical rotation matching circumference roll) */}
+        {/* Rolling Wheel Group (Slices remaining inside wheel disc) */}
         {p1 < 1 && (
           <g transform={`translate(${currentWheelX}, ${centerY})`}>
             {/* Ghost wheel outline */}
             <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
             <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.06)" />
 
-            {/* Slices Remaining on Wheel */}
+            {/* Slices Remaining inside Wheel (Only slices not yet reached by contact point) */}
             {Array.from({ length: NUM_SECTORS }, (_, i) => {
-              const peelThreshold = (i + 1) / NUM_SECTORS;
-              if (p1 >= peelThreshold) return null; // already peeled off onto ground!
+              const startThreshold = i / NUM_SECTORS;
+              if (p1 > startThreshold) return null; // already unspooling / on ground!
 
-              // Exact physical orientation:
-              // At p1 = 0: trailing edge of slice 0 is at 180 deg (touching ground at x = 0).
-              // Center of slice i is at (180 - 22.5) - i * 45 + p1 * 360 deg.
+              // Exact physical orientation: Slice i sits in its position on the wheel and spins with it
               const angleDeg = 157.5 - i * (360 / NUM_SECTORS) + p1 * 360;
 
               return (
