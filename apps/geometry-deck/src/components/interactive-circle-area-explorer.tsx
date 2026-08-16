@@ -345,23 +345,17 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           const groundRestApexY = groundY - rPx;
           const groundRestRot = 180;
 
-          // If slice k is currently active (being unrolled in real-time as wheel rolls through this segment):
+          // Seamless ground roll-in for active slice:
           let lineApexX: number, lineApexY: number, lineRot: number;
 
           if (p1 < endThreshold && p2 === 0) {
-            // Local segment progress u in [0 .. 1]
+            // Local progress u in [0 .. 1] as wheel rolls through slice k's segment
             const u = (p1 - startThreshold) / (endThreshold - startThreshold);
             
-            // Slice unrolls smoothly from wheel contact point onto the ground:
-            // At u = 0, apex is at wheel center (currentWheelX, centerY) with departure angle 180
-            // At u = 1, apex rests at groundRestApexX, groundRestApexY with rotation 180
-            const departureApexX = startX + k * singleToothW + halfW;
-            const departureApexY = groundY - rPx;
-            
-            // Smooth natural pivot directly onto floor
-            lineApexX = departureApexX;
-            lineApexY = centerY + (departureApexY - centerY) * u;
-            lineRot = 180;
+            // Slice seamlessly rolls into place from departure angle to 180 deg
+            lineApexX = groundRestApexX;
+            lineApexY = groundRestApexY;
+            lineRot = 157.5 + u * 22.5; // rotates smoothly into 180
           } else {
             lineApexX = groundRestApexX;
             lineApexY = groundRestApexY;
@@ -417,10 +411,10 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
             <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.06)" />
 
-            {/* Slices Remaining inside Wheel (Only slices not yet reached by contact point) */}
+            {/* Slices Remaining inside Wheel (Only slices not yet unrolled) */}
             {Array.from({ length: NUM_SECTORS }, (_, i) => {
               const startThreshold = i / NUM_SECTORS;
-              if (p1 > startThreshold) return null; // already unspooling / on ground!
+              if (p1 >= startThreshold) return null; // already unrolled / unrolling on ground!
 
               // Exact physical orientation: Slice i sits in its position on the wheel and spins with it
               const angleDeg = 157.5 - i * (360 / NUM_SECTORS) + p1 * 360;
