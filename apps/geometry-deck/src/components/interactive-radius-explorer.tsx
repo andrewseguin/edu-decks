@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
-import { StackedFraction } from "./ui/formatted-math-text";
 
 type InteractiveRadiusExplorerProps = {
   mode?: "radius" | "diameter" | "pi";
@@ -24,30 +23,12 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
 
   const [angleDeg, setAngleDeg] = useState(35);
   const [isDragging, setIsDragging] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
 
   const svgRef = useRef<SVGSVGElement>(null);
-  const ambientRef = useRef<number>(0);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => {
     e.stopPropagation();
-    setHasInteracted(true);
   }, []);
-
-  // Gentle ambient angle sweeping on initial reveal
-  useEffect(() => {
-    if (hasInteracted || isDragging) return;
-    let start: number | null = null;
-    const animate = (ts: number) => {
-      if (!start) start = ts;
-      const elapsed = ts - start;
-      const ang = 35 + Math.sin(elapsed / 1000) * 35;
-      setAngleDeg(Math.round(ang));
-      ambientRef.current = requestAnimationFrame(animate);
-    };
-    ambientRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(ambientRef.current);
-  }, [hasInteracted, isDragging]);
 
   const rad = (angleDeg * Math.PI) / 180;
   const pX = CX + CR * Math.cos(rad);
@@ -59,7 +40,6 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setHasInteracted(true);
     setIsDragging(true);
 
     const svg = svgRef.current;

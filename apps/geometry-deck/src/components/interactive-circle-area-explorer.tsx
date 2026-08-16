@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useRef, useEffect } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
 import { cn } from "@/lib/utils";
 
@@ -24,42 +24,21 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const [radiusUnits, setRadiusUnits] = useState(5); // r in [3..7]
   const [step, setStep] = useState<1 | 2>(1);
   const [isDragging, setIsDragging] = useState(false);
-  const [hasInteracted, setHasInteracted] = useState(false);
-  const [ambientR, setAmbientR] = useState(0);
 
   const svgRef = useRef<SVGSVGElement>(null);
-  const ambientRef = useRef<number>(0);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => {
     e.stopPropagation();
-    setHasInteracted(true);
   }, []);
 
   const pxPerUnit = SVG_W >= 380 ? 11 : 9.5;
-  const rPx = (radiusUnits + ambientR) * pxPerUnit; // radius in px
+  const rPx = radiusUnits * pxPerUnit; // radius in px
   const areaCoeff = radiusUnits * radiusUnits;
-
-  // Gentle breathing ambient motion on initial reveal until user interacts
-  useEffect(() => {
-    if (hasInteracted || isDragging || step === 2) return;
-    let start: number | null = null;
-    const animate = (ts: number) => {
-      if (!start) start = ts;
-      const elapsed = ts - start;
-      const pulse = Math.sin(elapsed / 700) * 0.25;
-      setAmbientR(pulse);
-      ambientRef.current = requestAnimationFrame(animate);
-    };
-    ambientRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(ambientRef.current);
-  }, [hasInteracted, isDragging, step]);
 
   // Handle pointer down on radius handle
   const handlePointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    setHasInteracted(true);
-    setAmbientR(0);
     setIsDragging(true);
 
     const svg = svgRef.current;
@@ -217,10 +196,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
       {/* Standard Frosted Step Navigation Pills */}
       <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5 bg-white/10 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-white/25 shadow-sm pointer-events-auto select-none">
         <button
-          onClick={() => {
-            setHasInteracted(true);
-            setStep(1);
-          }}
+          onClick={() => setStep(1)}
           className={cn(
             "px-2.5 sm:px-3 py-0.5 rounded-full text-[11px] sm:text-xs font-headline font-bold transition-all border-none",
             step === 1 ? "bg-white/20 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white hover:bg-white/10"
@@ -229,10 +205,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           1. Circle
         </button>
         <button
-          onClick={() => {
-            setHasInteracted(true);
-            setStep(2);
-          }}
+          onClick={() => setStep(2)}
           className={cn(
             "px-2.5 sm:px-3 py-0.5 rounded-full text-[11px] sm:text-xs font-headline font-bold transition-all border-none",
             step === 2 ? "bg-white/20 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white hover:bg-white/10"

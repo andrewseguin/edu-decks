@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useCallback } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
-import { StackedFraction } from "./ui/formatted-math-text";
 
 type InteractiveRegularPolygonProps = {
   mode?: "regular" | "each-angle";
@@ -23,33 +22,13 @@ export function InteractiveRegularPolygonExplorer({ mode = "regular", color }: I
   const CY = 75;
 
   const [n, setN] = useState(6); // Hexagon
-  const [hasInteracted, setHasInteracted] = useState(false);
-  const [ambientAngle, setAmbientAngle] = useState(0);
-
-  const ambientRef = useRef<number>(0);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => {
     e.stopPropagation();
-    setHasInteracted(true);
   }, []);
 
-  // Gentle ambient rotation on initial reveal
-  useEffect(() => {
-    if (hasInteracted) return;
-    let start: number | null = null;
-    const animate = (ts: number) => {
-      if (!start) start = ts;
-      const elapsed = ts - start;
-      const ang = Math.sin(elapsed / 900) * 8;
-      setAmbientAngle(ang);
-      ambientRef.current = requestAnimationFrame(animate);
-    };
-    ambientRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(ambientRef.current);
-  }, [hasInteracted]);
-
   const vertices = Array.from({ length: n }, (_, i) => {
-    const angle = (i * 2 * Math.PI) / n - Math.PI / 2 + (ambientAngle * Math.PI) / 180;
+    const angle = (i * 2 * Math.PI) / n - Math.PI / 2;
     return { x: CX + R * Math.cos(angle), y: CY + R * Math.sin(angle) };
   });
 
@@ -100,10 +79,7 @@ export function InteractiveRegularPolygonExplorer({ mode = "regular", color }: I
       {/* Stepper Controls for n in Standard Frosted Capsule */}
       <div className="flex items-center gap-1 sm:gap-1.5 bg-white/10 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-white/25 shadow-sm pointer-events-auto z-30 select-none">
         <button
-          onClick={() => {
-            setHasInteracted(true);
-            setN((prev) => Math.max(3, prev - 1));
-          }}
+          onClick={() => setN((prev) => Math.max(3, prev - 1))}
           disabled={n <= 3}
           className="w-6 h-6 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95"
         >
@@ -113,10 +89,7 @@ export function InteractiveRegularPolygonExplorer({ mode = "regular", color }: I
           Regular {n}-gon (n = {n})
         </div>
         <button
-          onClick={() => {
-            setHasInteracted(true);
-            setN((prev) => Math.min(8, prev + 1));
-          }}
+          onClick={() => setN((prev) => Math.min(8, prev + 1))}
           disabled={n >= 8}
           className="w-6 h-6 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95"
         >
@@ -126,7 +99,7 @@ export function InteractiveRegularPolygonExplorer({ mode = "regular", color }: I
 
       {/* Live Typographic Equation Banner */}
       <div className="flex justify-center mt-1">
-        {mode === "each-angle" || true ? (
+        {mode === "each-angle" ? (
           <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-xs sm:text-sm font-bold font-headline select-none">
             <span className="text-white">Each angle</span>
             <span className="text-white/50">=</span>
