@@ -97,9 +97,9 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
     const targetP = targetProgress;
     if (Math.abs(startP - targetP) < 0.005) return;
 
-    // 2.6s per full stage (matching circumference card speed)
+    // 2.6s for unrolling (step 1->2), 3.2s for 3-stage elevator proof (step 2->3)
     const stepDiff = Math.abs(targetP - startP);
-    const duration = Math.round(2600 * stepDiff);
+    const duration = Math.round((startP >= 0.99 || targetP >= 1.99 ? 3200 : 2600) * stepDiff);
 
     const stepAnim = (ts: number) => {
       if (!start) start = ts;
@@ -125,7 +125,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
     const timer = setTimeout(() => {
       setStep((prev) => (prev === 1 ? 2 : prev === 2 ? 3 : 1));
-    }, 4600);
+    }, step === 2 ? 4600 : step === 3 ? 5400 : 4200);
 
     return () => clearTimeout(timer);
   }, [isPlaying, step]);
@@ -175,7 +175,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   };
 
   // Stage 1 (p1 in [0..1]): Wheel rolls 2πr and unrolls 8 slices in a line on the ground
-  // Stage 2 (p2 in [0..1]): Rotating shapes move up, bottom shapes slide together without overlap, then top shapes lower into gaps
+  // Stage 2 (p2 in [0..1]): 3-Stage Elevator (Lift & Flip -> Slide to πr -> Drop into slots)
   const p1 = Math.min(1, unrollProgress);
   const p2 = Math.max(0, unrollProgress - 1);
 
@@ -297,8 +297,8 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         </g>
 
         {/* Dimension Callouts for Interlocked Parallelogram (Step 3) */}
-        {p2 > 0.4 && (
-          <g opacity={Math.min(1, (p2 - 0.4) * 2)}>
+        {p2 > 0.85 && (
+          <g opacity={Math.min(1, (p2 - 0.85) * 6.6)}>
             {/* Base Dimension Bracket Along Bottom (b = πr) */}
             <line x1={startX} y1={groundY + 6} x2={startX + halfRollDist} y2={groundY + 6} stroke={COLOR_BASE} strokeWidth={2.5} strokeLinecap="round" />
             <line x1={startX} y1={groundY + 2} x2={startX} y2={groundY + 10} stroke={COLOR_BASE} strokeWidth={2} />
@@ -332,44 +332,66 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </g>
         )}
 
-        {/* 8 Slices Laid Down on Ground / Meshing into Solid Parallelogram */}
+        {/* 8 Slices Laid Down on Ground / 3-Stage Elevator Proof (Zero overlap) */}
         {Array.from({ length: NUM_SECTORS }, (_, k) => {
-          // Handover point from wheel to ground: exactly when wheel center passes over slice midpoint (k + 0.5)/8
           const handoverProgress = (k + 0.5) / NUM_SECTORS;
           if (p1 < handoverProgress && p1 < 0.999) return null; // still attached to rolling wheel!
 
           const isEven = k % 2 === 0;
 
-          // Resting pose on ground in Step 2:
-          const groundRestApexX = startX + k * singleToothW + halfW;
-          const groundRestApexY = groundY - rPx;
-          const groundRestRot = 180;
+          // Step 2 Ground resting coordinates:
+          const groundX = startX + k * singleToothW + halfW;
+          const groundYPos = groundY - rPx;
 
-          // Step 3 target pose in assembled parallelogram:
+          // Step 3 Target slot coordinates in final parallelogram:
           const pairIdx = Math.floor(k / 2);
-          const paraApexX = isEven
+          const targetX = isEven
             ? startX + pairIdx * singleToothW + halfW
             : startX + pairIdx * singleToothW + singleToothW;
-          const paraApexY = isEven ? groundY - rPx : groundY;
-          const paraRot = isEven ? 180 : 0;
 
-          const t = p2; // 0 (unrolled line) to 1 (assembled parallelogram)
+          let curX = groundX;
+          let curY = groundYPos;
+          let curRot = 180;
 
-          let curX: number, curY: number, curRot: number;
+          if (p2 > 0) {
+            const t = p2; // 0..1
+            const liftHeight = 44; // lifts 44px above ground line into clear air space
 
-          if (isEven) {
-            // Bottom Upright Slices: Smoothly slide left along ground into compact row
-            curX = groundRestApexX + (paraApexX - groundRestApexX) * t;
-            curY = groundRestApexY;
-            curRot = 180;
-          } else {
-            // Top Flipping Slices: Lift up in smooth arc, rotate 180°, and lower into gaps with zero snap
-            const liftApex = 32;
-            const liftProgress = Math.sin(t * Math.PI);
+            // 3 Clean Sequential Subphases:
+            // Subphase 1: Lift & Flip in place (t in 0 .. 0.32)
+            // Subphase 2: Pure horizontal slide (t in 0.32 .. 0.68)
+            // Subphase 3: Lower down into slots (t in 0.68 .. 1.0)
 
-            curX = groundRestApexX + (paraApexX - groundRestApexX) * t;
-            curY = groundRestApexY + (paraApexY - groundRestApexY) * t - liftProgress * liftApex;
-            curRot = groundRestRot + (paraRot - groundRestRot) * t;
+            const sub1 = Math.min(1, Math.max(0, t / 0.32));
+            const sub2 = Math.min(1, Math.max(0, (t - 0.32) / 0.36));
+            const sub3 = Math.min(1, Math.max(0, (t - 0.68) / 0.32));
+
+            const ease1 = 0.5 * (1 - Math.cos(sub1 * Math.PI));
+            const ease2 = 0.5 * (1 - Math.cos(sub2 * Math.PI));
+            const ease3 = 0.5 * (1 - Math.cos(sub3 * Math.PI));
+
+            if (isEven) {
+              // Bottom Upright Slices (k = 0, 2, 4, 6):
+              // Stay in place during sub1, slide smoothly left during sub2, stay fixed during sub3
+              curX = groundX + (targetX - groundX) * ease2;
+              curY = groundYPos;
+              curRot = 180;
+            } else {
+              // Top Flipping Slices (k = 1, 3, 5, 7):
+              // 1. Lift straight up + rotate to 0° (pointing down) in place:
+              const liftedY = groundYPos - liftHeight;
+              const yAfterLift = groundYPos + (liftedY - groundYPos) * ease1;
+
+              // 2. Slide horizontally while hovering safely above:
+              curX = groundX + (targetX - groundX) * ease2;
+
+              // 3. Lower straight down from hover height into slot at y = groundY:
+              const finalSlotY = groundY;
+              curY = yAfterLift + (finalSlotY - liftedY) * ease3;
+
+              // Rotation flips during sub1 from 180° to 0°
+              curRot = 180 - 180 * ease1;
+            }
           }
 
           return (
@@ -399,10 +421,6 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               const handoverProgress = (i + 0.5) / NUM_SECTORS;
               if (p1 >= handoverProgress) return null; // cleanly handed over to ground!
 
-              // Exact physical rotation around wheel center:
-              // At p1 = 0, slice 0 center is at 157.5 deg.
-              // At p1 = 0.5 / 8 = 0.0625, slice 0 rotates to 157.5 + 22.5 = 180 deg (straight down)!
-              // At that exact moment, it transfers to ground with zero offset!
               const angleDeg = 157.5 - i * (360 / NUM_SECTORS) + p1 * 360;
 
               return (
