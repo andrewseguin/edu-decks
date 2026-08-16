@@ -15,8 +15,7 @@ const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan (Radius r & Height)
 const COLOR_BASE = "#ffd45e";   // Warm Gold (Base πr & Circumference)
 const COLOR_AREA = "#ffffff";   // Crisp Bold White
 const COLOR_PI = "#f472b6";     // Vibrant Rose Pink (Pi markers)
-const COLOR_SECTOR_A = "rgba(94, 232, 255, 0.55)"; // Electric Cyan Sector
-const COLOR_SECTOR_B = "rgba(216, 180, 254, 0.55)"; // Radiant Lilac Sector
+const COLOR_SECTOR = "rgba(94, 232, 255, 0.45)"; // Unified Electric Cyan translucent fill
 
 const MIN_RADIUS = 1;
 const MAX_RADIUS = 5;
@@ -187,6 +186,11 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
   const sectorAngle = (2 * Math.PI) / NUM_SECTORS;
 
+  // Radius spoke pointing DOWN at start (90 deg / 6 o'clock contact point) and rotating with wheel
+  const spokeAngleRad = (90 + p1 * 360) * (Math.PI / 180);
+  const spokeTipX = rPx * Math.cos(spokeAngleRad);
+  const spokeTipY = rPx * Math.sin(spokeAngleRad);
+
   // Integer Ticks & Pi Milestones matching Circumference card
   const tickStep = radiusUnits === 1 ? 1 : radiusUnits <= 4 ? radiusUnits : 5;
   const maxTickToRender = Math.ceil(maxVal) + 5;
@@ -355,8 +359,8 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             >
               <path
                 d={wedgeUpPath}
-                fill={isEven ? COLOR_SECTOR_A : COLOR_SECTOR_B}
-                stroke="rgba(255, 255, 255, 0.6)"
+                fill={COLOR_SECTOR}
+                stroke="rgba(255, 255, 255, 0.65)"
                 strokeWidth={1.2}
               />
             </g>
@@ -375,7 +379,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               const sliceFraction = (i + 1) / NUM_SECTORS;
               if (sliceFraction <= p1) return null; // already unrolled onto ground!
 
-              // Exact rotation angle matching wheel's physical clockwise roll
+              // Slices start at 6 o'clock (90 deg) and roll clockwise
               const startA = (90 - (sliceFraction - p1) * 360) * (Math.PI / 180);
               const endA = startA + sectorAngle;
               const x1 = rPx * Math.cos(startA);
@@ -388,25 +392,25 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
                 <path
                   key={`wheel-slice-${i}`}
                   d={d}
-                  fill={i % 2 === 0 ? COLOR_SECTOR_A : COLOR_SECTOR_B}
+                  fill={COLOR_SECTOR}
                   stroke="rgba(255, 255, 255, 0.45)"
                   strokeWidth={1.2}
                 />
               );
             })}
 
-            {/* Center Hub & Radius Spoke */}
+            {/* Center Hub & Radius Spoke Facing DOWN at Start (and rotating with wheel) */}
             <circle cx={0} cy={0} r={3} fill="#ffffff" />
-            <line x1={0} y1={0} x2={0} y2={-rPx} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
-            <circle cx={0} cy={-rPx} r={3.5} fill={COLOR_RADIUS} />
+            <line x1={0} y1={0} x2={spokeTipX} y2={spokeTipY} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
+            <circle cx={spokeTipX} cy={spokeTipY} r={3.5} fill={COLOR_RADIUS} />
 
-            {/* Radius Label */}
+            {/* Static Radius Label above center point (matching circumference card exactly) */}
             <text
-              x={10}
-              y={-rPx / 2}
-              textAnchor="start"
+              x={0}
+              y={-12}
+              textAnchor="middle"
               dominantBaseline="central"
-              fontSize={11.5}
+              fontSize={12}
               fontWeight="800"
               fill={COLOR_RADIUS}
               fontFamily="var(--font-heading, system-ui)"
