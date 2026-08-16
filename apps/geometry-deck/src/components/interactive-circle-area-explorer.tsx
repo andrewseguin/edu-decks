@@ -177,10 +177,12 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
   // Cyan Radius Line Scoot Math:
   // At end of Step 2 (p1 = 1, p2 = 0): wheel finished at startX + fullRollDist with spoke pointing straight down.
-  // During Step 3 (p2 in 0..1): radius line smoothly scoots over to target height position at startX + halfRollDist + halfW + 10!
+  // During Step 3: teeth drop into place by p2 = 0.70.
+  // Only THEN (p2 in 0.70 .. 1.0), the radius line smoothly scoots over to become the height callout!
   const targetHeightX = startX + halfRollDist + halfW + 10;
   const startRadiusScootX = startX + fullRollDist;
-  const scootEase = p2 > 0 ? 0.5 * (1 - Math.cos(Math.min(1, p2 / 0.7) * Math.PI)) : 0;
+  const scootT = Math.min(1, Math.max(0, (p2 - 0.70) / 0.30));
+  const scootEase = 0.5 * (1 - Math.cos(scootT * Math.PI));
   const currentHeightCalloutX = startRadiusScootX + (targetHeightX - startRadiusScootX) * scootEase;
 
   return (
