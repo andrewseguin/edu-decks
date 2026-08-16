@@ -138,6 +138,10 @@ export function CardRevealLayout({
       requiredHeight = Math.round(topInset + primaryH + detailH + bottomInset);
     }
 
+    if (isDevSite()) {
+      console.log(`[CardRevealLayout] baseH=${baseH}px (contentZone=${contentZone}px, insets=${topInset}/${bottomInset}px) | primaryH=${primaryH}px, detailH=${detailH}px | slack=${slack}px -> requiredHeight=${requiredHeight ? `${requiredHeight}px` : "null (fits)"}`);
+    }
+
     setPrimaryStyle({ top: `${primaryTop}px` });
     setDetailStyle({
       top: `${detailTop}px`,
