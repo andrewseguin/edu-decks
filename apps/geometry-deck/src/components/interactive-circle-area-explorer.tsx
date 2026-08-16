@@ -82,7 +82,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const fullCircumVal = 2 * Math.PI * radiusUnits;
   const fullRollDist = fullCircumVal * pxPerUnit; // distance along ruler corresponding to 2πr
   const halfRollDist = Math.PI * radiusUnits * pxPerUnit; // distance corresponding to πr
-  const singleToothW = fullRollDist / NUM_SECTORS;
+  const singleToothW = fullRollDist / NUM_SECTORS; // width of 1 wedge along arc
   const halfW = singleToothW / 2;
 
   const areaCoeff = radiusUnits * radiusUnits;
@@ -181,7 +181,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
   const currentWheelX = startX + p1 * fullRollDist;
 
-  // Single Wedge path template (pointing UP: apex at (w/2, -rPx), arc at bottom (0,0) to (w,0))
+  // Single Wedge path template (pointing UP: apex at (halfW, -rPx), arc at bottom (0,0) to (singleToothW,0))
   const wedgeUpPath = `M ${halfW} ${-rPx} L ${singleToothW} 0 A ${rPx * 1.5} ${rPx * 0.3} 0 0 1 0 0 Z`;
 
   const sectorAngle = (2 * Math.PI) / NUM_SECTORS;
@@ -325,30 +325,31 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </g>
         )}
 
-        {/* 8 Slices Laid Down on Ground Behind Wheel / Morphing into Parallelogram */}
+        {/* 8 Slices Laid Down on Ground Behind Wheel / Meshing into Solid Parallelogram */}
         {Array.from({ length: NUM_SECTORS }, (_, k) => {
           const sliceFraction = (k + 1) / NUM_SECTORS;
           if (sliceFraction > p1) return null; // not yet unrolled from wheel
 
           const isEven = k % 2 === 0;
 
-          // Stage 1 straight line position: x = startX + k * singleToothW
+          // Stage 1 straight line position (spanning full 0..2πr):
           const lineX = startX + k * singleToothW;
           const lineY = groundY;
           const lineRot = 0; // pointing UP
 
-          // Stage 2 parallelogram target position:
-          const pairIdx = Math.floor(k / 2);
+          // Stage 2 parallelogram target position (mesh strictly into 0..πr):
+          // Even wedges (k = 0, 2, 4, 6): upright at startX + (k/2) * singleToothW
+          // Odd wedges (k = 1, 3, 5, 7): flipped at startX + ((k-1)/2) * singleToothW + 1.5 * singleToothW, y = groundY - rPx
           const paraX = isEven
-            ? startX + pairIdx * (2 * singleToothW)
-            : startX + pairIdx * (2 * singleToothW) + 2 * singleToothW;
+            ? startX + (k / 2) * singleToothW
+            : startX + ((k - 1) / 2) * singleToothW + singleToothW * 1.5;
           const paraY = isEven ? groundY : groundY - rPx;
           const paraRot = isEven ? 0 : 180;
 
-          // Smooth interpolation between Stage 1 line and Stage 2 parallelogram
+          // Smooth interpolation between Stage 1 line (0..2πr) and Stage 2 parallelogram (0..πr)
           const t = p2;
           const curX = lineX + (paraX - lineX) * t;
-          const liftY = !isEven ? Math.sin(t * Math.PI) * 18 : 0;
+          const liftY = !isEven ? Math.sin(t * Math.PI) * 22 : 0;
           const curY = lineY + (paraY - lineY) * t - liftY;
           const curRot = lineRot + (paraRot - lineRot) * t;
 
