@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
 import { cn } from "@/lib/utils";
-import { Play, Pause, RotateCcw, Minus, Plus } from "lucide-react";
+import { Play, Pause, Minus, Plus } from "lucide-react";
 
 type InteractiveCircleAreaProps = {
   color?: string;
@@ -29,9 +29,8 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const [radiusUnits, setRadiusUnits] = useState(1);
   const [animatedRadius, setAnimatedRadius] = useState(1); // Smooth camera zoom
   const [step, setStep] = useState<1 | 2 | 3>(1); // 1. Circle, 2. Unroll, 3. Parallelogram
-  const [unrollProgress, setUnrollProgress] = useState(0); // 0.0 to 2.0 (0..1 = unroll, 1..2 = parallelogram)
+  const [unrollProgress, setUnrollProgress] = useState(0); // 0.0 (Circle) -> 1.0 (Unrolled) -> 2.0 (Parallelogram)
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isDraggingHandle, setIsDraggingHandle] = useState(false);
 
   const svgRef = useRef<SVGSVGElement>(null);
   const autoplayRef = useRef<number>(0);
@@ -92,14 +91,14 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   // Step target progress
   const targetProgress = step === 1 ? 0 : step === 2 ? 1 : 2;
 
-  // Smooth transition when changing step tabs (matching circumference unrolling speed)
+  // Smooth transition when changing step tabs
   useEffect(() => {
     let start: number | null = null;
     const startP = unrollProgress;
     const targetP = targetProgress;
     if (Math.abs(startP - targetP) < 0.005) return;
 
-    // 2.6s per full stage (identical velocity to circumference card)
+    // 2.6s per full stage (matching circumference card speed)
     const stepDiff = Math.abs(targetP - startP);
     const duration = Math.round(2600 * stepDiff);
 
@@ -107,7 +106,6 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
       if (!start) start = ts;
       const elapsed = ts - start;
       const t = Math.min(1, elapsed / duration);
-      // Smooth cosine ease matching circumference card
       const ease = 0.5 * (1 - Math.cos(t * Math.PI));
       const currentP = startP + (targetP - startP) * ease;
       setUnrollProgress(currentP);
@@ -128,18 +126,53 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
     const timer = setTimeout(() => {
       setStep((prev) => (prev === 1 ? 2 : prev === 2 ? 3 : 1));
-    }, 4600); // 4.6s cycle matching comfortable observation time
+    }, 4600);
 
     return () => clearTimeout(timer);
   }, [isPlaying, step]);
 
-  // Direct 1:1 scrubbing along ruler
-  const handleTrackPointerDown = useCallback((e: React.PointerEvent) => {
+  // Step 1: Direct radius dragging on spoke
+  const handleRadiusHandlePointerDown = useCallback((e: React.PointerEvent) => {
+    if (step !== 1) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setIsPlaying(false);
+
+    const svg = svgRef.current;
+    if (!svg) return;
+    const rect = svg.getBoundingClientRect();
+    const scY = SVG_H / rect.height;
+
+    const updateFromPointer = (clientY: number) => {
+      const py = (clientY - rect.top) * scY;
+      const distPx = Math.max(20, centerY - py);
+      const rawR = Math.round((distPx / availableRulerW) * 7);
+      const clampedR = Math.max(MIN_RADIUS, Math.min(MAX_RADIUS, rawR));
+      setRadiusUnits(clampedR);
+    };
+
+    updateFromPointer(e.clientY);
+
+    const onMove = (ev: PointerEvent) => {
+      updateFromPointer(ev.clientY);
+    };
+
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  }, [SVG_H, availableRulerW, centerY, step]);
+
+  // Step 2: Direct 1:1 unrolling along ruler (0..2πr)
+  const handleStep2TrackPointerDown = useCallback((e: React.PointerEvent) => {
+    if (step !== 2) return;
     e.preventDefault();
     e.stopPropagation();
     setIsPlaying(false);
     cancelAnimationFrame(autoplayRef.current);
-    setIsDraggingHandle(true);
 
     const svg = svgRef.current;
     if (!svg) return;
@@ -148,11 +181,8 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
     const updateFromPointer = (clientX: number) => {
       const px = (clientX - rect.left) * scX;
-      const prog = Math.max(0, Math.min(2, ((px - startX) / fullRollDist) * 2));
-      setUnrollProgress(prog);
-      if (prog < 0.5) setStep(1);
-      else if (prog < 1.5) setStep(2);
-      else setStep(3);
+      const prog = Math.max(0, Math.min(1, (px - startX) / fullRollDist));
+      setUnrollProgress(prog); // strictly 0..1 in Step 2
     };
 
     updateFromPointer(e.clientX);
@@ -162,14 +192,13 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
     };
 
     const onUp = () => {
-      setIsDraggingHandle(false);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
     };
 
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
-  }, [SVG_W, fullRollDist, startX]);
+  }, [SVG_W, fullRollDist, startX, step]);
 
   const changeRadius = (delta: number) => {
     const nextR = Math.max(MIN_RADIUS, Math.min(MAX_RADIUS, radiusUnits + delta));
@@ -202,11 +231,20 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
       <svg
         ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
-        className="w-full touch-none select-none overflow-visible cursor-pointer"
-        onPointerDown={handleTrackPointerDown}
+        className="w-full touch-none select-none overflow-visible"
       >
-        {/* Track Hitbox */}
-        <rect x={startX - 20} y={groundY - 60} width={availableRulerW + 40} height={90} fill="transparent" />
+        {/* Step 2 Interactive Track Hitbox */}
+        {step === 2 && (
+          <rect
+            x={startX - 20}
+            y={groundY - 60}
+            width={availableRulerW + 40}
+            height={90}
+            fill="transparent"
+            className="cursor-pointer"
+            onPointerDown={handleStep2TrackPointerDown}
+          />
+        )}
 
         {/* Ruler Axis Line */}
         <line x1={startX - 10} y1={groundY} x2={rightEdge + 10} y2={groundY} stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
@@ -331,8 +369,6 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           const lineRot = 0; // pointing UP
 
           // Stage 2 parallelogram target position:
-          // Even slices k = 0, 2, 4, 6 stay at compacted positions x = startX + (k/2) * (2 * singleToothW)
-          // Odd slices k = 1, 3, 5, 7 flip 180° and slot into x = startX + ((k-1)/2) * (2 * singleToothW) + 2 * singleToothW
           const pairIdx = Math.floor(k / 2);
           const paraX = isEven
             ? startX + pairIdx * (2 * singleToothW)
@@ -397,7 +433,21 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             {/* Center Hub & Radius Spoke */}
             <circle cx={0} cy={0} r={3} fill="#ffffff" />
             <line x1={0} y1={0} x2={0} y2={-rPx} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
-            <circle cx={0} cy={-rPx} r={3.5} fill={COLOR_RADIUS} />
+            
+            {/* Radius Drag Handle on Spoke (Active in Step 1) */}
+            {step === 1 ? (
+              <g
+                transform={`translate(0, ${-rPx})`}
+                className="cursor-ns-resize"
+                onPointerDown={handleRadiusHandlePointerDown}
+              >
+                <circle r={18} fill="transparent" />
+                <circle r={7} fill="rgba(94, 232, 255, 0.25)" stroke={COLOR_RADIUS} strokeWidth={1.5} />
+                <circle r={3.5} fill={COLOR_RADIUS} />
+              </g>
+            ) : (
+              <circle cx={0} cy={-rPx} r={3.5} fill={COLOR_RADIUS} />
+            )}
 
             {/* Radius Label */}
             <text
@@ -416,16 +466,18 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </g>
         )}
 
-        {/* Drag Handle at leading edge */}
-        <g
-          transform={`translate(${startX + (p1 < 1 ? p1 * fullRollDist : halfRollDist)}, ${groundY})`}
-          className="cursor-grab active:cursor-grabbing"
-          onPointerDown={handleTrackPointerDown}
-        >
-          <circle r={26} fill="transparent" />
-          <circle r={9} fill="rgba(94, 232, 255, 0.25)" stroke={COLOR_RADIUS} strokeWidth={1.5} />
-          <circle r={4.5} fill={COLOR_RADIUS} />
-        </g>
+        {/* Drag Handle on Ground Wheel (Only visible and active in Step 2) */}
+        {step === 2 && (
+          <g
+            transform={`translate(${currentWheelX}, ${groundY})`}
+            className="cursor-grab active:cursor-grabbing"
+            onPointerDown={handleStep2TrackPointerDown}
+          >
+            <circle r={26} fill="transparent" />
+            <circle r={9} fill="rgba(94, 232, 255, 0.25)" stroke={COLOR_RADIUS} strokeWidth={1.5} />
+            <circle r={4.5} fill={COLOR_RADIUS} />
+          </g>
+        )}
       </svg>
 
       {/* Frosted Controls: [- / +] Stepper, Multi-Step Navigation Pills, and Play/Pause Button */}
