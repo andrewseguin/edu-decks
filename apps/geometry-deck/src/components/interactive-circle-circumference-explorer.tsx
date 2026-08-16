@@ -184,13 +184,15 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           );
         })}
 
-        {/* Highlighted π Marker below Number Line */}
+        {/* Highlighted π Marker below Number Line with vertical pointer */}
         {radiusUnits === 1 && (
           <g transform={`translate(${startX + Math.PI * pxPerUnit}, ${groundY})`}>
-            <line x1={0} y1={-3} x2={0} y2={6} stroke={COLOR_PI} strokeWidth={1.8} strokeDasharray="2 2" />
+            {/* Top tick and pointer line extending down to label */}
+            <line x1={0} y1={-4} x2={0} y2={17} stroke={COLOR_PI} strokeWidth={1.5} strokeDasharray="2 2" />
+            <circle cx={0} cy={0} r={2} fill={COLOR_PI} />
             <text
               x={0}
-              y={26}
+              y={27}
               textAnchor="middle"
               fontSize={10}
               fontWeight="900"
@@ -203,12 +205,14 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           </g>
         )}
 
-        {/* Finish 2πr Tick below Number Line */}
+        {/* Finish 2πr Tick below Number Line with vertical pointer */}
         <g transform={`translate(${endX}, ${groundY})`}>
-          <line x1={0} y1={-4} x2={0} y2={8} stroke={COLOR_CIRCUM} strokeWidth={2.5} />
+          {/* Top tick and pointer line extending down to label */}
+          <line x1={0} y1={-5} x2={0} y2={17} stroke={COLOR_CIRCUM} strokeWidth={2} />
+          <circle cx={0} cy={0} r={2.5} fill={COLOR_CIRCUM} />
           <text
             x={0}
-            y={26}
+            y={27}
             textAnchor="middle"
             fontSize={10.5}
             fontWeight="900"
