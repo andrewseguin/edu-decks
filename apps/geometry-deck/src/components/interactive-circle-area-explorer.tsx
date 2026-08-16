@@ -20,7 +20,7 @@ const COLOR_SECTOR = "rgba(255, 255, 255, 0.18)"; // Neutral dim translucent whi
 const MIN_RADIUS = 1;
 const MAX_RADIUS = 5;
 
-type SectorCount = 8 | 16 | 32 | "inf";
+type SectorCount = 8 | 16 | 32 | 64;
 
 export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
@@ -85,8 +85,8 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const fullRollDist = fullCircumVal * pxPerUnit; // distance along ruler corresponding to 2πr
   const halfRollDist = Math.PI * radiusUnits * pxPerUnit; // distance corresponding to πr
 
-  // Active number of slices across all steps (8, 16, 32, or 32 for inf)
-  const activeN = sectorCount === "inf" ? 32 : sectorCount;
+  // Active number of slices across all steps (8, 16, 32, or 64)
+  const activeN = sectorCount;
   const singleToothW = fullRollDist / activeN;
   const halfW = singleToothW / 2;
 
@@ -339,100 +339,70 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </g>
         )}
 
-        {/* Step 3: Exact Flat Rectangle Overlay if sectorCount is 'inf' and fully assembled */}
-        {p2 >= 0.99 && sectorCount === "inf" ? (
-          <g>
-            <rect
-              x={startX}
-              y={groundY - rPx}
-              width={halfRollDist}
-              height={rPx}
-              fill={COLOR_SECTOR}
-              stroke="rgba(255, 255, 255, 0.85)"
-              strokeWidth={1.5}
-            />
-            {/* Infinitesimal vertical slice grid lines */}
-            {Array.from({ length: 32 }, (_, k) => {
-              const sx = startX + (k / 32) * halfRollDist;
-              return (
-                <line
-                  key={`inf-line-${k}`}
-                  x1={sx}
-                  y1={groundY - rPx}
-                  x2={sx}
-                  y2={groundY}
-                  stroke="rgba(255, 255, 255, 0.25)"
-                  strokeWidth={0.75}
-                />
-              );
-            })}
-          </g>
-        ) : (
-          /* Active N Slices on Ground (Fully dynamic across 8, 16, 32 slices) */
-          Array.from({ length: activeN }, (_, k) => {
-            const handoverProgress = (k + 0.5) / activeN;
-            if (p1 < handoverProgress && p1 < 0.999) return null; // still attached to rolling wheel!
+        {/* Active N Slices on Ground (Fully dynamic across 8, 16, 32, 64 slices) */}
+        {Array.from({ length: activeN }, (_, k) => {
+          const handoverProgress = (k + 0.5) / activeN;
+          if (p1 < handoverProgress && p1 < 0.999) return null; // still attached to rolling wheel!
 
-            const isEven = k % 2 === 0;
+          const isEven = k % 2 === 0;
 
-            const groundX = startX + k * singleToothW + halfW;
-            const groundApexY = groundY - rPx;
+          const groundX = startX + k * singleToothW + halfW;
+          const groundApexY = groundY - rPx;
 
-            const pairIdx = Math.floor(k / 2);
-            const targetX = isEven
-              ? startX + pairIdx * singleToothW + halfW
-              : startX + pairIdx * singleToothW + singleToothW;
+          const pairIdx = Math.floor(k / 2);
+          const targetX = isEven
+            ? startX + pairIdx * singleToothW + halfW
+            : startX + pairIdx * singleToothW + singleToothW;
 
-            let curX = groundX;
-            let curY = groundApexY;
-            let curRot = 180;
+          let curX = groundX;
+          let curY = groundApexY;
+          let curRot = 180;
 
-            if (p2 > 0) {
-              const t = p2;
+          if (p2 > 0) {
+            const t = p2;
 
-              const sub1 = Math.min(1, Math.max(0, t / 0.20));
-              const sub2 = Math.min(1, Math.max(0, (t - 0.20) / 0.20));
-              const sub3 = Math.min(1, Math.max(0, (t - 0.40) / 0.30));
-              const sub4 = Math.min(1, Math.max(0, (t - 0.70) / 0.30));
+            const sub1 = Math.min(1, Math.max(0, t / 0.20));
+            const sub2 = Math.min(1, Math.max(0, (t - 0.20) / 0.20));
+            const sub3 = Math.min(1, Math.max(0, (t - 0.40) / 0.30));
+            const sub4 = Math.min(1, Math.max(0, (t - 0.70) / 0.30));
 
-              const ease1 = 0.5 * (1 - Math.cos(sub1 * Math.PI));
-              const ease2 = 0.5 * (1 - Math.cos(sub2 * Math.PI));
-              const ease3 = 0.5 * (1 - Math.cos(sub3 * Math.PI));
-              const ease4 = 0.5 * (1 - Math.cos(sub4 * Math.PI));
+            const ease1 = 0.5 * (1 - Math.cos(sub1 * Math.PI));
+            const ease2 = 0.5 * (1 - Math.cos(sub2 * Math.PI));
+            const ease3 = 0.5 * (1 - Math.cos(sub3 * Math.PI));
+            const ease4 = 0.5 * (1 - Math.cos(sub4 * Math.PI));
 
-              if (isEven) {
-                curX = groundX + (targetX - groundX) * ease3;
-                curY = groundApexY;
-                curRot = 180;
-              } else {
-                const hoverApexY = groundY - rPx - 8;
-                const finalSlotApexY = groundY;
+            if (isEven) {
+              curX = groundX + (targetX - groundX) * ease3;
+              curY = groundApexY;
+              curRot = 180;
+            } else {
+              const hoverApexY = groundY - rPx - 8;
+              const finalSlotApexY = groundY;
 
-                const liftedApexY = groundApexY - (rPx + 8);
-                const yLifted = groundApexY + (liftedApexY - groundApexY) * ease1;
-                const yAfterFlip = yLifted + (hoverApexY - liftedApexY) * ease2;
+              const liftedApexY = groundApexY - (rPx + 8);
+              const yLifted = groundApexY + (liftedApexY - groundApexY) * ease1;
+              const yAfterFlip = yLifted + (hoverApexY - liftedApexY) * ease2;
 
-                curX = groundX + (targetX - groundX) * ease3;
-                curY = yAfterFlip + (finalSlotApexY - hoverApexY) * ease4;
-                curRot = 180 - 180 * ease2;
-              }
+              curX = groundX + (targetX - groundX) * ease3;
+              curY = yAfterFlip + (finalSlotApexY - hoverApexY) * ease4;
+              curRot = 180 - 180 * ease2;
             }
+          }
 
-            return (
-              <g
-                key={`ground-slice-${k}`}
-                transform={`translate(${curX}, ${curY}) rotate(${curRot})`}
-              >
-                <path
-                  d={activeSectorPath}
-                  fill={COLOR_SECTOR}
-                  stroke="rgba(255, 255, 255, 0.65)"
-                  strokeWidth={activeN >= 32 ? 0.75 : activeN >= 16 ? 1 : 1.2}
-                />
-              </g>
-            );
-          })
-        )}
+          return (
+            <g
+              key={`ground-slice-${k}`}
+              transform={`translate(${curX}, ${curY}) rotate(${curRot})`}
+            >
+              <path
+                d={activeSectorPath}
+                fill={COLOR_SECTOR}
+                stroke="rgba(255, 255, 255, 0.65)"
+                strokeWidth={activeN >= 64 ? 0.5 : activeN >= 32 ? 0.75 : activeN >= 16 ? 1 : 1.2}
+              />
+            </g>
+          );
+        })}
 
         {/* Rolling Wheel Group (Slices on wheel dynamically match activeN across Step 1 and Step 2) */}
         {p1 < 1 && (
@@ -446,7 +416,6 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               const handoverProgress = (i + 0.5) / activeN;
               if (p1 >= handoverProgress) return null; // cleanly handed over to ground!
 
-              // Starting slice 0 trailing edge touches ground at 6 o'clock
               const baseAngle = 180 - 180 / activeN;
               const angleDeg = baseAngle - i * (360 / activeN) + p1 * 360;
 
@@ -456,7 +425,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
                     d={activeSectorPath}
                     fill={COLOR_SECTOR}
                     stroke="rgba(255, 255, 255, 0.45)"
-                    strokeWidth={activeN >= 32 ? 0.75 : activeN >= 16 ? 1 : 1.2}
+                    strokeWidth={activeN >= 64 ? 0.5 : activeN >= 32 ? 0.75 : activeN >= 16 ? 1 : 1.2}
                   />
                 </g>
               );
@@ -559,7 +528,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         </button>
       </div>
 
-      {/* Row 2: Secondary Settings ([ - r = N + ] Radius Stepper & [ Slices: 8 | 16 | 32 | ∞ ]) */}
+      {/* Row 2: Secondary Settings ([ - r = N + ] Radius Stepper & [ Slices: 8 | 16 | 32 | 64 ]) */}
       <div className="flex items-center gap-2 select-none justify-center">
         {/* [- r = N +] Radius Stepper */}
         <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
@@ -595,10 +564,10 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </button>
         </div>
 
-        {/* Slices Subdivider Selector [ 8 | 16 | 32 | ∞ ] */}
+        {/* Slices Subdivider Selector [ 8 | 16 | 32 | 64 ] */}
         <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
           <span className="text-[11px] text-white/60 font-bold px-0.5 select-none">Slices:</span>
-          {([8, 16, 32, "inf"] as const).map((cnt) => (
+          {([8, 16, 32, 64] as const).map((cnt) => (
             <button
               key={cnt}
               onClick={() => {
@@ -610,7 +579,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
                 sectorCount === cnt ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/65 hover:text-white"
               )}
             >
-              {cnt === "inf" ? "∞" : cnt}
+              {cnt}
             </button>
           ))}
         </div>
@@ -645,9 +614,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none">
             <span className="text-white">A</span>
             <span className="text-white/50">=</span>
-            <span className="text-white/80">
-              {sectorCount === "inf" ? "base · height" : "base · height"}
-            </span>
+            <span className="text-white/80">base · height</span>
             <span className="text-white/50">=</span>
             <span style={{ color: COLOR_BASE }} className="font-bold">(π · {radiusUnits})</span>
             <span className="text-white/50">·</span>
