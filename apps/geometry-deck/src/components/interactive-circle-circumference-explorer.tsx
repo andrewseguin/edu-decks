@@ -24,7 +24,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const SVG_W = Math.max(300, Math.min(500, rawW - 24));
 
   const [radiusUnits, setRadiusUnits] = useState(1);
-  const [animatedRadius, setAnimatedRadius] = useState(1); // Smoothly interpolated radius for growth/zoom
+  const [animatedRadius, setAnimatedRadius] = useState(1); // Smoothly interpolated radius [1.0 .. 3.0]
   const [unrollProgress, setUnrollProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isDraggingHandle, setIsDraggingHandle] = useState(false);
@@ -50,7 +50,6 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
       if (!start) start = ts;
       const elapsed = ts - start;
       const t = Math.min(1, elapsed / duration);
-      // Smooth cubic ease out
       const ease = 1 - Math.pow(1 - t, 3);
       const currentR = startR + (targetR - startR) * ease;
       setAnimatedRadius(currentR);
@@ -71,14 +70,19 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const availableRulerW = SVG_W - 92;
   const pxPerUnit = availableRulerW / maxVal;
   
-  // As radius increases from 1 -> 2 -> 3, rPx grows from 28px to 38px (visible growth + camera zoom-out)
-  const rPx = animatedRadius === 1 ? 28 : animatedRadius === 2 ? 34 : 38;
+  // Continuous smooth radius interpolation: r=1 -> 28px, r=2 -> 34px, r=3 -> 38px
+  const rPx = 28 + (animatedRadius - 1) * 5.0;
   const groundY = 102;
   const centerY = groundY - rPx;
 
   const cValue = 2 * Math.PI * radiusUnits;
   const fullRollDist = 2 * Math.PI * animatedRadius * pxPerUnit;
+  const halfRollDist = Math.PI * animatedRadius * pxPerUnit;
+  const halfX = startX + halfRollDist;
   const endX = startX + fullRollDist;
+
+  const halfCoeff = radiusUnits === 1 ? "π" : `${radiusUnits}π`;
+  const halfApprox = Math.round(Math.PI * radiusUnits * 100) / 100;
   const cCoeff = 2 * radiusUnits;
   const cApprox = Math.round(cValue * 100) / 100;
 
@@ -170,6 +174,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   let remainingArcPath = "";
   if (unrollProgress > 0 && remainingFraction > 0.005) {
     const largeArc = remainingArcDeg > 180 ? 1 : 0;
+    // Sweep-flag 0 draws counter-clockwise from bottom (6 o'clock: (0, rPx)) up through front/right to tip
     remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 ${largeArc} 0 ${tipX} ${tipY}`;
   }
 
@@ -214,27 +219,25 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           );
         })}
 
-        {/* Highlighted π Marker (shown on r=1) */}
-        {radiusUnits === 1 && (
-          <g transform={`translate(${startX + Math.PI * pxPerUnit}, ${groundY})`}>
-            <line x1={0} y1={-4} x2={0} y2={17} stroke={COLOR_PI} strokeWidth={1.5} strokeDasharray="2 2" />
-            <circle cx={0} cy={0} r={2} fill={COLOR_PI} />
-            <text
-              x={0}
-              y={27}
-              textAnchor="middle"
-              fontSize={10}
-              fontWeight="900"
-              fill={COLOR_PI}
-              fontFamily="var(--font-heading, system-ui)"
-              style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
-            >
-              π (3.14)
-            </text>
-          </g>
-        )}
+        {/* Highlighted π (Half-Turn) Marker — smoothly animates position */}
+        <g transform={`translate(${halfX}, ${groundY})`}>
+          <line x1={0} y1={-4} x2={0} y2={17} stroke={COLOR_PI} strokeWidth={1.5} strokeDasharray="2 2" />
+          <circle cx={0} cy={0} r={2} fill={COLOR_PI} />
+          <text
+            x={0}
+            y={27}
+            textAnchor="middle"
+            fontSize={10}
+            fontWeight="900"
+            fill={COLOR_PI}
+            fontFamily="var(--font-heading, system-ui)"
+            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
+          >
+            {halfCoeff} ({halfApprox})
+          </text>
+        </g>
 
-        {/* Finish 2πr Tick below Number Line */}
+        {/* Finish 2πr (Full-Turn) Marker — smoothly animates position */}
         <g transform={`translate(${endX}, ${groundY})`}>
           <line x1={0} y1={-5} x2={0} y2={17} stroke={COLOR_CIRCUM} strokeWidth={2} />
           <circle cx={0} cy={0} r={2.5} fill={COLOR_CIRCUM} />
