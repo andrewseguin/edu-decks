@@ -29,7 +29,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const [animatedRadius, setAnimatedRadius] = useState(1); // Smooth camera zoom
   const [step, setStep] = useState<1 | 2 | 3>(1); // 1. Circle, 2. Unroll, 3. Parallelogram
   const [unrollProgress, setUnrollProgress] = useState(0); // 0.0 (Circle) -> 1.0 (Unrolled) -> 2.0 (Parallelogram)
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
 
   const svgRef = useRef<SVGSVGElement>(null);
   const autoplayRef = useRef<number>(0);
@@ -119,13 +119,15 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
     return () => cancelAnimationFrame(autoplayRef.current);
   }, [step]);
 
-  // Autoplay loop across 1 -> 2 -> 3 -> 1
+  // Autoplay loop across 1 -> 2 -> 3 -> 1 with 2s initial diagram dwell time
   useEffect(() => {
     if (!isPlaying) return;
 
+    const dwell = step === 1 ? 2000 : step === 2 ? 4600 : 5400;
+
     const timer = setTimeout(() => {
       setStep((prev) => (prev === 1 ? 2 : prev === 2 ? 3 : 1));
-    }, step === 2 ? 4600 : step === 3 ? 5400 : 4200);
+    }, dwell);
 
     return () => clearTimeout(timer);
   }, [isPlaying, step]);

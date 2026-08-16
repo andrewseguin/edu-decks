@@ -91,24 +91,32 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
       return;
     }
 
+    let timer: NodeJS.Timeout | null = null;
     let start: number | null = null;
     const period = 5200; // 5.2s full forward-and-back cycle
 
-    const clampedProg = Math.max(0, Math.min(1, unrollProgress));
-    const initialPhi = Math.acos(Math.max(-1, Math.min(1, 1 - 2 * clampedProg)));
-    const initialElapsed = (initialPhi / (2 * Math.PI)) * period;
+    // If starting from 0, wait 2000ms initial pause so user sees diagram first
+    const isAtStart = unrollProgress < 0.01;
+    const startDelay = isAtStart ? 2000 : 0;
 
-    const step = (ts: number) => {
-      if (!start) start = ts - initialElapsed;
-      const elapsed = ts - start;
-      const prog = 0.5 * (1 - Math.cos((elapsed / period) * 2 * Math.PI));
-      setUnrollProgress(prog);
+    timer = setTimeout(() => {
+      const clampedProg = Math.max(0, Math.min(1, unrollProgress));
+      const initialPhi = Math.acos(Math.max(-1, Math.min(1, 1 - 2 * clampedProg)));
+      const initialElapsed = (initialPhi / (2 * Math.PI)) * period;
+
+      const step = (ts: number) => {
+        if (!start) start = ts - initialElapsed;
+        const elapsed = ts - start;
+        const prog = 0.5 * (1 - Math.cos((elapsed / period) * 2 * Math.PI));
+        setUnrollProgress(prog);
+        autoplayRef.current = requestAnimationFrame(step);
+      };
+
       autoplayRef.current = requestAnimationFrame(step);
-    };
-
-    autoplayRef.current = requestAnimationFrame(step);
+    }, startDelay);
 
     return () => {
+      if (timer) clearTimeout(timer);
       cancelAnimationFrame(autoplayRef.current);
     };
   }, [isPlaying, radiusUnits]);
