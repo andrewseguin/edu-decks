@@ -664,14 +664,13 @@ function makeCirclesTermCards(): GeometryCard[] {
       id: nextId(), topic: "circles", cardType: "term", variant: "definition",
       frontLabel: "The diameter", frontPrompt: "is…?",
       frontSpeechText: "The diameter is…?",
-      backDefinition: "d = 2r",
-      backDefinitionSubtitle: "Straight chord through the center from edge to edge",
+      backDefinition: "Edge to edge through center",
+      backDefinitionSubtitle: "Longest distance across a circle (d)",
       backSvgExamples: [{ shape: "circle", dimensions: { r: 5, showDiameter: 1, labelMode: "numeric" }, labelMode: "numeric" }],
       backSteps: [
-        { formulaLine: "d = 2r" },
-        { formulaLine: "diameter = 2 × radius" },
+        { formulaLine: "diameter = edge to edge through center" },
       ],
-      backSpeechText: "The diameter is twice the radius", color,
+      backSpeechText: "The diameter is the distance from edge to edge through the center", color,
     },
   ];
 }

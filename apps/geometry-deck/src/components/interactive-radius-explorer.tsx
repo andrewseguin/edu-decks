@@ -101,20 +101,25 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
     yGridLines.push(CY + j * GRID_STEP);
   }
 
-  // Midpoint of radius line
+  // Midpoint of radius line (handle side)
   const midX = (CX + pX) / 2;
   const midY = (CY + pY) / 2;
+
+  // Midpoint of opposite diameter segment (away from drag handle and center dot)
+  const midOppX = (CX + oppX) / 2;
+  const midOppY = (CY + oppY) / 2;
 
   // Perpendicular normal offset vector
   const normX = Math.sin(rad);
   const normY = Math.cos(rad);
 
-  const perpOffset = radiusUnits <= 2 ? 14 : 13;
-  const radiusLabelX = midX - perpOffset * normX;
-  const radiusLabelY = midY - perpOffset * normY;
+  // Adaptive offset based on angle to account for text aspect ratio (wider than tall)
+  const offsetDist = 18 + 8 * Math.abs(Math.sin(rad));
+  const radiusLabelX = midX - offsetDist * normX;
+  const radiusLabelY = midY - offsetDist * normY;
 
-  const diamLabelX = CX - 13 * normX;
-  const diamLabelY = CY - 13 * normY;
+  const diamLabelX = midOppX - offsetDist * normX;
+  const diamLabelY = midOppY - offsetDist * normY;
 
   return (
     <div ref={containerRef} className="flex flex-col items-center w-full max-w-[650px] mx-auto select-none py-1" onClick={stop} onPointerDown={stop}>
@@ -160,7 +165,6 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
           fill="rgba(255, 255, 255, 0.10)"
           stroke="rgba(255, 255, 255, 0.95)"
           strokeWidth={2.4}
-          className="transition-all duration-150"
         />
 
         {/* Major Cartesian Center Axes (X & Y) */}
