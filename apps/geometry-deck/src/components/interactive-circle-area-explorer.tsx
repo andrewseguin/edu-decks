@@ -9,7 +9,7 @@ type InteractiveCircleAreaProps = {
   color?: string;
 };
 
-const SVG_H = 135;
+const SVG_H = 118;
 
 const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan (Radius r & Height)
 const COLOR_BASE = "#ffd45e";   // Warm Gold (Base πr & Circumference)
@@ -28,7 +28,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
   const [radiusUnits, setRadiusUnits] = useState(1);
   const [animatedRadius, setAnimatedRadius] = useState(1); // Smooth camera zoom
-  const [step, setStep] = useState<1 | 2 | 3>(1); // 1. Circle, 2. Unroll, 3. Parallelogram
+  const [step, setStep] = useState<1 | 2 | 3>(1); // 1. Circle, 2. Unroll, 3. Combine
   const [unrollProgress, setUnrollProgress] = useState(0); // 0.0 (Circle) -> 1.0 (Unrolled) -> 2.0 (Parallelogram)
   const [isPlaying, setIsPlaying] = useState(true);
   const [sectorCount, setSectorCount] = useState<SectorCount>(8);
@@ -77,7 +77,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const rightEdge = startX + availableRulerW;
   const pxPerUnit = availableRulerW / maxVal;
 
-  const groundY = Math.round(rPx * 2 + 16); // ~84px (compacted)
+  const groundY = Math.round(rPx * 2 + 8); // ~76px
   const centerY = groundY - rPx;
 
   // Real world math
@@ -175,21 +175,18 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const maxTickToRender = Math.ceil(maxVal) + 5;
 
   // Exact Trigonometric Edge-Sharing Geometry for Step 3:
-  // Each pair of adjacent sectors shares a straight radial edge vector of (rPx * sinH, rPx * cosH).
-  // Upright apex: (startX + sinH * rPx + pairIdx * 2 * sinH * rPx, groundY - cosH * rPx)
-  // Inverted apex: (startX + 2 * sinH * rPx + pairIdx * 2 * sinH * rPx, groundY)
   const trigSlotW = 2 * rPx * sinH;
   const trigHeight = rPx * cosH;
 
   // Height callout x position at right edge of assembled parallelogram
-  const targetHeightX = startX + (activeN / 2) * trigSlotW + 12;
+  const targetHeightX = startX + (activeN / 2) * trigSlotW + 10;
   const startRadiusScootX = startX + fullRollDist;
   const scootT = Math.min(1, Math.max(0, (p2 - 0.70) / 0.30));
   const scootEase = 0.5 * (1 - Math.cos(scootT * Math.PI));
   const currentHeightCalloutX = startRadiusScootX + (targetHeightX - startRadiusScootX) * scootEase;
 
   return (
-    <div ref={containerRef} className="flex flex-col items-center gap-1.5 w-full select-none" onClick={stop} onPointerDown={stop}>
+    <div ref={containerRef} className="flex flex-col items-center gap-1 w-full select-none" onClick={stop} onPointerDown={stop}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
@@ -198,7 +195,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         {/* Ruler Axis Line */}
         <line x1={startX - 10} y1={groundY} x2={rightEdge + 10} y2={groundY} stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
 
-        {/* Integer Ticks and Labels (smoothly glides & matches circumference card) */}
+        {/* Integer Ticks and Labels */}
         {Array.from({ length: maxTickToRender + 1 }, (_, t) => {
           const tickX = startX + t * pxPerUnit;
           if (tickX > rightEdge + 25) return null;
@@ -219,9 +216,9 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               {isMajor && (
                 <text
                   x={tickX}
-                  y={groundY + 12}
+                  y={groundY + 11}
                   textAnchor="middle"
-                  fontSize={9}
+                  fontSize={8.5}
                   fontWeight="bold"
                   fill="rgba(255, 255, 255, 0.55)"
                   fontFamily="var(--font-heading, system-ui)"
@@ -235,13 +232,13 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
         {/* Half-turn π marker below number line */}
         <g transform={`translate(${startX + halfRollDist}, ${groundY})`}>
-          <line x1={0} y1={-3} x2={0} y2={14} stroke={COLOR_BASE} strokeWidth={2} />
+          <line x1={0} y1={-3} x2={0} y2={13} stroke={COLOR_BASE} strokeWidth={2} />
           <circle cx={0} cy={0} r={2} fill={COLOR_BASE} />
           <text
             x={0}
-            y={24}
+            y={22}
             textAnchor="middle"
-            fontSize={10.5}
+            fontSize={10}
             fontWeight="900"
             fill={COLOR_BASE}
             fontFamily="var(--font-heading, system-ui)"
@@ -253,13 +250,13 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
         {/* Finish 2π marker below number line */}
         <g transform={`translate(${startX + fullRollDist}, ${groundY})`}>
-          <line x1={0} y1={-3} x2={0} y2={14} stroke={COLOR_PI} strokeWidth={1.5} strokeDasharray="2 2" />
+          <line x1={0} y1={-3} x2={0} y2={13} stroke={COLOR_PI} strokeWidth={1.5} strokeDasharray="2 2" />
           <circle cx={0} cy={0} r={2} fill={COLOR_PI} />
           <text
             x={0}
-            y={24}
+            y={22}
             textAnchor="middle"
-            fontSize={10}
+            fontSize={9.5}
             fontWeight="900"
             fill={COLOR_PI}
             fontFamily="var(--font-heading, system-ui)"
@@ -272,9 +269,9 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         {/* Base Dimension Bracket Along Bottom (b = πr in Step 3) */}
         {p2 > 0.4 && (
           <g opacity={Math.min(1, (p2 - 0.4) * 2.5)}>
-            <line x1={startX} y1={groundY + 5} x2={startX + halfRollDist} y2={groundY + 5} stroke={COLOR_BASE} strokeWidth={2} strokeLinecap="round" />
-            <line x1={startX} y1={groundY + 2} x2={startX} y2={groundY + 8} stroke={COLOR_BASE} strokeWidth={1.5} />
-            <line x1={startX + halfRollDist} y1={groundY + 2} x2={startX + halfRollDist} y2={groundY + 8} stroke={COLOR_BASE} strokeWidth={1.5} />
+            <line x1={startX} y1={groundY + 4} x2={startX + halfRollDist} y2={groundY + 4} stroke={COLOR_BASE} strokeWidth={2} strokeLinecap="round" />
+            <line x1={startX} y1={groundY + 1} x2={startX} y2={groundY + 7} stroke={COLOR_BASE} strokeWidth={1.5} />
+            <line x1={startX + halfRollDist} y1={groundY + 1} x2={startX + halfRollDist} y2={groundY + 7} stroke={COLOR_BASE} strokeWidth={1.5} />
           </g>
         )}
 
@@ -295,11 +292,11 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             
             {/* Label smoothly morphs from r = 1 to h = r (1) */}
             <text
-              x={currentHeightCalloutX + (p2 > 0.6 ? 7 : 0)}
-              y={p2 > 0.6 ? groundY - rPx / 2 : groundY - rPx - 7}
+              x={currentHeightCalloutX + (p2 > 0.6 ? 6 : 0)}
+              y={p2 > 0.6 ? groundY - rPx / 2 : groundY - rPx - 6}
               textAnchor={p2 > 0.6 ? "start" : "middle"}
               dominantBaseline="central"
-              fontSize={11}
+              fontSize={10.5}
               fontWeight="900"
               fill={COLOR_RADIUS}
               fontFamily="var(--font-heading, system-ui)"
@@ -350,10 +347,10 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               curY = groundApexY + (targetSlotApexY - groundApexY) * ease3;
               curRot = 180;
             } else {
-              const hoverApexY = groundY - rPx - 8;
+              const hoverApexY = groundY - rPx - 6;
               const finalSlotApexY = targetSlotApexY;
 
-              const liftedApexY = groundApexY - (rPx + 8);
+              const liftedApexY = groundApexY - (rPx + 6);
               const yLifted = groundApexY + (liftedApexY - groundApexY) * ease1;
               const yAfterFlip = yLifted + (hoverApexY - liftedApexY) * ease2;
 
@@ -413,10 +410,10 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             {/* Static Radius Label above center point */}
             <text
               x={0}
-              y={-10}
+              y={-9}
               textAnchor="middle"
               dominantBaseline="central"
-              fontSize={11.5}
+              fontSize={11}
               fontWeight="800"
               fill={COLOR_RADIUS}
               fontFamily="var(--font-heading, system-ui)"
@@ -464,7 +461,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             step === 3 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
           )}
         >
-          3. Parallelogram
+          3. Combine
         </button>
       </div>
 
@@ -528,7 +525,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
       {/* Live Typographic Equation Banner */}
       <div className="flex justify-center mt-0.5">
-        <div className="flex items-center gap-1.5 px-4 py-1 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none">
+        <div className="flex items-center gap-1.5 px-4 py-0.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none">
           <span className="text-white">A</span>
           <span className="text-white/50">=</span>
           <span className="text-white/80">π ·</span>
