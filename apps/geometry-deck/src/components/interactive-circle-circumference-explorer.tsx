@@ -18,6 +18,8 @@ const COLOR_PI = "#f472b6";     // Vibrant Rose Pink (Consistent color for all P
 
 const PRESETS = [1, 2, 3];
 const NUM_SEGMENTS = 16;
+const ALL_PI_MULTIPLES = [1, 2, 3, 4, 5, 6];
+const ALL_INTEGER_TICKS = Array.from({ length: 22 }, (_, i) => i); // 0 .. 21
 
 export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCircleCircumferenceProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
@@ -68,6 +70,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const maxVal = animatedRadius * 7;
   const startX = 46;
   const availableRulerW = SVG_W - 92;
+  const rightEdge = startX + availableRulerW;
   const pxPerUnit = availableRulerW / maxVal;
   
   // Continuous smooth visual circle radius (grows with animatedRadius)
@@ -171,25 +174,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
     remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 ${largeArc} 0 ${tipX} ${tipY}`;
   }
 
-  // Ticks list spanning full visible range 0 .. 21
-  const tickStep = radiusUnits === 1 ? 1 : radiusUnits;
-  const maxIntTick = Math.ceil(maxVal);
-  const ticks = Array.from({ length: Math.floor(maxIntTick / tickStep) + 1 }, (_, i) => i * tickStep);
-
-  // Cumulative Pi markers: π, 2π, 3π, 4π, 5π, 6π (clean, no decimals)
-  const maxPiMultiple = 2 * radiusUnits;
-  const piMarkers = Array.from({ length: maxPiMultiple }, (_, i) => {
-    const k = i + 1;
-    const val = k * Math.PI;
-    const isTargetFinish = k === maxPiMultiple;
-    return {
-      k,
-      val,
-      isTargetFinish,
-      label: k === 1 ? "π" : `${k}π`,
-      x: startX + val * pxPerUnit,
-    };
-  });
+  const targetFinishMultiple = 2 * radiusUnits;
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
@@ -203,14 +188,17 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
         <rect x={startX - 20} y={groundY - 60} width={availableRulerW + 40} height={90} fill="transparent" />
 
         {/* Ruler Axis */}
-        <line x1={startX - 10} y1={groundY} x2={startX + availableRulerW + 10} y2={groundY} stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
+        <line x1={startX - 10} y1={groundY} x2={rightEdge + 10} y2={groundY} stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
 
-        {/* Integer Ticks and Labels (smoothly glides with camera zoom) */}
-        {ticks.map((t) => {
+        {/* Integer Ticks and Labels (smoothly glides & fades at right boundary) */}
+        {ALL_INTEGER_TICKS.map((t) => {
+          // Hide odd ticks when zoomed out on r=2 or r=3 to prevent crowding
+          if (radiusUnits > 1 && t % radiusUnits !== 0 && t > 0) return null;
           const tickX = startX + t * pxPerUnit;
-          if (tickX > startX + availableRulerW + 5) return null;
+          if (tickX > rightEdge + 25) return null;
+          const opacity = tickX <= rightEdge ? 1 : Math.max(0, 1 - (tickX - rightEdge) / 20);
           return (
-            <g key={t}>
+            <g key={t} opacity={opacity}>
               <line x1={tickX} y1={groundY - 3} x2={tickX} y2={groundY + 3} stroke="rgba(255, 255, 255, 0.45)" strokeWidth={1.5} />
               <text
                 x={tickX}
@@ -227,33 +215,39 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           );
         })}
 
-        {/* Clean, Cumulative Pi Markers (π, 2π, 3π...) with no decimals */}
-        {piMarkers.map((m) => {
-          if (m.x > startX + availableRulerW + 15) return null;
-          const markerColor = m.isTargetFinish ? COLOR_CIRCUM : COLOR_PI;
+        {/* Continuous Pi Markers (π, 2π, 3π, 4π, 5π, 6π) that smoothly slide on/off edge */}
+        {ALL_PI_MULTIPLES.map((k) => {
+          const val = k * Math.PI;
+          const markerX = startX + val * pxPerUnit;
+          if (markerX > rightEdge + 30) return null;
+          const opacity = markerX <= rightEdge ? 1 : Math.max(0, 1 - (markerX - rightEdge) / 25);
+          const isTargetFinish = k === targetFinishMultiple;
+          const markerColor = isTargetFinish ? COLOR_CIRCUM : COLOR_PI;
+          const label = k === 1 ? "π" : `${k}π`;
+
           return (
-            <g key={m.k} transform={`translate(${m.x}, ${groundY})`}>
+            <g key={k} transform={`translate(${markerX}, ${groundY})`} opacity={opacity}>
               <line
                 x1={0}
-                y1={m.isTargetFinish ? -5 : -4}
+                y1={isTargetFinish ? -5 : -4}
                 x2={0}
                 y2={17}
                 stroke={markerColor}
-                strokeWidth={m.isTargetFinish ? 2 : 1.5}
-                strokeDasharray={m.isTargetFinish ? undefined : "2 2"}
+                strokeWidth={isTargetFinish ? 2 : 1.5}
+                strokeDasharray={isTargetFinish ? undefined : "2 2"}
               />
-              <circle cx={0} cy={0} r={m.isTargetFinish ? 2.5 : 2} fill={markerColor} />
+              <circle cx={0} cy={0} r={isTargetFinish ? 2.5 : 2} fill={markerColor} />
               <text
                 x={0}
                 y={28}
                 textAnchor="middle"
-                fontSize={m.isTargetFinish ? 12 : 11}
+                fontSize={isTargetFinish ? 12 : 11}
                 fontWeight="900"
                 fill={markerColor}
                 fontFamily="var(--font-heading, system-ui)"
                 style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
               >
-                {m.label}
+                {label}
               </text>
             </g>
           );
