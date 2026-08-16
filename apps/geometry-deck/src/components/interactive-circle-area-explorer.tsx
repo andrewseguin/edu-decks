@@ -19,7 +19,8 @@ const COLOR_SECTOR = "rgba(255, 255, 255, 0.18)"; // Neutral dim translucent whi
 
 const MIN_RADIUS = 1;
 const MAX_RADIUS = 5;
-const NUM_SECTORS = 8;
+
+type SectorCount = 8 | 16 | 32 | "inf";
 
 export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
@@ -30,6 +31,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const [step, setStep] = useState<1 | 2 | 3>(1); // 1. Circle, 2. Unroll, 3. Parallelogram
   const [unrollProgress, setUnrollProgress] = useState(0); // 0.0 (Circle) -> 1.0 (Unrolled) -> 2.0 (Parallelogram)
   const [isPlaying, setIsPlaying] = useState(true);
+  const [step3Sectors, setStep3Sectors] = useState<SectorCount>(8);
 
   const svgRef = useRef<SVGSVGElement>(null);
   const autoplayRef = useRef<number>(0);
@@ -82,7 +84,9 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const fullCircumVal = 2 * Math.PI * radiusUnits;
   const fullRollDist = fullCircumVal * pxPerUnit; // distance along ruler corresponding to 2πr
   const halfRollDist = Math.PI * radiusUnits * pxPerUnit; // distance corresponding to πr
-  const singleToothW = fullRollDist / NUM_SECTORS; // width of 1 wedge along arc
+
+  // 8-Sector base geometry during unrolling & initial proof
+  const singleToothW = fullRollDist / 8;
   const halfW = singleToothW / 2;
 
   const areaCoeff = radiusUnits * radiusUnits;
@@ -126,7 +130,10 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
     const dwell = step === 1 ? 2000 : step === 2 ? 4600 : 5400;
 
     const timer = setTimeout(() => {
-      setStep((prev) => (prev === 1 ? 2 : prev === 2 ? 3 : 1));
+      setStep((prev) => {
+        if (prev === 3) setStep3Sectors(8); // reset sectors on loop
+        return prev === 1 ? 2 : prev === 2 ? 3 : 1;
+      });
     }, dwell);
 
     return () => clearTimeout(timer);
@@ -173,6 +180,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
       setStep(1);
       setUnrollProgress(0);
       setIsPlaying(false);
+      setStep3Sectors(8);
     }
   };
 
@@ -183,17 +191,21 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
   const currentWheelX = startX + p1 * fullRollDist;
 
-  // CANONICAL TRUE PIE SECTOR PATH (Apex at origin (0,0), radius rPx, subtending 45 deg)
-  const halfAngleRad = Math.PI / NUM_SECTORS;
-  const sinHalf = Math.sin(halfAngleRad);
-  const cosHalf = Math.cos(halfAngleRad);
-  const arcLeftX = -rPx * sinHalf;
-  const arcLeftY = -rPx * cosHalf;
-  const arcRightX = rPx * sinHalf;
-  const arcRightY = -rPx * cosHalf;
+  // CANONICAL TRUE PIE SECTOR PATH HELPER (subtending 360 / N degrees)
+  const makeSectorPath = (numSectors: number) => {
+    const halfAngle = Math.PI / numSectors;
+    const sinH = Math.sin(halfAngle);
+    const cosH = Math.cos(halfAngle);
+    const ax1 = -rPx * sinH;
+    const ay1 = -rPx * cosH;
+    const ax2 = rPx * sinH;
+    const ay2 = -rPx * cosH;
+    return `M 0 0 L ${ax1} ${ay1} A ${rPx} ${rPx} 0 0 1 ${ax2} ${ay2} Z`;
+  };
 
-  // Exact true curved sector (pointing UP from apex at (0,0) to curved arc of radius rPx at top)
-  const canonicalSectorPath = `M 0 0 L ${arcLeftX} ${arcLeftY} A ${rPx} ${rPx} 0 0 1 ${arcRightX} ${arcRightY} Z`;
+  const sectorPath8 = makeSectorPath(8);
+  const sectorPath16 = makeSectorPath(16);
+  const sectorPath32 = makeSectorPath(32);
 
   // Radius spoke pointing straight DOWN at start (6 o'clock) and rotating with wheel
   const spokeAngleRad = (90 + p1 * 360) * (Math.PI / 180);
@@ -334,90 +346,131 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </g>
         )}
 
-        {/* 8 Slices Laid Down on Ground / Pure Lift -> Flip in Sky -> Slide -> Drop */}
-        {Array.from({ length: NUM_SECTORS }, (_, k) => {
-          const handoverProgress = (k + 0.5) / NUM_SECTORS;
-          if (p1 < handoverProgress && p1 < 0.999) return null; // still attached to rolling wheel!
-
-          const isEven = k % 2 === 0;
-
-          // Step 2 Ground resting coordinates:
-          const groundX = startX + k * singleToothW + halfW;
-          const groundApexY = groundY - rPx; // resting apex at y = groundY - rPx, rot = 180
-
-          // Step 3 Target slot coordinates in final parallelogram:
-          const pairIdx = Math.floor(k / 2);
-          const targetX = isEven
-            ? startX + pairIdx * singleToothW + halfW
-            : startX + pairIdx * singleToothW + singleToothW;
-
-          let curX = groundX;
-          let curY = groundApexY;
-          let curRot = 180;
-
-          if (p2 > 0) {
-            const t = p2; // 0..1
-
-            // 4 Clean Sequential Subphases:
-            // Sub1: Lift straight up off the ground (t in 0 .. 0.20)
-            // Sub2: Flip 180° in mid-air (t in 0.20 .. 0.40)
-            // Sub3: Pure horizontal slide while hovering in the sky (t in 0.40 .. 0.70)
-            // Sub4: Lower straight down into target slots (t in 0.70 .. 1.0)
-
-            const sub1 = Math.min(1, Math.max(0, t / 0.20));
-            const sub2 = Math.min(1, Math.max(0, (t - 0.20) / 0.20));
-            const sub3 = Math.min(1, Math.max(0, (t - 0.40) / 0.30));
-            const sub4 = Math.min(1, Math.max(0, (t - 0.70) / 0.30));
-
-            const ease1 = 0.5 * (1 - Math.cos(sub1 * Math.PI));
-            const ease2 = 0.5 * (1 - Math.cos(sub2 * Math.PI));
-            const ease3 = 0.5 * (1 - Math.cos(sub3 * Math.PI));
-            const ease4 = 0.5 * (1 - Math.cos(sub4 * Math.PI));
-
-            if (isEven) {
-              // Bottom Upright Slices (k = 0, 2, 4, 6):
-              // Stay on ground during Sub1 & Sub2, slide left during Sub3, stay locked during Sub4
-              curX = groundX + (targetX - groundX) * ease3;
-              curY = groundApexY;
-              curRot = 180;
-            } else {
-              // Top Flipping Slices (k = 1, 3, 5, 7):
-              const hoverApexY = groundY - rPx - 8;
-              const finalSlotApexY = groundY;
-
-              // Sub1: Lift straight up off ground (rot = 180)
-              // Apex moves from groundApexY to groundApexY - (rPx + 8)
-              const liftedApexY = groundApexY - (rPx + 8);
-              const yLifted = groundApexY + (liftedApexY - groundApexY) * ease1;
-
-              // Sub2: Flip in the air from 180° to 0° (apex translates to hoverApexY)
-              const yAfterFlip = yLifted + (hoverApexY - liftedApexY) * ease2;
-
-              // Sub3: Slide horizontally while hovering in the air
-              curX = groundX + (targetX - groundX) * ease3;
-
-              // Sub4: Lower straight down from hoverApexY into slot at finalSlotApexY
-              curY = yAfterFlip + (finalSlotApexY - hoverApexY) * ease4;
-
-              // Rotation: stays 180 during Sub1, flips to 0 during Sub2, stays 0 during Sub3 and Sub4
-              curRot = 180 - 180 * ease2;
-            }
-          }
-
-          return (
-            <g
-              key={`ground-slice-${k}`}
-              transform={`translate(${curX}, ${curY}) rotate(${curRot})`}
-            >
-              <path
-                d={canonicalSectorPath}
+        {/* Step 3 Subdivided Sectors (When fully assembled at p2 >= 1 and sectors > 8 or inf) */}
+        {p2 >= 0.99 && step3Sectors !== 8 ? (
+          step3Sectors === "inf" ? (
+            /* Perfect Flat Rectangle (Limit as N -> ∞) */
+            <g>
+              <rect
+                x={startX}
+                y={groundY - rPx}
+                width={halfRollDist}
+                height={rPx}
                 fill={COLOR_SECTOR}
-                stroke="rgba(255, 255, 255, 0.65)"
-                strokeWidth={1.2}
+                stroke="rgba(255, 255, 255, 0.85)"
+                strokeWidth={1.5}
               />
+              {/* Infinitesimal vertical slice grid lines */}
+              {Array.from({ length: 32 }, (_, k) => {
+                const sx = startX + (k / 32) * halfRollDist;
+                return (
+                  <line
+                    key={`inf-line-${k}`}
+                    x1={sx}
+                    y1={groundY - rPx}
+                    x2={sx}
+                    y2={groundY}
+                    stroke="rgba(255, 255, 255, 0.25)"
+                    strokeWidth={0.75}
+                  />
+                );
+              })}
             </g>
-          );
-        })}
+          ) : (
+            /* 16 or 32 Fine Interlocking Slices */
+            <g>
+              {Array.from({ length: step3Sectors as number }, (_, k) => {
+                const n = step3Sectors as number;
+                const toothW = fullRollDist / n;
+                const hW = toothW / 2;
+                const isEven = k % 2 === 0;
+                const pairIdx = Math.floor(k / 2);
+                const apexX = isEven
+                  ? startX + pairIdx * toothW + hW
+                  : startX + pairIdx * toothW + toothW;
+                const apexY = isEven ? groundY - rPx : groundY;
+                const rot = isEven ? 180 : 0;
+                const p = n === 16 ? sectorPath16 : sectorPath32;
+
+                return (
+                  <g key={`subdivided-slice-${k}`} transform={`translate(${apexX}, ${apexY}) rotate(${rot})`}>
+                    <path
+                      d={p}
+                      fill={COLOR_SECTOR}
+                      stroke="rgba(255, 255, 255, 0.65)"
+                      strokeWidth={n === 32 ? 0.8 : 1}
+                    />
+                  </g>
+                );
+              })}
+            </g>
+          )
+        ) : (
+          /* Default 8-Sector Assembly (With 4-Stage Elevator Choreography) */
+          Array.from({ length: 8 }, (_, k) => {
+            const handoverProgress = (k + 0.5) / 8;
+            if (p1 < handoverProgress && p1 < 0.999) return null; // still attached to rolling wheel!
+
+            const isEven = k % 2 === 0;
+
+            const groundX = startX + k * singleToothW + halfW;
+            const groundApexY = groundY - rPx;
+
+            const pairIdx = Math.floor(k / 2);
+            const targetX = isEven
+              ? startX + pairIdx * singleToothW + halfW
+              : startX + pairIdx * singleToothW + singleToothW;
+
+            let curX = groundX;
+            let curY = groundApexY;
+            let curRot = 180;
+
+            if (p2 > 0) {
+              const t = p2;
+
+              const sub1 = Math.min(1, Math.max(0, t / 0.20));
+              const sub2 = Math.min(1, Math.max(0, (t - 0.20) / 0.20));
+              const sub3 = Math.min(1, Math.max(0, (t - 0.40) / 0.30));
+              const sub4 = Math.min(1, Math.max(0, (t - 0.70) / 0.30));
+
+              const ease1 = 0.5 * (1 - Math.cos(sub1 * Math.PI));
+              const ease2 = 0.5 * (1 - Math.cos(sub2 * Math.PI));
+              const ease3 = 0.5 * (1 - Math.cos(sub3 * Math.PI));
+              const ease4 = 0.5 * (1 - Math.cos(sub4 * Math.PI));
+
+              if (isEven) {
+                curX = groundX + (targetX - groundX) * ease3;
+                curY = groundApexY;
+                curRot = 180;
+              } else {
+                const hoverApexY = groundY - rPx - 8;
+                const finalSlotApexY = groundY;
+
+                const liftedApexY = groundApexY - (rPx + 8);
+                const yLifted = groundApexY + (liftedApexY - groundApexY) * ease1;
+                const yAfterFlip = yLifted + (hoverApexY - liftedApexY) * ease2;
+
+                curX = groundX + (targetX - groundX) * ease3;
+                curY = yAfterFlip + (finalSlotApexY - hoverApexY) * ease4;
+                curRot = 180 - 180 * ease2;
+              }
+            }
+
+            return (
+              <g
+                key={`ground-slice-${k}`}
+                transform={`translate(${curX}, ${curY}) rotate(${curRot})`}
+              >
+                <path
+                  d={sectorPath8}
+                  fill={COLOR_SECTOR}
+                  stroke="rgba(255, 255, 255, 0.65)"
+                  strokeWidth={1.2}
+                />
+              </g>
+            );
+          })
+        )}
 
         {/* Rolling Wheel Group (Slices rotate smoothly around wheel center until released) */}
         {p1 < 1 && (
@@ -427,16 +480,16 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.06)" />
 
             {/* Slices Remaining inside Wheel (Rotating around wheel center (0,0)) */}
-            {Array.from({ length: NUM_SECTORS }, (_, i) => {
-              const handoverProgress = (i + 0.5) / NUM_SECTORS;
+            {Array.from({ length: 8 }, (_, i) => {
+              const handoverProgress = (i + 0.5) / 8;
               if (p1 >= handoverProgress) return null; // cleanly handed over to ground!
 
-              const angleDeg = 157.5 - i * (360 / NUM_SECTORS) + p1 * 360;
+              const angleDeg = 157.5 - i * (360 / 8) + p1 * 360;
 
               return (
                 <g key={`wheel-slice-${i}`} transform={`rotate(${angleDeg})`}>
                   <path
-                    d={canonicalSectorPath}
+                    d={sectorPath8}
                     fill={COLOR_SECTOR}
                     stroke="rgba(255, 255, 255, 0.45)"
                     strokeWidth={1.2}
@@ -482,7 +535,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
       </svg>
 
       {/* Frosted Controls: [- / +] Stepper, Multi-Step Navigation Pills, and Play/Pause Button */}
-      <div className="flex items-center gap-2 select-none">
+      <div className="flex items-center gap-2 select-none flex-wrap justify-center">
         {/* [- r = N +] Radius Stepper */}
         <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
           <button
@@ -557,6 +610,28 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </button>
         </div>
 
+        {/* Step 3 Sectors Subdivider Pill [ 8 | 16 | 32 | ∞ ] */}
+        {step === 3 && p2 >= 0.8 && (
+          <div className="flex items-center gap-1 bg-white/15 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/30 shadow-sm animate-in fade-in zoom-in duration-300">
+            <span className="text-[10px] text-white/60 font-bold px-1 select-none">Slices:</span>
+            {([8, 16, 32, "inf"] as const).map((cnt) => (
+              <button
+                key={cnt}
+                onClick={() => {
+                  setIsPlaying(false);
+                  setStep3Sectors(cnt);
+                }}
+                className={cn(
+                  "px-2 py-0.5 rounded-full text-[11px] font-headline font-bold transition-all border-none",
+                  step3Sectors === cnt ? "bg-white/30 text-white shadow-none" : "bg-transparent text-white/65 hover:text-white"
+                )}
+              >
+                {cnt === "inf" ? "∞" : cnt}
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* Play / Pause Auto-Tour Button */}
         <button
           onClick={() => setIsPlaying(!isPlaying)}
@@ -604,7 +679,10 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         {step === 3 && (
           <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none">
             <span className="text-white">A</span>
-            <span className="text-white/80">base · height</span>
+            <span className="text-white/50">=</span>
+            <span className="text-white/80">
+              {step3Sectors === "inf" ? "base · height" : "base · height"}
+            </span>
             <span className="text-white/50">=</span>
             <span style={{ color: COLOR_BASE }} className="font-bold">(π · {radiusUnits})</span>
             <span className="text-white/50">·</span>
