@@ -25,7 +25,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const [radiusUnits, setRadiusUnits] = useState(1);
   const [animatedRadius, setAnimatedRadius] = useState(1); // Smoothly interpolated camera zoom [1.0 .. 10.0]
   const [unrollProgress, setUnrollProgress] = useState(0); // 0 (start) -> 1 (full roll of 2*pi*r)
-  const [isPlaying, setIsPlaying] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false); // start false, autoplay triggers after 2s
   const [isDraggingHandle, setIsDraggingHandle] = useState(false);
 
   const svgRef = useRef<SVGSVGElement>(null);
@@ -34,6 +34,14 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => {
     e.stopPropagation();
+  }, []);
+
+  // Initial 2s diagram inspection delay on reveal before autoplay starts
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsPlaying(true);
+    }, 2000);
+    return () => clearTimeout(timer);
   }, []);
 
   // Smoothly animate camera zoom when switching radius
@@ -64,8 +72,6 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   }, [radiusUnits]);
 
   // Comfortable Sizing & Generous Margins on all 4 sides:
-  // Target circle radius in pixels: ~34px (diameter ~68px)
-  // To keep 100% no-slip physical rolling: availableRulerW = 7 * rPx
   const maxVal = animatedRadius * 7;
   const targetRulerW = Math.min(SVG_W - 120, Math.max(210, Math.min(300, (SVG_W - 80) * 0.78)));
   const rPx = targetRulerW / 7; // ~32px to 38px
@@ -93,39 +99,31 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const spokeTipX = rPx * Math.cos(spokeAngleRad);
   const spokeTipY = rPx * Math.sin(spokeAngleRad);
 
-  // Smooth forward/backward animation when isPlaying is true
+  // Smooth forward/backward animation when isPlaying is true (plays immediately)
   useEffect(() => {
     if (!isPlaying) {
       cancelAnimationFrame(autoplayRef.current);
       return;
     }
 
-    let timer: NodeJS.Timeout | null = null;
     let start: number | null = null;
     const period = 5200; // 5.2s full forward-and-back cycle
 
-    // If starting from 0, wait 2000ms initial pause so user sees diagram first
-    const isAtStart = unrollProgress < 0.01;
-    const startDelay = isAtStart ? 2000 : 0;
+    const clampedProg = Math.max(0, Math.min(1, unrollProgress));
+    const initialPhi = Math.acos(Math.max(-1, Math.min(1, 1 - 2 * clampedProg)));
+    const initialElapsed = (initialPhi / (2 * Math.PI)) * period;
 
-    timer = setTimeout(() => {
-      const clampedProg = Math.max(0, Math.min(1, unrollProgress));
-      const initialPhi = Math.acos(Math.max(-1, Math.min(1, 1 - 2 * clampedProg)));
-      const initialElapsed = (initialPhi / (2 * Math.PI)) * period;
-
-      const step = (ts: number) => {
-        if (!start) start = ts - initialElapsed;
-        const elapsed = ts - start;
-        const prog = 0.5 * (1 - Math.cos((elapsed / period) * 2 * Math.PI));
-        setUnrollProgress(prog);
-        autoplayRef.current = requestAnimationFrame(step);
-      };
-
+    const step = (ts: number) => {
+      if (!start) start = ts - initialElapsed;
+      const elapsed = ts - start;
+      const prog = 0.5 * (1 - Math.cos((elapsed / period) * 2 * Math.PI));
+      setUnrollProgress(prog);
       autoplayRef.current = requestAnimationFrame(step);
-    }, startDelay);
+    };
+
+    autoplayRef.current = requestAnimationFrame(step);
 
     return () => {
-      if (timer) clearTimeout(timer);
       cancelAnimationFrame(autoplayRef.current);
     };
   }, [isPlaying, radiusUnits]);
