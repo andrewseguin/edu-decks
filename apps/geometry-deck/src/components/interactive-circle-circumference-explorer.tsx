@@ -11,9 +11,9 @@ type InteractiveCircleCircumferenceProps = {
 const SVG_H = 160;
 
 const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan
-const COLOR_CIRCUM = "#d8b4fe"; // Neon Lilac
-const COLOR_GOLD = "#ffd45e";   // Warm Gold
-const COLOR_PI = "#f472b6";     // Vibrant Rose Pink for Pi markers
+const COLOR_CIRCUM = "#d8b4fe"; // Vibrant Neon Lilac (Circumference ribbon)
+const COLOR_GOLD = "#ffd45e";   // Warm Gold (Contact dot / angle tip)
+const COLOR_PI = "#f472b6";     // Vibrant Rose Pink for Pi marker
 
 const PRESETS = [1, 2, 3];
 
@@ -55,29 +55,26 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const cCoeff = 2 * radiusUnits;
   const cApprox = Math.round(cValue * 100) / 100;
 
-  // Single-shot gentle autoplay on reveal that yields immediately upon user touch/drag
+  // Smooth back-and-forth rolling animation on reveal until user interacts
   useEffect(() => {
     if (hasInteracted) return;
     let start: number | null = null;
-    const duration = 2400; // 2.4s smooth rollout
+    const period = 5200; // 5.2s full forward-and-back cycle
 
     const step = (ts: number) => {
       if (!start) start = ts;
       const elapsed = ts - start;
-      const prog = Math.min(1, elapsed / duration);
+      // Cosine ease in/out for smooth turnaround at 0 and 1
+      const prog = 0.5 * (1 - Math.cos((elapsed / period) * 2 * Math.PI));
       setUnrollProgress(prog);
-      if (prog < 1 && !hasInteracted) {
+      if (!hasInteracted) {
         autoplayRef.current = requestAnimationFrame(step);
       }
     };
 
-    // Small initial delay so card renders before rolling
-    const timer = setTimeout(() => {
-      autoplayRef.current = requestAnimationFrame(step);
-    }, 400);
+    autoplayRef.current = requestAnimationFrame(step);
 
     return () => {
-      clearTimeout(timer);
       cancelAnimationFrame(autoplayRef.current);
     };
   }, [hasInteracted, radiusUnits]);
@@ -148,22 +145,22 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
         {/* Track Hitbox for easy dragging */}
         <rect x={startX - 20} y={groundY - 60} width={availableRulerW + 40} height={90} fill="transparent" />
 
-        {/* Real Number Line Base Axis */}
-        <line x1={startX - 10} y1={groundY} x2={startX + availableRulerW + 10} y2={groundY} stroke="rgba(255, 255, 255, 0.4)" strokeWidth={2} />
+        {/* Subtle Background Ruler Axis */}
+        <line x1={startX - 10} y1={groundY} x2={startX + availableRulerW + 10} y2={groundY} stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
 
         {/* Standard Integer Ticks and Labels */}
         {ticks.map((t) => {
           const tickX = startX + t * pxPerUnit;
           return (
             <g key={t}>
-              <line x1={tickX} y1={groundY - 4} x2={tickX} y2={groundY + 4} stroke="rgba(255, 255, 255, 0.6)" strokeWidth={1.5} />
+              <line x1={tickX} y1={groundY - 3} x2={tickX} y2={groundY + 3} stroke="rgba(255, 255, 255, 0.45)" strokeWidth={1.5} />
               <text
                 x={tickX}
                 y={groundY + 16}
                 textAnchor="middle"
                 fontSize={10}
                 fontWeight="bold"
-                fill="rgba(255, 255, 255, 0.6)"
+                fill="rgba(255, 255, 255, 0.55)"
                 fontFamily="var(--font-heading, system-ui)"
               >
                 {t}
@@ -210,10 +207,10 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
 
         {/* Ghost Starting Circle outline (when rolled away) */}
         {unrollProgress > 0.03 && (
-          <circle cx={startX} cy={centerY} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
+          <circle cx={startX} cy={centerY} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.15)" strokeWidth={1.5} strokeDasharray="3 3" />
         )}
 
-        {/* Unrolled Lilac Boundary Ribbon along the number line */}
+        {/* Vibrant Colored Lilac Boundary Ribbon Laid Down Along Ground */}
         {unrollProgress > 0 && (
           <line
             x1={startX}
@@ -221,31 +218,41 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
             x2={currentWheelX}
             y2={groundY}
             stroke={COLOR_CIRCUM}
-            strokeWidth={3.5}
+            strokeWidth={4}
             strokeLinecap="round"
+            style={{ filter: "drop-shadow(0px 0px 4px rgba(216, 180, 254, 0.6))" }}
           />
         )}
 
         {/* Rolling Wheel Group */}
         <g transform={`translate(${currentWheelX}, ${centerY})`}>
           {/* Wheel Disc Body */}
-          <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.12)" />
+          <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.08)" />
 
-          {/* At Zero State: Full Solid Lilac Circle */}
+          {/* At Zero State: Full Solid Vibrant Colored Lilac Circle */}
           {unrollProgress === 0 ? (
-            <circle cx={0} cy={0} r={rPx} fill="none" stroke={COLOR_CIRCUM} strokeWidth={3} />
+            <circle
+              cx={0}
+              cy={0}
+              r={rPx}
+              fill="none"
+              stroke={COLOR_CIRCUM}
+              strokeWidth={3.5}
+              style={{ filter: "drop-shadow(0px 0px 4px rgba(216, 180, 254, 0.5))" }}
+            />
           ) : (
             <>
-              {/* Bare Spool Ghost */}
-              <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.2)" strokeWidth={1.5} strokeDasharray="3 3" />
-              {/* Unspooling Perimeter Ribbon on Front/Top */}
+              {/* Bare Spool Ghost track */}
+              <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
+              {/* Vibrant Colored Ribbon Unspooling on Front/Top of Wheel */}
               {remainingArcPath && (
                 <path
                   d={remainingArcPath}
                   fill="none"
                   stroke={COLOR_CIRCUM}
-                  strokeWidth={3}
+                  strokeWidth={3.5}
                   strokeLinecap="round"
+                  style={{ filter: "drop-shadow(0px 0px 4px rgba(216, 180, 254, 0.5))" }}
                 />
               )}
             </>
@@ -291,7 +298,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           onPointerDown={handleTrackPointerDown}
         >
           <circle r={26} fill="transparent" />
-          <circle r={9} fill="rgba(255, 255, 255, 0.25)" stroke="rgba(255, 255, 255, 0.8)" strokeWidth={1.5} />
+          <circle r={9} fill="rgba(216, 180, 254, 0.25)" stroke={COLOR_CIRCUM} strokeWidth={1.5} />
           <circle r={4.5} fill={COLOR_CIRCUM} />
         </g>
       </svg>
