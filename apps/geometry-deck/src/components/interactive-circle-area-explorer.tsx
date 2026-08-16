@@ -332,7 +332,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </g>
         )}
 
-        {/* 8 Slices Laid Down on Ground / 3-Stage Elevator Proof (Zero overlap, tight comfortable clearance) */}
+        {/* 8 Slices Laid Down on Ground / 3-Stage Elevator Proof (Zero overlap, mathematically exact clearance) */}
         {Array.from({ length: NUM_SECTORS }, (_, k) => {
           const handoverProgress = (k + 0.5) / NUM_SECTORS;
           if (p1 < handoverProgress && p1 < 0.999) return null; // still attached to rolling wheel!
@@ -377,15 +377,17 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               curRot = 180;
             } else {
               // Top Flipping Slices (k = 1, 3, 5, 7):
-              // Hover height: apex at groundY - 14px (giving clean 14px clearance above ground with plenty of top headroom)
-              const hoverApexY = groundY - 14;
+              // Exact hover apex height: groundY - rPx - 8px.
+              // This places the bottom tip of the inverted slice 8px ABOVE the top apex of standing slices (groundY - rPx),
+              // while keeping the top curved rim at groundY - 2*rPx - 8px (~18px from top edge).
+              const hoverApexY = groundY - rPx - 8;
               const finalSlotApexY = groundY;
 
               // 1. Lift & Flip from ground pose (groundYPos, 180°) to hover pose (hoverApexY, 0°):
               const startApexY = groundYPos;
               const yAfterLift = startApexY + (hoverApexY - startApexY) * ease1;
 
-              // 2. Slide horizontally while hovering comfortably above:
+              // 2. Slide horizontally while hovering safely above:
               curX = groundX + (targetX - groundX) * ease2;
 
               // 3. Lower straight down from hover apex into slot at y = groundY:
