@@ -17,17 +17,15 @@ const COLOR_GOLD = "#ffd45e";   // Warm Gold (Contact dot / angle tip)
 const COLOR_PI = "#f472b6";     // Vibrant Rose Pink (Consistent color for all Pi markers)
 
 const MIN_RADIUS = 1;
-const MAX_RADIUS = 5;
+const MAX_RADIUS = 10;
 const NUM_SEGMENTS = 16;
-const ALL_PI_MULTIPLES = Array.from({ length: MAX_RADIUS * 2 }, (_, i) => i + 1); // 1..10
-const ALL_INTEGER_TICKS = Array.from({ length: MAX_RADIUS * 7 + 1 }, (_, i) => i); // 0..35
 
 export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCircleCircumferenceProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
   const SVG_W = Math.max(300, Math.min(500, rawW - 24));
 
   const [radiusUnits, setRadiusUnits] = useState(1);
-  const [animatedRadius, setAnimatedRadius] = useState(1); // Smoothly interpolated camera zoom [1.0 .. 5.0]
+  const [animatedRadius, setAnimatedRadius] = useState(1); // Smoothly interpolated camera zoom [1.0 .. 10.0]
   const [unrollProgress, setUnrollProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(true);
   const [isDraggingHandle, setIsDraggingHandle] = useState(false);
@@ -74,8 +72,8 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   const rightEdge = startX + availableRulerW;
   const pxPerUnit = availableRulerW / maxVal;
   
-  // Continuous smooth visual circle radius (scales with animatedRadius)
-  const rPx = 28 + (animatedRadius - 1) * 3.5;
+  // Continuous smooth visual circle radius (scales with animatedRadius up to 10)
+  const rPx = 28 + Math.min(16, (animatedRadius - 1) * 2.0);
   const groundY = 98;
   const centerY = groundY - rPx;
 
@@ -186,6 +184,16 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
 
   const targetFinishMultiple = 2 * radiusUnits;
 
+  // Dynamic list of Pi multiples up to current range + extra buffer for smooth zoom
+  const maxPiToRender = Math.min(20, Math.ceil(maxVal / Math.PI) + 2);
+  const piMultiples = Array.from({ length: maxPiToRender }, (_, i) => i + 1);
+
+  // Dynamic integer ticks spanning full visible range with clean steps
+  const tickStep = radiusUnits === 1 ? 1 : radiusUnits <= 4 ? radiusUnits : 5;
+  const maxTickToRender = Math.ceil(maxVal) + 5;
+  const numTicks = Math.floor(maxTickToRender / tickStep);
+  const ticks = Array.from({ length: numTicks + 1 }, (_, i) => i * tickStep);
+
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
       <svg
@@ -201,9 +209,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
         <line x1={startX - 10} y1={groundY} x2={rightEdge + 10} y2={groundY} stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
 
         {/* Integer Ticks and Labels (smoothly glides & fades at right boundary) */}
-        {ALL_INTEGER_TICKS.map((t) => {
-          // Hide small non-multiple ticks when zoomed out to prevent text crowding
-          if (radiusUnits >= 2 && t % radiusUnits !== 0 && t > 0) return null;
+        {ticks.map((t) => {
           const tickX = startX + t * pxPerUnit;
           if (tickX > rightEdge + 25) return null;
           const opacity = tickX <= rightEdge ? 1 : Math.max(0, 1 - (tickX - rightEdge) / 20);
@@ -225,8 +231,8 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           );
         })}
 
-        {/* Continuous Pi Markers (π, 2π, 3π... 10π) that smoothly slide on/off edge */}
-        {ALL_PI_MULTIPLES.map((k) => {
+        {/* Continuous Pi Markers (π, 2π, 3π... 20π) that smoothly slide on/off edge */}
+        {piMultiples.map((k) => {
           const val = k * Math.PI;
           const markerX = startX + val * pxPerUnit;
           if (markerX > rightEdge + 30) return null;
