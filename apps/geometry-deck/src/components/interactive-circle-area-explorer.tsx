@@ -9,8 +9,6 @@ type InteractiveCircleAreaProps = {
   color?: string;
 };
 
-const SVG_H = 118;
-
 const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan (Radius r & Height)
 const COLOR_BASE = "#ffd45e";   // Warm Gold (Base πr & Circumference)
 const COLOR_AREA = "#ffffff";   // Crisp Bold White
@@ -24,7 +22,7 @@ type SectorCount = 4 | 8 | 16 | 32 | 64;
 
 export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
-  const SVG_W = Math.max(300, Math.min(500, rawW - 24));
+  const SVG_W = Math.max(300, Math.min(560, rawW - 16));
 
   const [radiusUnits, setRadiusUnits] = useState(1);
   const [animatedRadius, setAnimatedRadius] = useState(1); // Smooth camera zoom
@@ -68,17 +66,18 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
     return () => cancelAnimationFrame(zoomAnimRef.current);
   }, [radiusUnits]);
 
-  // Spatial Dimensions matching Circumference card exactly
+  // Spatial Dimensions matching Circumference card width
   const maxVal = animatedRadius * 7;
-  const targetRulerW = Math.min(SVG_W - 120, Math.max(210, Math.min(300, (SVG_W - 80) * 0.78)));
-  const rPx = targetRulerW / 7; // ~32px to 38px
+  const targetRulerW = Math.min(SVG_W - 70, Math.max(240, (SVG_W - 36) * 0.88));
+  const rPx = targetRulerW / 7; // ~34px to 44px
   const availableRulerW = targetRulerW;
   const startX = Math.round((SVG_W - availableRulerW) / 2);
   const rightEdge = startX + availableRulerW;
   const pxPerUnit = availableRulerW / maxVal;
 
-  const groundY = Math.round(rPx * 2 + 8); // ~76px
+  const groundY = Math.round(rPx * 2 + 10);
   const centerY = groundY - rPx;
+  const SVG_H = groundY + 30; // ~126px
 
   // Real world math
   const fullCircumVal = 2 * Math.PI * radiusUnits;
@@ -186,11 +185,12 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const currentHeightCalloutX = startRadiusScootX + (targetHeightX - startRadiusScootX) * scootEase;
 
   return (
-    <div ref={containerRef} className="flex flex-col items-center gap-1 w-full max-w-[460px] mx-auto select-none" onClick={stop} onPointerDown={stop}>
+    <div ref={containerRef} className="flex flex-col items-center gap-1.5 w-full max-w-[560px] mx-auto select-none" onClick={stop} onPointerDown={stop}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
-        className="w-full max-w-[460px] max-h-[118px] touch-none select-none overflow-visible"
+        style={{ maxHeight: 130 }}
+        className="w-full touch-none select-none overflow-visible"
       >
         {/* Ruler Axis Line */}
         <line x1={startX - 10} y1={groundY} x2={rightEdge + 10} y2={groundY} stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
@@ -218,7 +218,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
                   x={tickX}
                   y={groundY + 11}
                   textAnchor="middle"
-                  fontSize={8.5}
+                  fontSize={9}
                   fontWeight="bold"
                   fill="rgba(255, 255, 255, 0.55)"
                   fontFamily="var(--font-heading, system-ui)"
@@ -236,9 +236,9 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           <circle cx={0} cy={0} r={2} fill={COLOR_BASE} />
           <text
             x={0}
-            y={22}
+            y={23}
             textAnchor="middle"
-            fontSize={10}
+            fontSize={10.5}
             fontWeight="900"
             fill={COLOR_BASE}
             fontFamily="var(--font-heading, system-ui)"
@@ -254,9 +254,9 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           <circle cx={0} cy={0} r={2} fill={COLOR_PI} />
           <text
             x={0}
-            y={22}
+            y={23}
             textAnchor="middle"
-            fontSize={9.5}
+            fontSize={10}
             fontWeight="900"
             fill={COLOR_PI}
             fontFamily="var(--font-heading, system-ui)"
@@ -292,11 +292,11 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             
             {/* Label smoothly morphs from r = 1 to h = r (1) */}
             <text
-              x={currentHeightCalloutX + (p2 > 0.6 ? 6 : 0)}
+              x={currentHeightCalloutX + (p2 > 0.6 ? 7 : 0)}
               y={p2 > 0.6 ? groundY - rPx / 2 : groundY - rPx - 6}
               textAnchor={p2 > 0.6 ? "start" : "middle"}
               dominantBaseline="central"
-              fontSize={10.5}
+              fontSize={11}
               fontWeight="900"
               fill={COLOR_RADIUS}
               fontFamily="var(--font-heading, system-ui)"
@@ -413,7 +413,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               y={-9}
               textAnchor="middle"
               dominantBaseline="central"
-              fontSize={11}
+              fontSize={11.5}
               fontWeight="800"
               fill={COLOR_RADIUS}
               fontFamily="var(--font-heading, system-ui)"
