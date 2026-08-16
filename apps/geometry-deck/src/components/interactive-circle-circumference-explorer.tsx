@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
 import { cn } from "@/lib/utils";
 
@@ -8,43 +8,86 @@ type InteractiveCircleCircumferenceProps = {
   color?: string;
 };
 
-const SVG_H = 155;
+const SVG_H = 160;
 
 const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan
 const COLOR_CIRCUM = "#d8b4fe"; // Neon Lilac
 const COLOR_GOLD = "#ffd45e";   // Warm Gold
+const COLOR_PI = "#f472b6";     // Vibrant Rose Pink for Pi markers
 
-const PRESETS = [2, 3, 4, 5];
+const PRESETS = [1, 2, 3];
 
 export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCircleCircumferenceProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
-  const SVG_W = Math.max(280, Math.min(480, rawW - 24));
+  const SVG_W = Math.max(300, Math.min(500, rawW - 24));
 
-  const [radiusUnits, setRadiusUnits] = useState(3);
+  const [radiusUnits, setRadiusUnits] = useState(1); // Default r = 1 (Unit circle on real number line)
   const [unrollProgress, setUnrollProgress] = useState(0); // 0 (start) to 1 (fully unrolled: 2πr)
+  const [hasInteracted, setHasInteracted] = useState(false);
   const [isDraggingHandle, setIsDraggingHandle] = useState(false);
 
   const svgRef = useRef<SVGSVGElement>(null);
+  const autoplayRef = useRef<number>(0);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => {
     e.stopPropagation();
+    setHasInteracted(true);
   }, []);
 
-  // Scale pxPerUnit so full roll fits comfortably on canvas
-  const pxPerUnit = Math.max(5.5, Math.min(8.5, (SVG_W - 80) / (2 * Math.PI * 5)));
-  const rPx = radiusUnits * pxPerUnit;
-  const fullRollDist = 2 * Math.PI * rPx;
+  // Number line setup depending on radius:
+  // r=1: maxVal = 7, ticks at [0..7], markers at π (3.14) & 2π (6.28)
+  // r=2: maxVal = 14, ticks at [0, 2, 4, 6, 8, 10, 12, 14], markers at 2π (6.28) & 4π (12.57)
+  // r=3: maxVal = 21, ticks at [0, 3, 6, 9, 12, 15, 18, 21], markers at 3π (9.42) & 6π (18.85)
+  const maxVal = radiusUnits * 7;
+  const tickStep = radiusUnits === 1 ? 1 : radiusUnits;
+  const numTicks = maxVal / tickStep;
 
-  const startX = Math.round((SVG_W - fullRollDist) / 2);
-  const endX = Math.round(startX + fullRollDist);
+  const startX = 35;
+  const availableRulerW = SVG_W - 65;
+  const pxPerUnit = availableRulerW / maxVal;
+  const rPx = Math.min(38, Math.max(26, radiusUnits * pxPerUnit)); // visual radius in px
   const groundY = 112;
   const centerY = groundY - rPx;
-  const cCoeff = 2 * radiusUnits;
 
-  // Direct 1:1 dragging of the unroll handle along the track
+  const cValue = 2 * Math.PI * radiusUnits; // exact circumference in units
+  const fullRollDist = cValue * pxPerUnit;   // distance on screen in px
+  const endX = startX + fullRollDist;
+  const cCoeff = 2 * radiusUnits;
+  const cApprox = Math.round(cValue * 100) / 100;
+
+  // Single-shot gentle autoplay on reveal that yields immediately upon user touch/drag
+  useEffect(() => {
+    if (hasInteracted) return;
+    let start: number | null = null;
+    const duration = 2400; // 2.4s smooth rollout
+
+    const step = (ts: number) => {
+      if (!start) start = ts;
+      const elapsed = ts - start;
+      const prog = Math.min(1, elapsed / duration);
+      setUnrollProgress(prog);
+      if (prog < 1 && !hasInteracted) {
+        autoplayRef.current = requestAnimationFrame(step);
+      }
+    };
+
+    // Small initial delay so card renders before rolling
+    const timer = setTimeout(() => {
+      autoplayRef.current = requestAnimationFrame(step);
+    }, 400);
+
+    return () => {
+      clearTimeout(timer);
+      cancelAnimationFrame(autoplayRef.current);
+    };
+  }, [hasInteracted, radiusUnits]);
+
+  // Direct 1:1 dragging of the wheel / handle along the ruler
   const handleTrackPointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    setHasInteracted(true);
+    cancelAnimationFrame(autoplayRef.current);
     setIsDraggingHandle(true);
 
     const svg = svgRef.current;
@@ -76,11 +119,11 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
 
   const currentWheelX = startX + unrollProgress * fullRollDist;
 
-  // Unspooling Tape Geometry:
+  // Unspooling Tape Geometry
   const remainingFraction = 1 - unrollProgress;
   const remainingArcDeg = remainingFraction * 360;
 
-  // The leading tip of the remaining ribbon on the wheel
+  // Tip of the remaining ribbon on the wheel
   const tipAngleRad = (90 - remainingArcDeg) * (Math.PI / 180);
   const tipX = rPx * Math.cos(tipAngleRad);
   const tipY = rPx * Math.sin(tipAngleRad);
@@ -88,9 +131,11 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   let remainingArcPath = "";
   if (unrollProgress > 0 && remainingFraction > 0.005) {
     const largeArc = remainingArcDeg > 180 ? 1 : 0;
-    // Sweep counter-clockwise from bottom (6 o'clock: (0, rPx)) up through front to tip
     remainingArcPath = `M 0 ${rPx} A ${rPx} ${rPx} 0 ${largeArc} 0 ${tipX} ${tipY}`;
   }
+
+  // Ticks list
+  const ticks = Array.from({ length: numTicks + 1 }, (_, i) => i * tickStep);
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
@@ -101,46 +146,74 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
         onPointerDown={handleTrackPointerDown}
       >
         {/* Track Hitbox for easy dragging */}
-        <rect x={startX - 25} y={groundY - 60} width={fullRollDist + 50} height={90} fill="transparent" />
+        <rect x={startX - 20} y={groundY - 60} width={availableRulerW + 40} height={90} fill="transparent" />
 
-        {/* Ground Baseline Ruler */}
-        <line x1={startX} y1={groundY} x2={endX} y2={groundY} stroke="rgba(255, 255, 255, 0.35)" strokeWidth={2} />
+        {/* Real Number Line Base Axis */}
+        <line x1={startX - 10} y1={groundY} x2={startX + availableRulerW + 10} y2={groundY} stroke="rgba(255, 255, 255, 0.4)" strokeWidth={2} />
 
-        {/* Start Tick (0) */}
-        <line x1={startX} y1={groundY - 5} x2={startX} y2={groundY + 5} stroke="rgba(255, 255, 255, 0.7)" strokeWidth={2} />
-        <text
-          x={startX}
-          y={groundY + 16}
-          textAnchor="middle"
-          fontSize={11}
-          fontWeight="bold"
-          fill="rgba(255, 255, 255, 0.6)"
-          fontFamily="var(--font-heading, system-ui)"
-        >
-          0
-        </text>
+        {/* Standard Integer Ticks and Labels */}
+        {ticks.map((t) => {
+          const tickX = startX + t * pxPerUnit;
+          return (
+            <g key={t}>
+              <line x1={tickX} y1={groundY - 4} x2={tickX} y2={groundY + 4} stroke="rgba(255, 255, 255, 0.6)" strokeWidth={1.5} />
+              <text
+                x={tickX}
+                y={groundY + 16}
+                textAnchor="middle"
+                fontSize={10}
+                fontWeight="bold"
+                fill="rgba(255, 255, 255, 0.6)"
+                fontFamily="var(--font-heading, system-ui)"
+              >
+                {t}
+              </text>
+            </g>
+          );
+        })}
 
-        {/* Finish Tick (2πr) */}
-        <line x1={endX} y1={groundY - 6} x2={endX} y2={groundY + 6} stroke={COLOR_CIRCUM} strokeWidth={2.5} />
-        <text
-          x={endX}
-          y={groundY + 16}
-          textAnchor="middle"
-          fontSize={12}
-          fontWeight="900"
-          fill={COLOR_CIRCUM}
-          fontFamily="var(--font-heading, system-ui)"
-          style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
-        >
-          {cCoeff}π
-        </text>
+        {/* Highlighted π Marker on Number Line */}
+        {radiusUnits === 1 && (
+          <g transform={`translate(${startX + Math.PI * pxPerUnit}, ${groundY})`}>
+            <line x1={0} y1={-6} x2={0} y2={6} stroke={COLOR_PI} strokeWidth={2} strokeDasharray="2 2" />
+            <text
+              x={0}
+              y={-9}
+              textAnchor="middle"
+              fontSize={10.5}
+              fontWeight="900"
+              fill={COLOR_PI}
+              fontFamily="var(--font-heading, system-ui)"
+              style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
+            >
+              π (3.14)
+            </text>
+          </g>
+        )}
 
-        {/* Ghost Starting Circle outline (only when rolled away from start) */}
+        {/* Finish 2πr Tick on Number Line */}
+        <g transform={`translate(${endX}, ${groundY})`}>
+          <line x1={0} y1={-7} x2={0} y2={7} stroke={COLOR_CIRCUM} strokeWidth={2.5} />
+          <text
+            x={0}
+            y={-10}
+            textAnchor="middle"
+            fontSize={11.5}
+            fontWeight="900"
+            fill={COLOR_CIRCUM}
+            fontFamily="var(--font-heading, system-ui)"
+            style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
+          >
+            {cCoeff}π ({cApprox})
+          </text>
+        </g>
+
+        {/* Ghost Starting Circle outline (when rolled away) */}
         {unrollProgress > 0.03 && (
           <circle cx={startX} cy={centerY} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
         )}
 
-        {/* Unrolled Lilac Boundary Ribbon along the ground */}
+        {/* Unrolled Lilac Boundary Ribbon along the number line */}
         {unrollProgress > 0 && (
           <line
             x1={startX}
@@ -163,9 +236,9 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
             <circle cx={0} cy={0} r={rPx} fill="none" stroke={COLOR_CIRCUM} strokeWidth={3} />
           ) : (
             <>
-              {/* Spool ghost track */}
+              {/* Bare Spool Ghost */}
               <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.2)" strokeWidth={1.5} strokeDasharray="3 3" />
-              {/* Unspooling Perimeter Ribbon on the Front/Top */}
+              {/* Unspooling Perimeter Ribbon on Front/Top */}
               {remainingArcPath && (
                 <path
                   d={remainingArcPath}
@@ -178,9 +251,8 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
             </>
           )}
 
-          {/* Radius Spoke line */}
+          {/* Radius Spoke */}
           {unrollProgress === 0 ? (
-            /* Clean Horizontal Radius at zero state */
             <>
               <line x1={0} y1={0} x2={rPx} y2={0} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
               <circle cx={0} cy={0} r={3} fill="#ffffff" />
@@ -196,13 +268,13 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
             )
           )}
 
-          {/* Radius label (always clean above center) */}
+          {/* Radius label */}
           <text
             x={0}
             y={-12}
             textAnchor="middle"
             dominantBaseline="central"
-            fontSize={12.5}
+            fontSize={12}
             fontWeight="800"
             fill={COLOR_RADIUS}
             fontFamily="var(--font-heading, system-ui)"
@@ -231,6 +303,8 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
             <button
               key={pr}
               onClick={() => {
+                setHasInteracted(true);
+                cancelAnimationFrame(autoplayRef.current);
                 setRadiusUnits(pr);
                 setUnrollProgress(0);
               }}
@@ -245,10 +319,14 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
         </div>
 
         <button
-          onClick={() => setUnrollProgress(unrollProgress > 0 ? 0 : 1)}
+          onClick={() => {
+            setHasInteracted(true);
+            cancelAnimationFrame(autoplayRef.current);
+            setUnrollProgress(unrollProgress > 0 ? 0 : 1);
+          }}
           className="px-3.5 py-1 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm backdrop-blur-md active:scale-95"
         >
-          {unrollProgress > 0 ? "↺ Reset" : "Unroll full turn (2πr)"}
+          {unrollProgress > 0 ? "↺ Reset" : `Unroll (${cCoeff}π)`}
         </button>
       </div>
 
@@ -261,6 +339,8 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           <span style={{ color: COLOR_RADIUS }}>{radiusUnits}</span>
           <span className="text-white/50">=</span>
           <span style={{ color: COLOR_CIRCUM }} className="font-bold">{cCoeff}π</span>
+          <span className="text-white/50">≈</span>
+          <span className="text-white font-bold">{cApprox}</span>
         </div>
       </div>
     </div>
