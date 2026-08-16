@@ -85,8 +85,9 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   const fullRollDist = fullCircumVal * pxPerUnit; // distance along ruler corresponding to 2πr
   const halfRollDist = Math.PI * radiusUnits * pxPerUnit; // distance corresponding to πr
 
-  // Base 8-Sector geometry for unrolling
-  const singleToothW = fullRollDist / 8;
+  // Active number of slices across all steps (8, 16, 32, or 32 for inf)
+  const activeN = sectorCount === "inf" ? 32 : sectorCount;
+  const singleToothW = fullRollDist / activeN;
   const halfW = singleToothW / 2;
 
   const areaCoeff = radiusUnits * radiusUnits;
@@ -131,7 +132,6 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
     const timer = setTimeout(() => {
       setStep((prev) => {
-        if (prev === 3) setSectorCount(8); // reset sectors on loop
         return prev === 1 ? 2 : prev === 2 ? 3 : 1;
       });
     }, dwell);
@@ -180,32 +180,25 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
       setStep(1);
       setUnrollProgress(0);
       setIsPlaying(false);
-      setSectorCount(8);
     }
   };
 
-  // Stage 1 (p1 in [0..1]): Wheel rolls 2πr and unrolls 8 slices in a line on the ground
+  // Stage 1 (p1 in [0..1]): Wheel rolls 2πr and unrolls N slices in a line on the ground
   // Stage 2 (p2 in [0..1]): Pure Lift -> Flip in Sky -> Slide -> Drop into Slots
   const p1 = Math.min(1, unrollProgress);
   const p2 = Math.max(0, unrollProgress - 1);
 
   const currentWheelX = startX + p1 * fullRollDist;
 
-  // CANONICAL TRUE PIE SECTOR PATH HELPER
-  const makeSectorPath = (numSectors: number) => {
-    const halfAngle = Math.PI / numSectors;
-    const sinH = Math.sin(halfAngle);
-    const cosH = Math.cos(halfAngle);
-    const ax1 = -rPx * sinH;
-    const ay1 = -rPx * cosH;
-    const ax2 = rPx * sinH;
-    const ay2 = -rPx * cosH;
-    return `M 0 0 L ${ax1} ${ay1} A ${rPx} ${rPx} 0 0 1 ${ax2} ${ay2} Z`;
-  };
-
-  const sectorPath8 = makeSectorPath(8);
-  const sectorPath16 = makeSectorPath(16);
-  const sectorPath32 = makeSectorPath(32);
+  // CANONICAL TRUE PIE SECTOR PATH HELPER (Subtending 360 / activeN degrees)
+  const halfAngle = Math.PI / activeN;
+  const sinH = Math.sin(halfAngle);
+  const cosH = Math.cos(halfAngle);
+  const ax1 = -rPx * sinH;
+  const ay1 = -rPx * cosH;
+  const ax2 = rPx * sinH;
+  const ay2 = -rPx * cosH;
+  const activeSectorPath = `M 0 0 L ${ax1} ${ay1} A ${rPx} ${rPx} 0 0 1 ${ax2} ${ay2} Z`;
 
   // Radius spoke pointing straight DOWN at start (6 o'clock) and rotating with wheel
   const spokeAngleRad = (90 + p1 * 360) * (Math.PI / 180);
@@ -346,69 +339,38 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </g>
         )}
 
-        {/* Step 3 Subdivided Sectors (When fully assembled at p2 >= 1 and sectorCount !== 8) */}
-        {p2 >= 0.99 && sectorCount !== 8 ? (
-          sectorCount === "inf" ? (
-            /* Perfect Flat Rectangle (Limit as N -> ∞) */
-            <g>
-              <rect
-                x={startX}
-                y={groundY - rPx}
-                width={halfRollDist}
-                height={rPx}
-                fill={COLOR_SECTOR}
-                stroke="rgba(255, 255, 255, 0.85)"
-                strokeWidth={1.5}
-              />
-              {/* Infinitesimal vertical slice grid lines */}
-              {Array.from({ length: 32 }, (_, k) => {
-                const sx = startX + (k / 32) * halfRollDist;
-                return (
-                  <line
-                    key={`inf-line-${k}`}
-                    x1={sx}
-                    y1={groundY - rPx}
-                    x2={sx}
-                    y2={groundY}
-                    stroke="rgba(255, 255, 255, 0.25)"
-                    strokeWidth={0.75}
-                  />
-                );
-              })}
-            </g>
-          ) : (
-            /* 16 or 32 Fine Interlocking Slices */
-            <g>
-              {Array.from({ length: sectorCount as number }, (_, k) => {
-                const n = sectorCount as number;
-                const toothW = fullRollDist / n;
-                const hW = toothW / 2;
-                const isEven = k % 2 === 0;
-                const pairIdx = Math.floor(k / 2);
-                const apexX = isEven
-                  ? startX + pairIdx * toothW + hW
-                  : startX + pairIdx * toothW + toothW;
-                const apexY = isEven ? groundY - rPx : groundY;
-                const rot = isEven ? 180 : 0;
-                const p = n === 16 ? sectorPath16 : sectorPath32;
-
-                return (
-                  <g key={`subdivided-slice-${k}`} transform={`translate(${apexX}, ${apexY}) rotate(${rot})`}>
-                    <path
-                      d={p}
-                      fill={COLOR_SECTOR}
-                      stroke="rgba(255, 255, 255, 0.65)"
-                      strokeWidth={n === 32 ? 0.8 : 1}
-                    />
-                  </g>
-                );
-              })}
-            </g>
-          )
+        {/* Step 3: Exact Flat Rectangle Overlay if sectorCount is 'inf' and fully assembled */}
+        {p2 >= 0.99 && sectorCount === "inf" ? (
+          <g>
+            <rect
+              x={startX}
+              y={groundY - rPx}
+              width={halfRollDist}
+              height={rPx}
+              fill={COLOR_SECTOR}
+              stroke="rgba(255, 255, 255, 0.85)"
+              strokeWidth={1.5}
+            />
+            {/* Infinitesimal vertical slice grid lines */}
+            {Array.from({ length: 32 }, (_, k) => {
+              const sx = startX + (k / 32) * halfRollDist;
+              return (
+                <line
+                  key={`inf-line-${k}`}
+                  x1={sx}
+                  y1={groundY - rPx}
+                  x2={sx}
+                  y2={groundY}
+                  stroke="rgba(255, 255, 255, 0.25)"
+                  strokeWidth={0.75}
+                />
+              );
+            })}
+          </g>
         ) : (
-          /* Default 8-Sector Assembly (With 4-Stage Elevator Choreography) */
-          Array.from({ length: 8 }, (_, k) => {
-            const handoverProgress = (k + 0.5) / 8;
+          /* Active N Slices on Ground (Fully dynamic across 8, 16, 32 slices) */
+          Array.from({ length: activeN }, (_, k) => {
+            const handoverProgress = (k + 0.5) / activeN;
             if (p1 < handoverProgress && p1 < 0.999) return null; // still attached to rolling wheel!
 
             const isEven = k % 2 === 0;
@@ -462,37 +424,39 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
                 transform={`translate(${curX}, ${curY}) rotate(${curRot})`}
               >
                 <path
-                  d={sectorPath8}
+                  d={activeSectorPath}
                   fill={COLOR_SECTOR}
                   stroke="rgba(255, 255, 255, 0.65)"
-                  strokeWidth={1.2}
+                  strokeWidth={activeN >= 32 ? 0.75 : activeN >= 16 ? 1 : 1.2}
                 />
               </g>
             );
           })
         )}
 
-        {/* Rolling Wheel Group (Slices rotate smoothly around wheel center until released) */}
+        {/* Rolling Wheel Group (Slices on wheel dynamically match activeN across Step 1 and Step 2) */}
         {p1 < 1 && (
           <g transform={`translate(${currentWheelX}, ${centerY})`}>
             {/* Ghost wheel outline */}
             <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
             <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.06)" />
 
-            {/* Slices Remaining inside Wheel (Rotating around wheel center (0,0)) */}
-            {Array.from({ length: 8 }, (_, i) => {
-              const handoverProgress = (i + 0.5) / 8;
+            {/* Active Slices Remaining inside Wheel */}
+            {Array.from({ length: activeN }, (_, i) => {
+              const handoverProgress = (i + 0.5) / activeN;
               if (p1 >= handoverProgress) return null; // cleanly handed over to ground!
 
-              const angleDeg = 157.5 - i * (360 / 8) + p1 * 360;
+              // Starting slice 0 trailing edge touches ground at 6 o'clock
+              const baseAngle = 180 - 180 / activeN;
+              const angleDeg = baseAngle - i * (360 / activeN) + p1 * 360;
 
               return (
                 <g key={`wheel-slice-${i}`} transform={`rotate(${angleDeg})`}>
                   <path
-                    d={sectorPath8}
+                    d={activeSectorPath}
                     fill={COLOR_SECTOR}
                     stroke="rgba(255, 255, 255, 0.45)"
-                    strokeWidth={1.2}
+                    strokeWidth={activeN >= 32 ? 0.75 : activeN >= 16 ? 1 : 1.2}
                   />
                 </g>
               );
@@ -640,7 +604,6 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               onClick={() => {
                 setIsPlaying(false);
                 setSectorCount(cnt);
-                if (step !== 3) setStep(3);
               }}
               className={cn(
                 "px-2 py-0.5 rounded-full text-[11px] font-headline font-bold transition-all border-none",
