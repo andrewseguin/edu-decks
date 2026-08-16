@@ -97,9 +97,9 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
     const targetP = targetProgress;
     if (Math.abs(startP - targetP) < 0.005) return;
 
-    // 2.6s for unrolling (step 1->2), 3.0s for 3-stage elevator proof (step 2->3)
+    // 2.6s for unrolling (step 1->2), 3.2s for 4-stage elevator proof (step 2->3)
     const stepDiff = Math.abs(targetP - startP);
-    const duration = Math.round((startP >= 0.99 || targetP >= 1.99 ? 3000 : 2600) * stepDiff);
+    const duration = Math.round((startP >= 0.99 || targetP >= 1.99 ? 3200 : 2600) * stepDiff);
 
     const stepAnim = (ts: number) => {
       if (!start) start = ts;
@@ -177,7 +177,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
   };
 
   // Stage 1 (p1 in [0..1]): Wheel rolls 2πr and unrolls 8 slices in a line on the ground
-  // Stage 2 (p2 in [0..1]): 3-Stage Elevator (Lift & Flip -> Slide to πr -> Drop into slots)
+  // Stage 2 (p2 in [0..1]): Pure Lift -> Flip in Sky -> Slide -> Drop into Slots
   const p1 = Math.min(1, unrollProgress);
   const p2 = Math.max(0, unrollProgress - 1);
 
@@ -299,8 +299,8 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         </g>
 
         {/* Dimension Callouts for Interlocked Parallelogram (Step 3) */}
-        {p2 > 0.85 && (
-          <g opacity={Math.min(1, (p2 - 0.85) * 6.6)}>
+        {p2 > 0.88 && (
+          <g opacity={Math.min(1, (p2 - 0.88) * 8)}>
             {/* Base Dimension Bracket Along Bottom (b = πr) */}
             <line x1={startX} y1={groundY + 6} x2={startX + halfRollDist} y2={groundY + 6} stroke={COLOR_BASE} strokeWidth={2.5} strokeLinecap="round" />
             <line x1={startX} y1={groundY + 2} x2={startX} y2={groundY + 10} stroke={COLOR_BASE} strokeWidth={2} />
@@ -334,7 +334,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </g>
         )}
 
-        {/* 8 Slices Laid Down on Ground / 3-Stage Elevator Proof (Zero overlap, mathematically exact clearance) */}
+        {/* 8 Slices Laid Down on Ground / Pure Lift -> Flip in Sky -> Slide -> Drop */}
         {Array.from({ length: NUM_SECTORS }, (_, k) => {
           const handoverProgress = (k + 0.5) / NUM_SECTORS;
           if (p1 < handoverProgress && p1 < 0.999) return null; // still attached to rolling wheel!
@@ -343,7 +343,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
 
           // Step 2 Ground resting coordinates:
           const groundX = startX + k * singleToothW + halfW;
-          const groundYPos = groundY - rPx;
+          const groundApexY = groundY - rPx; // resting apex at y = groundY - rPx, rot = 180
 
           // Step 3 Target slot coordinates in final parallelogram:
           const pairIdx = Math.floor(k / 2);
@@ -352,51 +352,55 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
             : startX + pairIdx * singleToothW + singleToothW;
 
           let curX = groundX;
-          let curY = groundYPos;
+          let curY = groundApexY;
           let curRot = 180;
 
           if (p2 > 0) {
             const t = p2; // 0..1
 
-            // 3 Clean Sequential Subphases:
-            // Subphase 1: Lift & Flip in place (t in 0 .. 0.32)
-            // Subphase 2: Pure horizontal slide (t in 0.32 .. 0.68)
-            // Subphase 3: Lower down into slots (t in 0.68 .. 1.0)
+            // 4 Clean Sequential Subphases:
+            // Sub1: Lift straight up off the ground (t in 0 .. 0.20)
+            // Sub2: Flip 180° in mid-air (t in 0.20 .. 0.40)
+            // Sub3: Pure horizontal slide while hovering in the sky (t in 0.40 .. 0.70)
+            // Sub4: Lower straight down into target slots (t in 0.70 .. 1.0)
 
-            const sub1 = Math.min(1, Math.max(0, t / 0.32));
-            const sub2 = Math.min(1, Math.max(0, (t - 0.32) / 0.36));
-            const sub3 = Math.min(1, Math.max(0, (t - 0.68) / 0.32));
+            const sub1 = Math.min(1, Math.max(0, t / 0.20));
+            const sub2 = Math.min(1, Math.max(0, (t - 0.20) / 0.20));
+            const sub3 = Math.min(1, Math.max(0, (t - 0.40) / 0.30));
+            const sub4 = Math.min(1, Math.max(0, (t - 0.70) / 0.30));
 
             const ease1 = 0.5 * (1 - Math.cos(sub1 * Math.PI));
             const ease2 = 0.5 * (1 - Math.cos(sub2 * Math.PI));
             const ease3 = 0.5 * (1 - Math.cos(sub3 * Math.PI));
+            const ease4 = 0.5 * (1 - Math.cos(sub4 * Math.PI));
 
             if (isEven) {
               // Bottom Upright Slices (k = 0, 2, 4, 6):
-              // Stay in place during sub1, slide smoothly left during sub2, stay fixed during sub3
-              curX = groundX + (targetX - groundX) * ease2;
-              curY = groundYPos;
+              // Stay on ground during Sub1 & Sub2, slide left during Sub3, stay locked during Sub4
+              curX = groundX + (targetX - groundX) * ease3;
+              curY = groundApexY;
               curRot = 180;
             } else {
               // Top Flipping Slices (k = 1, 3, 5, 7):
-              // Exact hover apex height: groundY - rPx - 8px.
-              // This places the bottom tip of the inverted slice 8px ABOVE the top apex of standing slices (groundY - rPx),
-              // while keeping the top curved rim at groundY - 2*rPx - 8px (~18px from top edge).
               const hoverApexY = groundY - rPx - 8;
               const finalSlotApexY = groundY;
 
-              // 1. Lift & Flip from ground pose (groundYPos, 180°) to hover pose (hoverApexY, 0°):
-              const startApexY = groundYPos;
-              const yAfterLift = startApexY + (hoverApexY - startApexY) * ease1;
+              // Sub1: Lift straight up off ground (rot = 180)
+              // Apex moves from groundApexY to groundApexY - (rPx + 8)
+              const liftedApexY = groundApexY - (rPx + 8);
+              const yLifted = groundApexY + (liftedApexY - groundApexY) * ease1;
 
-              // 2. Slide horizontally while hovering safely above:
-              curX = groundX + (targetX - groundX) * ease2;
+              // Sub2: Flip in the air from 180° to 0° (apex translates to hoverApexY)
+              const yAfterFlip = yLifted + (hoverApexY - liftedApexY) * ease2;
 
-              // 3. Lower straight down from hover apex into slot at y = groundY:
-              curY = yAfterLift + (finalSlotApexY - hoverApexY) * ease3;
+              // Sub3: Slide horizontally while hovering in the air
+              curX = groundX + (targetX - groundX) * ease3;
 
-              // Rotation flips during sub1 from 180° to 0°
-              curRot = 180 - 180 * ease1;
+              // Sub4: Lower straight down from hoverApexY into slot at finalSlotApexY
+              curY = yAfterFlip + (finalSlotApexY - hoverApexY) * ease4;
+
+              // Rotation: stays 180 during Sub1, flips to 0 during Sub2, stays 0 during Sub3 and Sub4
+              curRot = 180 - 180 * ease2;
             }
           }
 
