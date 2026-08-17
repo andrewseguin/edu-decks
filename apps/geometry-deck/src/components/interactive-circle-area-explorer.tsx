@@ -455,52 +455,35 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         )}
       </svg>
 
-      {/* Row 1: Animation Step Tabs (Segmented switcher with solid active pill) */}
-      <div className="flex justify-center select-none">
-        <div className="flex items-center gap-1 bg-white/15 backdrop-blur-md p-1 rounded-full border border-white/30 shadow-md">
-          <button
-            onClick={() => {
-              setIsPlaying(false);
-              setStep(1);
-            }}
-            className={cn(
-              "px-3.5 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
-              step === 1
-                ? "bg-white text-purple-950 font-black shadow-md scale-[1.02]"
-                : "bg-transparent text-white/85 hover:text-white hover:bg-white/10"
-            )}
-          >
-            1. Circle
-          </button>
-          <button
-            onClick={() => {
-              setIsPlaying(false);
-              setStep(2);
-            }}
-            className={cn(
-              "px-3.5 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
-              step === 2
-                ? "bg-white text-purple-950 font-black shadow-md scale-[1.02]"
-                : "bg-transparent text-white/85 hover:text-white hover:bg-white/10"
-            )}
-          >
-            2. Unroll
-          </button>
-          <button
-            onClick={() => {
-              setIsPlaying(false);
-              setStep(3);
-            }}
-            className={cn(
-              "px-3.5 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
-              step === 3
-                ? "bg-white text-purple-950 font-black shadow-md scale-[1.02]"
-                : "bg-transparent text-white/85 hover:text-white hover:bg-white/10"
-            )}
-          >
-            3. Combine
-          </button>
-        </div>
+      {/* Row 1: Animation Step Tabs (Surfaceless typographic navigation) */}
+      <div className="flex items-center justify-center gap-5 sm:gap-7 select-none py-1">
+        {[
+          { num: 1, label: "1. Circle" },
+          { num: 2, label: "2. Unroll" },
+          { num: 3, label: "3. Combine" },
+        ].map(({ num, label }) => {
+          const isActive = step === num;
+          return (
+            <button
+              key={num}
+              onClick={() => {
+                setIsPlaying(false);
+                setStep(num as 1 | 2 | 3);
+              }}
+              className={cn(
+                "relative pb-1 text-xs sm:text-sm font-headline font-bold transition-all border-none bg-transparent cursor-pointer tracking-wide",
+                isActive
+                  ? "text-white font-black opacity-100 scale-105"
+                  : "text-white/50 hover:text-white/85 opacity-70 hover:opacity-100"
+              )}
+            >
+              <span>{label}</span>
+              {isActive && (
+                <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+              )}
+            </button>
+          );
+        })}
       </div>
 
       {/* Row 2: Parameters (Radius & Slices) */}
