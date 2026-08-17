@@ -189,29 +189,18 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
             );
           })}
 
-        {/* Converging Purple Exterior Angle Arcs / Wedges */}
+        {/* Converging Purple Exterior Angle Arcs / Wedges (Pure Translation, No Rotation) */}
         {vertices.map((v, i) => {
           const nextV = vertices[(i + 1) % n];
           const heading = Math.atan2(nextV.y - v.y, nextV.x - v.x);
 
-          // Center target heading for sector i
-          const targetHeading = (i * eachExteriorAngle * Math.PI) / 180 - Math.PI / 2;
-
-          // Interpolate position from corner vertex to center
+          // Pure straight-line translation from corner vertex to center (Zero Rotation)
           const currX = nextV.x + (CX - nextV.x) * gatherProg;
           const currY = nextV.y + (CY - nextV.y) * gatherProg;
-
-          // Interpolate angle & radius
-          // Handle smooth angle wrapping
-          let angleDiff = targetHeading - heading;
-          while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
-          while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
-          const currHeading = heading + angleDiff * gatherProg;
-
           const currR = cornerArcR + (centerDiscR - cornerArcR) * gatherProg;
 
-          const sectorD = getSectorPath({ x: currX, y: currY }, currHeading, sweepAngle, currR);
-          const arcD = getArcPath({ x: currX, y: currY }, currHeading, sweepAngle, currR);
+          const sectorD = getSectorPath({ x: currX, y: currY }, heading, sweepAngle, currR);
+          const arcD = getArcPath({ x: currX, y: currY }, heading, sweepAngle, currR);
 
           return (
             <g key={`arc-wedge-${i}`}>
