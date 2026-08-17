@@ -24,7 +24,42 @@ const POLY_NAMES: Record<number, string> = {
 
 const COLOR_GOLD = "#ffd45e";
 const COLOR_LILAC = "#d8b4fe";
-const COLOR_WHITE = "#ffffff";
+
+const TRI_PALETTE = [
+  { fill: "rgba(216, 180, 254, 0.25)", stroke: COLOR_LILAC }, // Lilac
+  { fill: "rgba(255, 212, 94, 0.25)",  stroke: COLOR_GOLD },  // Warm Gold
+];
+
+function getCornerArc(
+  center: { x: number; y: number },
+  pt1: { x: number; y: number },
+  pt2: { x: number; y: number },
+  r: number
+): string {
+  const d1x = pt1.x - center.x;
+  const d1y = pt1.y - center.y;
+  const len1 = Math.hypot(d1x, d1y);
+  if (len1 === 0) return "";
+  const u1x = d1x / len1;
+  const u1y = d1y / len1;
+
+  const d2x = pt2.x - center.x;
+  const d2y = pt2.y - center.y;
+  const len2 = Math.hypot(d2x, d2y);
+  if (len2 === 0) return "";
+  const u2x = d2x / len2;
+  const u2y = d2y / len2;
+
+  const p1x = center.x + r * u1x;
+  const p1y = center.y + r * u1y;
+  const p2x = center.x + r * u2x;
+  const p2y = center.y + r * u2y;
+
+  const cross = u1x * u2y - u1y * u2x;
+  const sweep = cross > 0 ? 1 : 0;
+
+  return `M ${p1x} ${p1y} A ${r} ${r} 0 0 ${sweep} ${p2x} ${p2y}`;
+}
 
 export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePolygonInteriorSumProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
@@ -35,39 +70,85 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
   const [n, setN] = useState(5); // n in [3..12]
   const numTriangles = n - 2;
 
-  // Animation state: number of triangles currently revealed (0 to numTriangles)
-  const [revealedCount, setRevealedCount] = useState(numTriangles);
+  // Animation state:
+  // revealedTriangles: number of fully completed triangle slices
+  // activeDiagonalProgress: progress (0 to 1) of the currently extending diagonal beam from apex
+  const [revealedTriangles, setRevealedTriangles] = useState(numTriangles);
+  const [activeDrawingCut, setActiveDrawingCut] = useState<number | null>(null);
+  const [diagonalProgress, setDiagonalProgress] = useState(1);
   const [isAnimating, setIsAnimating] = useState(false);
-  const animTimeoutRef = useRef<NodeJS.Timeout[]>([]);
 
-  const clearTimeouts = () => {
-    animTimeoutRef.current.forEach((t) => clearTimeout(t));
-    animTimeoutRef.current = [];
+  const animFrameRef = useRef<number | null>(null);
+
+  const clearAnim = () => {
+    if (animFrameRef.current !== null) {
+      cancelAnimationFrame(animFrameRef.current);
+      animFrameRef.current = null;
+    }
   };
 
-  const playFanCutAnimation = useCallback((targetCount: number) => {
-    clearTimeouts();
+  const playFanCutSequence = useCallback((targetTriangles: number) => {
+    clearAnim();
     setIsAnimating(true);
-    setRevealedCount(0);
+    setRevealedTriangles(0);
+    setActiveDrawingCut(null);
+    setDiagonalProgress(0);
 
-    const stepInterval = Math.max(260, Math.min(420, 1800 / targetCount));
+    let currentStep = 0; // step index 0 .. targetTriangles - 1
 
-    for (let step = 1; step <= targetCount; step++) {
-      const timer = setTimeout(() => {
-        setRevealedCount(step);
-        if (step === targetCount) {
-          setIsAnimating(false);
-        }
-      }, step * stepInterval);
-      animTimeoutRef.current.push(timer);
-    }
+    const runNextStep = () => {
+      if (currentStep >= targetTriangles) {
+        setRevealedTriangles(targetTriangles);
+        setActiveDrawingCut(null);
+        setDiagonalProgress(1);
+        setIsAnimating(false);
+        return;
+      }
+
+      // If this triangle requires a diagonal cut (triangles 0 to targetTriangles - 2)
+      if (currentStep < targetTriangles - 1) {
+        setActiveDrawingCut(currentStep);
+        const cutStartTime = performance.now();
+        const cutDuration = Math.max(240, Math.min(380, 1400 / targetTriangles));
+
+        const animateDiagonal = (now: number) => {
+          const elapsed = now - cutStartTime;
+          const prog = Math.min(1, elapsed / cutDuration);
+          setDiagonalProgress(prog);
+
+          if (prog < 1) {
+            animFrameRef.current = requestAnimationFrame(animateDiagonal);
+          } else {
+            // Cut finished! Reveal the triangle and move to next
+            currentStep++;
+            setRevealedTriangles(currentStep);
+            setActiveDrawingCut(null);
+            setTimeout(() => {
+              runNextStep();
+            }, 120);
+          }
+        };
+        animFrameRef.current = requestAnimationFrame(animateDiagonal);
+      } else {
+        // Last triangle fills the remaining slice
+        currentStep++;
+        setRevealedTriangles(currentStep);
+        setActiveDrawingCut(null);
+        setIsAnimating(false);
+      }
+    };
+
+    // Small initial delay before first diagonal starts
+    setTimeout(() => {
+      runNextStep();
+    }, 100);
   }, []);
 
-  // Trigger fan-cut animation when n changes
+  // Trigger fan-cut sequence when n changes
   useEffect(() => {
-    playFanCutAnimation(numTriangles);
-    return () => clearTimeouts();
-  }, [n, numTriangles, playFanCutAnimation]);
+    playFanCutSequence(numTriangles);
+    return () => clearAnim();
+  }, [n, numTriangles, playFanCutSequence]);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => {
     e.stopPropagation();
@@ -80,9 +161,11 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
   });
 
   const totalSum = numTriangles * 180;
-  const currentSum = revealedCount * 180;
+  const currentSum = revealedTriangles * 180;
   const polyName = POLY_NAMES[n] || `${n}-gon`;
   const hubV = vertices[0];
+
+  const arcR = Math.max(8, Math.min(15, 64 / n));
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full max-w-[440px] mx-auto pb-1 select-none" onClick={stop} onPointerDown={stop}>
@@ -94,40 +177,51 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
         {/* Base polygon outline & faint interior */}
         <polygon
           points={vertices.map((v) => `${v.x},${v.y}`).join(" ")}
-          fill="rgba(255, 255, 255, 0.07)"
+          fill="rgba(255, 255, 255, 0.08)"
           stroke="rgba(255, 255, 255, 0.95)"
           strokeWidth={2.5}
           strokeLinejoin="round"
         />
 
-        {/* Sequentially revealed triangles with clean Lilac wash */}
+        {/* Sequentially revealed triangles with 3 matching corner angle arcs */}
         {Array.from({ length: numTriangles }, (_, i) => {
           const v0 = hubV;
           const v1 = vertices[i + 1];
           const v2 = vertices[i + 2];
           const pathD = `M ${v0.x} ${v0.y} L ${v1.x} ${v1.y} L ${v2.x} ${v2.y} Z`;
-          const isRevealed = i < revealedCount;
-          const isLatest = i === revealedCount - 1;
+          const isRevealed = i < revealedTriangles;
+          const theme = TRI_PALETTE[i % TRI_PALETTE.length];
           const triCenter = {
             x: (v0.x + v1.x + v2.x) / 3,
             y: (v0.y + v1.y + v2.y) / 3,
           };
+
+          // 3 Corner Angle Arcs for this triangle
+          const arcHub = getCornerArc(v0, v1, v2, arcR);
+          const arcV1 = getCornerArc(v1, v2, v0, arcR);
+          const arcV2 = getCornerArc(v2, v0, v1, arcR);
 
           return (
             <g
               key={`tri-${i}`}
               style={{
                 opacity: isRevealed ? 1 : 0,
-                transition: "opacity 0.28s ease-out, transform 0.28s ease-out",
+                transition: "opacity 0.24s ease-out",
               }}
             >
+              {/* Triangle Tint Fill */}
               <path
                 d={pathD}
-                fill={isLatest && isAnimating ? "rgba(216, 180, 254, 0.42)" : "rgba(216, 180, 254, 0.24)"}
-                stroke={isLatest && isAnimating ? COLOR_GOLD : "rgba(255, 255, 255, 0.45)"}
-                strokeWidth={isLatest && isAnimating ? 2 : 1.5}
-                strokeDasharray="4 3"
+                fill={theme.fill}
+                stroke="none"
               />
+
+              {/* Triangle 3 Corner Angle Arcs in Matching Theme Color */}
+              {arcHub && <path d={arcHub} fill="none" stroke={theme.stroke} strokeWidth={2} strokeLinecap="round" />}
+              {arcV1 && <path d={arcV1} fill="none" stroke={theme.stroke} strokeWidth={2} strokeLinecap="round" />}
+              {arcV2 && <path d={arcV2} fill="none" stroke={theme.stroke} strokeWidth={2} strokeLinecap="round" />}
+
+              {/* Triangle 180° Label */}
               <text
                 x={triCenter.x}
                 y={triCenter.y}
@@ -145,27 +239,48 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
           );
         })}
 
-        {/* Animated Diagonals shooting from Hub */}
+        {/* Established Static Diagonals (fully cut) */}
         {Array.from({ length: numTriangles - 1 }, (_, i) => {
           const toV = vertices[i + 2];
-          const isDrawn = i + 1 < revealedCount;
+          const isDrawn = i + 1 <= revealedTriangles;
+          if (!isDrawn) return null;
           return (
             <line
-              key={`diag-${i}`}
+              key={`diag-done-${i}`}
               x1={hubV.x}
               y1={hubV.y}
               x2={toV.x}
               y2={toV.y}
-              stroke={COLOR_GOLD}
-              strokeWidth={2}
+              stroke="rgba(255, 255, 255, 0.45)"
+              strokeWidth={1.5}
               strokeDasharray="4 3"
-              style={{
-                opacity: isDrawn ? 0.9 : 0,
-                transition: "opacity 0.25s ease-out",
-              }}
             />
           );
         })}
+
+        {/* Live Animating Diagonal Beam shooting from Hub */}
+        {activeDrawingCut !== null && activeDrawingCut < numTriangles - 1 && (
+          (() => {
+            const destV = vertices[activeDrawingCut + 2];
+            const currentX = hubV.x + (destV.x - hubV.x) * diagonalProgress;
+            const currentY = hubV.y + (destV.y - hubV.y) * diagonalProgress;
+            return (
+              <g>
+                <line
+                  x1={hubV.x}
+                  y1={hubV.y}
+                  x2={currentX}
+                  y2={currentY}
+                  stroke={COLOR_GOLD}
+                  strokeWidth={2.5}
+                  strokeLinecap="round"
+                />
+                {/* Laser Tip Spark */}
+                <circle cx={currentX} cy={currentY} r={3} fill={COLOR_GOLD} />
+              </g>
+            );
+          })()
+        )}
 
         {/* Non-hub Vertex Corner Dots */}
         {vertices.slice(1).map((v, i) => (
@@ -202,7 +317,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
 
         {/* Replay Slicing Animation Button */}
         <button
-          onClick={() => playFanCutAnimation(numTriangles)}
+          onClick={() => playFanCutSequence(numTriangles)}
           disabled={isAnimating}
           className="w-8 h-8 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 active:scale-95 text-white border border-white/25 backdrop-blur-md shadow-sm transition-all disabled:opacity-40 cursor-pointer"
           title="Replay triangle cuts"
@@ -221,7 +336,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
             (<span style={{ color: COLOR_GOLD }}>{n}</span> − 2) · 180°
           </span>
           <span className="text-white/50">=</span>
-          <span style={{ color: COLOR_LILAC }}>{revealedCount} · 180°</span>
+          <span className="text-white/90">{revealedTriangles} · 180°</span>
           <span className="text-white/50">=</span>
           <span className="text-white font-bold">{currentSum}°</span>
         </div>
