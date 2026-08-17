@@ -404,11 +404,11 @@ function GalleryView() {
   return (
     <main className="h-screen overflow-y-auto bg-gray-950 text-white">
       {/* Ultra-compact Sticky filter & control bar */}
-      <div className="sticky top-0 z-20 bg-gray-950/95 backdrop-blur-md border-b border-gray-800/80 px-4 sm:px-6 py-2.5 shadow-lg transition-all">
-        {/* Row 1: Search, Topics, Quick Actions, and Collapse Toggle */}
-        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+      <div className="sticky top-0 z-20 bg-gray-950/95 backdrop-blur-md border-b border-gray-800/80 px-3 sm:px-6 py-2 shadow-lg transition-all">
+        {/* Row 1: Search and Right Actions (Always single row) */}
+        <div className="flex items-center justify-between gap-2">
           {/* Search input */}
-          <div className="relative flex-1 min-w-[180px] max-w-[260px]">
+          <div className="relative flex-1 max-w-[280px]">
             <input
               type="text"
               value={searchQuery}
@@ -428,39 +428,8 @@ function GalleryView() {
             )}
           </div>
 
-          {/* Quick Topic Chips */}
-          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
-            <button
-              type="button"
-              onClick={() => setActiveTopics(activeTopics.length === ALL_TOPICS.length ? ["circles"] : ALL_TOPICS)}
-              className={`px-2 py-0.5 rounded text-[11px] font-mono transition-colors ${
-                activeTopics.length === ALL_TOPICS.length
-                  ? "bg-emerald-600 text-white font-bold"
-                  : "bg-gray-900 border border-gray-800 text-gray-400 hover:text-white"
-              }`}
-            >
-              All Topics
-            </button>
-            {ALL_TOPICS.map((t) => (
-              <button
-                key={t}
-                type="button"
-                onClick={() => toggleTopic(t)}
-                className={`px-2 py-0.5 rounded text-[11px] font-mono transition-colors whitespace-nowrap ${
-                  activeTopics.includes(t) && activeTopics.length !== ALL_TOPICS.length
-                    ? "bg-emerald-700 text-white font-bold border border-emerald-500/50"
-                    : activeTopics.includes(t)
-                    ? "bg-gray-800 text-gray-300 hover:text-white"
-                    : "bg-gray-900/60 border border-gray-800 text-gray-500 hover:bg-gray-800 hover:text-gray-300"
-                }`}
-              >
-                {TOPIC_LABELS[t]}
-              </button>
-            ))}
-          </div>
-
-          {/* Right Side Utilities: Counter, Reset, and Expand/Collapse */}
-          <div className="flex items-center gap-2 ml-auto">
+          {/* Right Side Actions: Count, Reset, More/Less */}
+          <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
             <span className="text-[11px] text-gray-400 font-mono whitespace-nowrap bg-gray-900 px-2 py-0.5 rounded border border-gray-800">
               <strong className="text-white">{filteredIds.length}</strong> / {TEST_CARD_IDS.length}
             </span>
@@ -480,16 +449,47 @@ function GalleryView() {
               type="button"
               onClick={() => setIsCollapsed(!isCollapsed)}
               className="px-2 py-0.5 rounded text-[11px] font-mono bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-white border border-gray-800 transition-colors flex items-center gap-1"
-              title={isCollapsed ? "Expand filters" : "Collapse filters"}
+              title={isCollapsed ? "Show secondary filters" : "Hide secondary filters"}
             >
               {isCollapsed ? "More ▾" : "Less ▴"}
             </button>
           </div>
         </div>
 
-        {/* Row 2: Secondary Controls (Segmented toggles, collapsible) */}
+        {/* Row 2: Horizontally Scrollable Topic Chips (Always single row) */}
+        <div className="flex items-center gap-1 overflow-x-auto py-1 mt-1.5 no-scrollbar flex-nowrap border-t border-gray-800/40">
+          <button
+            type="button"
+            onClick={() => setActiveTopics(activeTopics.length === ALL_TOPICS.length ? ["circles"] : ALL_TOPICS)}
+            className={`px-2 py-0.5 rounded text-[11px] font-mono transition-colors flex-shrink-0 ${
+              activeTopics.length === ALL_TOPICS.length
+                ? "bg-emerald-600 text-white font-bold"
+                : "bg-gray-900 border border-gray-800 text-gray-400 hover:text-white"
+            }`}
+          >
+            All Topics
+          </button>
+          {ALL_TOPICS.map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => toggleTopic(t)}
+              className={`px-2 py-0.5 rounded text-[11px] font-mono transition-colors whitespace-nowrap flex-shrink-0 ${
+                activeTopics.includes(t) && activeTopics.length !== ALL_TOPICS.length
+                  ? "bg-emerald-700 text-white font-bold border border-emerald-500/50"
+                  : activeTopics.includes(t)
+                  ? "bg-gray-800 text-gray-300 hover:text-white"
+                  : "bg-gray-900/60 border border-gray-800 text-gray-500 hover:bg-gray-800 hover:text-gray-300"
+              }`}
+            >
+              {TOPIC_LABELS[t]}
+            </button>
+          ))}
+        </div>
+
+        {/* Row 3: Secondary Controls (Segmented toggles, collapsible) */}
         {!isCollapsed && (
-          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-2 mt-2 border-t border-gray-800/60 text-xs">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 pt-1.5 mt-1 border-t border-gray-800/60 text-xs">
             {/* Card Types */}
             <div className="flex items-center gap-1.5">
               <span className="text-[10px] uppercase font-mono tracking-wider text-gray-500">Types:</span>
