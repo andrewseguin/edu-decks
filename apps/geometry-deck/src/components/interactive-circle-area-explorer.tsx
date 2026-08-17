@@ -455,18 +455,17 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         )}
       </svg>
 
-      {/* Streamlined Controls Row (Single line, contextual slices) */}
-      <div className="flex flex-wrap items-center justify-center gap-2 select-none">
-        {/* Step Tabs */}
-        <div className="flex items-center gap-0.5 bg-white/10 backdrop-blur-md p-0.5 rounded-full border border-white/20 shadow-sm">
+      {/* Row 1: Animation Step Tabs */}
+      <div className="flex justify-center select-none">
+        <div className="flex items-center gap-0.5 bg-black/35 backdrop-blur-md p-0.5 rounded-full border border-white/20 shadow-sm">
           <button
             onClick={() => {
               setIsPlaying(false);
               setStep(1);
             }}
             className={cn(
-              "px-3 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
-              step === 1 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
+              "px-3 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
+              step === 1 ? "bg-white/25 text-white shadow-sm" : "bg-transparent text-white/70 hover:text-white"
             )}
           >
             1. Circle
@@ -477,8 +476,8 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               setStep(2);
             }}
             className={cn(
-              "px-3 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
-              step === 2 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
+              "px-3 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
+              step === 2 ? "bg-white/25 text-white shadow-sm" : "bg-transparent text-white/70 hover:text-white"
             )}
           >
             2. Unroll
@@ -489,14 +488,17 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               setStep(3);
             }}
             className={cn(
-              "px-3 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
-              step === 3 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
+              "px-3 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
+              step === 3 ? "bg-white/25 text-white shadow-sm" : "bg-transparent text-white/70 hover:text-white"
             )}
           >
             3. Combine
           </button>
         </div>
+      </div>
 
+      {/* Row 2: Parameters (Radius & Slices) */}
+      <div className="flex items-center justify-center gap-2 sm:gap-3 select-none">
         {/* Radius Stepper */}
         <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/20 shadow-sm">
           <button
@@ -531,27 +533,25 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           </button>
         </div>
 
-        {/* Slices Selector (Relevant for Step 2 Unroll and Step 3 Combine) */}
-        {step > 1 && (
-          <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/20 shadow-sm">
-            <span className="text-xs text-white/70 font-bold px-0.5">Slices:</span>
-            {([4, 8, 16, 32, 64] as const).map((cnt) => (
-              <button
-                key={cnt}
-                onClick={() => {
-                  setIsPlaying(false);
-                  setSectorCount(cnt);
-                }}
-                className={cn(
-                  "px-2 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
-                  sectorCount === cnt ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/65 hover:text-white"
-                )}
-              >
-                {cnt}
-              </button>
-            ))}
-          </div>
-        )}
+        {/* Slices Selector */}
+        <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/20 shadow-sm">
+          <span className="text-xs text-white/70 font-bold px-0.5">Slices:</span>
+          {([4, 8, 16, 32, 64] as const).map((cnt) => (
+            <button
+              key={cnt}
+              onClick={() => {
+                setIsPlaying(false);
+                setSectorCount(cnt);
+              }}
+              className={cn(
+                "px-2 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
+                sectorCount === cnt ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/65 hover:text-white"
+              )}
+            >
+              {cnt}
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Live Typographic Equation Banner */}
