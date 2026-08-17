@@ -69,40 +69,17 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
 
   const [n, setN] = useState(5); // n in [3..12]
   const numTriangles = n - 2;
+  const totalCuts = numTriangles - 1; // number of diagonal cuts from apex = n - 3
 
-  // Animation step: number of triangles currently revealed (0 to numTriangles)
-  const [stepRevealed, setStepRevealed] = useState(numTriangles);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const animTimeouts = useRef<NodeJS.Timeout[]>([]);
+  // Current number of cuts drawn (0 to totalCuts)
+  // When activeCuts = 0 -> 1 triangle (or base polygon)
+  // When activeCuts = k -> k + 1 triangles illuminated
+  const [activeCuts, setActiveCuts] = useState(totalCuts);
 
-  const clearTimers = () => {
-    animTimeouts.current.forEach((t) => clearTimeout(t));
-    animTimeouts.current = [];
-  };
-
-  const playFanCutSequence = useCallback((targetCount: number) => {
-    clearTimers();
-    setIsAnimating(true);
-    setStepRevealed(0);
-
-    const stepInterval = Math.max(550, Math.min(850, 3200 / targetCount));
-
-    for (let s = 1; s <= targetCount; s++) {
-      const timer = setTimeout(() => {
-        setStepRevealed(s);
-        if (s === targetCount) {
-          setIsAnimating(false);
-        }
-      }, s * stepInterval);
-      animTimeouts.current.push(timer);
-    }
-  }, []);
-
-  // Trigger smooth fan-cut sequence when n changes
+  // When shape changes, start with cuts complete so the card is clear, with easy 1-click step-through
   useEffect(() => {
-    playFanCutSequence(numTriangles);
-    return () => clearTimers();
-  }, [n, numTriangles, playFanCutSequence]);
+    setActiveCuts(totalCuts);
+  }, [n, totalCuts]);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => {
     e.stopPropagation();
@@ -114,12 +91,32 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
     return { x: CX + R * Math.cos(angle), y: CY + R * Math.sin(angle) };
   });
 
+  // How many triangles are currently revealed based on cuts
+  const revealedTriangles = activeCuts === 0 ? 1 : activeCuts + 1;
+  const isFullySplit = activeCuts >= totalCuts;
+
   const totalSum = numTriangles * 180;
-  const currentSum = Math.max(1, stepRevealed) * 180;
+  const currentSum = revealedTriangles * 180;
   const polyName = POLY_NAMES[n] || `${n}-gon`;
   const hubV = vertices[0];
 
   const arcR = Math.max(8, Math.min(15, 64 / n));
+
+  const handleNextCut = () => {
+    if (activeCuts < totalCuts) {
+      setActiveCuts((prev) => prev + 1);
+    }
+  };
+
+  const handlePrevCut = () => {
+    if (activeCuts > 0) {
+      setActiveCuts((prev) => prev - 1);
+    }
+  };
+
+  const handleReset = () => {
+    setActiveCuts(0);
+  };
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full max-w-[440px] mx-auto pb-1 select-none" onClick={stop} onPointerDown={stop}>
@@ -143,7 +140,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
           const v1 = vertices[i + 1];
           const v2 = vertices[i + 2];
           const pathD = `M ${v0.x} ${v0.y} L ${v1.x} ${v1.y} L ${v2.x} ${v2.y} Z`;
-          const isRevealed = i < stepRevealed;
+          const isRevealed = i < revealedTriangles;
           const theme = TRI_PALETTE[i % TRI_PALETTE.length];
           const triCenter = {
             x: (v0.x + v1.x + v2.x) / 3,
@@ -160,7 +157,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
               key={`tri-${i}`}
               style={{
                 opacity: isRevealed ? 1 : 0,
-                transition: "opacity 0.45s ease-out 0.2s",
+                transition: "opacity 0.35s cubic-bezier(0.2, 0.8, 0.4, 1)",
               }}
             >
               {/* Triangle Tint Fill */}
@@ -194,10 +191,10 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
         })}
 
         {/* Diagonals smoothly drawing from Apex Hub to target vertices */}
-        {Array.from({ length: numTriangles - 1 }, (_, i) => {
+        {Array.from({ length: totalCuts }, (_, i) => {
           const destV = vertices[i + 2];
           const len = Math.hypot(destV.x - hubV.x, destV.y - hubV.y);
-          const isDrawn = i + 1 <= stepRevealed;
+          const isDrawn = i < activeCuts;
 
           return (
             <path
@@ -209,59 +206,89 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
               strokeDasharray={len}
               strokeDashoffset={isDrawn ? 0 : len}
               style={{
-                transition: "stroke-dashoffset 0.62s cubic-bezier(0.25, 1, 0.5, 1)",
+                transition: "stroke-dashoffset 0.5s cubic-bezier(0.25, 1, 0.5, 1)",
               }}
             />
           );
         })}
 
-        {/* Non-hub Vertex Corner Dots */}
-        {vertices.slice(1).map((v, i) => (
-          <circle key={`v-${i + 1}`} cx={v.x} cy={v.y} r={n > 8 ? 2.5 : 3.5} fill="#ffffff" />
-        ))}
+        {/* Non-hub Vertex Corner Dots (clickable to trigger cut) */}
+        {vertices.slice(1).map((v, i) => {
+          const isTarget = i + 1 === activeCuts + 1 && activeCuts < totalCuts;
+          return (
+            <g key={`v-${i + 1}`} className="cursor-pointer" onClick={handleNextCut}>
+              {isTarget && (
+                <circle cx={v.x} cy={v.y} r={n > 8 ? 6 : 8} fill="none" stroke={COLOR_GOLD} strokeWidth={1.5} className="animate-ping opacity-75" />
+              )}
+              <circle cx={v.x} cy={v.y} r={n > 8 ? 2.5 : 3.5} fill={isTarget ? COLOR_GOLD : "#ffffff"} />
+            </g>
+          );
+        })}
 
         {/* Golden Hub Apex Vertex */}
         <circle cx={hubV.x} cy={hubV.y} r={n > 8 ? 5 : 6} fill={COLOR_GOLD} stroke="#ffffff" strokeWidth={2} />
       </svg>
 
-      {/* Stepper & Replay Controls */}
-      <div className="flex items-center gap-2">
-        <div className="flex items-center justify-between w-[280px] sm:w-[300px] bg-white/10 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-white/25 shadow-sm pointer-events-auto z-30 select-none">
-          <button
-            onClick={() => setN((prev) => Math.max(3, prev - 1))}
-            disabled={n <= 3}
-            className="w-6 h-6 shrink-0 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
-            aria-label="Decrease sides"
-          >
-            −
-          </button>
-          <div className="flex-1 text-center px-1 text-xs sm:text-sm font-headline font-bold text-white whitespace-nowrap">
-            {polyName} ({n} sides · {numTriangles} triangles)
-          </div>
-          <button
-            onClick={() => setN((prev) => Math.min(12, prev + 1))}
-            disabled={n >= 12}
-            className="w-6 h-6 shrink-0 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
-            aria-label="Increase sides"
-          >
-            +
-          </button>
-        </div>
-
-        {/* Replay Slicing Animation Button */}
+      {/* Row 1: Number of Sides Stepper */}
+      <div className="flex items-center justify-between w-[280px] sm:w-[300px] bg-white/10 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-white/25 shadow-sm pointer-events-auto z-30 select-none">
         <button
-          onClick={() => playFanCutSequence(numTriangles)}
-          disabled={isAnimating}
-          className="w-8 h-8 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 active:scale-95 text-white border border-white/25 backdrop-blur-md shadow-sm transition-all disabled:opacity-40 cursor-pointer"
-          title="Replay triangle cuts"
-          aria-label="Replay triangle cuts"
+          onClick={() => setN((prev) => Math.max(3, prev - 1))}
+          disabled={n <= 3}
+          className="w-6 h-6 shrink-0 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
+          aria-label="Decrease sides"
         >
-          <RotateCcw className="w-3.5 h-3.5 stroke-[2.5]" />
+          −
+        </button>
+        <div className="flex-1 text-center px-1 text-xs sm:text-sm font-headline font-bold text-white whitespace-nowrap">
+          {polyName} ({n} sides)
+        </div>
+        <button
+          onClick={() => setN((prev) => Math.min(12, prev + 1))}
+          disabled={n >= 12}
+          className="w-6 h-6 shrink-0 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
+          aria-label="Increase sides"
+        >
+          +
         </button>
       </div>
 
+      {/* Row 2: Interactive Step-Through Cut Controls */}
+      {totalCuts > 0 && (
+        <div className="flex items-center gap-1.5 bg-black/35 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20 shadow-sm text-xs sm:text-sm select-none">
+          <button
+            onClick={handlePrevCut}
+            disabled={activeCuts <= 0}
+            className="px-2 py-0.5 rounded-full font-bold text-xs bg-white/10 hover:bg-white/20 active:scale-95 text-white disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer"
+          >
+            ◀ Undo
+          </button>
+
+          <span className="text-white/90 font-medium px-1 text-xs sm:text-sm whitespace-nowrap">
+            {activeCuts === 0 ? "Uncut polygon" : `Cut ${activeCuts} of ${totalCuts} (${revealedTriangles} $\\triangle$)`}
+          </span>
+
+          {!isFullySplit ? (
+            <button
+              onClick={handleNextCut}
+              className="px-2.5 py-0.5 rounded-full font-bold text-xs bg-amber-400/30 hover:bg-amber-400/40 text-amber-200 border border-amber-300/40 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
+            >
+              Cut ➔
+            </button>
+          ) : (
+            <button
+              onClick={handleReset}
+              className="px-2 py-0.5 rounded-full font-bold text-xs bg-white/15 hover:bg-white/25 text-white active:scale-95 transition-all cursor-pointer flex items-center gap-1"
+              title="Reset cuts"
+            >
+              <RotateCcw className="w-3 h-3 stroke-[2.5]" />
+              Reset
+            </button>
+          )}
+        </div>
+      )}
+
       {/* Live Synchronized Equation Banner */}
-      <div className="flex justify-center mt-1">
+      <div className="flex justify-center mt-0.5">
         <div className="flex items-center gap-2.5 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-xs sm:text-sm font-bold font-headline select-none">
           <span className="text-white">Sum</span>
           <span className="text-white/50">=</span>
@@ -269,7 +296,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
             (<span style={{ color: COLOR_GOLD }}>{n}</span> − 2) · 180°
           </span>
           <span className="text-white/50">=</span>
-          <span className="text-white/90">{stepRevealed} · 180°</span>
+          <span className="text-white/90">{revealedTriangles} · 180°</span>
           <span className="text-white/50">=</span>
           <span className="text-white font-bold">{currentSum}°</span>
         </div>
