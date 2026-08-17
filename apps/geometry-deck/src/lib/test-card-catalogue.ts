@@ -775,6 +775,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontLabel: "Interior angle sum of an n-gon", frontPrompt: "formula is…?",
     frontSpeechText: "The formula for the interior angle sum of an n-gon is…?",
     backDefinition: "Sum = (n − 2) · 180°",
+    backDefinitionSubtitle: "Interior angle sum = (number of sides − 2) · 180°",
     backSvgExamples: [{ shape: "polygon", dimensions: { n: 6, labelMode: "variable" }, labelMode: "variable" }],
     backSteps: [
       { formulaLine: "Sum = (n − 2) × 180°" },
