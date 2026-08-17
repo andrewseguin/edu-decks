@@ -399,176 +399,206 @@ function GalleryView() {
     return acc;
   }, {});
 
+  const [isCollapsed, setIsCollapsed] = useState<boolean>(false);
+
   return (
     <main className="h-screen overflow-y-auto bg-gray-950 text-white">
-      {/* Sticky filter & control bar */}
-      <div className="sticky top-0 z-20 bg-gray-950/95 backdrop-blur border-b border-gray-800 px-6 sm:px-8 py-4 flex flex-wrap gap-6 items-start shadow-md">
-        <div className="w-full sm:w-auto sm:min-w-[220px] sm:max-w-[280px]">
-          <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Search / Jump to Card</p>
-          <div className="relative">
+      {/* Ultra-compact Sticky filter & control bar */}
+      <div className="sticky top-0 z-20 bg-gray-950/95 backdrop-blur-md border-b border-gray-800/80 px-4 sm:px-6 py-2.5 shadow-lg transition-all">
+        {/* Row 1: Search, Topics, Quick Actions, and Collapse Toggle */}
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-3">
+          {/* Search input */}
+          <div className="relative flex-1 min-w-[180px] max-w-[260px]">
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="e.g. term-tri-area or triangle..."
-              className="w-full bg-gray-900/90 border border-gray-700/80 hover:border-gray-600 focus:border-emerald-500 rounded-lg px-3 py-1.5 text-xs text-white placeholder-gray-500 focus:outline-none font-mono transition-colors shadow-inner"
+              placeholder="Search cards..."
+              className="w-full bg-gray-900/90 border border-gray-700/80 hover:border-gray-600 focus:border-emerald-500 rounded-lg px-2.5 py-1 text-xs text-white placeholder-gray-500 focus:outline-none font-mono transition-colors shadow-inner"
             />
             {searchQuery && (
               <button
                 type="button"
                 onClick={() => setSearchQuery("")}
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xs px-1"
+                className="absolute right-1.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white text-xs px-1"
                 title="Clear search"
               >
                 ✕
               </button>
             )}
           </div>
-        </div>
 
-        <div>
-          <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Topics</p>
-          <div className="flex flex-wrap gap-1.5">
+          {/* Quick Topic Chips */}
+          <div className="flex items-center gap-1 overflow-x-auto no-scrollbar py-0.5">
+            <button
+              type="button"
+              onClick={() => setActiveTopics(activeTopics.length === ALL_TOPICS.length ? ["circles"] : ALL_TOPICS)}
+              className={`px-2 py-0.5 rounded text-[11px] font-mono transition-colors ${
+                activeTopics.length === ALL_TOPICS.length
+                  ? "bg-emerald-600 text-white font-bold"
+                  : "bg-gray-900 border border-gray-800 text-gray-400 hover:text-white"
+              }`}
+            >
+              All Topics
+            </button>
             {ALL_TOPICS.map((t) => (
               <button
                 key={t}
                 type="button"
                 onClick={() => toggleTopic(t)}
-                className={`px-2.5 py-1 rounded-md text-xs font-mono transition-colors ${
-                  activeTopics.includes(t)
-                    ? "bg-emerald-700 text-white font-semibold"
-                    : "bg-gray-800 text-gray-500 hover:bg-gray-700"
+                className={`px-2 py-0.5 rounded text-[11px] font-mono transition-colors whitespace-nowrap ${
+                  activeTopics.includes(t) && activeTopics.length !== ALL_TOPICS.length
+                    ? "bg-emerald-700 text-white font-bold border border-emerald-500/50"
+                    : activeTopics.includes(t)
+                    ? "bg-gray-800 text-gray-300 hover:text-white"
+                    : "bg-gray-900/60 border border-gray-800 text-gray-500 hover:bg-gray-800 hover:text-gray-300"
                 }`}
               >
                 {TOPIC_LABELS[t]}
               </button>
             ))}
           </div>
-        </div>
 
-        <div>
-          <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Card Types</p>
-          <div className="flex gap-1.5">
-            {ALL_CARD_TYPES.map((t) => (
+          {/* Right Side Utilities: Counter, Reset, and Expand/Collapse */}
+          <div className="flex items-center gap-2 ml-auto">
+            <span className="text-[11px] text-gray-400 font-mono whitespace-nowrap bg-gray-900 px-2 py-0.5 rounded border border-gray-800">
+              <strong className="text-white">{filteredIds.length}</strong> / {TEST_CARD_IDS.length}
+            </span>
+
+            {isCustomized && (
               <button
-                key={t}
                 type="button"
-                onClick={() => toggleCardType(t)}
-                className={`px-2.5 py-1 rounded-md text-xs font-mono transition-colors ${
-                  activeCardTypes.includes(t)
-                    ? "bg-emerald-700 text-white font-semibold"
-                    : "bg-gray-800 text-gray-500 hover:bg-gray-700"
-                }`}
+                onClick={resetFilters}
+                className="px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-amber-600/90 hover:bg-amber-500 text-white transition-all shadow-sm flex items-center gap-1"
+                title="Reset all filters"
               >
-                {CARD_TYPE_LABELS[t]}
+                ↺ Reset
               </button>
-            ))}
-          </div>
-        </div>
+            )}
 
-        <div>
-          <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Viewport</p>
-          <div className="flex gap-1.5 font-mono text-xs">
             <button
               type="button"
-              onClick={() => setGlobalViewport("desktop")}
-              className={`px-2.5 py-1 rounded-md transition-colors ${
-                globalViewport === "desktop"
-                  ? "bg-blue-600 text-white font-bold"
-                  : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
-              }`}
+              onClick={() => setIsCollapsed(!isCollapsed)}
+              className="px-2 py-0.5 rounded text-[11px] font-mono bg-gray-900 hover:bg-gray-800 text-gray-400 hover:text-white border border-gray-800 transition-colors flex items-center gap-1"
+              title={isCollapsed ? "Expand filters" : "Collapse filters"}
             >
-              Desktop
-            </button>
-            <button
-              type="button"
-              onClick={() => setGlobalViewport("mobile")}
-              className={`px-2.5 py-1 rounded-md transition-colors ${
-                globalViewport === "mobile"
-                  ? "bg-blue-600 text-white font-bold"
-                  : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
-              }`}
-            >
-              Mobile
+              {isCollapsed ? "More ▾" : "Less ▴"}
             </button>
           </div>
         </div>
 
-        <div>
-          <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Outlines</p>
-          <div className="flex gap-1.5 font-mono text-xs">
-            <button
-              type="button"
-              onClick={() => setShowOutlines(false)}
-              className={`px-2.5 py-1 rounded-md transition-colors ${
-                !showOutlines
-                  ? "bg-slate-600 text-white font-bold"
-                  : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
-              }`}
-            >
-              Off
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowOutlines(true)}
-              className={`px-2.5 py-1 rounded-md transition-colors ${
-                showOutlines
-                  ? "bg-cyan-600 text-white font-bold"
-                  : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
-              }`}
-            >
-              On
-            </button>
+        {/* Row 2: Secondary Controls (Segmented toggles, collapsible) */}
+        {!isCollapsed && (
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-2 mt-2 border-t border-gray-800/60 text-xs">
+            {/* Card Types */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] uppercase font-mono tracking-wider text-gray-500">Types:</span>
+              <div className="flex bg-gray-900 p-0.5 rounded-lg border border-gray-800 text-[11px] font-mono">
+                {ALL_CARD_TYPES.map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => toggleCardType(t)}
+                    className={`px-2 py-0.5 rounded-md transition-all ${
+                      activeCardTypes.includes(t)
+                        ? "bg-emerald-600 text-white font-bold shadow-sm"
+                        : "text-gray-400 hover:text-white"
+                    }`}
+                  >
+                    {CARD_TYPE_LABELS[t]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Viewport (Desktop / Mobile) */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] uppercase font-mono tracking-wider text-gray-500">View:</span>
+              <div className="flex bg-gray-900 p-0.5 rounded-lg border border-gray-800 text-[11px] font-mono">
+                <button
+                  type="button"
+                  onClick={() => setGlobalViewport("desktop")}
+                  className={`px-2 py-0.5 rounded-md transition-all ${
+                    globalViewport === "desktop"
+                      ? "bg-blue-600 text-white font-bold shadow-sm"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  Desktop
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGlobalViewport("mobile")}
+                  className={`px-2 py-0.5 rounded-md transition-all ${
+                    globalViewport === "mobile"
+                      ? "bg-blue-600 text-white font-bold shadow-sm"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  Mobile
+                </button>
+              </div>
+            </div>
+
+            {/* Bulk Flip */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] uppercase font-mono tracking-wider text-gray-500">Flip All:</span>
+              <div className="flex bg-gray-900 p-0.5 rounded-lg border border-gray-800 text-[11px] font-mono">
+                <button
+                  type="button"
+                  onClick={() => setGlobalState(globalState === "front" ? null : "front")}
+                  className={`px-2 py-0.5 rounded-md transition-all ${
+                    globalState === "front"
+                      ? "bg-emerald-600 text-white font-bold shadow-sm"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  Primary
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setGlobalState(globalState === "back" ? null : "back")}
+                  className={`px-2 py-0.5 rounded-md transition-all ${
+                    globalState === "back"
+                      ? "bg-emerald-600 text-white font-bold shadow-sm"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  Reveal
+                </button>
+              </div>
+            </div>
+
+            {/* Outlines Toggle */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] uppercase font-mono tracking-wider text-gray-500">Outlines:</span>
+              <div className="flex bg-gray-900 p-0.5 rounded-lg border border-gray-800 text-[11px] font-mono">
+                <button
+                  type="button"
+                  onClick={() => setShowOutlines(false)}
+                  className={`px-2 py-0.5 rounded-md transition-all ${
+                    !showOutlines
+                      ? "bg-slate-700 text-white font-bold shadow-sm"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  Off
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowOutlines(true)}
+                  className={`px-2 py-0.5 rounded-md transition-all ${
+                    showOutlines
+                      ? "bg-cyan-600 text-white font-bold shadow-sm"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  On
+                </button>
+              </div>
+            </div>
           </div>
-        </div>
-
-        <div>
-          <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Bulk Flip</p>
-          <div className="flex gap-1.5 font-mono text-xs">
-            <button
-              type="button"
-              onClick={() => setGlobalState("front")}
-              className={`px-2.5 py-1 rounded-md transition-colors ${
-                globalState === "front"
-                  ? "bg-emerald-600 text-white font-bold"
-                  : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
-              }`}
-            >
-              All Primary
-            </button>
-            <button
-              type="button"
-              onClick={() => setGlobalState("back")}
-              className={`px-2.5 py-1 rounded-md transition-colors ${
-                globalState === "back"
-                  ? "bg-emerald-600 text-white font-bold"
-                  : "bg-gray-800 text-gray-400 hover:bg-gray-700 hover:text-white"
-              }`}
-            >
-              All Reveal
-            </button>
-          </div>
-        </div>
-
-        <div>
-          <p className="text-[10px] uppercase tracking-widest text-gray-500 mb-2">Reset</p>
-          <button
-            type="button"
-            onClick={resetFilters}
-            disabled={!isCustomized}
-            className={`px-3 py-1 rounded-md text-xs font-mono font-semibold transition-all flex items-center gap-1.5 ${
-              isCustomized
-                ? "bg-amber-600 text-white hover:bg-amber-500 shadow-sm"
-                : "bg-gray-800/60 text-gray-600 cursor-not-allowed opacity-50"
-            }`}
-          >
-            ↺ Reset View
-          </button>
-        </div>
-
-        <div className="ml-auto self-center text-right">
-          <p className="text-xs text-gray-400 font-mono">{filteredIds.length} / {TEST_CARD_IDS.length} cards</p>
-        </div>
+        )}
       </div>
 
       <div className="p-6 sm:p-8 max-w-5xl mx-auto">
