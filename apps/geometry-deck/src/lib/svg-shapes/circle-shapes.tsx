@@ -185,7 +185,7 @@ export function Circle({ dims, mutation }: { dims: Record<string, number | strin
             )
           )}
 
-          {/* Circumference target or given */}
+          {/* Circumference target or given (Outside along boundary) */}
           {unknownDim === "C" && (
             <RevealText x={cx} y={cy - cr - 14} variable="C" revealedValue={revealedAnswer != null ? `${revealedAnswer}π` : undefined} color={COLOR_CIRCUM} fontSize={18} fontWeight="900" />
           )}
@@ -193,12 +193,12 @@ export function Circle({ dims, mutation }: { dims: Record<string, number | strin
             <SvgLabel x={cx} y={cy - cr - 14} text={`C = ${cVal}`} color={COLOR_CIRCUM} size={14} />
           )}
 
-          {/* Area target or given */}
+          {/* Area target or given (Inside circle interior on unit grid) */}
           {unknownDim === "A" && (
-            <RevealText x={cx} y={cy + 18} variable="A" revealedValue={revealedAnswer != null ? `${revealedAnswer}π` : undefined} color={COLOR_AREA} fontSize={18} fontWeight="900" />
+            <RevealText x={cx} y={cy + 22} variable="A" revealedValue={revealedAnswer != null ? `${revealedAnswer}π` : undefined} color={COLOR_AREA} fontSize={18} fontWeight="900" />
           )}
           {aVal !== undefined && unknownDim !== "A" && (
-            <SvgLabel x={cx} y={cy - cr - 14} text={`A = ${aVal}`} color={COLOR_AREA} size={14} />
+            <SvgLabel x={cx} y={cy + 22} text={`A = ${aVal}`} color={COLOR_AREA} size={14} />
           )}
         </>
       )}
