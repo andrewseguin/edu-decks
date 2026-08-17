@@ -85,7 +85,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
     setIsAnimating(true);
     setStepRevealed(0);
 
-    const stepInterval = Math.max(280, Math.min(420, 1600 / targetCount));
+    const stepInterval = Math.max(550, Math.min(850, 3200 / targetCount));
 
     for (let s = 1; s <= targetCount; s++) {
       const timer = setTimeout(() => {
@@ -160,7 +160,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
               key={`tri-${i}`}
               style={{
                 opacity: isRevealed ? 1 : 0,
-                transition: "opacity 0.28s cubic-bezier(0.2, 0.8, 0.4, 1)",
+                transition: "opacity 0.45s ease-out 0.2s",
               }}
             >
               {/* Triangle Tint Fill */}
@@ -209,7 +209,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
               strokeDasharray={len}
               strokeDashoffset={isDrawn ? 0 : len}
               style={{
-                transition: "stroke-dashoffset 0.32s cubic-bezier(0.25, 1, 0.5, 1)",
+                transition: "stroke-dashoffset 0.62s cubic-bezier(0.25, 1, 0.5, 1)",
               }}
             />
           );
