@@ -113,8 +113,7 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
   const normY = Math.cos(rad);
 
   // Adaptive offset based on angle
-  const offsetR = 14 + 6 * Math.abs(Math.sin(rad));
-  const offsetD = 18 + 6 * Math.abs(Math.sin(rad));
+  const offsetR = 14 + 5 * Math.abs(Math.sin(rad));
 
   // Radius label positions
   const r1LabelX = midX - offsetR * normX;
@@ -122,21 +121,13 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
   const r2LabelX = midOppX - offsetR * normX;
   const r2LabelY = midOppY - offsetR * normY;
 
-  // Diameter bracket endpoints and label position
-  const bOppX = oppX + offsetD * normX;
-  const bOppY = oppY + offsetD * normY;
-  const bPX = pX + offsetD * normX;
-  const bPY = pY + offsetD * normY;
-  const diamLabelX = CX + (offsetD + 13) * normX;
-  const diamLabelY = CY + (offsetD + 13) * normY;
-
   return (
     <div ref={containerRef} className="flex flex-col items-center w-full max-w-[650px] mx-auto select-none py-1" onClick={stop} onPointerDown={stop}>
       <svg
         ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
         className="w-full touch-none select-none overflow-visible"
-        style={{ cursor: isDragging ? "grabbing" : "default", maxHeight: 220 }}
+        style={{ cursor: isDragging ? "grabbing" : "default", maxHeight: 200 }}
       >
         {/* Subtle Cartesian Unit Grid Background */}
         <g opacity={0.3}>
@@ -248,41 +239,6 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
             >
               r = {radiusUnits}
             </text>
-
-            {/* Full Diameter Dimension Bracket */}
-            <line x1={bOppX} y1={bOppY} x2={bPX} y2={bPY} stroke="rgba(255, 255, 255, 0.75)" strokeWidth={2} strokeLinecap="round" />
-            <line
-              x1={bOppX - 4 * normX}
-              y1={bOppY - 4 * normY}
-              x2={bOppX + 4 * normX}
-              y2={bOppY + 4 * normY}
-              stroke="rgba(255, 255, 255, 0.75)"
-              strokeWidth={2}
-            />
-            <line
-              x1={bPX - 4 * normX}
-              y1={bPY - 4 * normY}
-              x2={bPX + 4 * normX}
-              y2={bPY + 4 * normY}
-              stroke="rgba(255, 255, 255, 0.75)"
-              strokeWidth={2}
-            />
-
-            {/* Diameter Bracket Label */}
-            <text
-              x={diamLabelX}
-              y={diamLabelY}
-              textAnchor="middle"
-              dominantBaseline="central"
-              fontSize={13.5}
-              fontWeight="900"
-              fontFamily="var(--font-heading, system-ui)"
-              style={{ filter: "drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.9))" }}
-            >
-              <tspan fill="#ffffff">d = 2</tspan>
-              <tspan fill={COLOR_RADIUS}>r</tspan>
-              <tspan fill="#ffffff"> = {diameterUnits}</tspan>
-            </text>
           </>
         ) : (
           <>
@@ -322,6 +278,28 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
           <circle r={4.5} fill="#ffffff" />
         </g>
       </svg>
+
+      {/* Live Typographic Equation Banner */}
+      <div className="flex justify-center mt-1">
+        {isDiameter ? (
+          <div className="flex items-center gap-1.5 sm:gap-2 px-5 py-1 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
+            <span className="text-white">d</span>
+            <span className="text-white/50">=</span>
+            <span className="text-white font-bold">2 ·</span>
+            <span style={{ color: COLOR_RADIUS }} className="font-bold">{radiusUnits}</span>
+            <span className="text-white/50">=</span>
+            <span className="text-white font-bold">{diameterUnits}</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1.5 sm:gap-2 px-5 py-1 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
+            <span className="text-white">radius</span>
+            <span className="text-white/50">=</span>
+            <span style={{ color: COLOR_RADIUS }} className="font-bold">r</span>
+            <span className="text-white/50">=</span>
+            <span style={{ color: COLOR_RADIUS }} className="font-bold">{radiusUnits}</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
