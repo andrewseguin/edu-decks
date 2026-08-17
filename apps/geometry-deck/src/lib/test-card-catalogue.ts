@@ -672,10 +672,10 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontLabel: "The radius", frontPrompt: "is…?",
     frontSpeechText: "The radius is…?",
     backDefinition: "Center to edge",
-    backDefinitionSubtitle: "Equal distance in all directions (r)",
+    backDefinitionSubtitle: "Distance from the center to the edge (r)",
     backSvgExamples: [{ shape: "circle", dimensions: { r: 5, labelMode: "numeric" }, labelMode: "numeric" }],
     backSteps: [{ formulaLine: "radius = center to edge" }],
-    backSpeechText: "The radius is the distance from the center to any point on the edge",
+    backSpeechText: "The radius is the distance from the center to the edge",
   },
 
   "term-circle-diameter": {
@@ -683,13 +683,14 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     color: TOPIC_COLORS.circles,
     frontLabel: "The diameter", frontPrompt: "is…?",
     frontSpeechText: "The diameter is…?",
-    backDefinition: "Edge to edge through center",
-    backDefinitionSubtitle: "Longest distance across a circle (d)",
+    backDefinition: "d = 2r",
+    backDefinitionSubtitle: "Distance across a circle through the center",
     backSvgExamples: [{ shape: "circle", dimensions: { r: 5, showDiameter: 1, labelMode: "numeric" }, labelMode: "numeric" }],
     backSteps: [
-      { formulaLine: "diameter = edge to edge through center" },
+      { formulaLine: "d = 2r" },
+      { formulaLine: "diameter = 2 × radius" },
     ],
-    backSpeechText: "The diameter is the distance from edge to edge through the center",
+    backSpeechText: "Diameter equals two times the radius",
   },
 
   // ──────────────────────────────────────────────────────────────────────────
