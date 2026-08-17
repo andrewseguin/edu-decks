@@ -471,10 +471,10 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
                 setStep(num as 1 | 2 | 3);
               }}
               className={cn(
-                "relative pb-1 text-xs sm:text-sm font-headline font-bold transition-all border-none bg-transparent cursor-pointer tracking-wide",
+                "relative pb-1 text-xs sm:text-sm font-headline transition-all border-none bg-transparent cursor-pointer tracking-wide",
                 isActive
-                  ? "text-white font-black opacity-100 scale-105"
-                  : "text-white/50 hover:text-white/85 opacity-70 hover:opacity-100"
+                  ? "text-white font-black scale-105"
+                  : "text-white/85 font-bold hover:text-white"
               )}
             >
               <span>{label}</span>
