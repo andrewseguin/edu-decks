@@ -7,7 +7,7 @@ type InteractivePolygonExteriorSumProps = {
 };
 
 const SVG_H = 175;
-const R = 62;
+const R = 64;
 
 const POLY_NAMES: Record<number, string> = {
   3: "Triangle",
@@ -23,9 +23,27 @@ const POLY_NAMES: Record<number, string> = {
 };
 
 const COLOR_LILAC = "#d8b4fe"; // Exterior angle color
-const COLOR_GOLD = "#ffd45e";  // Walker & accent color
+const COLOR_GOLD = "#ffd45e";
 
-function getExteriorArcD(
+function getSectorPath(
+  center: { x: number; y: number },
+  startAngle: number,
+  sweepAngle: number,
+  r: number
+): string {
+  const steps = 16;
+  const pts: string[] = [`M ${center.x.toFixed(2)} ${center.y.toFixed(2)}`];
+  for (let s = 0; s <= steps; s++) {
+    const a = startAngle + (sweepAngle * s) / steps;
+    const px = center.x + r * Math.cos(a);
+    const py = center.y + r * Math.sin(a);
+    pts.push(`L ${px.toFixed(2)} ${py.toFixed(2)}`);
+  }
+  pts.push("Z");
+  return pts.join(" ");
+}
+
+function getArcPath(
   center: { x: number; y: number },
   startAngle: number,
   sweepAngle: number,
@@ -49,8 +67,9 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
   const CY = 84;
 
   const [n, setN] = useState(5); // n in [3..12]
-  const [walkProgress, setWalkProgress] = useState(0); // 0 to n
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [gatherProg, setGatherProg] = useState(0); // 0 (at corners) to 1 (gathered at center)
+  const [isGathered, setIsGathered] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
 
   const animRef = useRef<number | null>(null);
 
@@ -65,217 +84,62 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
   const eachExteriorAngle = 360 / n;
   const polyName = POLY_NAMES[n] || `${n}-gon`;
 
-  // Start continuous perimeter walk animation
-  const startWalk = useCallback(() => {
+  // Reset when n changes
+  useEffect(() => {
     if (animRef.current) cancelAnimationFrame(animRef.current);
-    setIsPlaying(true);
-    setWalkProgress(0);
+    setGatherProg(0);
+    setIsGathered(false);
+    setIsAnimating(false);
+  }, [n]);
 
-    const totalDuration = Math.max(3200, n * 800);
+  const animateTo = (target: number) => {
+    if (animRef.current) cancelAnimationFrame(animRef.current);
+    setIsAnimating(true);
+    const startVal = gatherProg;
     const startTime = performance.now();
+    const duration = 1200;
 
     const frame = (now: number) => {
       const elapsed = now - startTime;
-      const prog = Math.min(1, elapsed / totalDuration);
-      setWalkProgress(prog * n);
+      const t = Math.min(1, elapsed / duration);
+      // Smooth cubic in-out ease
+      const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const current = startVal + (target - startVal) * ease;
+      setGatherProg(current);
 
-      if (prog < 1) {
+      if (t < 1) {
         animRef.current = requestAnimationFrame(frame);
       } else {
-        setWalkProgress(n);
-        setIsPlaying(false);
+        setGatherProg(target);
+        setIsGathered(target === 1);
+        setIsAnimating(false);
       }
     };
     animRef.current = requestAnimationFrame(frame);
-  }, [n]);
+  };
 
-  // When shape changes, reset and auto-play
-  useEffect(() => {
-    startWalk();
-    return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-    };
-  }, [n, startWalk]);
+  const toggleGather = () => {
+    if (isAnimating) return;
+    if (isGathered || gatherProg > 0.5) {
+      animateTo(0);
+    } else {
+      animateTo(1);
+    }
+  };
 
-  // Compute current position and orientation of the walking arrow
-  const currentLeg = Math.max(0, Math.min(n - 1, Math.floor(walkProgress || 0)));
-  const legProgress = Math.max(0, Math.min(1, (walkProgress || 0) - currentLeg));
-
-  const fromV = vertices[currentLeg] || vertices[0] || { x: CX, y: CY };
-  const toV = vertices[(currentLeg + 1) % n] || vertices[0] || { x: CX, y: CY };
-  const nextToV = vertices[(currentLeg + 2) % n] || vertices[0] || { x: CX, y: CY };
-
-  // Headings
-  const currentHeading = Math.atan2(toV.y - fromV.y, toV.x - fromV.x);
-  const nextHeading = Math.atan2(nextToV.y - toV.y, nextToV.x - toV.x);
-
-  let arrowX = toV.x;
-  let arrowY = toV.y;
-  let arrowAngle = (currentHeading * 180) / Math.PI;
-
-  if (legProgress < 0.65) {
-    // Walking straight along edge
-    const tWalk = legProgress / 0.65;
-    arrowX = fromV.x + (toV.x - fromV.x) * tWalk;
-    arrowY = fromV.y + (toV.y - fromV.y) * tWalk;
-    arrowAngle = (currentHeading * 180) / Math.PI;
-  } else {
-    // Pivoting around vertex corner
-    const tPivot = (legProgress - 0.65) / 0.35;
-    arrowX = toV.x;
-    arrowY = toV.y;
-    const angleDiff = ((nextHeading - currentHeading + 3 * Math.PI) % (2 * Math.PI)) - Math.PI;
-    const interpolated = currentHeading + angleDiff * tPivot;
-    arrowAngle = (interpolated * 180) / Math.PI;
-  }
-
-  // Accumulated turned degrees
-  const completedTurns = Math.min(n, Math.max(0, walkProgress >= n ? n : legProgress >= 0.65 ? currentLeg + (legProgress - 0.65) / 0.35 : currentLeg));
-  const accumulatedDegrees = Math.min(360, Math.round(completedTurns * eachExteriorAngle));
-
-  // Compass pie arc radius
-  const compassR = 20;
-  const compassSweepRad = (accumulatedDegrees * Math.PI) / 180;
-  const compassEndX = CX + compassR * Math.sin(compassSweepRad);
-  const compassEndY = CY - compassR * Math.cos(compassSweepRad);
-  const largeArcFlag = accumulatedDegrees > 180 ? 1 : 0;
-  const compassD =
-    accumulatedDegrees >= 360
-      ? `M ${CX} ${CY - compassR} A ${compassR} ${compassR} 0 1 1 ${CX - 0.01} ${CY - compassR} Z`
-      : accumulatedDegrees > 0
-      ? `M ${CX} ${CY} L ${CX} ${CY - compassR} A ${compassR} ${compassR} 0 ${largeArcFlag} 1 ${compassEndX} ${compassEndY} Z`
-      : "";
+  const centerDiscR = 26;
+  const cornerArcR = Math.max(14, Math.min(22, 90 / n));
+  const sweepAngle = (2 * Math.PI) / n;
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full max-w-[440px] mx-auto pb-1 select-none" onClick={stop} onPointerDown={stop}>
       <svg
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
         style={{ maxHeight: 165 }}
-        className="w-full max-w-[360px] touch-none select-none overflow-visible"
+        className="w-full max-w-[360px] touch-none select-none overflow-visible cursor-pointer"
+        onClick={toggleGather}
       >
-        {/* Central Compass Wheel with Docked & Docking Arc Sectors */}
-        <circle cx={CX} cy={CY} r={compassR + 2} fill="rgba(0, 0, 0, 0.45)" stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
-        
-        {/* Fully Docked Sectors in the Central Circle */}
-        {Array.from({ length: n }, (_, i) => {
-          const isDocked = walkProgress >= i + 1;
-          if (!isDocked) return null;
-          const startRad = (i * eachExteriorAngle * Math.PI) / 180 - Math.PI / 2;
-          const endRad = ((i + 1) * eachExteriorAngle * Math.PI) / 180 - Math.PI / 2;
-          const p1x = CX + compassR * Math.cos(startRad);
-          const p1y = CY + compassR * Math.sin(startRad);
-          const p2x = CX + compassR * Math.cos(endRad);
-          const p2y = CY + compassR * Math.sin(endRad);
-          const large = eachExteriorAngle > 180 ? 1 : 0;
-          const sectorD = `M ${CX} ${CY} L ${p1x} ${p1y} A ${compassR} ${compassR} 0 ${large} 1 ${p2x} ${p2y} Z`;
-
-          return (
-            <path
-              key={`docked-${i}`}
-              d={sectorD}
-              fill="rgba(216, 180, 254, 0.38)"
-              stroke={COLOR_LILAC}
-              strokeWidth={1.5}
-            />
-          );
-        })}
-
-        {/* Flying Cloned Arcs Traveling from Corner to Central Wheel */}
-        {vertices.map((v, i) => {
-          const nextV = vertices[(i + 1) % n];
-          const triggerTime = i + 0.65;
-          if (walkProgress < triggerTime) return null;
-
-          const flightProg = Math.min(1, Math.max(0, (walkProgress - triggerTime) / 0.55));
-          if (flightProg >= 1) return null; // Already fully docked
-
-          const ease = 1 - Math.pow(1 - flightProg, 3); // Cubic ease out
-
-          // Current flying position from corner to center
-          const currX = nextV.x + (CX - nextV.x) * ease;
-          const currY = nextV.y + (CY - nextV.y) * ease;
-
-          const heading = Math.atan2(nextV.y - v.y, nextV.x - v.x);
-          const sweepAngle = (2 * Math.PI) / n;
-          const cornerArcR = Math.max(14, Math.min(22, 90 / n));
-          const currentArcR = cornerArcR + (compassR - cornerArcR) * ease;
-
-          // Interpolated angle from corner orientation to target sector orientation in central wheel
-          const targetStartAngle = (i * eachExteriorAngle * Math.PI) / 180 - Math.PI / 2;
-          const currentStartAngle = heading + (targetStartAngle - heading) * ease;
-
-          const arcD = getExteriorArcD({ x: currX, y: currY }, currentStartAngle, sweepAngle, currentArcR);
-
-          return (
-            <g key={`flying-clone-${i}`} style={{ filter: "drop-shadow(0px 0px 4px rgba(216, 180, 254, 0.9))" }}>
-              <path
-                d={arcD}
-                fill="none"
-                stroke={COLOR_LILAC}
-                strokeWidth={3}
-                strokeLinecap="round"
-              />
-            </g>
-          );
-        })}
-
-        {/* Central Counter Display */}
-        <text
-          x={CX}
-          y={CY}
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontSize={10.5}
-          fontWeight="900"
-          fill="#ffffff"
-          fontFamily="var(--font-heading, system-ui)"
-          style={{ filter: "drop-shadow(0px 1px 2px rgba(0,0,0,0.85))" }}
-        >
-          {accumulatedDegrees}°
-        </text>
-
-        {/* Static Extended Perimeter Rays & Corner Exterior Angle Arcs */}
-        {vertices.map((v, i) => {
-          const nextV = vertices[(i + 1) % n];
-          const heading = Math.atan2(nextV.y - v.y, nextV.x - v.x);
-          const sweepAngle = (2 * Math.PI) / n;
-
-          const extLen = Math.max(20, Math.min(30, 120 / n));
-          const rayEndX = nextV.x + Math.cos(heading) * extLen;
-          const rayEndY = nextV.y + Math.sin(heading) * extLen;
-
-          // Corner exterior arc
-          const arcR = Math.max(14, Math.min(22, 90 / n));
-          const arcD = getExteriorArcD(nextV, heading, sweepAngle, arcR);
-          const isPassed = walkProgress >= i + 0.65;
-
-          return (
-            <g key={`ext-${i}`}>
-              {/* Dashed Heading Extension Ray */}
-              <line
-                x1={nextV.x}
-                y1={nextV.y}
-                x2={rayEndX}
-                y2={rayEndY}
-                stroke="rgba(255, 255, 255, 0.45)"
-                strokeWidth={1.5}
-                strokeDasharray="3 2"
-              />
-
-              {/* Exterior Angle Arc at Corner */}
-              <path
-                d={arcD}
-                fill="none"
-                stroke={isPassed ? COLOR_LILAC : "rgba(255, 255, 255, 0.3)"}
-                strokeWidth={isPassed ? 2.5 : 1.5}
-                strokeLinecap="round"
-                opacity={isPassed ? 0.85 : 0.4}
-              />
-            </g>
-          );
-        })}
-
-        {/* Outer boundary polygon */}
+        {/* Base Outer Polygon */}
         <polygon
           points={vertices.map((v) => `${v.x},${v.y}`).join(" ")}
           fill="rgba(255, 255, 255, 0.05)"
@@ -284,83 +148,161 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
           strokeLinejoin="round"
         />
 
-        {/* Vertex Dots */}
+        {/* Extended Heading Dashed Rays (fade out slightly as arcs gather) */}
+        {vertices.map((v, i) => {
+          const nextV = vertices[(i + 1) % n];
+          const heading = Math.atan2(nextV.y - v.y, nextV.x - v.x);
+          const extLen = Math.max(20, Math.min(30, 120 / n));
+          const rayEndX = nextV.x + Math.cos(heading) * extLen;
+          const rayEndY = nextV.y + Math.sin(heading) * extLen;
+
+          return (
+            <line
+              key={`ray-${i}`}
+              x1={nextV.x}
+              y1={nextV.y}
+              x2={rayEndX}
+              y2={rayEndY}
+              stroke="rgba(255, 255, 255, 0.4)"
+              strokeWidth={1.5}
+              strokeDasharray="3 2"
+              opacity={1 - gatherProg * 0.7}
+            />
+          );
+        })}
+
+        {/* Faint Ghost Arcs Left at Corners when gathered */}
+        {gatherProg > 0.1 &&
+          vertices.map((v, i) => {
+            const nextV = vertices[(i + 1) % n];
+            const heading = Math.atan2(nextV.y - v.y, nextV.x - v.x);
+            const ghostD = getArcPath(nextV, heading, sweepAngle, cornerArcR);
+            return (
+              <path
+                key={`ghost-${i}`}
+                d={ghostD}
+                fill="none"
+                stroke="rgba(216, 180, 254, 0.25)"
+                strokeWidth={1.5}
+                strokeDasharray="2 2"
+              />
+            );
+          })}
+
+        {/* Converging Purple Exterior Angle Arcs / Wedges */}
+        {vertices.map((v, i) => {
+          const nextV = vertices[(i + 1) % n];
+          const heading = Math.atan2(nextV.y - v.y, nextV.x - v.x);
+
+          // Center target heading for sector i
+          const targetHeading = (i * eachExteriorAngle * Math.PI) / 180 - Math.PI / 2;
+
+          // Interpolate position from corner vertex to center
+          const currX = nextV.x + (CX - nextV.x) * gatherProg;
+          const currY = nextV.y + (CY - nextV.y) * gatherProg;
+
+          // Interpolate angle & radius
+          // Handle smooth angle wrapping
+          let angleDiff = targetHeading - heading;
+          while (angleDiff > Math.PI) angleDiff -= 2 * Math.PI;
+          while (angleDiff < -Math.PI) angleDiff += 2 * Math.PI;
+          const currHeading = heading + angleDiff * gatherProg;
+
+          const currR = cornerArcR + (centerDiscR - cornerArcR) * gatherProg;
+
+          const sectorD = getSectorPath({ x: currX, y: currY }, currHeading, sweepAngle, currR);
+          const arcD = getArcPath({ x: currX, y: currY }, currHeading, sweepAngle, currR);
+
+          return (
+            <g key={`arc-wedge-${i}`}>
+              {/* Wedge Fill (illuminates as it converges into center) */}
+              <path
+                d={sectorD}
+                fill="rgba(216, 180, 254, 0.35)"
+                opacity={0.2 + gatherProg * 0.7}
+                stroke="none"
+              />
+
+              {/* Wedge Outer Arc Border */}
+              <path
+                d={arcD}
+                fill="none"
+                stroke={COLOR_LILAC}
+                strokeWidth={2.5}
+                strokeLinecap="round"
+                style={{
+                  filter: gatherProg > 0.8 ? "drop-shadow(0px 0px 3px rgba(216, 180, 254, 0.8))" : "none",
+                }}
+              />
+            </g>
+          );
+        })}
+
+        {/* Central 360° Total Badge when Gathered */}
+        {gatherProg > 0.6 && (
+          <g style={{ opacity: (gatherProg - 0.6) / 0.4 }}>
+            <circle cx={CX} cy={CY} r={12} fill="rgba(0, 0, 0, 0.7)" stroke="rgba(255, 255, 255, 0.4)" strokeWidth={1} />
+            <text
+              x={CX}
+              y={CY}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={8.5}
+              fontWeight="900"
+              fill="#ffffff"
+              fontFamily="var(--font-heading, system-ui)"
+            >
+              360°
+            </text>
+          </g>
+        )}
+
+        {/* Vertex Corner Dots */}
         {vertices.map((v, i) => (
           <circle key={`v-${i}`} cx={v.x} cy={v.y} r={3} fill="#ffffff" />
         ))}
-
-        {/* The Walking Tracker Arrow with Exaggerated Trailing Line */}
-        <g transform={`translate(${arrowX}, ${arrowY}) rotate(${arrowAngle})`}>
-          {/* Extended Trailing Line (Needle Tail) to Exaggerate Corner Turning */}
-          <line
-            x1={-32}
-            y1={0}
-            x2={10}
-            y2={0}
-            stroke={COLOR_GOLD}
-            strokeWidth={3}
-            strokeLinecap="round"
-            style={{ filter: "drop-shadow(0px 0px 3px rgba(255, 212, 94, 0.8))" }}
-          />
-
-          {/* Trailing Dashed Accent */}
-          <line
-            x1={-46}
-            y1={0}
-            x2={-34}
-            y2={0}
-            stroke={COLOR_GOLD}
-            strokeWidth={2}
-            strokeLinecap="round"
-            opacity={0.6}
-          />
-
-          {/* Central Pivot Hub Dot */}
-          <circle cx={0} cy={0} r={4.5} fill={COLOR_GOLD} stroke="#ffffff" strokeWidth={1.5} />
-
-          {/* Forward Chevron Arrowhead */}
-          <path
-            d="M 14 0 L 2 -6 L 5 0 L 2 6 Z"
-            fill={COLOR_GOLD}
-            stroke="#ffffff"
-            strokeWidth={1.2}
-            style={{ filter: "drop-shadow(0px 1px 3px rgba(0,0,0,0.8))" }}
-          />
-        </g>
       </svg>
 
-      {/* Controls Row: Shape Stepper & Replay Button */}
-      <div className="flex items-center gap-2">
-        <div className="flex items-center justify-between w-[280px] sm:w-[300px] bg-white/10 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-white/25 shadow-sm pointer-events-auto z-30 select-none">
-          <button
-            onClick={() => setN((prev) => Math.max(3, prev - 1))}
-            disabled={n <= 3}
-            className="w-6 h-6 shrink-0 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
-            aria-label="Decrease sides"
-          >
-            −
-          </button>
-          <div className="flex-1 text-center px-1 text-xs sm:text-sm font-headline font-bold text-white whitespace-nowrap">
-            {polyName} ({n} sides · {Number(eachExteriorAngle.toFixed(1))}° turns)
-          </div>
-          <button
-            onClick={() => setN((prev) => Math.min(12, prev + 1))}
-            disabled={n >= 12}
-            className="w-6 h-6 shrink-0 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
-            aria-label="Increase sides"
-          >
-            +
-          </button>
-        </div>
-
-        {/* Replay Walk Button */}
+      {/* Row 1: Number of Sides Stepper */}
+      <div className="flex items-center justify-between w-[280px] sm:w-[300px] bg-white/10 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-white/25 shadow-sm pointer-events-auto z-30 select-none">
         <button
-          onClick={startWalk}
-          className="w-8 h-8 rounded-full flex items-center justify-center bg-white/10 hover:bg-white/20 active:scale-95 text-white border border-white/25 backdrop-blur-md shadow-sm transition-all cursor-pointer"
-          title="Re-walk perimeter"
-          aria-label="Re-walk perimeter"
+          onClick={() => setN((prev) => Math.max(3, prev - 1))}
+          disabled={n <= 3}
+          className="w-6 h-6 shrink-0 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
+          aria-label="Decrease sides"
         >
-          {isPlaying ? <RotateCcw className="w-3.5 h-3.5 stroke-[2.5]" /> : <Play className="w-3.5 h-3.5 fill-white" />}
+          −
+        </button>
+        <div className="flex-1 text-center px-1 text-xs sm:text-sm font-headline font-bold text-white whitespace-nowrap">
+          {polyName} ({n} sides · {Number(eachExteriorAngle.toFixed(1))}°)
+        </div>
+        <button
+          onClick={() => setN((prev) => Math.min(12, prev + 1))}
+          disabled={n >= 12}
+          className="w-6 h-6 shrink-0 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
+          aria-label="Increase sides"
+        >
+          +
+        </button>
+      </div>
+
+      {/* Row 2: Gather Action Button */}
+      <div className="flex items-center gap-2">
+        <button
+          onClick={toggleGather}
+          className="px-4 py-1 rounded-full text-xs font-bold transition-all border bg-white/15 hover:bg-white/25 text-white border-white/30 shadow-sm backdrop-blur-md active:scale-95 select-none flex items-center gap-1.5 cursor-pointer"
+        >
+          {isGathered || gatherProg > 0.5 ? (
+            <>
+              <RotateCcw className="w-3.5 h-3.5 stroke-[2.5]" />
+              Return to corners
+            </>
+          ) : (
+            <>
+              <Play className="w-3.5 h-3.5 fill-white" />
+              Gather arcs into 360° circle
+            </>
+          )}
         </button>
       </div>
 
