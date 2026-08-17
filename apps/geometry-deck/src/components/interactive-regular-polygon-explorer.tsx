@@ -36,8 +36,12 @@ export function InteractiveRegularPolygonExplorer({ mode = "regular", color }: I
   const interiorAngle = Math.round((sumAngle / n) * 10) / 10;
 
   return (
-    <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
-      <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="w-full touch-none select-none overflow-visible">
+    <div ref={containerRef} className="flex flex-col items-center gap-1.5 w-full max-w-[420px] mx-auto pb-1 select-none" onClick={stop} onPointerDown={stop}>
+      <svg
+        viewBox={`0 0 ${SVG_W} ${SVG_H}`}
+        style={{ maxHeight: 135 }}
+        className="w-full max-w-[320px] touch-none select-none overflow-visible"
+      >
         {/* Polygon Interior Fill */}
         <polygon
           points={vertices.map((v) => `${v.x},${v.y}`).join(" ")}
