@@ -766,7 +766,7 @@ function makePolygonsTermCards(): GeometryCard[] {
       frontLabel: "Polygon interior angle sum", frontPrompt: "formula is…?",
       frontSpeechText: "The formula for the interior angle sum of a polygon is…?",
       backDefinition: "Sum = (n − 2) · 180°",
-      backDefinitionSubtitle: "Interior angle sum = (number of sides − 2) · 180°",
+      backDefinitionSubtitle: "Works for any polygon (regular or irregular)",
       backSvgExamples: [{ shape: "polygon", dimensions: { n: 6, labelMode: "variable" }, labelMode: "variable" }],
       backSteps: [
         { formulaLine: "Sum = (n − 2) × 180°" },
@@ -779,6 +779,7 @@ function makePolygonsTermCards(): GeometryCard[] {
       frontLabel: "Polygon exterior angle sum", frontPrompt: "is…?",
       frontSpeechText: "The exterior angle sum of any polygon is…?",
       backDefinition: "Sum = 360°",
+      backDefinitionSubtitle: "Works for any convex polygon (regular or irregular)",
       backSvgExamples: [{ shape: "polygon", dimensions: { n: 5, labelMode: "numeric" }, labelMode: "numeric" }],
       backSteps: [{ formulaLine: "Exterior angle sum = 360°" }],
       backSpeechText: "The exterior angle sum of any polygon is always 360 degrees", color,
@@ -788,6 +789,7 @@ function makePolygonsTermCards(): GeometryCard[] {
       frontLabel: "Regular polygon interior angle", frontPrompt: "formula is…?",
       frontSpeechText: "Each interior angle of a regular polygon is…?",
       backDefinition: "Each = (n − 2) · 180° ÷ n",
+      backDefinitionSubtitle: "Only for regular polygons with equal angles",
       backSvgExamples: [{ shape: "polygon", dimensions: { n: 6, labelMode: "variable" }, labelMode: "variable" }],
       backSteps: [
         { formulaLine: "Sum = (n − 2) × 180°" },
