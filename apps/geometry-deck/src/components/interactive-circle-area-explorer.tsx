@@ -455,17 +455,19 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         )}
       </svg>
 
-      {/* Row 1: Animation Step Tabs */}
+      {/* Row 1: Animation Step Tabs (Segmented switcher with solid active pill) */}
       <div className="flex justify-center select-none">
-        <div className="flex items-center gap-0.5 bg-black/35 backdrop-blur-md p-0.5 rounded-full border border-white/20 shadow-sm">
+        <div className="flex items-center gap-1 bg-white/15 backdrop-blur-md p-1 rounded-full border border-white/30 shadow-md">
           <button
             onClick={() => {
               setIsPlaying(false);
               setStep(1);
             }}
             className={cn(
-              "px-3 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
-              step === 1 ? "bg-white/25 text-white shadow-sm" : "bg-transparent text-white/70 hover:text-white"
+              "px-3.5 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
+              step === 1
+                ? "bg-white text-purple-950 font-black shadow-md scale-[1.02]"
+                : "bg-transparent text-white/85 hover:text-white hover:bg-white/10"
             )}
           >
             1. Circle
@@ -476,8 +478,10 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               setStep(2);
             }}
             className={cn(
-              "px-3 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
-              step === 2 ? "bg-white/25 text-white shadow-sm" : "bg-transparent text-white/70 hover:text-white"
+              "px-3.5 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
+              step === 2
+                ? "bg-white text-purple-950 font-black shadow-md scale-[1.02]"
+                : "bg-transparent text-white/85 hover:text-white hover:bg-white/10"
             )}
           >
             2. Unroll
@@ -488,8 +492,10 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               setStep(3);
             }}
             className={cn(
-              "px-3 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
-              step === 3 ? "bg-white/25 text-white shadow-sm" : "bg-transparent text-white/70 hover:text-white"
+              "px-3.5 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
+              step === 3
+                ? "bg-white text-purple-950 font-black shadow-md scale-[1.02]"
+                : "bg-transparent text-white/85 hover:text-white hover:bg-white/10"
             )}
           >
             3. Combine
