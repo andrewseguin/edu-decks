@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useCallback } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
 
 type InteractivePolygonInteriorSumProps = {
@@ -43,34 +43,14 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
   const CY = 75;
 
   const [n, setN] = useState(5); // n in [3..12]
-  const [hasInteracted, setHasInteracted] = useState(false);
-  const [ambientAngle, setAmbientAngle] = useState(0);
-
-  const ambientRef = useRef<number>(0);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => {
     e.stopPropagation();
-    setHasInteracted(true);
   }, []);
 
-  // Gentle ambient rotation on initial reveal
-  useEffect(() => {
-    if (hasInteracted) return;
-    let start: number | null = null;
-    const animate = (ts: number) => {
-      if (!start) start = ts;
-      const elapsed = ts - start;
-      const ang = Math.sin(elapsed / 900) * 8;
-      setAmbientAngle(ang);
-      ambientRef.current = requestAnimationFrame(animate);
-    };
-    ambientRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(ambientRef.current);
-  }, [hasInteracted]);
-
-  // Compute vertices
+  // Compute vertices (upright with apex at top)
   const vertices = Array.from({ length: n }, (_, i) => {
-    const angle = (i * 2 * Math.PI) / n - Math.PI / 2 + (ambientAngle * Math.PI) / 180;
+    const angle = (i * 2 * Math.PI) / n - Math.PI / 2;
     return { x: CX + R * Math.cos(angle), y: CY + R * Math.sin(angle) };
   });
 
@@ -133,10 +113,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
       {/* Stepper Controls for n with Fixed Width to prevent +/- button jumping */}
       <div className="flex items-center justify-between w-[310px] sm:w-[330px] bg-white/10 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-white/25 shadow-sm pointer-events-auto z-30 select-none">
         <button
-          onClick={() => {
-            setHasInteracted(true);
-            setN((prev) => Math.max(3, prev - 1));
-          }}
+          onClick={() => setN((prev) => Math.max(3, prev - 1))}
           disabled={n <= 3}
           className="w-6 h-6 shrink-0 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
           aria-label="Decrease sides"
@@ -147,10 +124,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
           {polyName} ({n} sides · {numTriangles} triangles)
         </div>
         <button
-          onClick={() => {
-            setHasInteracted(true);
-            setN((prev) => Math.min(12, prev + 1));
-          }}
+          onClick={() => setN((prev) => Math.min(12, prev + 1))}
           disabled={n >= 12}
           className="w-6 h-6 shrink-0 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
           aria-label="Increase sides"
