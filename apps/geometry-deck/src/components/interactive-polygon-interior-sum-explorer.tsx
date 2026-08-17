@@ -142,9 +142,9 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
             (<span style={{ color: COLOR_GOLD }}>{n}</span> − 2) · 180°
           </span>
           <span className="text-white/50">=</span>
-          <span style={{ color: COLOR_LILAC }}>{numTriangles} · 180°</span>
+          <span className="text-white/90">{numTriangles} · 180°</span>
           <span className="text-white/50">=</span>
-          <span style={{ color: COLOR_WHITE }} className="font-bold">{totalSum}°</span>
+          <span className="text-white font-bold">{totalSum}°</span>
         </div>
       </div>
     </div>
