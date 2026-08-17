@@ -101,10 +101,20 @@ export function Circle({ dims, mutation }: { dims: Record<string, number | strin
   const cx = 120, cy = 85, cr = 58;
   const circum = 2 * Math.PI * cr;
 
+  const isAreaContext = unknownDim === "A" || dims.A !== undefined || filled;
+
   return (
     <svg viewBox="0 0 240 170" className="w-full h-full select-none" aria-hidden>
-      {/* 1. Interior Fill */}
+      <defs>
+        <pattern id="circle-unit-grid" width="12" height="12" patternUnits="userSpaceOnUse">
+          <rect width="12" height="12" fill="rgba(255, 255, 255, 0.04)" />
+          <path d="M 12 0 L 0 0 0 12" fill="none" stroke="rgba(255, 255, 255, 0.16)" strokeWidth="1" strokeDasharray="2 3" />
+        </pattern>
+      </defs>
+
+      {/* 1. Interior Fill (Solid when filled + Unit Squares Grid for Area) */}
       {filled && <circle cx={cx} cy={cy} r={cr} fill={FILL_COLOR} />}
+      {isAreaContext && <circle cx={cx} cy={cy} r={cr} fill="url(#circle-unit-grid)" />}
 
       {/* 2. Circumference Glow Animation */}
       {traceCirc && (
