@@ -717,9 +717,9 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontSvg: { shape: "circle", dimensions: { r: 5, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "A" },
     frontSpeechText: "Radius is 5. Find the circle area.",
     backSteps: [
-      { equationTokens: [t("lhs","A"), eq(), d("pi","π·"), t("r","r²","#5ee8ff")], reason: "Circle Area Formula" },
-      { equationTokens: [t("lhs","A"), eq(), d("pi","π·"), t("r","5²","#5ee8ff")], svgMutation: { fillInterior: true }, reason: "Substitute known values" },
-      { equationTokens: [t("lhs","A"), eq(), t("rhs","25π")], reason: "Evaluate" },
+      { equationTokens: [t("lhs","A","#ffd45e"), eq(), d("pi","π·"), t("r","r²","#5ee8ff")], reason: "Circle Area Formula" },
+      { equationTokens: [t("lhs","A","#ffd45e"), eq(), d("pi","π·"), t("r","5²","#5ee8ff")], svgMutation: { fillInterior: true }, reason: "Substitute known values" },
+      { equationTokens: [t("lhs","A","#ffd45e"), eq(), t("rhs","25π","#ffd45e")], reason: "Evaluate" },
     ],
     backSpeechText: "A equals 25 pi", numericAnswer: 25,
   },
@@ -746,8 +746,8 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontSvg: { shape: "circle", dimensions: { A: "9π", labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "r" },
     frontSpeechText: "A equals 9 pi. Find the radius.",
     backSteps: [
-      { equationTokens: [t("lhs","A"), eq(), d("pi","π·"), t("r","r²","#5ee8ff")], reason: "Circle Area Formula" },
-      { equationTokens: [t("lhs","9π"), eq(), d("pi","π·"), t("r","r²","#5ee8ff")], reason: "Substitute known values" },
+      { equationTokens: [t("lhs","A","#ffd45e"), eq(), d("pi","π·"), t("r","r²","#5ee8ff")], reason: "Circle Area Formula" },
+      { equationTokens: [t("lhs","9π","#ffd45e"), eq(), d("pi","π·"), t("r","r²","#5ee8ff")], reason: "Substitute known values" },
       { equationTokens: [t("r","r²","#5ee8ff"), eq(), t("rhs","9","#5ee8ff")], reason: "Divide both sides by π" },
       { equationTokens: [t("r","r","#5ee8ff"), eq(), t("rhs","3","#5ee8ff")], reason: "Take the square root (√)" },
     ],

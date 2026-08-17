@@ -703,9 +703,9 @@ function makeCirclesCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "circle", dimensions: { r, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "A" },
       frontSpeechText: `Radius is ${r}. Find the circle area.`,
       backSteps: [
-        { equationTokens: [tok("lhs","A"), eq(), dim("pi","π·"), tok("r","r²","#5ee8ff")], reason: "Circle Area Formula" },
-        { equationTokens: [tok("lhs","A"), eq(), dim("pi","π·"), tok("r",`${r}²`,"#5ee8ff")], svgMutation: { fillInterior: true }, reason: `Substitute r = ${r}` },
-        { equationTokens: [tok("lhs","A"), eq(), tok("rhs",`${r * r}π${u}²`)], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","A","#ffd45e"), eq(), dim("pi","π·"), tok("r","r²","#5ee8ff")], reason: "Circle Area Formula" },
+        { equationTokens: [tok("lhs","A","#ffd45e"), eq(), dim("pi","π·"), tok("r",`${r}²`,"#5ee8ff")], svgMutation: { fillInterior: true }, reason: `Substitute r = ${r}` },
+        { equationTokens: [tok("lhs","A","#ffd45e"), eq(), tok("rhs",`${r * r}π${u}²`,"#ffd45e")], reason: "Evaluate" },
       ],
       backSpeechText: `A equals ${r * r} pi`, numericAnswer: r * r, color,
     };
@@ -736,8 +736,8 @@ function makeCirclesCalcCard(settings: GeneratorSettings): GeometryCard {
     frontSvg: { shape: "circle", dimensions: { A: `${rSq}π`, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "r" },
     frontSpeechText: `A equals ${rSq} pi. Find the radius.`,
     backSteps: [
-      { equationTokens: [tok("lhs","A"), eq(), dim("pi","π·"), tok("r","r²","#5ee8ff")], reason: "Circle Area Formula" },
-      { equationTokens: [tok("lhs",`${rSq}π`), eq(), dim("pi","π·"), tok("r","r²","#5ee8ff")], reason: `Substitute A = ${rSq}π` },
+      { equationTokens: [tok("lhs","A","#ffd45e"), eq(), dim("pi","π·"), tok("r","r²","#5ee8ff")], reason: "Circle Area Formula" },
+      { equationTokens: [tok("lhs",`${rSq}π`,"#ffd45e"), eq(), dim("pi","π·"), tok("r","r²","#5ee8ff")], reason: `Substitute A = ${rSq}π` },
       { equationTokens: [tok("r","r²","#5ee8ff"), eq(), tok("rhs",`${rSq}`,"#5ee8ff")], reason: "Divide both sides by π" },
       { equationTokens: [tok("r","r","#5ee8ff"), eq(), tok("rhs",`${r}${u}`,"#5ee8ff")], reason: "Take the square root (√)" },
     ],

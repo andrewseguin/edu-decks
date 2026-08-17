@@ -10,7 +10,7 @@ import {
 const COLOR_RADIUS = "#5ee8ff";  // Electric Cyan
 const COLOR_DIAMETER = "#ffd45e";// Warm Gold
 const COLOR_CIRCUM = "#ffd45e";  // Warm Gold / Amber Orange
-const COLOR_AREA = "#ffffff";    // Crisp White
+const COLOR_AREA = "#ffd45e";    // Warm Gold / Amber Orange (Consistent secondary circle color)
 
 const lblStyle: React.CSSProperties = {
   filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.7))",
