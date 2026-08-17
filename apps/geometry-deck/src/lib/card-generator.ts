@@ -757,7 +757,6 @@ function makePolygonsTermCards(): GeometryCard[] {
       frontLabel: "Regular polygons", frontPrompt: "are…?",
       frontSpeechText: "Regular polygons are…?",
       backDefinition: "All sides equal, all interior angles equal",
-      backDefinitionSubtitle: "Equilateral (equal sides) and equiangular (equal angles)",
       backSvgExamples: [{ shape: "polygon", dimensions: { n: 5, labelMode: "numeric" }, labelMode: "numeric" }],
       backSteps: [{ formulaLine: "Equal sides + equal angles" }],
       backSpeechText: "Regular polygons have all sides equal and all interior angles equal", color,
@@ -767,7 +766,6 @@ function makePolygonsTermCards(): GeometryCard[] {
       frontLabel: "Interior angle sum of an n-gon", frontPrompt: "formula is…?",
       frontSpeechText: "The formula for the interior angle sum of an n-gon is…?",
       backDefinition: "Sum = (n − 2) · 180°",
-      backDefinitionSubtitle: "Splits into (n − 2) internal triangles from any single vertex",
       backSvgExamples: [{ shape: "polygon", dimensions: { n: 6, labelMode: "variable" }, labelMode: "variable" }],
       backSteps: [
         { formulaLine: "Sum = (n − 2) × 180°" },
@@ -780,7 +778,6 @@ function makePolygonsTermCards(): GeometryCard[] {
       frontLabel: "Exterior angle sum of any polygon", frontPrompt: "is…?",
       frontSpeechText: "The exterior angle sum of any polygon is…?",
       backDefinition: "Sum = 360°",
-      backDefinitionSubtitle: "The sum of exterior angles for any convex polygon is always 360°",
       backSvgExamples: [{ shape: "polygon", dimensions: { n: 5, labelMode: "numeric" }, labelMode: "numeric" }],
       backSteps: [{ formulaLine: "Exterior angle sum = 360°" }],
       backSpeechText: "The exterior angle sum of any polygon is always 360 degrees", color,
@@ -790,7 +787,6 @@ function makePolygonsTermCards(): GeometryCard[] {
       frontLabel: "Regular polygon interior angle", frontPrompt: "formula is…?",
       frontSpeechText: "Each interior angle of a regular polygon is…?",
       backDefinition: "Each = (n − 2) · 180° ÷ n",
-      backDefinitionSubtitle: "Total interior sum divided by the number of equal sides (n)",
       backSvgExamples: [{ shape: "polygon", dimensions: { n: 6, labelMode: "variable" }, labelMode: "variable" }],
       backSteps: [
         { formulaLine: "Sum = (n − 2) × 180°" },
