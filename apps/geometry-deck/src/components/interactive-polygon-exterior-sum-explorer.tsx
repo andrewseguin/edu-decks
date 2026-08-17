@@ -211,15 +211,41 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
           <circle key={`v-${i}`} cx={v.x} cy={v.y} r={3} fill="#ffffff" />
         ))}
 
-        {/* The Walking Tracker Arrow */}
+        {/* The Walking Tracker Arrow with Exaggerated Trailing Line */}
         <g transform={`translate(${arrowX}, ${arrowY}) rotate(${arrowAngle})`}>
-          <circle cx={0} cy={0} r={5} fill={COLOR_GOLD} opacity={0.3} />
-          {/* Forward pointing chevron */}
+          {/* Extended Trailing Line (Needle Tail) to Exaggerate Corner Turning */}
+          <line
+            x1={-32}
+            y1={0}
+            x2={10}
+            y2={0}
+            stroke={COLOR_GOLD}
+            strokeWidth={3}
+            strokeLinecap="round"
+            style={{ filter: "drop-shadow(0px 0px 3px rgba(255, 212, 94, 0.8))" }}
+          />
+
+          {/* Trailing Dashed Accent */}
+          <line
+            x1={-46}
+            y1={0}
+            x2={-34}
+            y2={0}
+            stroke={COLOR_GOLD}
+            strokeWidth={2}
+            strokeLinecap="round"
+            opacity={0.6}
+          />
+
+          {/* Central Pivot Hub Dot */}
+          <circle cx={0} cy={0} r={4.5} fill={COLOR_GOLD} stroke="#ffffff" strokeWidth={1.5} />
+
+          {/* Forward Chevron Arrowhead */}
           <path
-            d="M 8 0 L -5 -5 L -2 0 L -5 5 Z"
+            d="M 14 0 L 2 -6 L 5 0 L 2 6 Z"
             fill={COLOR_GOLD}
             stroke="#ffffff"
-            strokeWidth={1}
+            strokeWidth={1.2}
             style={{ filter: "drop-shadow(0px 1px 3px rgba(0,0,0,0.8))" }}
           />
         </g>
