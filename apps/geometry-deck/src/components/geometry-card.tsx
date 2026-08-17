@@ -268,7 +268,7 @@ export function GeometryCard({
           <div className="flex flex-col items-center justify-center px-6 py-4 gap-1">
             <span
               className={cn(
-                "font-headline font-bold text-white text-center leading-tight text-3xl sm:text-4xl",
+                "font-headline font-bold text-white text-center leading-tight text-2xl sm:text-3xl md:text-4xl text-balance",
               )}
             >
               {card.frontLabel}

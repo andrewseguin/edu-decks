@@ -772,8 +772,8 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "term-poly-interior-sum": {
     id: "term-poly-interior-sum", topic: "polygons", cardType: "term", variant: "definition",
     color: TOPIC_COLORS.polygons,
-    frontLabel: "Interior angle sum of an n-gon", frontPrompt: "formula is…?",
-    frontSpeechText: "The formula for the interior angle sum of an n-gon is…?",
+    frontLabel: "Polygon interior angle sum", frontPrompt: "formula is…?",
+    frontSpeechText: "The formula for the interior angle sum of a polygon is…?",
     backDefinition: "Sum = (n − 2) · 180°",
     backDefinitionSubtitle: "Interior angle sum = (number of sides − 2) · 180°",
     backSvgExamples: [{ shape: "polygon", dimensions: { n: 6, labelMode: "variable" }, labelMode: "variable" }],
@@ -787,7 +787,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "term-poly-exterior-sum": {
     id: "term-poly-exterior-sum", topic: "polygons", cardType: "term", variant: "definition",
     color: TOPIC_COLORS.polygons,
-    frontLabel: "Exterior angle sum of any polygon", frontPrompt: "is…?",
+    frontLabel: "Polygon exterior angle sum", frontPrompt: "is…?",
     frontSpeechText: "The exterior angle sum of any polygon is…?",
     backDefinition: "Sum = 360°",
     backSvgExamples: [{ shape: "polygon", dimensions: { n: 5, labelMode: "numeric" }, labelMode: "numeric" }],
