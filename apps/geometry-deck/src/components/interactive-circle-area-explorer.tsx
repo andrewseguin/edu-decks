@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
 import { cn } from "@/lib/utils";
-import { Minus, Plus } from "lucide-react";
+import { Minus, Plus, ArrowRight } from "lucide-react";
 
 type InteractiveCircleAreaProps = {
   color?: string;
@@ -466,7 +466,7 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
           return (
             <React.Fragment key={num}>
               {index > 0 && (
-                <span className="text-white/40 text-xs font-mono select-none px-0.5">→</span>
+                <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/75 stroke-[2.5] flex-shrink-0 mx-0.5" />
               )}
               <button
                 onClick={() => {
