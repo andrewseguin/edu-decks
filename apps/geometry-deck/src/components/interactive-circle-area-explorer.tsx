@@ -458,9 +458,9 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
       {/* Row 1: Animation Step Tabs (Surfaceless typographic navigation) */}
       <div className="flex items-center justify-center gap-5 sm:gap-7 select-none py-1">
         {[
-          { num: 1, label: "1. Circle" },
-          { num: 2, label: "2. Unroll" },
-          { num: 3, label: "3. Combine" },
+          { num: 1, label: "Circle" },
+          { num: 2, label: "Unroll" },
+          { num: 3, label: "Combine" },
         ].map(({ num, label }) => {
           const isActive = step === num;
           return (
