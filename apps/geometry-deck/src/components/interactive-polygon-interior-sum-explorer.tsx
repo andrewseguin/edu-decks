@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
+import { VectorSigmaTheta } from "@/components/ui/formatted-math-text";
 
 type InteractivePolygonInteriorSumProps = {
   color?: string;
@@ -175,11 +176,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
               }}
             >
               {/* Triangle Tint Fill */}
-              <path
-                d={pathD}
-                fill={theme.fill}
-                stroke="none"
-              />
+              <path d={pathD} fill={theme.fill} stroke="none" />
 
               {/* Triangle 3 Corner Angle Arcs in Matching Theme Color */}
               {arcHub && <path d={arcHub} fill="none" stroke={theme.stroke} strokeWidth={2.2} strokeLinecap="round" />}
@@ -216,7 +213,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
               key={`diag-${i}`}
               d={`M ${hubV.x} ${hubV.y} L ${destV.x} ${destV.y}`}
               fill="none"
-              stroke="rgba(255, 255, 255, 0.8)"
+              stroke="rgba(255, 255, 255, 0.85)"
               strokeWidth={1.75}
               strokeDasharray={len}
               strokeDashoffset={isDrawn ? 0 : len}
@@ -227,7 +224,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
           );
         })}
 
-        {/* Non-hub Vertex Corner Dots (clickable with large touch targets) */}
+        {/* Non-hub Vertex Corner Handles (clickable with large touch targets) */}
         {vertices.slice(1).map((v, i) => {
           const vIdx = i + 1;
           const isEligible = vIdx >= 2 && vIdx <= n - 2;
@@ -274,22 +271,22 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
       </svg>
 
       {/* Number of Sides Stepper */}
-      <div className="flex items-center justify-between w-[280px] sm:w-[300px] bg-white/10 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-white/25 shadow-sm pointer-events-auto z-30 select-none">
+      <div className="flex items-center justify-between w-[260px] sm:w-[280px] bg-white/10 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-white/25 shadow-sm pointer-events-auto z-30 select-none">
         <button
           onClick={() => setN((prev) => Math.max(3, prev - 1))}
           disabled={n <= 3}
-          className="w-6 h-6 shrink-0 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
+          className="w-5 h-5 shrink-0 rounded-full flex items-center justify-center font-bold text-xs transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
           aria-label="Decrease sides"
         >
           −
         </button>
         <div className="flex-1 text-center px-1 text-xs sm:text-sm font-headline font-bold text-white whitespace-nowrap">
-          {polyName} ({n} sides)
+          {polyName} (<span style={{ color: COLOR_GOLD }}>{n} sides</span>)
         </div>
         <button
           onClick={() => setN((prev) => Math.min(12, prev + 1))}
           disabled={n >= 12}
-          className="w-6 h-6 shrink-0 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
+          className="w-5 h-5 shrink-0 rounded-full flex items-center justify-center font-bold text-xs transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
           aria-label="Increase sides"
         >
           +
@@ -298,14 +295,14 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
 
       {/* Live Synchronized Equation Banner */}
       <div className="flex justify-center mt-0.5">
-        <div className="flex items-center gap-2.5 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-xs sm:text-sm font-bold font-headline select-none">
-          <span className="text-white">Sum</span>
+        <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-xs sm:text-sm font-bold font-headline select-none">
+          <VectorSigmaTheta color={COLOR_LILAC} thetaColor={COLOR_LILAC} size="1.05em" />
           <span className="text-white/50">=</span>
           <span className="text-white/90">
             (<span style={{ color: COLOR_GOLD }}>{n}</span> − 2) · 180°
           </span>
           <span className="text-white/50">=</span>
-          <span style={{ color: COLOR_GOLD }}>{numTriangles} · 180°</span>
+          <span className="text-white">{numTriangles} · 180°</span>
           <span className="text-white/50">=</span>
           <span className="text-white font-bold">{totalSum}°</span>
         </div>

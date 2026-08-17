@@ -76,6 +76,47 @@ export function StackedFraction({
   );
 }
 
+export function VectorSigma({ className = "", size = "0.92em", color = "currentColor" }: { className?: string; size?: string | number; color?: string }) {
+  return (
+    <svg
+      viewBox="0 0 10 12"
+      width={size}
+      height={size}
+      className={`inline-block align-baseline translate-y-[1px] ${className}`}
+      aria-label="Sigma"
+      style={{ overflow: "visible" }}
+    >
+      <path
+        d="M 9.5 0.5 L 0.5 0.5 L 5.5 6 L 0.5 11.5 L 9.5 11.5"
+        fill="none"
+        stroke={color}
+        strokeWidth={1.9}
+        strokeLinecap="round"
+        strokeLinejoin="miter"
+      />
+    </svg>
+  );
+}
+
+export function VectorSigmaTheta({
+  className = "",
+  size = "0.92em",
+  color = "currentColor",
+  thetaColor = "currentColor",
+}: {
+  className?: string;
+  size?: string | number;
+  color?: string;
+  thetaColor?: string;
+}) {
+  return (
+    <span className={`inline-flex items-baseline gap-[2px] ${className}`}>
+      <VectorSigma size={size} color={color} />
+      <span style={{ color: thetaColor }} className="font-bold leading-none">θ</span>
+    </span>
+  );
+}
+
 export function FormattedMathText({
   text,
   className = "",
@@ -84,12 +125,25 @@ export function FormattedMathText({
   className?: string;
 }) {
   // Regex to match fractions, specific compound formulas, and math keywords
-  const pattern = /(V − E \+ F = 2|V − E \+ F|A \+ B \+ C = 180°|A \+ B \+ C|A = ½\(a \+ b\)h|A = ½ · \(a \+ b\) · h|P = a \+ b \+ c|P = 2\(l \+ w\)|P = 2l \+ 2w|A = l · w|A = b · h|V = l · w · h|V = πr²h|V = ⅓πr²h|V = ⁴⁄₃πr³|SA = 4πr²|A = π · r²|A = πr²|C = 2 · π · r|C = 2πr|d = 2r|½|⅓|⅔|¼|¾|⅕|⅖|⅗|⅘|⅙|⅚|⅛|⅜|⅝|⅞|⁴⁄₃|base angles|base \(b\)|height \(h\)|hypotenuse \(c\)|length \(l\)|width \(w\)|radius \(r\)|radius²|radius³|diameter \(d\)|circumference \(C\)|vertices \(V\)|edges \(E\)|faces \(F\)|\blength\b|\bwidth\b|\bbase\b|\bheight\b|\bradius\b|\bdiameter\b|\bhypotenuse\b|\bcircumference\b|a²|b²|c²|r²|r³|∠A|∠B|∠C|[Aa]ngle [ABC])/g;
+  const pattern = /(∑θ = 360°|∑θ = \(n − 2\) · 180°|∑θ = \(n − 2\) × 180°|∑θ|∑|V − E \+ F = 2|V − E \+ F|A \+ B \+ C = 180°|A \+ B \+ C|A = ½\(a \+ b\)h|A = ½ · \(a \+ b\) · h|P = a \+ b \+ c|P = 2\(l \+ w\)|P = 2l \+ 2w|A = l · w|A = b · h|V = l · w · h|V = πr²h|V = ⅓πr²h|V = ⁴⁄₃πr³|SA = 4πr²|A = π · r²|A = πr²|C = 2 · π · r|C = 2πr|d = 2r|½|⅓|⅔|¼|¾|⅕|⅖|⅗|⅘|⅙|⅚|⅛|⅜|⅝|⅞|⁴⁄₃|base angles|base \(b\)|height \(h\)|hypotenuse \(c\)|length \(l\)|width \(w\)|radius \(r\)|radius²|radius³|diameter \(d\)|circumference \(C\)|vertices \(V\)|edges \(E\)|faces \(F\)|\blength\b|\bwidth\b|\bbase\b|\bheight\b|\bradius\b|\bdiameter\b|\bhypotenuse\b|\bcircumference\b|a²|b²|c²|r²|r³|∠A|∠B|∠C|[Aa]ngle [ABC])/g;
   const parts = text.split(pattern);
 
   return (
     <span className={className}>
       {parts.map((part, idx) => {
+        if (part === "∑θ = 360°" || part === "∑θ = (n − 2) · 180°" || part === "∑θ = (n − 2) × 180°" || part === "∑θ") {
+          return (
+            <React.Fragment key={idx}>
+              <VectorSigmaTheta />
+              {part === "∑θ = 360°" && <span> = 360°</span>}
+              {part === "∑θ = (n − 2) · 180°" && <span> = (<span style={{ color: "#ffd45e" }}>n</span> − 2) · 180°</span>}
+              {part === "∑θ = (n − 2) × 180°" && <span> = (<span style={{ color: "#ffd45e" }}>n</span> − 2) × 180°</span>}
+            </React.Fragment>
+          );
+        }
+        if (part === "∑") {
+          return <VectorSigma key={idx} />;
+        }
         if (part === "V − E + F = 2" || part === "V − E + F") {
           return (
             <React.Fragment key={idx}>

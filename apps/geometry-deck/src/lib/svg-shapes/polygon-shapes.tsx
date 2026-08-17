@@ -96,8 +96,6 @@ export function Polygon({ dims, mutation }: { dims: Record<string, number | stri
   const unknownDim = (dims.unknown as string | undefined) ?? (dims.unknownDimension as string | undefined);
   const filled = mutation?.fillInterior;
   const revealedAnswer = mutation?.revealAnswer;
-  // Triangulation is only for angle sum cards, never for perimeter
-  const showTriangles = dims.showTriangles === "true" || dims.showTriangles === 1 || unknownDim === "Sum" || unknownDim === "sum";
 
   const cx = 120, cy = 85, r = 58;
 
@@ -133,6 +131,48 @@ export function Polygon({ dims, mutation }: { dims: Record<string, number | stri
   const sideLabelX = midX + (edx / elen) * 14;
   const sideLabelY = midY + (edy / elen) * 14;
 
+  const minY = Math.min(...vertices.map((v) => v.y));
+  const maxY = Math.max(...vertices.map((v) => v.y));
+  const polyCenterY = (minY + maxY) / 2;
+  const minX = Math.min(...vertices.map((v) => v.x));
+  const maxX = Math.max(...vertices.map((v) => v.x));
+  const polyCenterX = (minX + maxX) / 2;
+
+  const isAngleCard = unknownDim === "Sum" || unknownDim === "sum" || unknownDim === "angle" || unknownDim === "θ" || dims.showArcs === "true" || dims.showArcs === 1;
+
+  // Compute congruent interior angle arcs at all vertices
+  const arcRadius = Math.max(10, Math.min(16, 85 / n));
+  const angleSectors = isAngleCard ? vertices.map((v, i) => {
+    const prevV = vertices[(i - 1 + n) % n];
+    const nextV = vertices[(i + 1) % n];
+
+    const d1x = prevV.x - v.x;
+    const d1y = prevV.y - v.y;
+    const len1 = Math.hypot(d1x, d1y);
+
+    const d2x = nextV.x - v.x;
+    const d2y = nextV.y - v.y;
+    const len2 = Math.hypot(d2x, d2y);
+
+    const u1x = d1x / len1;
+    const u1y = d1y / len1;
+    const u2x = d2x / len2;
+    const u2y = d2y / len2;
+
+    const p1x = v.x + arcRadius * u1x;
+    const p1y = v.y + arcRadius * u1y;
+    const p2x = v.x + arcRadius * u2x;
+    const p2y = v.y + arcRadius * u2y;
+
+    const cross = u1x * u2y - u1y * u2x;
+    const sweep = cross > 0 ? 1 : 0;
+
+    return {
+      sectorD: `M ${v.x} ${v.y} L ${p1x} ${p1y} A ${arcRadius} ${arcRadius} 0 0 ${sweep} ${p2x} ${p2y} Z`,
+      arcD: `M ${p1x} ${p1y} A ${arcRadius} ${arcRadius} 0 0 ${sweep} ${p2x} ${p2y}`,
+    };
+  }) : [];
+
   return (
     <svg viewBox="0 0 240 170" className="w-full h-full select-none" aria-hidden>
       {/* 1. Interior Fill */}
@@ -159,7 +199,19 @@ export function Polygon({ dims, mutation }: { dims: Record<string, number | stri
       {/* 3. Outer Polygon Edge Boundary */}
       <polygon points={pts} fill="rgba(255, 255, 255, 0.08)" stroke={WHITE90} strokeWidth={STROKE_W} strokeLinejoin="round" />
 
-      {/* 4. Side Hash Ticks for Equilateral Sides (on perimeter cards) */}
+      {/* 4. Glowing Interior Angle Arcs (for Angle Sum & Angle cards) */}
+      {isAngleCard && (
+        <g style={{ filter: "drop-shadow(0px 1px 4px rgba(216, 180, 254, 0.7))" }}>
+          {angleSectors.map((s, i) => (
+            <g key={`angle-arc-${i}`}>
+              <path d={s.sectorD} fill="rgba(216, 180, 254, 0.45)" stroke="none" />
+              <path d={s.arcD} fill="none" stroke="#f5d0fe" strokeWidth={2} strokeLinecap="round" />
+            </g>
+          ))}
+        </g>
+      )}
+
+      {/* 5. Side Hash Ticks for Equilateral Sides (on perimeter cards) */}
       {s !== undefined && vertices.map((v, i) => {
         const nextV = vertices[(i + 1) % n];
         const mx = (v.x + nextV.x) / 2;
@@ -184,53 +236,78 @@ export function Polygon({ dims, mutation }: { dims: Record<string, number | stri
         );
       })}
 
-      {/* 5. Triangulation Diagonals (Only for Angle Sum cards) */}
-      {showTriangles && n >= 4 && (
-        <g stroke={COLOR_CYAN} strokeWidth={1.5} strokeDasharray="4 3" opacity={0.75}>
-          {Array.from({ length: n - 3 }, (_, i) => {
-            const targetV = vertices[i + 2];
-            return <line key={i} x1={vertices[0].x} y1={vertices[0].y} x2={targetV.x} y2={targetV.y} />;
-          })}
-        </g>
-      )}
-
-      {/* 6. Centered Unknown Target */}
+      {/* 6. Centered Unknown Target at Exact Polygon Centroid */}
       {unknownDim === "P" || unknownDim === "perimeter" ? (
         <RevealText
-          x={cx}
-          y={cy}
+          x={polyCenterX}
+          y={polyCenterY}
           variable="P = ?"
           revealedValue={revealedAnswer != null ? `P = ${revealedAnswer}` : undefined}
           color="#ffffff"
-          fontSize={18}
-          fontWeight="900"
+          fontSize={15}
+          fontWeight="800"
         />
       ) : unknownDim === "Sum" || unknownDim === "sum" ? (
-        <g>
-          <RevealText
-            x={cx}
-            y={cy - 7}
-            variable="Sum = ?"
-            revealedValue={revealedAnswer != null ? `Sum = ${revealedAnswer}°` : undefined}
-            color={COLOR_CYAN}
-            fontSize={16}
-            fontWeight="900"
-          />
-          <SvgLabel x={cx} y={cy + 13} text={`n = ${n} sides`} color="#ffffff" size={12} />
+        <g style={{ filter: "drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.7))" }}>
+          {revealedAnswer != null ? (
+            <g transform={`translate(${polyCenterX - 30}, ${polyCenterY})`}>
+              {/* Vector Sigma Symbol (Standard right-facing) */}
+              <path
+                d="M 9.5 -6 L 0.5 -6 L 5.5 0 L 0.5 6 L 9.5 6"
+                fill="none"
+                stroke="#ffffff"
+                strokeWidth={2.2}
+                strokeLinecap="round"
+                strokeLinejoin="miter"
+              />
+              <text
+                x={14}
+                y={0}
+                dominantBaseline="central"
+                fill="#ffffff"
+                fontSize={14}
+                fontWeight="800"
+                fontFamily="var(--font-heading, system-ui)"
+              >
+                θ = {revealedAnswer}°
+              </text>
+            </g>
+          ) : (
+            <g transform={`translate(${polyCenterX - 22}, ${polyCenterY})`}>
+              {/* Vector Sigma Symbol (Standard right-facing) */}
+              <path
+                d="M 9.5 -6 L 0.5 -6 L 5.5 0 L 0.5 6 L 9.5 6"
+                fill="none"
+                stroke="#ffffff"
+                strokeWidth={2.2}
+                strokeLinecap="round"
+                strokeLinejoin="miter"
+              />
+              <text
+                x={14}
+                y={0}
+                dominantBaseline="central"
+                fill="#ffffff"
+                fontSize={14}
+                fontWeight="800"
+                fontFamily="var(--font-heading, system-ui)"
+              >
+                θ = ?
+              </text>
+            </g>
+          )}
         </g>
       ) : unknownDim === "angle" || unknownDim === "θ" ? (
         <RevealText
-          x={cx}
-          y={cy}
+          x={polyCenterX}
+          y={vertices[0].y + arcRadius + (n >= 8 ? 9 : 12)}
           variable="θ = ?"
           revealedValue={revealedAnswer != null ? `θ = ${revealedAnswer}°` : undefined}
-          color={COLOR_CYAN}
-          fontSize={17}
-          fontWeight="900"
+          color="#ffffff"
+          fontSize={n >= 8 ? 12.5 : 14}
+          fontWeight="800"
         />
-      ) : (
-        <SvgLabel x={cx} y={cy} text={`n = ${n} sides`} color="#ffffff" size={13} />
-      )}
+      ) : null}
 
       {/* 7. Side Length Label Placed Cleanly Along Bottom Edge in Warm Gold */}
       {s !== undefined && (

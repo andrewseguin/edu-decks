@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
 import { Play, Pause, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { VectorSigmaTheta } from "@/components/ui/formatted-math-text";
 
 type InteractivePolygonExteriorSumProps = {
   color?: string;
@@ -388,18 +389,33 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
           </g>
         )}
 
-        {/* 6. Completed Center Circle Glow */}
+        {/* 6. Completed Center Circle Glow & 360° Label */}
         {isComplete && (
-          <circle
-            cx={CX}
-            cy={CY}
-            r={arcR}
-            fill="none"
-            stroke="#ffffff"
-            strokeWidth={1.5}
-            opacity={0.8}
-            className="animate-pulse"
-          />
+          <g>
+            <circle
+              cx={CX}
+              cy={CY}
+              r={arcR}
+              fill="none"
+              stroke="#ffffff"
+              strokeWidth={1.5}
+              opacity={0.8}
+              className="animate-pulse"
+            />
+            <text
+              x={CX}
+              y={CY}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={13}
+              fontWeight="800"
+              fill="#ffffff"
+              fontFamily="var(--font-heading, system-ui)"
+              style={{ filter: "drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.8))" }}
+            >
+              360°
+            </text>
+          </g>
         )}
       </svg>
 
@@ -465,8 +481,8 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
 
       {/* Tier 4: Live Synchronized Equation Banner (Bottom Conclusion) */}
       <div className="flex justify-center mt-0.5">
-        <div className="flex items-center gap-2.5 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-xs sm:text-sm font-bold font-headline select-none">
-          <span style={{ color: COLOR_LILAC }}>Exterior angle sum</span>
+        <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-xs sm:text-sm font-bold font-headline select-none">
+          <VectorSigmaTheta color={COLOR_LILAC} thetaColor={COLOR_LILAC} size="1.05em" />
           <span className="text-white/50">=</span>
           <span className="text-white">
             <span>{n}</span>

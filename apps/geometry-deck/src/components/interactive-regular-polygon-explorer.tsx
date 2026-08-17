@@ -143,18 +143,18 @@ export function InteractiveRegularPolygonExplorer({ mode = "regular", color }: I
           );
         })}
 
-        {/* Center Angle Value (Only in 'each-angle' mode) */}
+        {/* Angle Value Positioned Directly Near Top Corner Arc (Only in 'each-angle' mode) */}
         {mode === "each-angle" && (
           <text
             x={CX}
-            y={CY}
+            y={vertices[0].y + arcRadius + (n >= 8 ? 9 : 12)}
             textAnchor="middle"
             dominantBaseline="central"
-            fontSize={15.5}
+            fontSize={n >= 8 ? 12.5 : 14}
             fontWeight="800"
-            fill={COLOR_LILAC}
+            fill="#ffffff"
             fontFamily="var(--font-heading, system-ui)"
-            style={{ filter: "drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.7))" }}
+            style={{ filter: "drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.8))" }}
           >
             {interiorAngle}°
           </text>
