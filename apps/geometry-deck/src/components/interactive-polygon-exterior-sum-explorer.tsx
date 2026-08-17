@@ -67,9 +67,8 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
   const CY = 84;
 
   const [n, setN] = useState(5); // n in [3..12]
-  const [gatherProg, setGatherProg] = useState(0); // 0 (at corners) to 1 (gathered at center)
-  const [isGathered, setIsGathered] = useState(false);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [walkProgress, setWalkProgress] = useState(0); // 0 to n
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const animRef = useRef<number | null>(null);
 
@@ -82,54 +81,57 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
   });
 
   const eachExteriorAngle = 360 / n;
+  const sweepAngle = (2 * Math.PI) / n;
   const polyName = POLY_NAMES[n] || `${n}-gon`;
 
-  // Reset when n changes
-  useEffect(() => {
+  // Start continuous perimeter walk animation
+  const startWalk = useCallback(() => {
     if (animRef.current) cancelAnimationFrame(animRef.current);
-    setGatherProg(0);
-    setIsGathered(false);
-    setIsAnimating(false);
-  }, [n]);
+    setIsPlaying(true);
+    setWalkProgress(0);
 
-  const animateTo = (target: number) => {
-    if (animRef.current) cancelAnimationFrame(animRef.current);
-    setIsAnimating(true);
-    const startVal = gatherProg;
+    const totalDuration = Math.max(3500, n * 850);
     const startTime = performance.now();
-    const duration = 1200;
 
     const frame = (now: number) => {
       const elapsed = now - startTime;
-      const t = Math.min(1, elapsed / duration);
-      // Smooth cubic in-out ease
-      const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
-      const current = startVal + (target - startVal) * ease;
-      setGatherProg(current);
+      const prog = Math.min(1, elapsed / totalDuration);
+      setWalkProgress(prog * n);
 
-      if (t < 1) {
+      if (prog < 1) {
         animRef.current = requestAnimationFrame(frame);
       } else {
-        setGatherProg(target);
-        setIsGathered(target === 1);
-        setIsAnimating(false);
+        setWalkProgress(n);
+        setIsPlaying(false);
       }
     };
     animRef.current = requestAnimationFrame(frame);
-  };
+  }, [n]);
 
-  const toggleGather = () => {
-    if (isAnimating) return;
-    if (isGathered || gatherProg > 0.5) {
-      animateTo(0);
-    } else {
-      animateTo(1);
-    }
-  };
+  // When shape changes, reset and auto-play
+  useEffect(() => {
+    startWalk();
+    return () => {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+    };
+  }, [n, startWalk]);
 
-  const centerDiscR = 26;
+  // Compute current position of the traveling wheel along the polygon boundary
+  const currentLeg = Math.max(0, Math.min(n - 1, Math.floor(walkProgress || 0)));
+  const legProgress = Math.max(0, Math.min(1, (walkProgress || 0) - currentLeg));
+
+  const fromV = vertices[currentLeg] || vertices[0];
+  const toV = vertices[(currentLeg + 1) % n] || vertices[0];
+
+  const wheelX = fromV.x + (toV.x - fromV.x) * legProgress;
+  const wheelY = fromV.y + (toV.y - fromV.y) * legProgress;
+
+  // Number of corners collected so far (each corner passed adds 1 sector)
+  const collectedCount = Math.min(n, Math.max(0, walkProgress >= n ? n : currentLeg + (legProgress >= 0.95 ? 1 : 0)));
+  const accumulatedDegrees = Math.min(360, Math.round(collectedCount * eachExteriorAngle));
+
+  const wheelR = 19;
   const cornerArcR = Math.max(14, Math.min(22, 90 / n));
-  const sweepAngle = (2 * Math.PI) / n;
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full max-w-[440px] mx-auto pb-1 select-none" onClick={stop} onPointerDown={stop}>
@@ -137,7 +139,7 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
         style={{ maxHeight: 165 }}
         className="w-full max-w-[360px] touch-none select-none overflow-visible cursor-pointer"
-        onClick={toggleGather}
+        onClick={startWalk}
       >
         {/* Base Outer Polygon */}
         <polygon
@@ -148,7 +150,7 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
           strokeLinejoin="round"
         />
 
-        {/* Extended Heading Dashed Rays (fade out slightly as arcs gather) */}
+        {/* Extended Heading Dashed Rays at Corners */}
         {vertices.map((v, i) => {
           const nextV = vertices[(i + 1) % n];
           const heading = Math.atan2(nextV.y - v.y, nextV.x - v.x);
@@ -163,93 +165,73 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
               y1={nextV.y}
               x2={rayEndX}
               y2={rayEndY}
-              stroke="rgba(255, 255, 255, 0.4)"
+              stroke="rgba(255, 255, 255, 0.45)"
               strokeWidth={1.5}
               strokeDasharray="3 2"
-              opacity={1 - gatherProg * 0.7}
             />
           );
         })}
 
-        {/* Faint Ghost Arcs Left at Corners when gathered */}
-        {gatherProg > 0.1 &&
-          vertices.map((v, i) => {
-            const nextV = vertices[(i + 1) % n];
-            const heading = Math.atan2(nextV.y - v.y, nextV.x - v.x);
-            const ghostD = getArcPath(nextV, heading, sweepAngle, cornerArcR);
-            return (
-              <path
-                key={`ghost-${i}`}
-                d={ghostD}
-                fill="none"
-                stroke="rgba(216, 180, 254, 0.25)"
-                strokeWidth={1.5}
-                strokeDasharray="2 2"
-              />
-            );
-          })}
-
-        {/* Converging Purple Exterior Angle Arcs / Wedges (Pure Translation, No Rotation) */}
+        {/* Static Corner Arcs Waiting to Be Collected */}
         {vertices.map((v, i) => {
           const nextV = vertices[(i + 1) % n];
           const heading = Math.atan2(nextV.y - v.y, nextV.x - v.x);
-
-          // Pure straight-line translation from corner vertex to center (Zero Rotation)
-          const currX = nextV.x + (CX - nextV.x) * gatherProg;
-          const currY = nextV.y + (CY - nextV.y) * gatherProg;
-          const currR = cornerArcR + (centerDiscR - cornerArcR) * gatherProg;
-
-          const sectorD = getSectorPath({ x: currX, y: currY }, heading, sweepAngle, currR);
-          const arcD = getArcPath({ x: currX, y: currY }, heading, sweepAngle, currR);
+          const arcD = getArcPath(nextV, heading, sweepAngle, cornerArcR);
+          const isCollected = walkProgress >= i + 1;
 
           return (
-            <g key={`arc-wedge-${i}`}>
-              {/* Wedge Fill (illuminates as it converges into center) */}
-              <path
-                d={sectorD}
-                fill="rgba(216, 180, 254, 0.35)"
-                opacity={0.2 + gatherProg * 0.7}
-                stroke="none"
-              />
-
-              {/* Wedge Outer Arc Border */}
-              <path
-                d={arcD}
-                fill="none"
-                stroke={COLOR_LILAC}
-                strokeWidth={2.5}
-                strokeLinecap="round"
-                style={{
-                  filter: gatherProg > 0.8 ? "drop-shadow(0px 0px 3px rgba(216, 180, 254, 0.8))" : "none",
-                }}
-              />
-            </g>
+            <path
+              key={`corner-arc-${i}`}
+              d={arcD}
+              fill="none"
+              stroke={COLOR_LILAC}
+              strokeWidth={isCollected ? 1.5 : 2.5}
+              strokeDasharray={isCollected ? "2 2" : "none"}
+              opacity={isCollected ? 0.35 : 0.9}
+              strokeLinecap="round"
+            />
           );
         })}
 
-        {/* Central 360° Total Badge when Gathered */}
-        {gatherProg > 0.6 && (
-          <g style={{ opacity: (gatherProg - 0.6) / 0.4 }}>
-            <circle cx={CX} cy={CY} r={12} fill="rgba(0, 0, 0, 0.7)" stroke="rgba(255, 255, 255, 0.4)" strokeWidth={1} />
-            <text
-              x={CX}
-              y={CY}
-              textAnchor="middle"
-              dominantBaseline="central"
-              fontSize={8.5}
-              fontWeight="900"
-              fill="#ffffff"
-              fontFamily="var(--font-heading, system-ui)"
-            >
-              360°
-            </text>
-          </g>
-        )}
-
-        {/* Vertex Corner Dots */}
+        {/* Corner Vertex Dots */}
         {vertices.map((v, i) => (
           <circle key={`v-${i}`} cx={v.x} cy={v.y} r={3} fill="#ffffff" />
         ))}
+
+        {/* Traveling Angle Accumulator Wheel Dragging Along the Perimeter */}
+        <g transform={`translate(${wheelX}, ${wheelY})`} style={{ filter: "drop-shadow(0px 2px 6px rgba(0,0,0,0.85))" }}>
+          {/* Wheel Background Disc */}
+          <circle cx={0} cy={0} r={wheelR} fill="rgba(15, 23, 42, 0.85)" stroke="rgba(255, 255, 255, 0.35)" strokeWidth={1.5} />
+
+          {/* Accumulated Purple Sectors Collected Along the Walk */}
+          {Array.from({ length: collectedCount }, (_, i) => {
+            const heading = Math.atan2(vertices[(i + 1) % n].y - vertices[i].y, vertices[(i + 1) % n].x - vertices[i].x);
+            const sectorD = getSectorPath({ x: 0, y: 0 }, heading, sweepAngle, wheelR);
+            const arcD = getArcPath({ x: 0, y: 0 }, heading, sweepAngle, wheelR);
+
+            return (
+              <g key={`collected-sector-${i}`}>
+                <path d={sectorD} fill="rgba(216, 180, 254, 0.45)" stroke="none" />
+                <path d={arcD} fill="none" stroke={COLOR_LILAC} strokeWidth={2.5} strokeLinecap="round" />
+              </g>
+            );
+          })}
+
+          {/* Wheel Center Badge / Degree Counter */}
+          <circle cx={0} cy={0} r={9} fill="rgba(0, 0, 0, 0.8)" stroke="rgba(255, 255, 255, 0.4)" strokeWidth={1} />
+          <text
+            x={0}
+            y={0}
+            textAnchor="middle"
+            dominantBaseline="central"
+            fontSize={7.5}
+            fontWeight="900"
+            fill="#ffffff"
+            fontFamily="var(--font-heading, system-ui)"
+          >
+            {accumulatedDegrees}°
+          </text>
+        </g>
       </svg>
 
       {/* Row 1: Number of Sides Stepper */}
@@ -275,21 +257,21 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
         </button>
       </div>
 
-      {/* Row 2: Gather Action Button */}
+      {/* Row 2: Replay Walk Action */}
       <div className="flex items-center gap-2">
         <button
-          onClick={toggleGather}
+          onClick={startWalk}
           className="px-4 py-1 rounded-full text-xs font-bold transition-all border bg-white/15 hover:bg-white/25 text-white border-white/30 shadow-sm backdrop-blur-md active:scale-95 select-none flex items-center gap-1.5 cursor-pointer"
         >
-          {isGathered || gatherProg > 0.5 ? (
+          {isPlaying ? (
             <>
               <RotateCcw className="w-3.5 h-3.5 stroke-[2.5]" />
-              Return to corners
+              Walking perimeter...
             </>
           ) : (
             <>
               <Play className="w-3.5 h-3.5 fill-white" />
-              Gather arcs into 360° circle
+              Collect exterior angles around perimeter
             </>
           )}
         </button>
