@@ -70,84 +70,38 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
   const [n, setN] = useState(5); // n in [3..12]
   const numTriangles = n - 2;
 
-  // Animation state:
-  // revealedTriangles: number of fully completed triangle slices
-  // activeDiagonalProgress: progress (0 to 1) of the currently extending diagonal beam from apex
-  const [revealedTriangles, setRevealedTriangles] = useState(numTriangles);
-  const [activeDrawingCut, setActiveDrawingCut] = useState<number | null>(null);
-  const [diagonalProgress, setDiagonalProgress] = useState(1);
+  // Animation step: number of triangles currently revealed (0 to numTriangles)
+  const [stepRevealed, setStepRevealed] = useState(numTriangles);
   const [isAnimating, setIsAnimating] = useState(false);
+  const animTimeouts = useRef<NodeJS.Timeout[]>([]);
 
-  const animFrameRef = useRef<number | null>(null);
-
-  const clearAnim = () => {
-    if (animFrameRef.current !== null) {
-      cancelAnimationFrame(animFrameRef.current);
-      animFrameRef.current = null;
-    }
+  const clearTimers = () => {
+    animTimeouts.current.forEach((t) => clearTimeout(t));
+    animTimeouts.current = [];
   };
 
-  const playFanCutSequence = useCallback((targetTriangles: number) => {
-    clearAnim();
+  const playFanCutSequence = useCallback((targetCount: number) => {
+    clearTimers();
     setIsAnimating(true);
-    setRevealedTriangles(0);
-    setActiveDrawingCut(null);
-    setDiagonalProgress(0);
+    setStepRevealed(0);
 
-    let currentStep = 0; // step index 0 .. targetTriangles - 1
+    const stepInterval = Math.max(280, Math.min(420, 1600 / targetCount));
 
-    const runNextStep = () => {
-      if (currentStep >= targetTriangles) {
-        setRevealedTriangles(targetTriangles);
-        setActiveDrawingCut(null);
-        setDiagonalProgress(1);
-        setIsAnimating(false);
-        return;
-      }
-
-      // If this triangle requires a diagonal cut (triangles 0 to targetTriangles - 2)
-      if (currentStep < targetTriangles - 1) {
-        setActiveDrawingCut(currentStep);
-        const cutStartTime = performance.now();
-        const cutDuration = Math.max(240, Math.min(380, 1400 / targetTriangles));
-
-        const animateDiagonal = (now: number) => {
-          const elapsed = now - cutStartTime;
-          const prog = Math.min(1, elapsed / cutDuration);
-          setDiagonalProgress(prog);
-
-          if (prog < 1) {
-            animFrameRef.current = requestAnimationFrame(animateDiagonal);
-          } else {
-            // Cut finished! Reveal the triangle and move to next
-            currentStep++;
-            setRevealedTriangles(currentStep);
-            setActiveDrawingCut(null);
-            setTimeout(() => {
-              runNextStep();
-            }, 120);
-          }
-        };
-        animFrameRef.current = requestAnimationFrame(animateDiagonal);
-      } else {
-        // Last triangle fills the remaining slice
-        currentStep++;
-        setRevealedTriangles(currentStep);
-        setActiveDrawingCut(null);
-        setIsAnimating(false);
-      }
-    };
-
-    // Small initial delay before first diagonal starts
-    setTimeout(() => {
-      runNextStep();
-    }, 100);
+    for (let s = 1; s <= targetCount; s++) {
+      const timer = setTimeout(() => {
+        setStepRevealed(s);
+        if (s === targetCount) {
+          setIsAnimating(false);
+        }
+      }, s * stepInterval);
+      animTimeouts.current.push(timer);
+    }
   }, []);
 
-  // Trigger fan-cut sequence when n changes
+  // Trigger smooth fan-cut sequence when n changes
   useEffect(() => {
     playFanCutSequence(numTriangles);
-    return () => clearAnim();
+    return () => clearTimers();
   }, [n, numTriangles, playFanCutSequence]);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => {
@@ -161,7 +115,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
   });
 
   const totalSum = numTriangles * 180;
-  const currentSum = revealedTriangles * 180;
+  const currentSum = Math.max(1, stepRevealed) * 180;
   const polyName = POLY_NAMES[n] || `${n}-gon`;
   const hubV = vertices[0];
 
@@ -189,7 +143,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
           const v1 = vertices[i + 1];
           const v2 = vertices[i + 2];
           const pathD = `M ${v0.x} ${v0.y} L ${v1.x} ${v1.y} L ${v2.x} ${v2.y} Z`;
-          const isRevealed = i < revealedTriangles;
+          const isRevealed = i < stepRevealed;
           const theme = TRI_PALETTE[i % TRI_PALETTE.length];
           const triCenter = {
             x: (v0.x + v1.x + v2.x) / 3,
@@ -206,7 +160,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
               key={`tri-${i}`}
               style={{
                 opacity: isRevealed ? 1 : 0,
-                transition: "opacity 0.24s ease-out",
+                transition: "opacity 0.28s cubic-bezier(0.2, 0.8, 0.4, 1)",
               }}
             >
               {/* Triangle Tint Fill */}
@@ -217,9 +171,9 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
               />
 
               {/* Triangle 3 Corner Angle Arcs in Matching Theme Color */}
-              {arcHub && <path d={arcHub} fill="none" stroke={theme.stroke} strokeWidth={2} strokeLinecap="round" />}
-              {arcV1 && <path d={arcV1} fill="none" stroke={theme.stroke} strokeWidth={2} strokeLinecap="round" />}
-              {arcV2 && <path d={arcV2} fill="none" stroke={theme.stroke} strokeWidth={2} strokeLinecap="round" />}
+              {arcHub && <path d={arcHub} fill="none" stroke={theme.stroke} strokeWidth={2.2} strokeLinecap="round" />}
+              {arcV1 && <path d={arcV1} fill="none" stroke={theme.stroke} strokeWidth={2.2} strokeLinecap="round" />}
+              {arcV2 && <path d={arcV2} fill="none" stroke={theme.stroke} strokeWidth={2.2} strokeLinecap="round" />}
 
               {/* Triangle 180° Label */}
               <text
@@ -239,48 +193,27 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
           );
         })}
 
-        {/* Established Static Diagonals (fully cut) */}
+        {/* Diagonals smoothly drawing from Apex Hub to target vertices */}
         {Array.from({ length: numTriangles - 1 }, (_, i) => {
-          const toV = vertices[i + 2];
-          const isDrawn = i + 1 <= revealedTriangles;
-          if (!isDrawn) return null;
+          const destV = vertices[i + 2];
+          const len = Math.hypot(destV.x - hubV.x, destV.y - hubV.y);
+          const isDrawn = i + 1 <= stepRevealed;
+
           return (
-            <line
-              key={`diag-done-${i}`}
-              x1={hubV.x}
-              y1={hubV.y}
-              x2={toV.x}
-              y2={toV.y}
-              stroke="rgba(255, 255, 255, 0.45)"
-              strokeWidth={1.5}
-              strokeDasharray="4 3"
+            <path
+              key={`diag-${i}`}
+              d={`M ${hubV.x} ${hubV.y} L ${destV.x} ${destV.y}`}
+              fill="none"
+              stroke="rgba(255, 255, 255, 0.75)"
+              strokeWidth={1.75}
+              strokeDasharray={len}
+              strokeDashoffset={isDrawn ? 0 : len}
+              style={{
+                transition: "stroke-dashoffset 0.32s cubic-bezier(0.25, 1, 0.5, 1)",
+              }}
             />
           );
         })}
-
-        {/* Live Animating Diagonal Beam shooting from Hub */}
-        {activeDrawingCut !== null && activeDrawingCut < numTriangles - 1 && (
-          (() => {
-            const destV = vertices[activeDrawingCut + 2];
-            const currentX = hubV.x + (destV.x - hubV.x) * diagonalProgress;
-            const currentY = hubV.y + (destV.y - hubV.y) * diagonalProgress;
-            return (
-              <g>
-                <line
-                  x1={hubV.x}
-                  y1={hubV.y}
-                  x2={currentX}
-                  y2={currentY}
-                  stroke={COLOR_GOLD}
-                  strokeWidth={2.5}
-                  strokeLinecap="round"
-                />
-                {/* Laser Tip Spark */}
-                <circle cx={currentX} cy={currentY} r={3} fill={COLOR_GOLD} />
-              </g>
-            );
-          })()
-        )}
 
         {/* Non-hub Vertex Corner Dots */}
         {vertices.slice(1).map((v, i) => (
@@ -336,7 +269,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
             (<span style={{ color: COLOR_GOLD }}>{n}</span> − 2) · 180°
           </span>
           <span className="text-white/50">=</span>
-          <span className="text-white/90">{revealedTriangles} · 180°</span>
+          <span className="text-white/90">{stepRevealed} · 180°</span>
           <span className="text-white/50">=</span>
           <span className="text-white font-bold">{currentSum}°</span>
         </div>
