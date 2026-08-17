@@ -71,15 +71,13 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
   const numTriangles = n - 2;
   const totalCuts = numTriangles - 1; // number of diagonal cuts from apex = n - 3
 
-  // Current number of cuts drawn (0 to totalCuts)
-  // When activeCuts = 0 -> 1 triangle (or base polygon)
-  // When activeCuts = k -> k + 1 triangles illuminated
-  const [activeCuts, setActiveCuts] = useState(totalCuts);
+  // Start with uncut polygon (activeCuts = 0)
+  const [activeCuts, setActiveCuts] = useState(0);
 
-  // When shape changes, start with cuts complete so the card is clear, with easy 1-click step-through
+  // When shape changes, reset to uncut polygon so user can slice it
   useEffect(() => {
-    setActiveCuts(totalCuts);
-  }, [n, totalCuts]);
+    setActiveCuts(0);
+  }, [n]);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => {
     e.stopPropagation();
@@ -91,12 +89,14 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
     return { x: CX + R * Math.cos(angle), y: CY + R * Math.sin(angle) };
   });
 
-  // How many triangles are currently revealed based on cuts
-  const revealedTriangles = activeCuts === 0 ? 1 : activeCuts + 1;
-  const isFullySplit = activeCuts >= totalCuts;
+  // Triangles revealed:
+  // For n=3 (already a triangle): 1
+  // For n>3: activeCuts === 0 ? 0 : activeCuts === totalCuts ? numTriangles : activeCuts
+  const revealedCount = n === 3 ? 1 : activeCuts === 0 ? 0 : activeCuts === totalCuts ? numTriangles : activeCuts;
+  const isFullySplit = n === 3 || activeCuts >= totalCuts;
 
   const totalSum = numTriangles * 180;
-  const currentSum = revealedTriangles * 180;
+  const currentSum = (revealedCount === 0 ? numTriangles : revealedCount) * 180;
   const polyName = POLY_NAMES[n] || `${n}-gon`;
   const hubV = vertices[0];
 
@@ -140,7 +140,8 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
           const v1 = vertices[i + 1];
           const v2 = vertices[i + 2];
           const pathD = `M ${v0.x} ${v0.y} L ${v1.x} ${v1.y} L ${v2.x} ${v2.y} Z`;
-          const isRevealed = i < revealedTriangles;
+          // Triangle is visible if its cut has been made, or if all cuts are complete
+          const isRevealed = n === 3 || i < activeCuts || (activeCuts === totalCuts && i === totalCuts);
           const theme = TRI_PALETTE[i % TRI_PALETTE.length];
           const triCenter = {
             x: (v0.x + v1.x + v2.x) / 3,
@@ -253,18 +254,23 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
       </div>
 
       {/* Row 2: Interactive Step-Through Cut Controls */}
-      {totalCuts > 0 && (
-        <div className="flex items-center gap-1.5 bg-black/35 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/20 shadow-sm text-xs sm:text-sm select-none">
-          <button
-            onClick={handlePrevCut}
-            disabled={activeCuts <= 0}
-            className="px-2 py-0.5 rounded-full font-bold text-xs bg-white/10 hover:bg-white/20 active:scale-95 text-white disabled:opacity-30 disabled:pointer-events-none transition-all cursor-pointer"
-          >
-            ◀ Undo
-          </button>
+      {totalCuts > 0 ? (
+        <div className="flex items-center gap-2 bg-black/35 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-sm text-xs sm:text-sm select-none">
+          {activeCuts > 0 && (
+            <button
+              onClick={handlePrevCut}
+              className="px-2 py-0.5 rounded-full font-bold text-xs bg-white/10 hover:bg-white/20 active:scale-95 text-white transition-all cursor-pointer"
+            >
+              ◀ Undo
+            </button>
+          )}
 
           <span className="text-white/90 font-medium px-1 text-xs sm:text-sm whitespace-nowrap">
-            {activeCuts === 0 ? "Uncut polygon" : `Cut ${activeCuts} of ${totalCuts} (${revealedTriangles} $\\triangle$)`}
+            {activeCuts === 0
+              ? "Uncut polygon"
+              : isFullySplit
+              ? `All ${numTriangles} triangles created`
+              : `Cut ${activeCuts} of ${totalCuts} (${revealedCount} triangles)`}
           </span>
 
           {!isFullySplit ? (
@@ -272,18 +278,22 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
               onClick={handleNextCut}
               className="px-2.5 py-0.5 rounded-full font-bold text-xs bg-amber-400/30 hover:bg-amber-400/40 text-amber-200 border border-amber-300/40 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
             >
-              Cut ➔
+              Cut {activeCuts + 1} ➔
             </button>
           ) : (
             <button
               onClick={handleReset}
-              className="px-2 py-0.5 rounded-full font-bold text-xs bg-white/15 hover:bg-white/25 text-white active:scale-95 transition-all cursor-pointer flex items-center gap-1"
+              className="px-2.5 py-0.5 rounded-full font-bold text-xs bg-white/15 hover:bg-white/25 text-white active:scale-95 transition-all cursor-pointer flex items-center gap-1"
               title="Reset cuts"
             >
               <RotateCcw className="w-3 h-3 stroke-[2.5]" />
               Reset
             </button>
           )}
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 bg-black/35 backdrop-blur-md px-4 py-1 rounded-full border border-white/20 shadow-sm text-xs sm:text-sm select-none text-white/90 font-medium">
+          Single triangle (180°)
         </div>
       )}
 
@@ -296,9 +306,9 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
             (<span style={{ color: COLOR_GOLD }}>{n}</span> − 2) · 180°
           </span>
           <span className="text-white/50">=</span>
-          <span className="text-white/90">{revealedTriangles} · 180°</span>
+          <span style={{ color: COLOR_GOLD }}>{numTriangles} · 180°</span>
           <span className="text-white/50">=</span>
-          <span className="text-white font-bold">{currentSum}°</span>
+          <span className="text-white font-bold">{totalSum}°</span>
         </div>
       </div>
     </div>
