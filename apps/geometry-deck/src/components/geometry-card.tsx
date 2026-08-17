@@ -187,58 +187,58 @@ export function GeometryCard({
       if (card.frontLabel === "Perimeter of a rhombus") {
         return <InteractiveRhombusExplorer mode="perimeter" color={card.color} />;
       }
-      if (card.frontLabel === "Circumference of a circle") {
+      if (card.id === "term-circle-circumference" || card.frontLabel === "Circumference of a circle") {
         return <InteractiveCircleCircumferenceExplorer color={card.color} />;
       }
-      if (card.frontLabel === "Area of a circle") {
+      if (card.id === "term-circle-area" || card.frontLabel === "Area of a circle") {
         return <InteractiveCircleAreaExplorer color={card.color} />;
       }
-      if (card.frontLabel === "The radius") {
+      if (card.id === "term-circle-radius" || card.frontLabel === "The radius") {
         return <InteractiveRadiusExplorer mode="radius" color={card.color} />;
       }
-      if (card.frontLabel === "The diameter") {
+      if (card.id === "term-circle-diameter" || card.frontLabel === "The diameter") {
         return <InteractiveRadiusExplorer mode="diameter" color={card.color} />;
       }
-      if (card.frontLabel === "π (pi)") {
+      if (card.id === "term-circle-pi" || card.frontLabel === "π (pi)") {
         return <InteractivePiExplorer color={card.color} />;
       }
-      if (card.frontLabel === "Regular polygons") {
+      if (card.id === "term-poly-regular" || card.frontLabel === "Regular polygons") {
         return <InteractiveRegularPolygonExplorer mode="regular" color={card.color} />;
       }
-      if (card.frontLabel === "Regular polygon interior angle") {
+      if (card.id === "term-poly-each-angle" || card.frontLabel === "Regular polygon interior angle") {
         return <InteractiveRegularPolygonExplorer mode="each-angle" color={card.color} />;
       }
-      if (card.frontLabel === "Interior angle sum of an n-gon") {
+      if (card.id === "term-poly-interior-sum" || card.frontLabel === "Polygon interior angle sum" || card.frontLabel === "Interior angle sum of an n-gon") {
         return <InteractivePolygonInteriorSumExplorer color={card.color} />;
       }
-      if (card.frontLabel === "Exterior angle sum of any polygon") {
+      if (card.id === "term-poly-exterior-sum" || card.frontLabel === "Polygon exterior angle sum" || card.frontLabel === "Exterior angle sum of any polygon") {
         return <InteractivePolygonExteriorSumExplorer color={card.color} />;
       }
-      if (card.frontLabel === "Euler's formula (V − E + F = 2)" || card.frontLabel === "Euler's formula") {
+      if (card.id === "term-3d-euler" || card.frontLabel === "Euler's formula (V − E + F = 2)" || card.frontLabel === "Euler's formula") {
         return <InteractiveEulerExplorer color={card.color} />;
       }
-      if (card.frontLabel === "Volume of a prism") {
+      if (card.id === "term-3d-prism-vol" || card.frontLabel === "Volume of a prism") {
         return <InteractivePrismVolumeExplorer color={card.color} />;
       }
-      if (card.frontLabel === "Volume of a cylinder") {
+      if (card.id === "term-3d-cylinder-vol" || card.frontLabel === "Volume of a cylinder") {
         return <InteractiveCylinderVolumeExplorer color={card.color} />;
       }
-      if (card.frontLabel === "Volume of a cone") {
+      if (card.id === "term-3d-cone-vol" || card.frontLabel === "Volume of a cone") {
         return <InteractiveConeVolumeExplorer color={card.color} />;
       }
-      if (card.frontLabel === "Volume of a sphere") {
+      if (card.id === "term-3d-sphere-vol" || card.frontLabel === "Volume of a sphere") {
         return <InteractiveSphereVolumeExplorer color={card.color} />;
       }
-      if (card.frontLabel === "Surface area of a sphere") {
+      if (card.id === "term-3d-sphere-sa" || card.frontLabel === "Surface area of a sphere") {
         return <InteractiveSphereSurfaceAreaExplorer color={card.color} />;
       }
-      if (card.frontLabel === "A face") {
+      if (card.id === "term-3d-face" || card.frontLabel === "A face") {
         return <InteractiveSolidFeatureExplorer feature="face" color={card.color} />;
       }
-      if (card.frontLabel === "An edge") {
+      if (card.id === "term-3d-edge" || card.frontLabel === "An edge") {
         return <InteractiveSolidFeatureExplorer feature="edge" color={card.color} />;
       }
-      if (card.frontLabel === "A vertex") {
+      if (card.id === "term-3d-vertex" || card.frontLabel === "A vertex") {
         return <InteractiveSolidFeatureExplorer feature="vertex" color={card.color} />;
       }
       if (hasSvg) {
