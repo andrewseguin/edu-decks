@@ -122,6 +122,24 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
           strokeLinejoin="round"
         />
 
+        {/* Base White Polygon Full Interior Angle Arcs (visible before triangles are sliced) */}
+        {vertices.map((v, i) => {
+          const prevV = vertices[(i - 1 + n) % n];
+          const nextV = vertices[(i + 1) % n];
+          const fullArc = getCornerArc(v, prevV, nextV, arcR);
+          if (!fullArc) return null;
+          return (
+            <path
+              key={`base-arc-${i}`}
+              d={fullArc}
+              fill="none"
+              stroke="rgba(255, 255, 255, 0.75)"
+              strokeWidth={2}
+              strokeLinecap="round"
+            />
+          );
+        })}
+
         {/* Sequentially revealed triangles with 3 matching corner angle arcs */}
         {Array.from({ length: numTriangles }, (_, i) => {
           const v0 = hubV;
