@@ -100,7 +100,8 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
     if (Math.abs(startP - targetP) < 0.005) return;
 
     const stepDiff = Math.abs(targetP - startP);
-    const duration = Math.round((startP >= 0.99 || targetP >= 1.99 ? 3200 : 2600) * stepDiff);
+    // Fast, crisp rewind when resetting back to Step 1 (800ms), standard smooth forward animation (2400ms per step)
+    const duration = targetP < startP ? 800 : Math.round(2400 * stepDiff);
 
     const stepAnim = (ts: number) => {
       if (!start) start = ts;
@@ -120,11 +121,15 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
     return () => cancelAnimationFrame(autoplayRef.current);
   }, [step]);
 
-  // Autoplay loop across 1 -> 2 -> 3 -> 1 with 2s initial diagram dwell time
+  // Autoplay loop across Circle -> Unroll -> Combine -> Circle with proper dwell times
   useEffect(() => {
     if (!isPlaying) return;
 
-    const dwell = step === 1 ? 2000 : step === 2 ? 4600 : 5400;
+    // Dwell durations:
+    // Step 1: 2600ms (Rewinds in 800ms, then stays resting as Circle for 1800ms before rolling)
+    // Step 2: 4000ms (Unrolls in 2400ms, stays on ground for 1600ms)
+    // Step 3: 4800ms (Combines in 2400ms, stays assembled for 2400ms)
+    const dwell = step === 1 ? 2600 : step === 2 ? 4000 : 4800;
 
     const timer = setTimeout(() => {
       setStep((prev) => {
