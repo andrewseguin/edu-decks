@@ -153,9 +153,73 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
         style={{ maxHeight: 165 }}
         className="w-full max-w-[360px] touch-none select-none overflow-visible"
       >
-        {/* Central Compass Accumulator Dial */}
-        <circle cx={CX} cy={CY} r={compassR + 2} fill="rgba(0, 0, 0, 0.4)" stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
-        {compassD && <path d={compassD} fill="rgba(216, 180, 254, 0.35)" stroke={COLOR_LILAC} strokeWidth={1.5} />}
+        {/* Central Compass Wheel with Docked & Docking Arc Sectors */}
+        <circle cx={CX} cy={CY} r={compassR + 2} fill="rgba(0, 0, 0, 0.45)" stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
+        
+        {/* Fully Docked Sectors in the Central Circle */}
+        {Array.from({ length: n }, (_, i) => {
+          const isDocked = walkProgress >= i + 1;
+          if (!isDocked) return null;
+          const startRad = (i * eachExteriorAngle * Math.PI) / 180 - Math.PI / 2;
+          const endRad = ((i + 1) * eachExteriorAngle * Math.PI) / 180 - Math.PI / 2;
+          const p1x = CX + compassR * Math.cos(startRad);
+          const p1y = CY + compassR * Math.sin(startRad);
+          const p2x = CX + compassR * Math.cos(endRad);
+          const p2y = CY + compassR * Math.sin(endRad);
+          const large = eachExteriorAngle > 180 ? 1 : 0;
+          const sectorD = `M ${CX} ${CY} L ${p1x} ${p1y} A ${compassR} ${compassR} 0 ${large} 1 ${p2x} ${p2y} Z`;
+
+          return (
+            <path
+              key={`docked-${i}`}
+              d={sectorD}
+              fill="rgba(216, 180, 254, 0.38)"
+              stroke={COLOR_LILAC}
+              strokeWidth={1.5}
+            />
+          );
+        })}
+
+        {/* Flying Cloned Arcs Traveling from Corner to Central Wheel */}
+        {vertices.map((v, i) => {
+          const nextV = vertices[(i + 1) % n];
+          const triggerTime = i + 0.65;
+          if (walkProgress < triggerTime) return null;
+
+          const flightProg = Math.min(1, Math.max(0, (walkProgress - triggerTime) / 0.55));
+          if (flightProg >= 1) return null; // Already fully docked
+
+          const ease = 1 - Math.pow(1 - flightProg, 3); // Cubic ease out
+
+          // Current flying position from corner to center
+          const currX = nextV.x + (CX - nextV.x) * ease;
+          const currY = nextV.y + (CY - nextV.y) * ease;
+
+          const heading = Math.atan2(nextV.y - v.y, nextV.x - v.x);
+          const sweepAngle = (2 * Math.PI) / n;
+          const cornerArcR = Math.max(14, Math.min(22, 90 / n));
+          const currentArcR = cornerArcR + (compassR - cornerArcR) * ease;
+
+          // Interpolated angle from corner orientation to target sector orientation in central wheel
+          const targetStartAngle = (i * eachExteriorAngle * Math.PI) / 180 - Math.PI / 2;
+          const currentStartAngle = heading + (targetStartAngle - heading) * ease;
+
+          const arcD = getExteriorArcD({ x: currX, y: currY }, currentStartAngle, sweepAngle, currentArcR);
+
+          return (
+            <g key={`flying-clone-${i}`} style={{ filter: "drop-shadow(0px 0px 4px rgba(216, 180, 254, 0.9))" }}>
+              <path
+                d={arcD}
+                fill="none"
+                stroke={COLOR_LILAC}
+                strokeWidth={3}
+                strokeLinecap="round"
+              />
+            </g>
+          );
+        })}
+
+        {/* Central Counter Display */}
         <text
           x={CX}
           y={CY}
@@ -165,12 +229,12 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
           fontWeight="900"
           fill="#ffffff"
           fontFamily="var(--font-heading, system-ui)"
-          style={{ filter: "drop-shadow(0px 1px 2px rgba(0,0,0,0.8))" }}
+          style={{ filter: "drop-shadow(0px 1px 2px rgba(0,0,0,0.85))" }}
         >
           {accumulatedDegrees}°
         </text>
 
-        {/* Extended Perimeter Rays & Exterior Angle Arcs */}
+        {/* Static Extended Perimeter Rays & Corner Exterior Angle Arcs */}
         {vertices.map((v, i) => {
           const nextV = vertices[(i + 1) % n];
           const heading = Math.atan2(nextV.y - v.y, nextV.x - v.x);
@@ -183,8 +247,7 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
           // Corner exterior arc
           const arcR = Math.max(14, Math.min(22, 90 / n));
           const arcD = getExteriorArcD(nextV, heading, sweepAngle, arcR);
-
-          const isPassed = walkProgress >= i + 1 || (currentLeg === i && legProgress >= 0.65);
+          const isPassed = walkProgress >= i + 0.65;
 
           return (
             <g key={`ext-${i}`}>
@@ -199,13 +262,14 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
                 strokeDasharray="3 2"
               />
 
-              {/* Exterior Angle Arc */}
+              {/* Exterior Angle Arc at Corner */}
               <path
                 d={arcD}
                 fill="none"
                 stroke={isPassed ? COLOR_LILAC : "rgba(255, 255, 255, 0.3)"}
                 strokeWidth={isPassed ? 2.5 : 1.5}
                 strokeLinecap="round"
+                opacity={isPassed ? 0.85 : 0.4}
               />
             </g>
           );
