@@ -800,7 +800,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     color: TOPIC_COLORS.polygons,
     frontLabel: "Regular polygon interior angle", frontPrompt: "formula is…?",
     frontSpeechText: "Each interior angle of a regular polygon is…?",
-    backDefinition: "Each = (n − 2) · 180° ÷ n",
+    backDefinition: "Interior angle = (n − 2) · 180° ÷ n",
     backSvgExamples: [{ shape: "polygon", dimensions: { n: 6, labelMode: "variable" }, labelMode: "variable" }],
     backSteps: [
       { formulaLine: "Sum = (n − 2) × 180°" },
@@ -820,8 +820,8 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontSvg: { shape: "polygon", dimensions: { n: 6, s: 8, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "P" },
     frontSpeechText: "Regular polygon with 6 sides of length 8. Find the perimeter.",
     backSteps: [
-      { equationTokens: [t("lhs","P"), eq(), t("n","n","#ffd45e"), op("·"), t("s","s","#ffd45e")], svgMutation: { traceStroke: "perimeter" }, reason: "Perimeter" },
-      { equationTokens: [t("lhs","P"), eq(), t("n","6","#ffd45e"), op("·"), t("s","8","#ffd45e")], reason: "Substitute known values" },
+      { equationTokens: [t("lhs","P"), eq(), t("n","n","#5ee8ff"), op("·"), t("s","s","#ffd45e")], svgMutation: { traceStroke: "perimeter" }, reason: "Perimeter" },
+      { equationTokens: [t("lhs","P"), eq(), t("n","6","#5ee8ff"), op("·"), t("s","8","#ffd45e")], reason: "Substitute known values" },
       { equationTokens: [t("lhs","P"), eq(), t("rhs","48")], reason: "Evaluate" },
     ],
     backSpeechText: "P equals 48", numericAnswer: 48,

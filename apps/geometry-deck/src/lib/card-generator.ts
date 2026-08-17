@@ -787,7 +787,7 @@ function makePolygonsTermCards(): GeometryCard[] {
       id: nextId(), topic: "polygons", cardType: "term", variant: "definition",
       frontLabel: "Regular polygon interior angle", frontPrompt: "formula is…?",
       frontSpeechText: "Each interior angle of a regular polygon is…?",
-      backDefinition: "Each = (n − 2) · 180° ÷ n",
+      backDefinition: "Interior angle = (n − 2) · 180° ÷ n",
       backSvgExamples: [{ shape: "polygon", dimensions: { n: 6, labelMode: "variable" }, labelMode: "variable" }],
       backSteps: [
         { formulaLine: "Sum = (n − 2) × 180°" },
@@ -811,8 +811,8 @@ function makePolygonsCalcCard(): GeometryCard {
       frontSvg: { shape: "polygon", dimensions: { n, s, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "P" },
       frontSpeechText: `Regular polygon with ${n} sides of length ${s}. Find the perimeter.`,
       backSteps: [
-        { equationTokens: [tok("lhs","P"), eq(), tok("n","n","#ffd45e"), op("·"), tok("s","s","#ffd45e")], svgMutation: { traceStroke: "perimeter" }, reason: "Perimeter" },
-        { equationTokens: [tok("lhs","P"), eq(), tok("n",`${n}`,"#ffd45e"), op("·"), tok("s",`${s}`,"#ffd45e")], reason: `Substitute n = ${n}, s = ${s}` },
+        { equationTokens: [tok("lhs","P"), eq(), tok("n","n","#5ee8ff"), op("·"), tok("s","s","#ffd45e")], svgMutation: { traceStroke: "perimeter" }, reason: "Perimeter" },
+        { equationTokens: [tok("lhs","P"), eq(), tok("n",`${n}`,"#5ee8ff"), op("·"), tok("s",`${s}`,"#ffd45e")], reason: `Substitute n = ${n}, s = ${s}` },
         { equationTokens: [tok("lhs","P"), eq(), tok("rhs",`${P}`)], reason: "Evaluate" },
       ],
       backSpeechText: `P equals ${P}`, numericAnswer: P, color,

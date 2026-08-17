@@ -50,9 +50,9 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
 │                │          Diagram          │                │      (Unit grids, handles, angle arcs)
 │                └───────────────────────────┘                │
 │                                                             │
-│         (  A = ½ · 10 · 7 = 35  )                           │  <-- Tier 3: Bottom Frosted Equation Banner
+│             ( Controls / Steppers / Presets )               │  <-- Tier 3: Frosted Controls / Animation Triggers
 │                                                             │
-│             ( Preset 1 )  ( Preset 2 )                      │  <-- Tier 4: Frosted Controls / Sliders
+│         (  A = ½ · 10 · 7 = 35  )                           │  <-- Tier 4: Bottom Frosted Equation Banner
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -67,30 +67,11 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
 - Draggable vertices with `touch-none` and continuous 2D pointer dragging.
 - **Ambient motion on reveal**: Explorer cards feature gentle ambient motion on reveal that immediately yields 100% control the instant the user drags or touches any control.
 
-### 2.3 Bottom Frosted Equation Banner (Unboxed Typographic Flow)
-- Live calculations are wrapped in a frosted glass banner matching the top hero banner (`px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md flex items-center gap-2 text-base sm:text-lg font-bold font-headline select-none`).
-- **No Inner Sub-Boxes**: The equation reads naturally from left to right as a clean, continuous statement without nested boxes or boxes inside boxes.
-- Operators (`+`, `−`, `·`, `=`) render in muted translucent white (`text-white/70`).
-- **Color Coding**:
-  - Semantic terms ($a, b, c, A, B, C$) match their diagram colors.
-  - Answers ($180^\circ$, calculated Area, Perimeter) render in crisp bold white (`text-white font-bold`).
-  - When the answer directly corresponds to a semantic component (e.g. hypotenuse $c²$ in Pythagorean theorem), it uses its matching semantic color ($c² = 5²$ in Orange).
-  ```tsx
-  <div className="flex justify-center my-1">
-    <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
-      <span style={{ color: COLOR_A }}>{a}²</span>
-      <span className="text-white/50">+</span>
-      <span style={{ color: COLOR_B }}>{b}²</span>
-      <span className="text-white/50">=</span>
-      <span style={{ color: COLOR_C }}>{c}²</span>
-    </div>
-  </div>
-  ```
-
-### 2.4 Frosted White Interactive Controls & Button Standards
+### 2.3 Frosted White Interactive Controls & Animation Standards (Tier 3)
+- **Positioning**: Sits directly below the interactive SVG diagram it controls (steppers, presets, step pills, or animation triggers).
 - **Neutral White Glassmorphism**:
   - UI buttons and interactive triggers must **NEVER** use card-colored backgrounds (e.g. green, blue, purple) or saturated semantic colors.
-  - All interactive elements strictly use **neutral translucent frosted white styling** (`bg-white/10` to `bg-white/25`, `border-white/20` to `border-white/60`, `text-white/90`). This ensures the vibrant semantic palette (Cyan `#5ee8ff`, Gold `#ffd45e`, Orange `#ffa756`) remains exclusively dedicated to mathematical variables, dimensions, and angles.
+  - All interactive elements strictly use **neutral translucent frosted white styling** (`bg-white/10` to `bg-white/25`, `border-white/20` to `border-white/60`, `text-white/90`). This ensures the vibrant semantic palette (Cyan `#5ee8ff`, Gold `#ffd45e`, Orange `#ffa756`, Lilac `#d8b4fe`) remains exclusively dedicated to mathematical variables, dimensions, and angles.
 
 - **Primary Action & Trigger Buttons** (e.g. `Fold corners`, `Unroll perimeter`, `Show proof`):
   - Frosted white pill with subtle glass border and hover state:
@@ -127,6 +108,27 @@ Every geometry card follows a standardized 4-tier visual hierarchy on reveal:
   - Compact borderless rounded pills for switching geometric scenarios:
     - **Active**: `bg-white/20 text-white shadow-none px-2.5 py-0.5 rounded-full text-[10px] sm:text-xs font-semibold border-none`
 - **Gentle Auto-Pulse on Reveal**: Single-step interactive explorer cards gently pulse on initial reveal to demonstrate dynamic interactivity, immediately canceling and yielding permanent 100% control the instant the user touches or drags any handle. Multi-step proofs (e.g. Pythagoras square dissection, triangle fold) are user-triggered via step clicks or replay pills.
+
+### 2.4 Bottom Frosted Equation Banner (Tier 4 — Unboxed Typographic Flow)
+- **Positioning**: Sits as the bottom conclusion, displaying the live calculated mathematical result of the active diagram and control state.
+- Live calculations are wrapped in a frosted glass banner matching the top hero banner (`px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md flex items-center gap-2 text-base sm:text-lg font-bold font-headline select-none`).
+- **No Inner Sub-Boxes**: The equation reads naturally from left to right as a clean, continuous statement without nested boxes or boxes inside boxes.
+- Operators (`+`, `−`, `·`, `=`) render in muted translucent white (`text-white/70`).
+- **Color Coding**:
+  - Semantic terms ($a, b, c, A, B, C$) match their diagram colors.
+  - Answers ($180^\circ$, calculated Area, Perimeter) render in crisp bold white (`text-white font-bold`).
+  - When the answer directly corresponds to a semantic component (e.g. hypotenuse $c²$ in Pythagorean theorem), it uses its matching semantic color ($c² = 5²$ in Orange).
+  ```tsx
+  <div className="flex justify-center my-1">
+    <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
+      <span style={{ color: COLOR_A }}>{a}²</span>
+      <span className="text-white/50">+</span>
+      <span style={{ color: COLOR_B }}>{b}²</span>
+      <span className="text-white/50">=</span>
+      <span style={{ color: COLOR_C }}>{c}²</span>
+    </div>
+  </div>
+  ```
 
 ### 2.5 Area vs. Perimeter Structural Specifications
 Geometry cards are fundamentally divided into **Area concepts** and **Perimeter concepts**, each with strict visual and structural rules:
