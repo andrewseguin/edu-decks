@@ -688,9 +688,9 @@ function makeCirclesCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "circle", dimensions: { r, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "C" },
       frontSpeechText: `Radius is ${r}. Find the circumference.`,
       backSteps: [
-        { equationTokens: [tok("lhs","C","#d8b4fe"), eq(), dim("two","2π·"), tok("r","r","#5ee8ff")], svgMutation: { traceStroke: "circumference" }, reason: "Circumference Formula" },
-        { equationTokens: [tok("lhs","C","#d8b4fe"), eq(), dim("two","2π·"), tok("r",`${r}`,"#5ee8ff")], reason: `Substitute r = ${r}` },
-        { equationTokens: [tok("lhs","C","#d8b4fe"), eq(), tok("rhs",`${2 * r}π${u}`,"#d8b4fe")], reason: "Evaluate" },
+        { equationTokens: [tok("lhs","C","#ffd45e"), eq(), dim("two","2π·"), tok("r","r","#5ee8ff")], svgMutation: { traceStroke: "circumference" }, reason: "Circumference Formula" },
+        { equationTokens: [tok("lhs","C","#ffd45e"), eq(), dim("two","2π·"), tok("r",`${r}`,"#5ee8ff")], reason: `Substitute r = ${r}` },
+        { equationTokens: [tok("lhs","C","#ffd45e"), eq(), tok("rhs",`${2 * r}π${u}`,"#ffd45e")], reason: "Evaluate" },
       ],
       backSpeechText: `C equals ${2 * r} pi`, numericAnswer: 2 * r, color,
     };
@@ -719,9 +719,9 @@ function makeCirclesCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "circle", dimensions: { C: `${cCoeff}π`, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "r" },
       frontSpeechText: `C equals ${cCoeff} pi. Find the radius.`,
       backSteps: [
-        { equationTokens: [tok("lhs","C","#d8b4fe"), eq(), dim("two","2π·"), tok("r","r","#5ee8ff")], reason: "Circumference Formula" },
-        { equationTokens: [tok("lhs",`${cCoeff}π`,"#d8b4fe"), eq(), dim("two","2π·"), tok("r","r","#5ee8ff")], reason: `Substitute C = ${cCoeff}π` },
-        { equationTokens: [tok("r","r","#5ee8ff"), eq(), tok("lhs",`${cCoeff}π`,"#d8b4fe"), op("÷"), dim("two","2π")], reason: "Isolate the variable" },
+        { equationTokens: [tok("lhs","C","#ffd45e"), eq(), dim("two","2π·"), tok("r","r","#5ee8ff")], reason: "Circumference Formula" },
+        { equationTokens: [tok("lhs",`${cCoeff}π`,"#ffd45e"), eq(), dim("two","2π·"), tok("r","r","#5ee8ff")], reason: `Substitute C = ${cCoeff}π` },
+        { equationTokens: [tok("r","r","#5ee8ff"), eq(), tok("lhs",`${cCoeff}π`,"#ffd45e"), op("÷"), dim("two","2π")], reason: "Isolate the variable" },
         { equationTokens: [tok("r","r","#5ee8ff"), eq(), tok("rhs",`${r}${u}`,"#5ee8ff")], reason: "Evaluate" },
       ],
       backSpeechText: `r equals ${r}`, numericAnswer: r, color,

@@ -9,7 +9,7 @@ import {
 
 const COLOR_RADIUS = "#5ee8ff";  // Electric Cyan
 const COLOR_DIAMETER = "#ffd45e";// Warm Gold
-const COLOR_CIRCUM = "#d8b4fe";  // Neon Lilac
+const COLOR_CIRCUM = "#ffd45e";  // Warm Gold / Amber Orange
 const COLOR_AREA = "#ffffff";    // Crisp White
 
 const lblStyle: React.CSSProperties = {
