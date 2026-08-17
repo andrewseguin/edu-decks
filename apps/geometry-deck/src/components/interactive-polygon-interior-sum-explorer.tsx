@@ -1,6 +1,5 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
-import { RotateCcw } from "lucide-react";
 
 type InteractivePolygonInteriorSumProps = {
   color?: string;
@@ -104,21 +103,8 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
     });
   };
 
-  const handleReset = () => {
-    setActiveCutSet([]);
-  };
-
-  const handleCompleteAll = () => {
-    const allCuts = Array.from({ length: totalCuts }, (_, i) => i + 2);
-    setActiveCutSet(allCuts);
-  };
-
-  // Determine which triangles are formed
-  // When activeCutSet has all cuts -> all numTriangles formed
   const isFullySplit = activeCutSet.length === totalCuts;
-  const revealedTrianglesCount = n === 3 ? 1 : activeCutSet.length === 0 ? 0 : activeCutSet.length === totalCuts ? numTriangles : activeCutSet.length + 1;
   const totalSum = numTriangles * 180;
-  const currentSum = revealedTrianglesCount * 180;
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full max-w-[440px] mx-auto pb-1 select-none" onClick={stop} onPointerDown={stop}>
@@ -269,7 +255,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
         <circle cx={hubV.x} cy={hubV.y} r={n > 8 ? 5 : 6} fill={COLOR_GOLD} stroke="#ffffff" strokeWidth={2} />
       </svg>
 
-      {/* Row 1: Number of Sides Stepper */}
+      {/* Number of Sides Stepper */}
       <div className="flex items-center justify-between w-[280px] sm:w-[300px] bg-white/10 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-white/25 shadow-sm pointer-events-auto z-30 select-none">
         <button
           onClick={() => setN((prev) => Math.max(3, prev - 1))}
@@ -291,41 +277,6 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
           +
         </button>
       </div>
-
-      {/* Row 2: Interactive Prompt / Quick Actions */}
-      {totalCuts > 0 ? (
-        <div className="flex items-center gap-2 bg-black/35 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-sm text-xs sm:text-sm select-none">
-          <span className="text-white/90 font-medium px-1 text-xs sm:text-sm whitespace-nowrap">
-            {activeCutSet.length === 0
-              ? "Tap any gold vertex to draw a diagonal"
-              : isFullySplit
-              ? `All ${numTriangles} triangles created`
-              : `${activeCutSet.length} of ${totalCuts} diagonals drawn`}
-          </span>
-
-          {!isFullySplit ? (
-            <button
-              onClick={handleCompleteAll}
-              className="px-2.5 py-0.5 rounded-full font-bold text-xs bg-amber-400/30 hover:bg-amber-400/40 text-amber-200 border border-amber-300/40 active:scale-95 transition-all cursor-pointer"
-            >
-              Split All ➔
-            </button>
-          ) : (
-            <button
-              onClick={handleReset}
-              className="px-2.5 py-0.5 rounded-full font-bold text-xs bg-white/15 hover:bg-white/25 text-white active:scale-95 transition-all cursor-pointer flex items-center gap-1"
-              title="Reset cuts"
-            >
-              <RotateCcw className="w-3 h-3 stroke-[2.5]" />
-              Reset
-            </button>
-          )}
-        </div>
-      ) : (
-        <div className="flex items-center gap-2 bg-black/35 backdrop-blur-md px-4 py-1 rounded-full border border-white/20 shadow-sm text-xs sm:text-sm select-none text-white/90 font-medium">
-          Single triangle (180°)
-        </div>
-      )}
 
       {/* Live Synchronized Equation Banner */}
       <div className="flex justify-center mt-0.5">
