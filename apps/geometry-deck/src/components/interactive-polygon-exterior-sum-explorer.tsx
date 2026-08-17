@@ -67,7 +67,13 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
   const CY = 84;
 
   const [n, setN] = useState(5); // n in [3..12]
-  const [walkProgress, setWalkProgress] = useState(0); // 0 to n
+  // animProgress in [0 .. n - 1]:
+  // 0: Arc 0 at V1
+  // 0 -> 1: Arc 0 translates V1 -> V2 and merges with Arc 1
+  // 1 -> 2: [Arc 0 + 1] translates V2 -> V3 and merges with Arc 2
+  // ...
+  // n - 1: Complete 360 circle formed
+  const [animProgress, setAnimProgress] = useState(0);
   const [isPlaying, setIsPlaying] = useState(false);
 
   const animRef = useRef<number | null>(null);
@@ -82,26 +88,28 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
 
   const eachExteriorAngle = 360 / n;
   const sweepAngle = (2 * Math.PI) / n;
+  const arcR = Math.max(16, Math.min(24, 100 / n));
   const polyName = POLY_NAMES[n] || `${n}-gon`;
 
-  // Start continuous perimeter walk animation
-  const startWalk = useCallback(() => {
+  // Start continuous cascading snowball slide animation
+  const startRoll = useCallback(() => {
     if (animRef.current) cancelAnimationFrame(animRef.current);
     setIsPlaying(true);
-    setWalkProgress(0);
+    setAnimProgress(0);
 
-    const totalDuration = Math.max(3500, n * 850);
+    const totalSteps = n - 1;
+    const totalDuration = totalSteps * 900;
     const startTime = performance.now();
 
     const frame = (now: number) => {
       const elapsed = now - startTime;
-      const prog = Math.min(1, elapsed / totalDuration);
-      setWalkProgress(prog * n);
+      const t = Math.min(1, elapsed / totalDuration);
+      setAnimProgress(t * totalSteps);
 
-      if (prog < 1) {
+      if (t < 1) {
         animRef.current = requestAnimationFrame(frame);
       } else {
-        setWalkProgress(n);
+        setAnimProgress(totalSteps);
         setIsPlaying(false);
       }
     };
@@ -110,28 +118,32 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
 
   // When shape changes, reset and auto-play
   useEffect(() => {
-    startWalk();
+    startRoll();
     return () => {
       if (animRef.current) cancelAnimationFrame(animRef.current);
     };
-  }, [n, startWalk]);
+  }, [n, startRoll]);
 
-  // Compute current position of the traveling wheel along the polygon boundary
-  const currentLeg = Math.max(0, Math.min(n - 1, Math.floor(walkProgress || 0)));
-  const legProgress = Math.max(0, Math.min(1, (walkProgress || 0) - currentLeg));
+  // Current step calculation
+  const totalSteps = n - 1;
+  const currentLeg = Math.min(totalSteps - 1, Math.max(0, Math.floor(animProgress)));
+  const rawSubT = Math.max(0, Math.min(1, animProgress - currentLeg));
+  // Smooth cubic ease per leg
+  const easeT = rawSubT < 0.5 ? 4 * rawSubT * rawSubT * rawSubT : 1 - Math.pow(-2 * rawSubT + 2, 3) / 2;
 
-  const fromV = vertices[currentLeg] || vertices[0];
-  const toV = vertices[(currentLeg + 1) % n] || vertices[0];
+  // The moving cluster starts at V_{currentLeg + 1} and travels to V_{currentLeg + 2}
+  const fromV = vertices[(currentLeg + 1) % n] || vertices[0];
+  const toV = vertices[(currentLeg + 2) % n] || vertices[0];
 
-  const wheelX = fromV.x + (toV.x - fromV.x) * legProgress;
-  const wheelY = fromV.y + (toV.y - fromV.y) * legProgress;
+  const clusterX = fromV.x + (toV.x - fromV.x) * easeT;
+  const clusterY = fromV.y + (toV.y - fromV.y) * easeT;
 
-  // Number of corners collected so far (each corner passed adds 1 sector)
-  const collectedCount = Math.min(n, Math.max(0, walkProgress >= n ? n : currentLeg + (legProgress >= 0.95 ? 1 : 0)));
-  const accumulatedDegrees = Math.min(360, Math.round(collectedCount * eachExteriorAngle));
+  // Sectors in the moving cluster: 0 .. currentLeg
+  const movingSectorsCount = animProgress >= totalSteps ? n : currentLeg + 1;
 
-  const wheelR = 19;
-  const cornerArcR = Math.max(14, Math.min(22, 90 / n));
+  // Degrees accumulated
+  const accumulatedDegrees = Math.min(360, Math.round(movingSectorsCount * eachExteriorAngle));
+  const isComplete = animProgress >= totalSteps;
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full max-w-[440px] mx-auto pb-1 select-none" onClick={stop} onPointerDown={stop}>
@@ -139,7 +151,7 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
         style={{ maxHeight: 165 }}
         className="w-full max-w-[360px] touch-none select-none overflow-visible cursor-pointer"
-        onClick={startWalk}
+        onClick={startRoll}
       >
         {/* Base Outer Polygon */}
         <polygon
@@ -172,66 +184,46 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
           );
         })}
 
-        {/* Static Corner Arcs Waiting to Be Collected */}
+        {/* Stationary Waiting Arcs (at vertices that haven't been picked up yet) */}
         {vertices.map((v, i) => {
+          // Arc i is stationed at vertex (i + 1) % n
+          // It is absorbed when animProgress >= i (for i >= 1)
+          const isAbsorbed = i === 0 || (i <= currentLeg + 1 && (i <= currentLeg || rawSubT > 0.95)) || isComplete;
+          if (isAbsorbed) return null;
+
           const nextV = vertices[(i + 1) % n];
           const heading = Math.atan2(nextV.y - v.y, nextV.x - v.x);
-          const arcD = getArcPath(nextV, heading, sweepAngle, cornerArcR);
-          const isCollected = walkProgress >= i + 1;
+          const arcD = getArcPath(nextV, heading, sweepAngle, arcR);
+          const sectorD = getSectorPath(nextV, heading, sweepAngle, arcR);
 
           return (
-            <path
-              key={`corner-arc-${i}`}
-              d={arcD}
-              fill="none"
-              stroke={COLOR_LILAC}
-              strokeWidth={isCollected ? 1.5 : 2.5}
-              strokeDasharray={isCollected ? "2 2" : "none"}
-              opacity={isCollected ? 0.35 : 0.9}
-              strokeLinecap="round"
-            />
+            <g key={`waiting-arc-${i}`}>
+              <path d={sectorD} fill="rgba(216, 180, 254, 0.25)" stroke="none" />
+              <path d={arcD} fill="none" stroke={COLOR_LILAC} strokeWidth={2.5} strokeLinecap="round" />
+            </g>
           );
         })}
+
+        {/* The Traveling / Cascading Arc Cluster Snowball */}
+        <g style={{ filter: "drop-shadow(0px 2px 5px rgba(216, 180, 254, 0.8))" }}>
+          {Array.from({ length: movingSectorsCount }, (_, i) => {
+            const heading = Math.atan2(vertices[(i + 1) % n].y - vertices[i].y, vertices[(i + 1) % n].x - vertices[i].x);
+            const sectorD = getSectorPath({ x: clusterX, y: clusterY }, heading, sweepAngle, arcR);
+            const arcD = getArcPath({ x: clusterX, y: clusterY }, heading, sweepAngle, arcR);
+
+            return (
+              <g key={`moving-sector-${i}`}>
+                <path d={sectorD} fill="rgba(216, 180, 254, 0.45)" stroke="none" />
+                <path d={arcD} fill="none" stroke={COLOR_LILAC} strokeWidth={3} strokeLinecap="round" />
+              </g>
+            );
+          })}
+        </g>
 
         {/* Corner Vertex Dots */}
         {vertices.map((v, i) => (
           <circle key={`v-${i}`} cx={v.x} cy={v.y} r={3} fill="#ffffff" />
         ))}
-
-        {/* Traveling Angle Accumulator Wheel Dragging Along the Perimeter */}
-        <g transform={`translate(${wheelX}, ${wheelY})`} style={{ filter: "drop-shadow(0px 2px 6px rgba(0,0,0,0.85))" }}>
-          {/* Wheel Background Disc */}
-          <circle cx={0} cy={0} r={wheelR} fill="rgba(15, 23, 42, 0.85)" stroke="rgba(255, 255, 255, 0.35)" strokeWidth={1.5} />
-
-          {/* Accumulated Purple Sectors Collected Along the Walk */}
-          {Array.from({ length: collectedCount }, (_, i) => {
-            const heading = Math.atan2(vertices[(i + 1) % n].y - vertices[i].y, vertices[(i + 1) % n].x - vertices[i].x);
-            const sectorD = getSectorPath({ x: 0, y: 0 }, heading, sweepAngle, wheelR);
-            const arcD = getArcPath({ x: 0, y: 0 }, heading, sweepAngle, wheelR);
-
-            return (
-              <g key={`collected-sector-${i}`}>
-                <path d={sectorD} fill="rgba(216, 180, 254, 0.45)" stroke="none" />
-                <path d={arcD} fill="none" stroke={COLOR_LILAC} strokeWidth={2.5} strokeLinecap="round" />
-              </g>
-            );
-          })}
-
-          {/* Wheel Center Badge / Degree Counter */}
-          <circle cx={0} cy={0} r={9} fill="rgba(0, 0, 0, 0.8)" stroke="rgba(255, 255, 255, 0.4)" strokeWidth={1} />
-          <text
-            x={0}
-            y={0}
-            textAnchor="middle"
-            dominantBaseline="central"
-            fontSize={7.5}
-            fontWeight="900"
-            fill="#ffffff"
-            fontFamily="var(--font-heading, system-ui)"
-          >
-            {accumulatedDegrees}°
-          </text>
-        </g>
       </svg>
 
       {/* Row 1: Number of Sides Stepper */}
@@ -257,21 +249,26 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
         </button>
       </div>
 
-      {/* Row 2: Replay Walk Action */}
+      {/* Row 2: Replay Action Button */}
       <div className="flex items-center gap-2">
         <button
-          onClick={startWalk}
+          onClick={startRoll}
           className="px-4 py-1 rounded-full text-xs font-bold transition-all border bg-white/15 hover:bg-white/25 text-white border-white/30 shadow-sm backdrop-blur-md active:scale-95 select-none flex items-center gap-1.5 cursor-pointer"
         >
           {isPlaying ? (
             <>
               <RotateCcw className="w-3.5 h-3.5 stroke-[2.5]" />
-              Walking perimeter...
+              Combining exterior angles...
+            </>
+          ) : isComplete ? (
+            <>
+              <RotateCcw className="w-3.5 h-3.5 stroke-[2.5]" />
+              Replay combination (360°)
             </>
           ) : (
             <>
               <Play className="w-3.5 h-3.5 fill-white" />
-              Collect exterior angles around perimeter
+              Combine angles around perimeter
             </>
           )}
         </button>
