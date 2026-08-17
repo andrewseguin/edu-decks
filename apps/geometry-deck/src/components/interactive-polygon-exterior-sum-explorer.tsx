@@ -128,8 +128,10 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
   const totalSteps = n - 1;
   const currentLeg = Math.min(totalSteps - 1, Math.max(0, Math.floor(animProgress)));
   const rawSubT = Math.max(0, Math.min(1, animProgress - currentLeg));
-  // Smooth cubic ease per leg
-  const easeT = rawSubT < 0.5 ? 4 * rawSubT * rawSubT * rawSubT : 1 - Math.pow(-2 * rawSubT + 2, 3) / 2;
+  
+  // Timing within each step: 0 -> 0.78 glides along edge, 0.78 -> 1.0 dwells at destination vertex
+  const travelT = Math.min(1, rawSubT / 0.78);
+  const easeT = travelT < 0.5 ? 4 * travelT * travelT * travelT : 1 - Math.pow(-2 * travelT + 2, 3) / 2;
 
   // The moving cluster starts at V_{currentLeg + 1} and travels to V_{currentLeg + 2}
   const fromV = vertices[(currentLeg + 1) % n] || vertices[0];
@@ -138,12 +140,17 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
   const clusterX = fromV.x + (toV.x - fromV.x) * easeT;
   const clusterY = fromV.y + (toV.y - fromV.y) * easeT;
 
-  // Sectors in the moving cluster: 0 .. currentLeg
-  const movingSectorsCount = animProgress >= totalSteps ? n : currentLeg + 1;
+  const isComplete = animProgress >= totalSteps;
+  // Sectors in moving cluster: during movement it has 0..currentLeg; upon full arrival dwell it also shows currentLeg + 1
+  const isArrived = rawSubT >= 0.78;
+  const movingSectorsCount = isComplete
+    ? n
+    : isArrived
+    ? Math.min(n, currentLeg + 2)
+    : currentLeg + 1;
 
   // Degrees accumulated
   const accumulatedDegrees = Math.min(360, Math.round(movingSectorsCount * eachExteriorAngle));
-  const isComplete = animProgress >= totalSteps;
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full max-w-[440px] mx-auto pb-1 select-none" onClick={stop} onPointerDown={stop}>
@@ -186,10 +193,9 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
 
         {/* Stationary Waiting Arcs (at vertices that haven't been picked up yet) */}
         {vertices.map((v, i) => {
-          // Arc i is stationed at vertex (i + 1) % n
-          // It is absorbed when animProgress >= i (for i >= 1)
-          const isAbsorbed = i === 0 || (i <= currentLeg + 1 && (i <= currentLeg || rawSubT > 0.95)) || isComplete;
-          if (isAbsorbed) return null;
+          // Arc i is waiting at its vertex until absorbed into movingSectorsCount
+          const isWaiting = i >= movingSectorsCount && !isComplete;
+          if (!isWaiting) return null;
 
           const nextV = vertices[(i + 1) % n];
           const heading = Math.atan2(nextV.y - v.y, nextV.x - v.x);
