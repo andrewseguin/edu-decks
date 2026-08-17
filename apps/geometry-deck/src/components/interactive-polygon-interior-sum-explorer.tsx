@@ -17,6 +17,10 @@ const POLY_NAMES: Record<number, string> = {
   6: "Hexagon",
   7: "Heptagon",
   8: "Octagon",
+  9: "Nonagon",
+  10: "Decagon",
+  11: "Hendecagon",
+  12: "Dodecagon",
 };
 
 const TRI_COLORS = [
@@ -38,7 +42,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
   const CX = SVG_W / 2;
   const CY = 75;
 
-  const [n, setN] = useState(5); // n in [3..8]
+  const [n, setN] = useState(5); // n in [3..12]
   const [hasInteracted, setHasInteracted] = useState(false);
   const [ambientAngle, setAmbientAngle] = useState(0);
 
@@ -99,7 +103,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
                 y={triCenter.y}
                 textAnchor="middle"
                 dominantBaseline="central"
-                fontSize={10.5}
+                fontSize={n >= 9 ? 8.5 : 10.5}
                 fontWeight="800"
                 fill="rgba(255,255,255,0.95)"
                 fontFamily="var(--font-heading, system-ui)"
@@ -122,33 +126,33 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
 
         {/* Vertices Dots */}
         {vertices.map((v, i) => (
-          <circle key={i} cx={v.x} cy={v.y} r={3.5} fill={i === 0 ? COLOR_GOLD : "#ffffff"} />
+          <circle key={i} cx={v.x} cy={v.y} r={n > 8 ? 2.5 : 3.5} fill={i === 0 ? COLOR_GOLD : "#ffffff"} />
         ))}
       </svg>
 
-      {/* Stepper Controls for n in Standard Frosted Capsule */}
-      <div className="flex items-center gap-1 sm:gap-1.5 bg-white/10 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-white/25 shadow-sm pointer-events-auto z-30 select-none">
+      {/* Stepper Controls for n with Fixed Width to prevent +/- button jumping */}
+      <div className="flex items-center justify-between w-[310px] sm:w-[330px] bg-white/10 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-white/25 shadow-sm pointer-events-auto z-30 select-none">
         <button
           onClick={() => {
             setHasInteracted(true);
             setN((prev) => Math.max(3, prev - 1));
           }}
           disabled={n <= 3}
-          className="w-6 h-6 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95"
+          className="w-6 h-6 shrink-0 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
           aria-label="Decrease sides"
         >
           −
         </button>
-        <div className="flex items-center px-2 py-0.5 text-xs sm:text-sm font-headline font-bold text-white">
+        <div className="flex-1 text-center px-1 text-xs sm:text-sm font-headline font-bold text-white whitespace-nowrap">
           {polyName} ({n} sides · {numTriangles} triangles)
         </div>
         <button
           onClick={() => {
             setHasInteracted(true);
-            setN((prev) => Math.min(8, prev + 1));
+            setN((prev) => Math.min(12, prev + 1));
           }}
-          disabled={n >= 8}
-          className="w-6 h-6 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95"
+          disabled={n >= 12}
+          className="w-6 h-6 shrink-0 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
           aria-label="Increase sides"
         >
           +

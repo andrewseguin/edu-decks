@@ -22,6 +22,10 @@ const POLYGON_NAMES: Record<number, string> = {
   6: "Hexagon",
   7: "Heptagon",
   8: "Octagon",
+  9: "Nonagon",
+  10: "Decagon",
+  11: "Hendecagon",
+  12: "Dodecagon",
 };
 
 export function InteractiveRegularPolygonExplorer({ mode = "regular", color }: InteractiveRegularPolygonProps) {
@@ -44,8 +48,8 @@ export function InteractiveRegularPolygonExplorer({ mode = "regular", color }: I
   const sumAngle = (n - 2) * 180;
   const interiorAngle = Math.round((sumAngle / n) * 10) / 10;
 
-  // Compute congruent interior angle arcs for all vertices
-  const arcRadius = Math.max(10, Math.min(15, 70 / n));
+  // Compute congruent interior angle arcs for all vertices (scaled gracefully up to n=12)
+  const arcRadius = Math.max(6, Math.min(14, 60 / n));
   const angleArcs = vertices.map((v, i) => {
     const prevV = vertices[(i - 1 + n) % n];
     const nextV = vertices[(i + 1) % n];
@@ -97,14 +101,14 @@ export function InteractiveRegularPolygonExplorer({ mode = "regular", color }: I
             d={arcD}
             fill="none"
             stroke={COLOR_LILAC}
-            strokeWidth={2}
+            strokeWidth={n > 8 ? 1.5 : 2}
             strokeLinecap="round"
           />
         ))}
 
         {/* Vertex Corner Dots */}
         {vertices.map((v, i) => (
-          <circle key={`v-${i}`} cx={v.x} cy={v.y} r={3} fill="#ffffff" />
+          <circle key={`v-${i}`} cx={v.x} cy={v.y} r={n > 8 ? 2.5 : 3} fill="#ffffff" />
         ))}
 
         {/* Side Hash Ticks for Equilateral Sides */}
@@ -117,7 +121,7 @@ export function InteractiveRegularPolygonExplorer({ mode = "regular", color }: I
           const len = Math.hypot(dx, dy);
           const nx = -dy / len;
           const ny = dx / len;
-          const tickLen = 4;
+          const tickLen = Math.max(2.5, 4 - (n - 6) * 0.25);
           return (
             <line
               key={`tick-${i}`}
@@ -126,7 +130,7 @@ export function InteractiveRegularPolygonExplorer({ mode = "regular", color }: I
               x2={mx + nx * tickLen}
               y2={my + ny * tickLen}
               stroke={COLOR_GOLD}
-              strokeWidth={2}
+              strokeWidth={n > 8 ? 1.5 : 2}
               strokeLinecap="round"
             />
           );
@@ -150,23 +154,23 @@ export function InteractiveRegularPolygonExplorer({ mode = "regular", color }: I
         )}
       </svg>
 
-      {/* Stepper Controls for n (Naming the shape and defining n = sides) */}
-      <div className="flex items-center gap-1 sm:gap-1.5 bg-white/10 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-white/25 shadow-sm pointer-events-auto z-30 select-none">
+      {/* Stepper Controls for n (Naming the shape up to n = 12 Dodecagon) */}
+      <div className="flex items-center justify-between w-[230px] sm:w-[250px] bg-white/10 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-white/25 shadow-sm pointer-events-auto z-30 select-none">
         <button
           onClick={() => setN((prev) => Math.max(3, prev - 1))}
           disabled={n <= 3}
-          className="w-6 h-6 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95"
+          className="w-6 h-6 shrink-0 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
           aria-label="Decrease sides"
         >
           −
         </button>
-        <div className="flex items-center px-2 py-0.5 text-xs sm:text-sm font-headline font-bold text-white">
+        <div className="flex-1 text-center px-1 text-xs sm:text-sm font-headline font-bold text-white whitespace-nowrap">
           {POLYGON_NAMES[n]} ({n} sides)
         </div>
         <button
-          onClick={() => setN((prev) => Math.min(8, prev + 1))}
-          disabled={n >= 8}
-          className="w-6 h-6 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95"
+          onClick={() => setN((prev) => Math.min(12, prev + 1))}
+          disabled={n >= 12}
+          className="w-6 h-6 shrink-0 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95 cursor-pointer"
           aria-label="Increase sides"
         >
           +
