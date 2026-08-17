@@ -654,10 +654,9 @@ function makeCirclesTermCards(): GeometryCard[] {
       id: nextId(), topic: "circles", cardType: "term", variant: "definition",
       frontLabel: "The radius", frontPrompt: "is…?",
       frontSpeechText: "The radius is…?",
-      backDefinition: "Center to edge",
-      backDefinitionSubtitle: "Distance from the center to the edge (r)",
+      backDefinition: "Distance from the center to the edge",
       backSvgExamples: [{ shape: "circle", dimensions: { r: 5, labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ formulaLine: "radius = center to edge" }],
+      backSteps: [{ formulaLine: "radius = distance from center to edge" }],
       backSpeechText: "The radius is the distance from the center to the edge", color,
     },
     {
