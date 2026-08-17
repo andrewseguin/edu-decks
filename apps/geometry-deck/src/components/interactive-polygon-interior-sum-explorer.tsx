@@ -135,12 +135,12 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
 
       {/* Live Typographic Equation Banner */}
       <div className="flex justify-center mt-1">
-        <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-xs sm:text-sm font-bold font-headline select-none">
+        <div className="flex items-center gap-2.5 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-xs sm:text-sm font-bold font-headline select-none">
           <span className="text-white">Sum</span>
           <span className="text-white/50">=</span>
-          <span className="text-white/80">(</span>
-          <span style={{ color: COLOR_GOLD }}>{n}</span>
-          <span className="text-white/80">− 2) · 180°</span>
+          <span className="text-white/90">
+            (<span style={{ color: COLOR_GOLD }}>{n}</span> − 2) · 180°
+          </span>
           <span className="text-white/50">=</span>
           <span style={{ color: COLOR_LILAC }}>{numTriangles} · 180°</span>
           <span className="text-white/50">=</span>
