@@ -25,6 +25,23 @@ const POLY_NAMES: Record<number, string> = {
 const COLOR_LILAC = "#d8b4fe"; // Exterior angle color
 const COLOR_GOLD = "#ffd45e";  // Walker & accent color
 
+function getExteriorArcD(
+  center: { x: number; y: number },
+  startAngle: number,
+  sweepAngle: number,
+  r: number
+): string {
+  const steps = 16;
+  const pts: string[] = [];
+  for (let s = 0; s <= steps; s++) {
+    const a = startAngle + (sweepAngle * s) / steps;
+    const px = center.x + r * Math.cos(a);
+    const py = center.y + r * Math.sin(a);
+    pts.push(`${s === 0 ? "M" : "L"} ${px.toFixed(2)} ${py.toFixed(2)}`);
+  }
+  return pts.join(" ");
+}
+
 export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePolygonExteriorSumProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
   const SVG_W = Math.max(280, Math.min(460, rawW - 24));
@@ -156,19 +173,16 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
         {/* Extended Perimeter Rays & Exterior Angle Arcs */}
         {vertices.map((v, i) => {
           const nextV = vertices[(i + 1) % n];
-          const nextNextV = vertices[(i + 2) % n];
-
           const heading = Math.atan2(nextV.y - v.y, nextV.x - v.x);
-          const nextHeading = Math.atan2(nextNextV.y - nextV.y, nextNextV.x - nextNextV.x);
+          const sweepAngle = (2 * Math.PI) / n;
 
-          const extLen = Math.max(20, Math.min(32, 130 / n));
+          const extLen = Math.max(20, Math.min(30, 120 / n));
           const rayEndX = nextV.x + Math.cos(heading) * extLen;
           const rayEndY = nextV.y + Math.sin(heading) * extLen;
 
           // Corner exterior arc
-          const arcR = Math.max(12, Math.min(22, 90 / n));
-          const arcStart = { x: nextV.x + Math.cos(heading) * arcR, y: nextV.y + Math.sin(heading) * arcR };
-          const arcEnd = { x: nextV.x + Math.cos(nextHeading) * arcR, y: nextV.y + Math.sin(nextHeading) * arcR };
+          const arcR = Math.max(14, Math.min(22, 90 / n));
+          const arcD = getExteriorArcD(nextV, heading, sweepAngle, arcR);
 
           const isPassed = walkProgress >= i + 1 || (currentLeg === i && legProgress >= 0.65);
 
@@ -180,14 +194,14 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
                 y1={nextV.y}
                 x2={rayEndX}
                 y2={rayEndY}
-                stroke="rgba(255, 255, 255, 0.4)"
+                stroke="rgba(255, 255, 255, 0.45)"
                 strokeWidth={1.5}
                 strokeDasharray="3 2"
               />
 
               {/* Exterior Angle Arc */}
               <path
-                d={`M ${arcStart.x} ${arcStart.y} A ${arcR} ${arcR} 0 0 1 ${arcEnd.x} ${arcEnd.y}`}
+                d={arcD}
                 fill="none"
                 stroke={isPassed ? COLOR_LILAC : "rgba(255, 255, 255, 0.3)"}
                 strokeWidth={isPassed ? 2.5 : 1.5}
