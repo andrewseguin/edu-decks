@@ -69,14 +69,14 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
 
   const [n, setN] = useState(5); // n in [3..12]
   const numTriangles = n - 2;
-  const totalCuts = numTriangles - 1; // number of diagonal cuts from apex = n - 3
+  const totalCuts = numTriangles - 1; // eligible diagonal cuts = n - 3 (indices 2 to n-2)
 
-  // Start with uncut polygon (activeCuts = 0)
-  const [activeCuts, setActiveCuts] = useState(0);
+  // Set of cut vertex indices currently connected (e.g. 2, 3, 4...)
+  const [activeCutSet, setActiveCutSet] = useState<number[]>([]);
 
-  // When shape changes, reset to uncut polygon so user can slice it
+  // When shape changes, reset to clean uncut polygon
   useEffect(() => {
-    setActiveCuts(0);
+    setActiveCutSet([]);
   }, [n]);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => {
@@ -89,34 +89,36 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
     return { x: CX + R * Math.cos(angle), y: CY + R * Math.sin(angle) };
   });
 
-  // Triangles revealed:
-  // For n=3 (already a triangle): 1
-  // For n>3: activeCuts === 0 ? 0 : activeCuts === totalCuts ? numTriangles : activeCuts
-  const revealedCount = n === 3 ? 1 : activeCuts === 0 ? 0 : activeCuts === totalCuts ? numTriangles : activeCuts;
-  const isFullySplit = n === 3 || activeCuts >= totalCuts;
-
-  const totalSum = numTriangles * 180;
-  const currentSum = (revealedCount === 0 ? numTriangles : revealedCount) * 180;
-  const polyName = POLY_NAMES[n] || `${n}-gon`;
   const hubV = vertices[0];
-
   const arcR = Math.max(8, Math.min(15, 64 / n));
+  const polyName = POLY_NAMES[n] || `${n}-gon`;
 
-  const handleNextCut = () => {
-    if (activeCuts < totalCuts) {
-      setActiveCuts((prev) => prev + 1);
-    }
-  };
-
-  const handlePrevCut = () => {
-    if (activeCuts > 0) {
-      setActiveCuts((prev) => prev - 1);
-    }
+  // Toggle a cut to vertex index `vIndex`
+  const toggleCut = (vIndex: number) => {
+    setActiveCutSet((prev) => {
+      if (prev.includes(vIndex)) {
+        return prev.filter((idx) => idx !== vIndex);
+      } else {
+        return [...prev, vIndex].sort((a, b) => a - b);
+      }
+    });
   };
 
   const handleReset = () => {
-    setActiveCuts(0);
+    setActiveCutSet([]);
   };
+
+  const handleCompleteAll = () => {
+    const allCuts = Array.from({ length: totalCuts }, (_, i) => i + 2);
+    setActiveCutSet(allCuts);
+  };
+
+  // Determine which triangles are formed
+  // When activeCutSet has all cuts -> all numTriangles formed
+  const isFullySplit = activeCutSet.length === totalCuts;
+  const revealedTrianglesCount = n === 3 ? 1 : activeCutSet.length === 0 ? 0 : activeCutSet.length === totalCuts ? numTriangles : activeCutSet.length + 1;
+  const totalSum = numTriangles * 180;
+  const currentSum = revealedTrianglesCount * 180;
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full max-w-[440px] mx-auto pb-1 select-none" onClick={stop} onPointerDown={stop}>
@@ -140,8 +142,15 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
           const v1 = vertices[i + 1];
           const v2 = vertices[i + 2];
           const pathD = `M ${v0.x} ${v0.y} L ${v1.x} ${v1.y} L ${v2.x} ${v2.y} Z`;
-          // Triangle is visible if its cut has been made, or if all cuts are complete
-          const isRevealed = n === 3 || i < activeCuts || (activeCuts === totalCuts && i === totalCuts);
+
+          // A triangle slice i is revealed if its bounding diagonals are drawn
+          const isRevealed =
+            n === 3 ||
+            isFullySplit ||
+            (i === 0 && activeCutSet.includes(2)) ||
+            (i > 0 && i < numTriangles - 1 && activeCutSet.includes(i + 1) && activeCutSet.includes(i + 2)) ||
+            (i === numTriangles - 1 && activeCutSet.includes(n - 2));
+
           const theme = TRI_PALETTE[i % TRI_PALETTE.length];
           const triCenter = {
             x: (v0.x + v1.x + v2.x) / 3,
@@ -191,37 +200,67 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
           );
         })}
 
-        {/* Diagonals smoothly drawing from Apex Hub to target vertices */}
+        {/* Diagonals drawn from Apex Hub to target vertices */}
         {Array.from({ length: totalCuts }, (_, i) => {
-          const destV = vertices[i + 2];
+          const vIdx = i + 2;
+          const destV = vertices[vIdx];
           const len = Math.hypot(destV.x - hubV.x, destV.y - hubV.y);
-          const isDrawn = i < activeCuts;
+          const isDrawn = activeCutSet.includes(vIdx);
 
           return (
             <path
               key={`diag-${i}`}
               d={`M ${hubV.x} ${hubV.y} L ${destV.x} ${destV.y}`}
               fill="none"
-              stroke="rgba(255, 255, 255, 0.75)"
+              stroke="rgba(255, 255, 255, 0.8)"
               strokeWidth={1.75}
               strokeDasharray={len}
               strokeDashoffset={isDrawn ? 0 : len}
               style={{
-                transition: "stroke-dashoffset 0.5s cubic-bezier(0.25, 1, 0.5, 1)",
+                transition: "stroke-dashoffset 0.45s cubic-bezier(0.25, 1, 0.5, 1)",
               }}
             />
           );
         })}
 
-        {/* Non-hub Vertex Corner Dots (clickable to trigger cut) */}
+        {/* Non-hub Vertex Corner Dots (clickable with large touch targets) */}
         {vertices.slice(1).map((v, i) => {
-          const isTarget = i + 1 === activeCuts + 1 && activeCuts < totalCuts;
+          const vIdx = i + 1;
+          const isEligible = vIdx >= 2 && vIdx <= n - 2;
+          const isConnected = activeCutSet.includes(vIdx);
+
           return (
-            <g key={`v-${i + 1}`} className="cursor-pointer" onClick={handleNextCut}>
-              {isTarget && (
-                <circle cx={v.x} cy={v.y} r={n > 8 ? 6 : 8} fill="none" stroke={COLOR_GOLD} strokeWidth={1.5} className="animate-ping opacity-75" />
+            <g
+              key={`v-${vIdx}`}
+              className={isEligible ? "cursor-pointer group" : ""}
+              onClick={isEligible ? () => toggleCut(vIdx) : undefined}
+            >
+              {/* Invisible large touch target */}
+              {isEligible && (
+                <circle cx={v.x} cy={v.y} r={18} fill="transparent" />
               )}
-              <circle cx={v.x} cy={v.y} r={n > 8 ? 2.5 : 3.5} fill={isTarget ? COLOR_GOLD : "#ffffff"} />
+
+              {/* Concentric Guide Ring for eligible unclicked vertices */}
+              {isEligible && !isConnected && (
+                <circle
+                  cx={v.x}
+                  cy={v.y}
+                  r={n > 8 ? 6 : 7.5}
+                  fill="none"
+                  stroke={COLOR_GOLD}
+                  strokeWidth={1.5}
+                  strokeDasharray="3 2"
+                  opacity={0.8}
+                />
+              )}
+
+              {/* Vertex Dot */}
+              <circle
+                cx={v.x}
+                cy={v.y}
+                r={isConnected ? (n > 8 ? 3.5 : 4.5) : n > 8 ? 2.5 : 3.5}
+                fill={isConnected ? COLOR_GOLD : isEligible ? "#ffd45e" : "#ffffff"}
+              />
             </g>
           );
         })}
@@ -253,32 +292,23 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
         </button>
       </div>
 
-      {/* Row 2: Interactive Step-Through Cut Controls */}
+      {/* Row 2: Interactive Prompt / Quick Actions */}
       {totalCuts > 0 ? (
         <div className="flex items-center gap-2 bg-black/35 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-sm text-xs sm:text-sm select-none">
-          {activeCuts > 0 && (
-            <button
-              onClick={handlePrevCut}
-              className="px-2 py-0.5 rounded-full font-bold text-xs bg-white/10 hover:bg-white/20 active:scale-95 text-white transition-all cursor-pointer"
-            >
-              ◀ Undo
-            </button>
-          )}
-
           <span className="text-white/90 font-medium px-1 text-xs sm:text-sm whitespace-nowrap">
-            {activeCuts === 0
-              ? "Uncut polygon"
+            {activeCutSet.length === 0
+              ? "Tap any gold vertex to draw a diagonal"
               : isFullySplit
               ? `All ${numTriangles} triangles created`
-              : `Cut ${activeCuts} of ${totalCuts} (${revealedCount} triangles)`}
+              : `${activeCutSet.length} of ${totalCuts} diagonals drawn`}
           </span>
 
           {!isFullySplit ? (
             <button
-              onClick={handleNextCut}
-              className="px-2.5 py-0.5 rounded-full font-bold text-xs bg-amber-400/30 hover:bg-amber-400/40 text-amber-200 border border-amber-300/40 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
+              onClick={handleCompleteAll}
+              className="px-2.5 py-0.5 rounded-full font-bold text-xs bg-amber-400/30 hover:bg-amber-400/40 text-amber-200 border border-amber-300/40 active:scale-95 transition-all cursor-pointer"
             >
-              Cut {activeCuts + 1} ➔
+              Split All ➔
             </button>
           ) : (
             <button
