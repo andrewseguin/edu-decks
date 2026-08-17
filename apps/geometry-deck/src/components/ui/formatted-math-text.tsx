@@ -84,7 +84,7 @@ export function FormattedMathText({
   className?: string;
 }) {
   // Regex to match fractions, specific compound formulas, and math keywords
-  const pattern = /(V − E \+ F = 2|V − E \+ F|A \+ B \+ C = 180°|A \+ B \+ C|A = ½\(a \+ b\)h|A = ½ · \(a \+ b\) · h|P = a \+ b \+ c|P = 2\(l \+ w\)|P = 2l \+ 2w|A = l · w|A = b · h|V = l · w · h|V = πr²h|V = ⅓πr²h|V = ⁴⁄₃πr³|SA = 4πr²|A = πr²|C = 2πr|½|⅓|⅔|¼|¾|⅕|⅖|⅗|⅘|⅙|⅚|⅛|⅜|⅝|⅞|⁴⁄₃|base angles|base \(b\)|height \(h\)|hypotenuse \(c\)|length \(l\)|width \(w\)|radius \(r\)|radius²|radius³|diameter \(d\)|circumference \(C\)|vertices \(V\)|edges \(E\)|faces \(F\)|\blength\b|\bwidth\b|\bbase\b|\bheight\b|\bradius\b|\bdiameter\b|\bhypotenuse\b|\bcircumference\b|a²|b²|c²|r²|r³|∠A|∠B|∠C|[Aa]ngle [ABC])/g;
+  const pattern = /(V − E \+ F = 2|V − E \+ F|A \+ B \+ C = 180°|A \+ B \+ C|A = ½\(a \+ b\)h|A = ½ · \(a \+ b\) · h|P = a \+ b \+ c|P = 2\(l \+ w\)|P = 2l \+ 2w|A = l · w|A = b · h|V = l · w · h|V = πr²h|V = ⅓πr²h|V = ⁴⁄₃πr³|SA = 4πr²|A = π · r²|A = πr²|C = 2 · π · r|C = 2πr|½|⅓|⅔|¼|¾|⅕|⅖|⅗|⅘|⅙|⅚|⅛|⅜|⅝|⅞|⁴⁄₃|base angles|base \(b\)|height \(h\)|hypotenuse \(c\)|length \(l\)|width \(w\)|radius \(r\)|radius²|radius³|diameter \(d\)|circumference \(C\)|vertices \(V\)|edges \(E\)|faces \(F\)|\blength\b|\bwidth\b|\bbase\b|\bheight\b|\bradius\b|\bdiameter\b|\bhypotenuse\b|\bcircumference\b|a²|b²|c²|r²|r³|∠A|∠B|∠C|[Aa]ngle [ABC])/g;
   const parts = text.split(pattern);
 
   return (
@@ -239,10 +239,26 @@ export function FormattedMathText({
             </React.Fragment>
           );
         }
+        if (part === "A = π · r²") {
+          return (
+            <React.Fragment key={idx}>
+              <span>A = π · </span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">r²</span>
+            </React.Fragment>
+          );
+        }
         if (part === "C = 2πr") {
           return (
             <React.Fragment key={idx}>
               <span>C = 2π</span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">r</span>
+            </React.Fragment>
+          );
+        }
+        if (part === "C = 2 · π · r") {
+          return (
+            <React.Fragment key={idx}>
+              <span>C = 2 · π · </span>
               <span style={{ color: "#5ee8ff" }} className="font-bold">r</span>
             </React.Fragment>
           );

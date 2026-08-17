@@ -9,9 +9,7 @@ type InteractiveCircleCircumferenceProps = {
   color?: string;
 };
 
-const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan
-const COLOR_CIRCUM = "#fb923c"; // Vibrant Radiant Orange (Circumference ribbon & Target finish)
-const COLOR_PI = "#f472b6";     // Vibrant Rose Pink (Intermediate Pi markers)
+const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan (Radius r)
 
 const MIN_RADIUS = 1;
 const MAX_RADIUS = 10;
@@ -192,7 +190,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   };
 
   // Pi milestone ticks up to 2*pi*r
-  const milestones: { fraction: number; val: number; label: string }[] = [];
+  const milestones: { fraction: number; val: number; k: number }[] = [];
   const maxPiK = 2 * radiusUnits;
   for (let k = 1; k <= maxPiK; k++) {
     const piVal = k * Math.PI;
@@ -201,7 +199,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
       milestones.push({
         fraction,
         val: piVal,
-        label: k === 1 ? "π" : `${k}π`,
+        k,
       });
     }
   }
@@ -297,42 +295,63 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           );
         })}
 
-        {/* Milestone Markers: 1π, 2π, etc. */}
-        {milestones.map(({ fraction, label }) => {
+        {/* Milestone Markers */}
+        {milestones.map(({ fraction, k }) => {
           const mX = startX + fraction * fullRollDist;
           if (mX > rightEdge + 25) return null;
           const isTargetFinish = Math.abs(fraction - 1) < 0.001;
-          const markerColor = isTargetFinish ? COLOR_CIRCUM : COLOR_PI;
+          const isHalf = Math.abs(fraction - 0.5) < 0.001;
+
+          // For radiusUnits > 2, hide intermediate minor markers if not a major milestone
+          if (!isTargetFinish && !isHalf && radiusUnits > 2 && k % radiusUnits !== 0) {
+            return (
+              <g key={k} transform={`translate(${mX}, ${groundY})`}>
+                <line x1={0} y1={-3} x2={0} y2={10} stroke="rgba(255, 255, 255, 0.35)" strokeWidth={1.2} strokeDasharray="2 2" />
+                <circle cx={0} cy={0} r={1.5} fill="rgba(255, 255, 255, 0.5)" />
+              </g>
+            );
+          }
 
           return (
-            <g key={label} transform={`translate(${mX}, ${groundY})`}>
+            <g key={k} transform={`translate(${mX}, ${groundY})`}>
               <line
                 x1={0}
                 y1={isTargetFinish ? -5 : -4}
                 x2={0}
                 y2={16}
-                stroke={markerColor}
+                stroke={isTargetFinish ? "rgba(255, 255, 255, 0.85)" : "rgba(255, 255, 255, 0.6)"}
                 strokeWidth={isTargetFinish ? 2.5 : 1.8}
                 strokeDasharray={isTargetFinish ? undefined : "2.5 2"}
               />
-              <circle cx={0} cy={0} r={isTargetFinish ? 3 : 2.2} fill={markerColor} />
+              <circle cx={0} cy={0} r={isTargetFinish ? 3 : 2.2} fill="#ffffff" />
               <text
                 x={0}
                 y={29}
                 textAnchor="middle"
-                fontSize={isTargetFinish ? 15 : 13.5}
+                fontSize={isTargetFinish ? 13.5 : 13}
                 fontWeight="900"
-                fill={markerColor}
                 fontFamily="var(--font-heading, system-ui)"
                 style={{ filter: "drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.9))" }}
               >
-                {label}
+                {isTargetFinish ? (
+                  <>
+                    <tspan fill="#ffffff">2 · π · </tspan>
+                    <tspan fill={COLOR_RADIUS}>{radiusUnits}</tspan>
+                  </>
+                ) : isHalf ? (
+                  <>
+                    <tspan fill="#ffffff">π · </tspan>
+                    <tspan fill={COLOR_RADIUS}>{radiusUnits}</tspan>
+                  </>
+                ) : (
+                  <tspan fill="#ffffff">{k}π</tspan>
+                )}
               </text>
             </g>
           );
         })}
 
-        {/* Unrolled Orange Ribbon Laid Down Along Ground */}
+        {/* Unrolled White Ribbon Laid Down Along Ground */}
         {unrollProgress > 0 && (
           <g>
             <line
@@ -340,10 +359,10 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
               y1={groundY}
               x2={currentWheelX}
               y2={groundY}
-              stroke={COLOR_CIRCUM}
-              strokeWidth={4}
+              stroke="#ffffff"
+              strokeWidth={3.5}
               strokeLinecap="round"
-              style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.7))" }}
+              style={{ filter: "drop-shadow(0px 0px 4px rgba(255, 255, 255, 0.5))" }}
             />
             {/* Stamped Unit Notches on Ground */}
             {unitTeeth.map(({ u, fraction }) => {
@@ -356,7 +375,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                   y1={groundY - 3.5}
                   x2={segX}
                   y2={groundY + 3.5}
-                  stroke="#ffffff"
+                  stroke="rgba(255, 255, 255, 0.85)"
                   strokeWidth={1.3}
                   opacity={0.95}
                 />
@@ -370,7 +389,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           {/* Wheel Disc Body */}
           <circle cx={0} cy={0} r={rPx} fill="rgba(255, 255, 255, 0.08)" />
 
-          {/* At Zero State: Full Solid Vibrant Orange Circle */}
+          {/* At Zero State: Full Solid White Circle */}
           {unrollProgress === 0 ? (
             <g>
               <circle
@@ -378,9 +397,9 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                 cy={0}
                 r={rPx}
                 fill="none"
-                stroke={COLOR_CIRCUM}
+                stroke="#ffffff"
                 strokeWidth={3.5}
-                style={{ filter: "drop-shadow(0px 0px 5px rgba(251, 146, 60, 0.65))" }}
+                style={{ filter: "drop-shadow(0px 0px 4px rgba(255, 255, 255, 0.5))" }}
               />
               {/* Unit Teeth */}
               {unitTeeth.map(({ u, fraction }) => {
@@ -396,7 +415,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                     y1={y1}
                     x2={x2}
                     y2={y2}
-                    stroke="#ffffff"
+                    stroke="rgba(255, 255, 255, 0.85)"
                     strokeWidth={1.3}
                     opacity={0.9}
                   />
@@ -409,14 +428,14 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
               {/* Ghost track showing where ribbon peeled off */}
               <circle cx={0} cy={0} r={rPx} fill="none" stroke="rgba(255, 255, 255, 0.18)" strokeWidth={1.5} strokeDasharray="3 3" />
               
-              {/* Active remaining orange perimeter arc */}
+              {/* Active remaining white perimeter arc */}
               <path
                 d={remainingWheelArcPath}
                 fill="none"
-                stroke={COLOR_CIRCUM}
+                stroke="#ffffff"
                 strokeWidth={3.5}
                 strokeLinecap="round"
-                style={{ filter: "drop-shadow(0px 0px 4px rgba(251, 146, 60, 0.65))" }}
+                style={{ filter: "drop-shadow(0px 0px 4px rgba(255, 255, 255, 0.5))" }}
               />
               
               {/* Unit Teeth remaining on wheel */}
@@ -435,7 +454,7 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
                     y1={y1}
                     x2={x2}
                     y2={y2}
-                    stroke="#ffffff"
+                    stroke="rgba(255, 255, 255, 0.85)"
                     strokeWidth={1.3}
                     opacity={0.9}
                   />
@@ -485,8 +504,8 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
           onPointerDown={handleTrackPointerDown}
         >
           <circle r={28} fill="transparent" />
-          <circle r={9} fill="rgba(251, 146, 60, 0.25)" stroke={COLOR_CIRCUM} strokeWidth={1.6} />
-          <circle r={4.5} fill={COLOR_CIRCUM} />
+          <circle r={9} fill="rgba(255, 255, 255, 0.2)" stroke="#ffffff" strokeWidth={1.6} />
+          <circle r={4.5} fill="#ffffff" />
         </g>
       </svg>
 
@@ -616,11 +635,11 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
 
       {/* Frosted Typographic Equation Banner */}
       <div className="flex justify-center mt-0.5">
-        <div className="flex items-center gap-2 px-5 py-1 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
+        <div className="flex items-center gap-1.5 sm:gap-2 px-5 py-1 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
           <span className="text-white">C</span>
           <span className="text-white/50">=</span>
           <span className="text-white font-bold">2 · π ·</span>
-          <span style={{ color: COLOR_RADIUS }}>{radiusUnits}</span>
+          <span style={{ color: COLOR_RADIUS }} className="font-bold">{radiusUnits}</span>
           <span className="text-white/50">=</span>
           <span className="text-white font-bold">{2 * radiusUnits}π</span>
           {radiusUnits > 1 && (

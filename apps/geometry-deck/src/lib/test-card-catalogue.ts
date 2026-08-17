@@ -627,11 +627,11 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontLabel: "Circumference of a circle", frontPrompt: "formula is…?",
     frontSpeechText: "The formula for the circumference of a circle is…?",
     backDefinition: "C = 2πr",
-    backDefinitionSubtitle: "Circumference = 2 · π · radius (or π · d)",
+    backDefinitionSubtitle: "Circumference = 2 · π · radius",
     backSvgExamples: [{ shape: "circle", dimensions: { r: "r", labelMode: "variable" }, labelMode: "variable" }],
     backSteps: [
       { formulaLine: "C = 2 × π × r" },
-      { formulaLine: "C = 2πr (or C = πd)" },
+      { formulaLine: "C = 2πr" },
     ],
     backSpeechText: "Circumference equals 2 pi r",
   },
