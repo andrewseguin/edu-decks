@@ -16,7 +16,6 @@ const MIN_R = 1;
 const MAX_R = 8;
 
 const COLOR_RADIUS = "#5ee8ff";   // Electric Cyan
-const COLOR_DIAMETER = "#ffd45e"; // Warm Gold
 
 export function InteractiveRadiusExplorer({ mode = "radius", color }: InteractiveRadiusExplorerProps) {
   const { containerRef, width: rawW } = useContainerWidth(360);
@@ -105,7 +104,7 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
   const midX = (CX + pX) / 2;
   const midY = (CY + pY) / 2;
 
-  // Midpoint of opposite diameter segment (away from drag handle and center dot)
+  // Midpoint of opposite radius line (opposite side)
   const midOppX = (CX + oppX) / 2;
   const midOppY = (CY + oppY) / 2;
 
@@ -113,13 +112,23 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
   const normX = Math.sin(rad);
   const normY = Math.cos(rad);
 
-  // Adaptive offset based on angle to account for text aspect ratio (wider than tall)
-  const offsetDist = 18 + 8 * Math.abs(Math.sin(rad));
-  const radiusLabelX = midX - offsetDist * normX;
-  const radiusLabelY = midY - offsetDist * normY;
+  // Adaptive offset based on angle
+  const offsetR = 14 + 6 * Math.abs(Math.sin(rad));
+  const offsetD = 18 + 6 * Math.abs(Math.sin(rad));
 
-  const diamLabelX = midOppX - offsetDist * normX;
-  const diamLabelY = midOppY - offsetDist * normY;
+  // Radius label positions
+  const r1LabelX = midX - offsetR * normX;
+  const r1LabelY = midY - offsetR * normY;
+  const r2LabelX = midOppX - offsetR * normX;
+  const r2LabelY = midOppY - offsetR * normY;
+
+  // Diameter bracket endpoints and label position
+  const bOppX = oppX + offsetD * normX;
+  const bOppY = oppY + offsetD * normY;
+  const bPX = pX + offsetD * normX;
+  const bPY = pY + offsetD * normY;
+  const diamLabelX = CX + (offsetD + 13) * normX;
+  const diamLabelY = CY + (offsetD + 13) * normY;
 
   return (
     <div ref={containerRef} className="flex flex-col items-center w-full max-w-[650px] mx-auto select-none py-1" onClick={stop} onPointerDown={stop}>
@@ -202,17 +211,64 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
           ))}
         </g>
 
-        {/* Center Origin Point Dot */}
-        <circle cx={CX} cy={CY} r={3.5} fill="#ffffff" />
-
         {/* Diameter Line or Radius Line */}
         {isDiameter ? (
           <>
-            {/* Full Diameter Chord */}
-            <line x1={oppX} y1={oppY} x2={pX} y2={pY} stroke={COLOR_DIAMETER} strokeWidth={3.0} strokeLinecap="round" />
-            <circle cx={oppX} cy={oppY} r={3.5} fill={COLOR_DIAMETER} />
-            <circle cx={pX} cy={pY} r={3.5} fill={COLOR_DIAMETER} />
-            {/* Perpendicularly offset label */}
+            {/* Two Cyan Radius Halves (Center -> Handle and Center -> Opposite) */}
+            <line x1={CX} y1={CY} x2={pX} y2={pY} stroke={COLOR_RADIUS} strokeWidth={2.8} strokeDasharray="4 3" strokeLinecap="round" />
+            <line x1={CX} y1={CY} x2={oppX} y2={oppY} stroke={COLOR_RADIUS} strokeWidth={2.8} strokeDasharray="4 3" strokeLinecap="round" />
+            
+            <circle cx={oppX} cy={oppY} r={3.5} fill={COLOR_RADIUS} />
+            <circle cx={pX} cy={pY} r={3.5} fill={COLOR_RADIUS} />
+
+            {/* Labels on both radius halves */}
+            <text
+              x={r1LabelX}
+              y={r1LabelY}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={13}
+              fontWeight="900"
+              fill={COLOR_RADIUS}
+              fontFamily="var(--font-heading, system-ui)"
+              style={{ filter: "drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.9))" }}
+            >
+              r = {radiusUnits}
+            </text>
+            <text
+              x={r2LabelX}
+              y={r2LabelY}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize={13}
+              fontWeight="900"
+              fill={COLOR_RADIUS}
+              fontFamily="var(--font-heading, system-ui)"
+              style={{ filter: "drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.9))" }}
+            >
+              r = {radiusUnits}
+            </text>
+
+            {/* Full Diameter Dimension Bracket */}
+            <line x1={bOppX} y1={bOppY} x2={bPX} y2={bPY} stroke="rgba(255, 255, 255, 0.75)" strokeWidth={2} strokeLinecap="round" />
+            <line
+              x1={bOppX - 4 * normX}
+              y1={bOppY - 4 * normY}
+              x2={bOppX + 4 * normX}
+              y2={bOppY + 4 * normY}
+              stroke="rgba(255, 255, 255, 0.75)"
+              strokeWidth={2}
+            />
+            <line
+              x1={bPX - 4 * normX}
+              y1={bPY - 4 * normY}
+              x2={bPX + 4 * normX}
+              y2={bPY + 4 * normY}
+              stroke="rgba(255, 255, 255, 0.75)"
+              strokeWidth={2}
+            />
+
+            {/* Diameter Bracket Label */}
             <text
               x={diamLabelX}
               y={diamLabelY}
@@ -220,10 +276,12 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
               dominantBaseline="central"
               fontSize={13.5}
               fontWeight="900"
-              fill={COLOR_DIAMETER}
               fontFamily="var(--font-heading, system-ui)"
+              style={{ filter: "drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.9))" }}
             >
-              d = {diameterUnits}
+              <tspan fill="#ffffff">d = 2</tspan>
+              <tspan fill={COLOR_RADIUS}>r</tspan>
+              <tspan fill="#ffffff"> = {diameterUnits}</tspan>
             </text>
           </>
         ) : (
@@ -233,19 +291,23 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
             <circle cx={pX} cy={pY} r={3.5} fill={COLOR_RADIUS} />
             {/* Perpendicularly offset label */}
             <text
-              x={radiusLabelX}
-              y={radiusLabelY}
+              x={r1LabelX}
+              y={r1LabelY}
               textAnchor="middle"
               dominantBaseline="central"
               fontSize={13.5}
               fontWeight="900"
               fill={COLOR_RADIUS}
               fontFamily="var(--font-heading, system-ui)"
+              style={{ filter: "drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.9))" }}
             >
               r = {radiusUnits}
             </text>
           </>
         )}
+
+        {/* Center Origin Point Dot */}
+        <circle cx={CX} cy={CY} r={3.5} fill="#ffffff" />
 
         {/* Interactive Drag Handle on circumference */}
         <g transform={`translate(${pX}, ${pY})`} className="cursor-grab active:cursor-grabbing" onPointerDown={handlePointerDown}>
