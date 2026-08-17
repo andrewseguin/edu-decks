@@ -455,30 +455,37 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         )}
       </svg>
 
-      {/* Row 1: Animation Step Buttons */}
-      <div className="flex items-center justify-center gap-2 select-none py-0.5">
+      {/* Row 1: Animation Step Breadcrumbs Flow */}
+      <div className="flex items-center justify-center gap-1.5 sm:gap-2.5 select-none py-1">
         {[
           { num: 1, label: "Circle" },
           { num: 2, label: "Unroll" },
           { num: 3, label: "Combine" },
-        ].map(({ num, label }) => {
+        ].map(({ num, label }, index) => {
           const isActive = step === num;
           return (
-            <button
-              key={num}
-              onClick={() => {
-                setIsPlaying(false);
-                setStep(num as 1 | 2 | 3);
-              }}
-              className={cn(
-                "px-3.5 py-1 rounded-full text-xs font-headline transition-all shadow-sm active:scale-95 cursor-pointer",
-                isActive
-                  ? "bg-white text-purple-950 font-black shadow-md border border-white"
-                  : "bg-white/10 hover:bg-white/20 text-white font-bold border border-white/25 hover:border-white/40"
+            <React.Fragment key={num}>
+              {index > 0 && (
+                <span className="text-white/40 text-xs font-mono select-none px-0.5">→</span>
               )}
-            >
-              {label}
-            </button>
+              <button
+                onClick={() => {
+                  setIsPlaying(false);
+                  setStep(num as 1 | 2 | 3);
+                }}
+                className={cn(
+                  "relative px-2.5 py-1 text-xs sm:text-sm font-headline transition-all cursor-pointer rounded-md border-none bg-transparent tracking-wide",
+                  isActive
+                    ? "text-white font-black"
+                    : "text-white/80 font-bold hover:text-white hover:bg-white/10"
+                )}
+              >
+                <span>{label}</span>
+                {isActive && (
+                  <span className="absolute bottom-0 left-2 right-2 h-[2.5px] bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
+                )}
+              </button>
+            </React.Fragment>
           );
         })}
       </div>
