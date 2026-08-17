@@ -455,8 +455,8 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         )}
       </svg>
 
-      {/* Row 1: Animation Step Tabs (Surfaceless typographic navigation) */}
-      <div className="flex items-center justify-center gap-5 sm:gap-7 select-none py-1">
+      {/* Row 1: Animation Step Buttons */}
+      <div className="flex items-center justify-center gap-2 select-none py-0.5">
         {[
           { num: 1, label: "Circle" },
           { num: 2, label: "Unroll" },
@@ -471,16 +471,13 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
                 setStep(num as 1 | 2 | 3);
               }}
               className={cn(
-                "relative pb-1 text-xs sm:text-sm font-headline transition-all border-none bg-transparent cursor-pointer tracking-wide",
+                "px-3.5 py-1 rounded-full text-xs font-headline transition-all shadow-sm active:scale-95 cursor-pointer",
                 isActive
-                  ? "text-white font-black scale-105"
-                  : "text-white/85 font-bold hover:text-white"
+                  ? "bg-white text-purple-950 font-black shadow-md border border-white"
+                  : "bg-white/10 hover:bg-white/20 text-white font-bold border border-white/25 hover:border-white/40"
               )}
             >
-              <span>{label}</span>
-              {isActive && (
-                <span className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-white rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
-              )}
+              {label}
             </button>
           );
         })}
