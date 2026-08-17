@@ -57,6 +57,7 @@ jobs:
       - name: Install Playwright Browsers
         run: |
           pnpm --filter reading-deck exec playwright install --with-deps chromium
+          pnpm --filter arithmetic-deck exec playwright install --with-deps chromium
           pnpm --filter geometry-deck exec playwright install --with-deps chromium
 
       - name: Start Next.js Development Servers

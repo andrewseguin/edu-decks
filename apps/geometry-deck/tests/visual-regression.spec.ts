@@ -20,12 +20,13 @@
  */
 
 import { test, expect, type Page } from "@playwright/test";
+import { TEST_CARD_IDS } from "../src/lib/test-card-catalogue";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Shared helpers
 // ─────────────────────────────────────────────────────────────────────────────
 
-const BASE_URL = "http://localhost:9004";
+const BASE_URL = "http://127.0.0.1:9004";
 
 /**
  * Inject CSS that freezes all animations and hides Next.js dev overlays.
@@ -59,103 +60,19 @@ const screenshotOptions = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Card IDs
-//
-// We enumerate card IDs here (mirroring TEST_CARD_IDS from the catalogue)
-// rather than importing TypeScript because Playwright runs in its own Node
-// context without Next.js path-alias resolution.
-//
-// If you add a card to test-card-catalogue.ts, add its ID here too.
-// ─────────────────────────────────────────────────────────────────────────────
-
-const CARD_IDS: string[] = [
-  // Angles — term
-  "term-angle-acute",
-  "term-angle-obtuse",
-  "term-angle-reflex",
-  "term-angle-complementary",
-  "term-angle-supplementary",
-  "term-angle-vertically-opp",
-  "term-angle-alternate",
-  "term-angle-cointerior",
-  // Angles — calc
-  "calc-angle-supplementary",
-  "calc-angle-complementary",
-  "calc-angle-vertically-opp",
-  // Triangles — term
-  "term-tri-equilateral",
-  "term-tri-isosceles",
-  "term-tri-scalene",
-  "term-tri-right",
-  "term-tri-angle-sum",
-  "term-tri-pythag",
-  // Triangles — formula
-  "formula-tri-area",
-  "formula-tri-perim",
-  "formula-tri-pyth",
-  // Triangles — calc
-  "calc-tri-angle-sum",
-  "calc-tri-area",
-  "calc-tri-perimeter",
-  "calc-tri-pyth-c",
-  "calc-tri-pyth-b",
-  // Quadrilaterals — term
-  "term-quad-parallelogram",
-  "term-quad-rhombus",
-  "term-quad-trapezoid",
-  // Quadrilaterals — formula
-  "formula-quad-rect-area",
-  "formula-quad-rect-perim",
-  "formula-quad-para-area",
-  "formula-quad-trap-area",
-  // Quadrilaterals — calc
-  "calc-quad-rect-area",
-  "calc-quad-rect-perim",
-  "calc-quad-para-area",
-  "calc-quad-trap-area",
-  "calc-quad-rect-reverse",
-  // Circles — term
-  "term-circle-circumference",
-  "term-circle-pi",
-  "term-circle-radius",
-  "term-circle-diameter",
-  // Circles — calc
-  "calc-circle-circ",
-  "calc-circle-area",
-  "calc-circle-r-from-c",
-  "calc-circle-r-from-a",
-  // Polygons — term
-  "term-poly-regular",
-  "term-poly-interior-sum",
-  // Polygons — calc
-  "calc-poly-perimeter",
-  "calc-poly-angle-sum",
-  "calc-poly-each-angle-hex",
-  // 3D — term
-  "term-3d-face",
-  "term-3d-edge",
-  "term-3d-vertex",
-  "term-3d-euler",
-  // 3D — calc
-  "calc-3d-prism",
-  "calc-3d-cylinder",
-  "calc-3d-euler",
-];
-
-// ─────────────────────────────────────────────────────────────────────────────
 // Test generation
 //
-// For each card we generate:
+// For each card in TEST_CARD_IDS we generate:
 //   <cardId>-front   — card front face
 //   <cardId>-back    — card back (full proof table)
 // ─────────────────────────────────────────────────────────────────────────────
 
-for (const cardId of CARD_IDS) {
+for (const cardId of TEST_CARD_IDS) {
   test.describe(cardId, () => {
 
     // ── Front ──────────────────────────────────────────────────────────────
     test("front", async ({ page }) => {
-      await page.goto(`${BASE_URL}/test-cards?card=${cardId}&state=front`);
+      await page.goto(`${BASE_URL}/test-cards?card=${cardId}&state=front`, { waitUntil: "domcontentloaded" });
       await freezeAnimations(page);
       await page.waitForSelector('[data-testid="test-card-root"]');
 
@@ -167,7 +84,7 @@ for (const cardId of CARD_IDS) {
 
     // ── Back ──────────────────────────────────────────────────────────────
     test("back", async ({ page }) => {
-      await page.goto(`${BASE_URL}/test-cards?card=${cardId}&state=back`);
+      await page.goto(`${BASE_URL}/test-cards?card=${cardId}&state=back`, { waitUntil: "domcontentloaded" });
       await freezeAnimations(page);
       await page.waitForSelector('[data-testid="test-card-root"]');
 

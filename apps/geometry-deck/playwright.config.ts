@@ -15,7 +15,7 @@ export default defineConfig({
     },
   },
   use: {
-    baseURL: "http://localhost:9004",
+    baseURL: "http://127.0.0.1:9004",
     trace: "on-first-retry",
   },
   projects: [
@@ -38,7 +38,7 @@ export default defineConfig({
   ],
   webServer: {
     command: "pnpm dev",
-    url: "http://localhost:9004",
+    url: "http://127.0.0.1:9004",
     reuseExistingServer: true,
     timeout: 120 * 1000,
     stdout: "pipe",
