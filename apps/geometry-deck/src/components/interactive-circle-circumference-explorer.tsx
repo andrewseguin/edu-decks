@@ -137,30 +137,41 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
 
     const svg = svgRef.current;
     if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const scX = SVG_W / rect.width;
 
-    const updateFromPointer = (clientX: number) => {
-      const px = (clientX - rect.left) * scX;
-      const prog = Math.max(0, Math.min(1, (px - startX) / fullRollDist));
+    const getSvgX = (clientX: number, clientY: number) => {
+      const ctm = svg.getScreenCTM();
+      if (!ctm) return null;
+      const pt = svg.createSVGPoint ? svg.createSVGPoint() : new DOMPoint();
+      pt.x = clientX;
+      pt.y = clientY;
+      const svgPoint = pt.matrixTransform(ctm.inverse());
+      return svgPoint.x;
+    };
+
+    const updateFromPointer = (clientX: number, clientY: number) => {
+      const svgX = getSvgX(clientX, clientY);
+      if (svgX == null) return;
+      const prog = Math.max(0, Math.min(1, (svgX - startX) / fullRollDist));
       setUnrollProgress(prog);
     };
 
-    updateFromPointer(e.clientX);
+    updateFromPointer(e.clientX, e.clientY);
 
     const onMove = (ev: PointerEvent) => {
-      updateFromPointer(ev.clientX);
+      updateFromPointer(ev.clientX, ev.clientY);
     };
 
     const onUp = () => {
       setIsDraggingHandle(false);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
     };
 
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
-  }, [SVG_W, fullRollDist, startX]);
+    window.addEventListener("pointercancel", onUp);
+  }, [fullRollDist, startX]);
 
   const togglePlay = () => {
     if (unrollProgress >= 0.98) {
@@ -608,10 +619,10 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
         <div className="flex items-center gap-2 px-5 py-1 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
           <span className="text-white">C</span>
           <span className="text-white/50">=</span>
-          <span style={{ color: COLOR_CIRCUM }} className="font-bold">2 · π ·</span>
+          <span className="text-white font-bold">2 · π ·</span>
           <span style={{ color: COLOR_RADIUS }}>{radiusUnits}</span>
           <span className="text-white/50">=</span>
-          <span style={{ color: COLOR_CIRCUM }} className="font-bold">{2 * radiusUnits}π</span>
+          <span className="text-white font-bold">{2 * radiusUnits}π</span>
           {radiusUnits > 1 && (
             <>
               <span className="text-white/40">≈</span>

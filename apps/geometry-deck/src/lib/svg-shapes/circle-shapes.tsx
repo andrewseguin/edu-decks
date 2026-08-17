@@ -158,12 +158,12 @@ export function Circle({ dims, mutation }: { dims: Record<string, number | strin
       {lm === "numeric" && (
         <>
           {/* Radius label */}
-          {r !== undefined && !showDiameter && (
+          {!showDiameter && (
             unknownDim === "r" ? (
               <RevealText x={cx + cr / 2} y={cy - 14} variable="r" revealedValue={revealedAnswer} color={COLOR_RADIUS} fontSize={17} fontWeight="900" />
-            ) : (
-              <SvgLabel x={cx + cr / 2} y={cy - 14} text={`${r}`} color={COLOR_RADIUS} size={13} />
-            )
+            ) : r !== undefined ? (
+              <SvgLabel x={cx + cr / 2} y={cy - 14} text={`r = ${r}`} color={COLOR_RADIUS} size={13} />
+            ) : null
           )}
 
           {/* Diameter label */}
@@ -171,7 +171,7 @@ export function Circle({ dims, mutation }: { dims: Record<string, number | strin
             unknownDim === "d" ? (
               <RevealText x={cx} y={cy - 14} variable="d" revealedValue={revealedAnswer} color={COLOR_DIAMETER} fontSize={17} fontWeight="900" />
             ) : (
-              <SvgLabel x={cx} y={cy - 14} text={r !== undefined ? `${Number(r) * 2}` : "d"} color={COLOR_DIAMETER} size={13} />
+              <SvgLabel x={cx} y={cy - 14} text={r !== undefined ? `d = ${Number(r) * 2}` : "d"} color={COLOR_DIAMETER} size={13} />
             )
           )}
 
