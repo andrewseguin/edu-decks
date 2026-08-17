@@ -67,16 +67,14 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
   const CY = 84;
 
   const [n, setN] = useState(5); // n in [3..12]
-  // animProgress in [0 .. n - 1]:
-  // 0: Arc 0 at V1
-  // 0 -> 1: Arc 0 translates V1 -> V2 and merges with Arc 1
-  // 1 -> 2: [Arc 0 + 1] translates V2 -> V3 and merges with Arc 2
-  // ...
-  // n - 1: Complete 360 circle formed
+  // animProgress in [0 .. n - 1] (can be animated to any step)
   const [animProgress, setAnimProgress] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [targetStep, setTargetStep] = useState(0);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
 
   const animRef = useRef<number | null>(null);
+  const currProgRef = useRef<number>(0);
+  currProgRef.current = animProgress;
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 
@@ -86,70 +84,108 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
     return { x: CX + R * Math.cos(angle), y: CY + R * Math.sin(angle) };
   });
 
+  const totalSteps = n - 1;
   const eachExteriorAngle = 360 / n;
   const sweepAngle = (2 * Math.PI) / n;
   const arcR = Math.max(16, Math.min(24, 100 / n));
   const polyName = POLY_NAMES[n] || `${n}-gon`;
 
-  // Start continuous cascading snowball slide animation
-  const startRoll = useCallback(() => {
+  // Animate from current progress to target step
+  const animateToStep = useCallback((target: number, durationPerStep = 600) => {
     if (animRef.current) cancelAnimationFrame(animRef.current);
-    setIsPlaying(true);
-    setAnimProgress(0);
+    const startVal = currProgRef.current;
+    const distance = Math.abs(target - startVal);
+    if (distance < 0.01) {
+      setAnimProgress(target);
+      setTargetStep(target);
+      return;
+    }
 
-    const totalSteps = n - 1;
-    const totalDuration = totalSteps * 900;
+    const duration = Math.max(400, distance * durationPerStep);
     const startTime = performance.now();
 
     const frame = (now: number) => {
       const elapsed = now - startTime;
-      const t = Math.min(1, elapsed / totalDuration);
-      setAnimProgress(t * totalSteps);
+      const t = Math.min(1, elapsed / duration);
+      // Smooth cubic in-out ease
+      const ease = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+      const current = startVal + (target - startVal) * ease;
+      setAnimProgress(current);
 
       if (t < 1) {
         animRef.current = requestAnimationFrame(frame);
       } else {
-        setAnimProgress(totalSteps);
-        setIsPlaying(false);
+        setAnimProgress(target);
+        setTargetStep(target);
+        setIsAutoPlaying(false);
       }
     };
     animRef.current = requestAnimationFrame(frame);
+  }, []);
+
+  // When shape changes, reset to 0
+  useEffect(() => {
+    if (animRef.current) cancelAnimationFrame(animRef.current);
+    setAnimProgress(0);
+    setTargetStep(0);
+    setIsAutoPlaying(false);
   }, [n]);
 
-  // When shape changes, reset and auto-play
-  useEffect(() => {
-    startRoll();
-    return () => {
-      if (animRef.current) cancelAnimationFrame(animRef.current);
-    };
-  }, [n, startRoll]);
+  // Stepping actions
+  const stepForward = () => {
+    if (targetStep < totalSteps) {
+      const next = targetStep + 1;
+      setTargetStep(next);
+      animateToStep(next);
+    }
+  };
 
-  // Current step calculation
-  const totalSteps = n - 1;
+  const stepBackward = () => {
+    if (targetStep > 0) {
+      const prev = targetStep - 1;
+      setTargetStep(prev);
+      animateToStep(prev);
+    }
+  };
+
+  const handleReset = () => {
+    setTargetStep(0);
+    animateToStep(0);
+  };
+
+  const handlePlayAll = () => {
+    setIsAutoPlaying(true);
+    setAnimProgress(0);
+    setTargetStep(totalSteps);
+    animateToStep(totalSteps, 850);
+  };
+
+  // User taps on a specific vertex:
+  // Vertex index (k + 1) % n corresponds to step k (for k in 0..n-1)
+  const handleVertexClick = (vIndex: number) => {
+    // Map vertex index to step:
+    // vIndex 1 -> step 0
+    // vIndex 2 -> step 1
+    // ...
+    // vIndex 0 -> step n - 1 (or 0)
+    let destStep = vIndex === 0 ? totalSteps : vIndex - 1;
+    if (destStep > totalSteps) destStep = totalSteps;
+    setTargetStep(destStep);
+    animateToStep(destStep);
+  };
+
+  // Current position of moving cluster along polygon edges
   const currentLeg = Math.min(totalSteps - 1, Math.max(0, Math.floor(animProgress)));
-  const rawSubT = Math.max(0, Math.min(1, animProgress - currentLeg));
-  
-  // Timing within each step: 0 -> 0.78 glides along edge, 0.78 -> 1.0 dwells at destination vertex
-  const travelT = Math.min(1, rawSubT / 0.78);
-  const easeT = travelT < 0.5 ? 4 * travelT * travelT * travelT : 1 - Math.pow(-2 * travelT + 2, 3) / 2;
+  const subT = Math.max(0, Math.min(1, animProgress - currentLeg));
 
-  // The moving cluster starts at V_{currentLeg + 1} and travels to V_{currentLeg + 2}
   const fromV = vertices[(currentLeg + 1) % n] || vertices[0];
   const toV = vertices[(currentLeg + 2) % n] || vertices[0];
 
-  const clusterX = fromV.x + (toV.x - fromV.x) * easeT;
-  const clusterY = fromV.y + (toV.y - fromV.y) * easeT;
+  const clusterX = fromV.x + (toV.x - fromV.x) * subT;
+  const clusterY = fromV.y + (toV.y - fromV.y) * subT;
 
   const isComplete = animProgress >= totalSteps;
-  // Sectors in moving cluster: during movement it has 0..currentLeg; upon full arrival dwell it also shows currentLeg + 1
-  const isArrived = rawSubT >= 0.78;
-  const movingSectorsCount = isComplete
-    ? n
-    : isArrived
-    ? Math.min(n, currentLeg + 2)
-    : currentLeg + 1;
-
-  // Degrees accumulated
+  const movingSectorsCount = isComplete ? n : currentLeg + 1 + (subT > 0.95 ? 1 : 0);
   const accumulatedDegrees = Math.min(360, Math.round(movingSectorsCount * eachExteriorAngle));
 
   return (
@@ -157,8 +193,7 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
       <svg
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
         style={{ maxHeight: 165 }}
-        className="w-full max-w-[360px] touch-none select-none overflow-visible cursor-pointer"
-        onClick={startRoll}
+        className="w-full max-w-[360px] touch-none select-none overflow-visible"
       >
         {/* Base Outer Polygon */}
         <polygon
@@ -193,7 +228,6 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
 
         {/* Stationary Waiting Arcs (at vertices that haven't been picked up yet) */}
         {vertices.map((v, i) => {
-          // Arc i is waiting at its vertex until absorbed into movingSectorsCount
           const isWaiting = i >= movingSectorsCount && !isComplete;
           if (!isWaiting) return null;
 
@@ -210,7 +244,7 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
           );
         })}
 
-        {/* The Traveling / Cascading Arc Cluster Snowball */}
+        {/* The Traveling / Cascading Arc Cluster */}
         <g style={{ filter: "drop-shadow(0px 2px 5px rgba(216, 180, 254, 0.8))" }}>
           {Array.from({ length: movingSectorsCount }, (_, i) => {
             const heading = Math.atan2(vertices[(i + 1) % n].y - vertices[i].y, vertices[(i + 1) % n].x - vertices[i].x);
@@ -226,10 +260,34 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
           })}
         </g>
 
-        {/* Corner Vertex Dots */}
-        {vertices.map((v, i) => (
-          <circle key={`v-${i}`} cx={v.x} cy={v.y} r={3} fill="#ffffff" />
-        ))}
+        {/* Interactive Clickable Vertex Target Dots */}
+        {vertices.map((v, i) => {
+          // Next target vertex to click
+          const isNextTarget = (i === (targetStep + 2) % n && targetStep < totalSteps) || (targetStep === totalSteps && i === 1);
+
+          return (
+            <g key={`v-${i}`} className="cursor-pointer" onClick={() => handleVertexClick(i)}>
+              {/* Invisible large touch target */}
+              <circle cx={v.x} cy={v.y} r={18} fill="transparent" />
+
+              {/* Target Guide Ring on Next Reachable Vertex */}
+              {isNextTarget && (
+                <circle
+                  cx={v.x}
+                  cy={v.y}
+                  r={8}
+                  fill="none"
+                  stroke={COLOR_GOLD}
+                  strokeWidth={1.5}
+                  strokeDasharray="3 2"
+                  opacity={0.9}
+                />
+              )}
+
+              <circle cx={v.x} cy={v.y} r={3.5} fill={isNextTarget ? COLOR_GOLD : "#ffffff"} />
+            </g>
+          );
+        })}
       </svg>
 
       {/* Row 1: Number of Sides Stepper */}
@@ -255,29 +313,52 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
         </button>
       </div>
 
-      {/* Row 2: Replay Action Button */}
-      <div className="flex items-center gap-2">
-        <button
-          onClick={startRoll}
-          className="px-4 py-1 rounded-full text-xs font-bold transition-all border bg-white/15 hover:bg-white/25 text-white border-white/30 shadow-sm backdrop-blur-md active:scale-95 select-none flex items-center gap-1.5 cursor-pointer"
-        >
-          {isPlaying ? (
-            <>
-              <RotateCcw className="w-3.5 h-3.5 stroke-[2.5]" />
-              Combining exterior angles...
-            </>
-          ) : isComplete ? (
-            <>
-              <RotateCcw className="w-3.5 h-3.5 stroke-[2.5]" />
-              Replay combination (360°)
-            </>
-          ) : (
-            <>
-              <Play className="w-3.5 h-3.5 fill-white" />
-              Combine angles around perimeter
-            </>
-          )}
-        </button>
+      {/* Row 2: Step-by-Step Back / Forward Controls */}
+      <div className="flex items-center gap-2 bg-black/35 backdrop-blur-md px-3 py-1 rounded-full border border-white/20 shadow-sm text-xs sm:text-sm select-none">
+        {targetStep > 0 && (
+          <button
+            onClick={stepBackward}
+            className="px-2.5 py-0.5 rounded-full font-bold text-xs bg-white/10 hover:bg-white/20 active:scale-95 text-white transition-all cursor-pointer"
+          >
+            ◀ Back
+          </button>
+        )}
+
+        <span className="text-white/90 font-medium px-1 text-xs sm:text-sm whitespace-nowrap">
+          {targetStep === 0
+            ? "1 angle (tap next vertex)"
+            : isComplete
+            ? `Full circle complete (360°)`
+            : `${movingSectorsCount} angles combined`}
+        </span>
+
+        {!isComplete ? (
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={stepForward}
+              className="px-2.5 py-0.5 rounded-full font-bold text-xs bg-amber-400/30 hover:bg-amber-400/40 text-amber-200 border border-amber-300/40 active:scale-95 transition-all cursor-pointer flex items-center gap-1"
+            >
+              Next ➔
+            </button>
+            <button
+              onClick={handlePlayAll}
+              className="p-1 rounded-full bg-white/10 hover:bg-white/20 text-white active:scale-95 transition-all cursor-pointer"
+              title="Auto-combine all angles"
+              aria-label="Auto-combine all angles"
+            >
+              <Play className="w-3 h-3 fill-white" />
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={handleReset}
+            className="px-2.5 py-0.5 rounded-full font-bold text-xs bg-white/15 hover:bg-white/25 text-white active:scale-95 transition-all cursor-pointer flex items-center gap-1"
+            title="Reset to start"
+          >
+            <RotateCcw className="w-3 h-3 stroke-[2.5]" />
+            Reset
+          </button>
+        )}
       </div>
 
       {/* Live Synchronized Equation Banner */}
