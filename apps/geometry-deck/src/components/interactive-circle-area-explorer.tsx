@@ -455,146 +455,85 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
         )}
       </svg>
 
-      {/* Row 1: Step Pills */}
-      <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
-        <button
-          onClick={() => {
-            setIsPlaying(false);
-            setStep(1);
-          }}
-          className={cn(
-            "px-3 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
-            step === 1 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
-          )}
-        >
-          1. Circle
-        </button>
-        <button
-          onClick={() => {
-            setIsPlaying(false);
-            setStep(2);
-          }}
-          className={cn(
-            "px-3 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
-            step === 2 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
-          )}
-        >
-          2. Unroll
-        </button>
-        <button
-          onClick={() => {
-            setIsPlaying(false);
-            setStep(3);
-          }}
-          className={cn(
-            "px-3 py-1 rounded-full text-xs font-headline font-bold transition-all border-none",
-            step === 3 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
-          )}
-        >
-          3. Combine
-        </button>
-      </div>
-
-      {/* Row 2: Settings Controls (Stacked labels on mobile, inline on desktop) */}
-      {isCompact ? (
-        <div className="flex items-end gap-3 select-none justify-center">
-          {/* Radius Stepper with stacked label */}
-          <div className="flex flex-col items-center gap-0.5">
-            <span className="text-[11px] font-medium text-white/75">Radius:</span>
-            <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm">
-              <button
-                onClick={() => changeRadius(-1)}
-                disabled={radiusUnits <= MIN_RADIUS}
-                className={cn(
-                  "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
-                  radiusUnits <= MIN_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
-                )}
-                aria-label="Decrease radius"
-              >
-                <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
-              </button>
-
-              <span
-                style={{ color: COLOR_RADIUS }}
-                className="px-1 text-sm font-headline font-black tracking-wide min-w-[18px] text-center"
-              >
-                {radiusUnits}
-              </span>
-
-              <button
-                onClick={() => changeRadius(1)}
-                disabled={radiusUnits >= MAX_RADIUS}
-                className={cn(
-                  "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
-                  radiusUnits >= MAX_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
-                )}
-                aria-label="Increase radius"
-              >
-                <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-              </button>
-            </div>
-          </div>
-
-          {/* Slices Selector with stacked label */}
-          <div className="flex flex-col items-center gap-0.5">
-            <span className="text-[11px] font-medium text-white/75">Slices:</span>
-            <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm">
-              {([4, 8, 16, 32, 64] as const).map((cnt) => (
-                <button
-                  key={cnt}
-                  onClick={() => {
-                    setIsPlaying(false);
-                    setSectorCount(cnt);
-                  }}
-                  className={cn(
-                    "px-2 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
-                    sectorCount === cnt ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/65 hover:text-white"
-                  )}
-                >
-                  {cnt}
-                </button>
-              ))}
-            </div>
-          </div>
+      {/* Streamlined Controls Row (Single line, contextual slices) */}
+      <div className="flex flex-wrap items-center justify-center gap-2 select-none">
+        {/* Step Tabs */}
+        <div className="flex items-center gap-0.5 bg-white/10 backdrop-blur-md p-0.5 rounded-full border border-white/20 shadow-sm">
+          <button
+            onClick={() => {
+              setIsPlaying(false);
+              setStep(1);
+            }}
+            className={cn(
+              "px-3 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
+              step === 1 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
+            )}
+          >
+            1. Circle
+          </button>
+          <button
+            onClick={() => {
+              setIsPlaying(false);
+              setStep(2);
+            }}
+            className={cn(
+              "px-3 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
+              step === 2 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
+            )}
+          >
+            2. Unroll
+          </button>
+          <button
+            onClick={() => {
+              setIsPlaying(false);
+              setStep(3);
+            }}
+            className={cn(
+              "px-3 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
+              step === 3 ? "bg-white/25 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white"
+            )}
+          >
+            3. Combine
+          </button>
         </div>
-      ) : (
-        <div className="flex items-center gap-3 select-none justify-center">
-          {/* Radius Stepper with inline r = N label */}
-          <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
-            <button
-              onClick={() => changeRadius(-1)}
-              disabled={radiusUnits <= MIN_RADIUS}
-              className={cn(
-                "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
-                radiusUnits <= MIN_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
-              )}
-              aria-label="Decrease radius"
-            >
-              <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
-            </button>
 
-            <span
-              style={{ color: COLOR_RADIUS }}
-              className="px-1 text-xs font-headline font-black tracking-wide min-w-[34px] text-center"
-            >
-              r = {radiusUnits}
-            </span>
+        {/* Radius Stepper */}
+        <div className="flex items-center gap-1.5 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/20 shadow-sm">
+          <button
+            onClick={() => changeRadius(-1)}
+            disabled={radiusUnits <= MIN_RADIUS}
+            className={cn(
+              "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+              radiusUnits <= MIN_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
+            )}
+            aria-label="Decrease radius"
+          >
+            <Minus className="w-3.5 h-3.5 stroke-[2.5]" />
+          </button>
 
-            <button
-              onClick={() => changeRadius(1)}
-              disabled={radiusUnits >= MAX_RADIUS}
-              className={cn(
-                "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
-                radiusUnits >= MAX_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
-              )}
-              aria-label="Increase radius"
-            >
-              <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
-            </button>
-          </div>
+          <span
+            style={{ color: COLOR_RADIUS }}
+            className="px-1 text-xs font-headline font-black tracking-wide min-w-[34px] text-center"
+          >
+            r = {radiusUnits}
+          </span>
 
-          {/* Slices Selector with inline Slices: label */}
-          <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm">
+          <button
+            onClick={() => changeRadius(1)}
+            disabled={radiusUnits >= MAX_RADIUS}
+            className={cn(
+              "w-5 h-5 flex items-center justify-center rounded-full text-white/90 transition-all border-none bg-transparent active:scale-95",
+              radiusUnits >= MAX_RADIUS ? "opacity-30 cursor-not-allowed" : "hover:bg-white/20 cursor-pointer"
+            )}
+            aria-label="Increase radius"
+          >
+            <Plus className="w-3.5 h-3.5 stroke-[2.5]" />
+          </button>
+        </div>
+
+        {/* Slices Selector (Relevant for Step 2 Unroll and Step 3 Combine) */}
+        {step > 1 && (
+          <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/20 shadow-sm">
             <span className="text-xs text-white/70 font-bold px-0.5">Slices:</span>
             {([4, 8, 16, 32, 64] as const).map((cnt) => (
               <button
@@ -612,8 +551,8 @@ export function InteractiveCircleAreaExplorer({ color }: InteractiveCircleAreaPr
               </button>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Live Typographic Equation Banner */}
       <div className="flex justify-center mt-0.5">
