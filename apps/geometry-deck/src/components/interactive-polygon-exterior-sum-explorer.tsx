@@ -81,15 +81,15 @@ export function InteractivePolygonExteriorSumExplorer({ color }: InteractivePoly
   }, [n, startWalk]);
 
   // Compute current position and orientation of the walking arrow
-  const currentLeg = Math.min(n - 1, Math.floor(walkProgress));
-  const legProgress = walkProgress - currentLeg;
+  const currentLeg = Math.max(0, Math.min(n - 1, Math.floor(walkProgress || 0)));
+  const legProgress = Math.max(0, Math.min(1, (walkProgress || 0) - currentLeg));
 
-  const fromV = vertices[currentLeg];
-  const toV = vertices[(currentLeg + 1) % n];
+  const fromV = vertices[currentLeg] || vertices[0] || { x: CX, y: CY };
+  const toV = vertices[(currentLeg + 1) % n] || vertices[0] || { x: CX, y: CY };
+  const nextToV = vertices[(currentLeg + 2) % n] || vertices[0] || { x: CX, y: CY };
 
   // Headings
   const currentHeading = Math.atan2(toV.y - fromV.y, toV.x - fromV.x);
-  const nextToV = vertices[(currentLeg + 2) % n];
   const nextHeading = Math.atan2(nextToV.y - toV.y, nextToV.x - toV.x);
 
   let arrowX = toV.x;
