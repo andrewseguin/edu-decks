@@ -161,7 +161,7 @@ export function InteractiveRegularPolygonExplorer({ mode = "regular", color }: I
           −
         </button>
         <div className="flex items-center px-2 py-0.5 text-xs sm:text-sm font-headline font-bold text-white">
-          {POLYGON_NAMES[n]} (n = {n} sides)
+          {POLYGON_NAMES[n]} ({n} sides)
         </div>
         <button
           onClick={() => setN((prev) => Math.min(8, prev + 1))}

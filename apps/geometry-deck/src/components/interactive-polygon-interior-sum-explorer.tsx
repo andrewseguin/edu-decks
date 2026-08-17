@@ -29,7 +29,7 @@ const TRI_COLORS = [
 ];
 
 const COLOR_GOLD = "#ffd45e";
-const COLOR_CYAN = "#5ee8ff";
+const COLOR_LILAC = "#d8b4fe";
 const COLOR_WHITE = "#ffffff";
 
 export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePolygonInteriorSumProps) {
@@ -93,7 +93,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
           };
           return (
             <g key={i}>
-              <path d={pathD} fill={TRI_COLORS[i % TRI_COLORS.length]} stroke={COLOR_CYAN} strokeWidth={1.5} strokeDasharray="3 2" />
+              <path d={pathD} fill={TRI_COLORS[i % TRI_COLORS.length]} stroke={COLOR_LILAC} strokeWidth={1.5} strokeDasharray="3 2" />
               <text
                 x={triCenter.x}
                 y={triCenter.y}
@@ -135,6 +135,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
           }}
           disabled={n <= 3}
           className="w-6 h-6 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95"
+          aria-label="Decrease sides"
         >
           −
         </button>
@@ -148,6 +149,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
           }}
           disabled={n >= 8}
           className="w-6 h-6 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95"
+          aria-label="Increase sides"
         >
           +
         </button>
@@ -162,7 +164,7 @@ export function InteractivePolygonInteriorSumExplorer({ color }: InteractivePoly
           <span style={{ color: COLOR_GOLD }}>{n}</span>
           <span className="text-white/80">− 2) · 180°</span>
           <span className="text-white/50">=</span>
-          <span style={{ color: COLOR_CYAN }}>{numTriangles} · 180°</span>
+          <span style={{ color: COLOR_LILAC }}>{numTriangles} · 180°</span>
           <span className="text-white/50">=</span>
           <span style={{ color: COLOR_WHITE }} className="font-bold">{totalSum}°</span>
         </div>
