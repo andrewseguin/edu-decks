@@ -521,12 +521,12 @@ export function InteractivePiExplorer({ color }: InteractivePiProps) {
       </svg>
 
       {/* Scrubbable Checkpoint Slider Control Bar */}
-      <div className="w-full max-w-[460px] px-3 flex flex-col gap-1 select-none">
-        <div className="flex items-start gap-3">
+      <div className="w-full max-w-[480px] px-4 flex flex-col gap-1 select-none">
+        <div className="flex items-center gap-4 sm:gap-5">
           {/* Play / Pause / Replay Action Button */}
           <button
             onClick={togglePlay}
-            className="flex items-center justify-center w-8 h-8 mt-[-1px] rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/30 shadow-sm backdrop-blur-md active:scale-95 shrink-0"
+            className="flex items-center justify-center w-8 h-8 rounded-full text-xs font-bold transition-all border bg-white/10 hover:bg-white/20 text-white/90 border-white/25 shadow-sm backdrop-blur-md active:scale-95 shrink-0"
             aria-label={isPlaying ? "Pause animation" : "Play animation"}
           >
             {isPlaying ? (
@@ -546,8 +546,8 @@ export function InteractivePiExplorer({ color }: InteractivePiProps) {
               onPointerDown={handleSliderPointerDown}
               className="relative w-full h-7 flex items-center cursor-pointer group"
             >
-              {/* Seamless 4-segment filled track */}
-              <div className="w-full h-2 rounded-full bg-black/50 border border-white/20 overflow-hidden relative flex">
+              {/* Seamless 4-segment filled track (Frosted glass groove) */}
+              <div className="w-full h-2 rounded-full bg-white/15 border border-white/25 shadow-inner overflow-hidden relative flex backdrop-blur-sm">
                 {/* 1st Quarter: 0 -> 1d (Gold) */}
                 <div className="w-1/4 h-full relative">
                   <div
@@ -616,9 +616,9 @@ export function InteractivePiExplorer({ color }: InteractivePiProps) {
                           ? "scale-125 border-white bg-white shadow-md ring-2 ring-white/50"
                           : isPassed
                           ? "border-white/90 bg-white/90"
-                          : "border-white/40 bg-black/60 hover:scale-110"
+                          : "border-white/50 bg-white/20 backdrop-blur-sm hover:scale-110"
                       )}
-                      style={{ borderColor: isPassed ? cp.color : "rgba(255, 255, 255, 0.4)" }}
+                      style={{ borderColor: isPassed ? cp.color : undefined }}
                     >
                       <div
                         className="w-1.5 h-1.5 rounded-full"
@@ -643,7 +643,7 @@ export function InteractivePiExplorer({ color }: InteractivePiProps) {
             </div>
 
             {/* Checkpoint Labels Row (nested inside slider column for 1:1 alignment with dots) */}
-            <div className="relative w-full h-4 mt-0.5">
+            <div className="relative w-full h-4 mt-1">
               {CHECKPOINTS.map((cp, idx) => {
                 const cpPct = (cp.val / 4.0) * 100;
                 const isCurrent = Math.abs(progress - cp.val) < 0.20;
@@ -656,7 +656,7 @@ export function InteractivePiExplorer({ color }: InteractivePiProps) {
                     onClick={() => jumpToCheckpoint(cp.val)}
                     className={cn(
                       "absolute top-0 text-xs font-headline font-bold transition-all border-none bg-transparent cursor-pointer whitespace-nowrap",
-                      isCurrent ? "font-bold" : "text-white/70 hover:text-white",
+                      isCurrent ? "font-bold" : "text-white/80 hover:text-white",
                       isFirst ? "translate-x-0" : isLast ? "-translate-x-full" : "-translate-x-1/2"
                     )}
                     style={{
