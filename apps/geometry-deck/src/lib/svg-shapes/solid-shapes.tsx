@@ -7,7 +7,8 @@ import {
   SvgLabel,
 } from "./svg-primitives";
 
-const COLOR_CYAN = "#5ee8ff";    // Electric Cyan (length l, width w, radius r, base)
+const COLOR_CYAN = "#5ee8ff";    // Electric Cyan (length l, radius r, base)
+const COLOR_LILAC = "#d8b4fe";   // Soft Lilac (width w)
 const COLOR_GOLD = "#ffd45e";    // Warm Gold (height h, edges E)
 const COLOR_WHITE = "#ffffff";   // Crisp White (vertices V, volume, surface area)
 
@@ -162,7 +163,7 @@ export function Prism({ dims, mutation }: { dims: Record<string, number | string
       )}
       {/* Width w (depth) */}
       {dims.w !== undefined && (
-        <SvgLabel x={fr.x + dxD / 2 + 14} y={fr.y + dyD / 2 + 8} text={lm === "variable" ? "w" : `${dims.w}`} color={COLOR_CYAN} size={13} />
+        <SvgLabel x={fr.x + dxD / 2 + 14} y={fr.y + dyD / 2 + 8} text={lm === "variable" ? "w" : `${dims.w}`} color={COLOR_LILAC} size={13} />
       )}
       {/* Height h (vertical left) */}
       {dims.h !== undefined && (
@@ -350,3 +351,78 @@ export function Sphere({ dims, mutation }: { dims: Record<string, number | strin
     </svg>
   );
 }
+
+/** Square Pyramid */
+export function Pyramid({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
+  const lm = (dims.labelMode as string) ?? "numeric";
+  const unknownDim = (dims.unknown as string | undefined) ?? (dims.unknownDimension as string | undefined);
+  const revealedAnswer = mutation?.revealAnswer;
+  const filled = mutation?.fillInterior;
+
+  const W = 90, H = 80, D = 46;
+  const ox = 60, oy = 135;
+  const cos30 = Math.cos(Math.PI / 6), sin30 = Math.sin(Math.PI / 6);
+  const dxD = (D / 2) * cos30, dyD = -(D / 2) * sin30;
+
+  const fl = { x: ox, y: oy };
+  const fr = { x: ox + W, y: oy };
+  const bl = { x: ox + dxD, y: oy + dyD };
+  const br = { x: ox + W + dxD, y: oy + dyD };
+  const baseMid = { x: (fl.x + fr.x + bl.x + br.x) / 4, y: (fl.y + fr.y + bl.y + br.y) / 4 };
+  const apex = { x: baseMid.x, y: baseMid.y - H };
+
+  return (
+    <svg viewBox="0 0 240 170" className="w-full h-full select-none" aria-hidden>
+      {/* Hidden back edges */}
+      <line x1={bl.x} y1={bl.y} x2={apex.x} y2={apex.y} stroke="rgba(255,255,255,0.35)" strokeWidth={1.5} strokeDasharray="4 3" />
+      <line x1={bl.x} y1={bl.y} x2={fl.x} y2={fl.y} stroke="rgba(255,255,255,0.35)" strokeWidth={1.5} strokeDasharray="4 3" />
+      <line x1={bl.x} y1={bl.y} x2={br.x} y2={br.y} stroke="rgba(255,255,255,0.35)" strokeWidth={1.5} strokeDasharray="4 3" />
+
+      {/* Base polygon fill */}
+      <polygon points={`${fl.x},${fl.y} ${fr.x},${fr.y} ${br.x},${br.y} ${bl.x},${bl.y}`} fill="rgba(255,255,255,0.06)" />
+
+      {/* Front Face */}
+      <polygon
+        points={`${apex.x},${apex.y} ${fl.x},${fl.y} ${fr.x},${fr.y}`}
+        fill={filled ? FILL_COLOR : "rgba(255,255,255,0.18)"}
+        stroke={WHITE90}
+        strokeWidth={STROKE_W}
+        strokeLinejoin="round"
+      />
+      {/* Right Face */}
+      <polygon
+        points={`${apex.x},${apex.y} ${fr.x},${fr.y} ${br.x},${br.y}`}
+        fill="rgba(255,255,255,0.10)"
+        stroke={WHITE90}
+        strokeWidth={STROKE_W}
+        strokeLinejoin="round"
+      />
+
+      {/* Height line inside from apex to base center */}
+      <line x1={apex.x} y1={apex.y} x2={baseMid.x} y2={baseMid.y} stroke={COLOR_GOLD} strokeWidth={1.5} strokeDasharray="3 2" />
+      <circle cx={baseMid.x} cy={baseMid.y} r={2.5} fill={COLOR_GOLD} />
+
+      {/* Vertices */}
+      {[fl, fr, br, apex].map((v, i) => (
+        <circle key={i} cx={v.x} cy={v.y} r={3} fill="#ffffff" />
+      ))}
+
+      {/* Dimension Labels */}
+      {dims.b !== undefined && (
+        <SvgLabel x={(fl.x + fr.x) / 2} y={fl.y + 14} text={lm === "variable" ? "b" : `${dims.b}`} color={COLOR_CYAN} size={13} />
+      )}
+      {dims.B !== undefined && (
+        <SvgLabel x={(fl.x + fr.x) / 2} y={fl.y + 14} text={lm === "variable" ? "B" : `B = ${dims.B}`} color={COLOR_CYAN} size={13} />
+      )}
+      {dims.h !== undefined && (
+        <SvgLabel x={apex.x - 14} y={(apex.y + baseMid.y) / 2} text={lm === "variable" ? "h" : `${dims.h}`} color={COLOR_GOLD} size={13} />
+      )}
+
+      {/* Volume Unknown RevealText */}
+      {unknownDim === "V" && (
+        <RevealText x={apex.x + 18} y={(apex.y + baseMid.y) / 2 + 8} variable="V" revealedValue={revealedAnswer} color={COLOR_WHITE} fontSize={18} fontWeight="900" />
+      )}
+    </svg>
+  );
+}
+

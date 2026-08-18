@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
 
 type InteractivePrismVolumeProps = {
@@ -9,8 +9,8 @@ type InteractivePrismVolumeProps = {
 
 const SVG_H = 155;
 
-const COLOR_LEN = "#5ee8ff";   // Electric Cyan (l, w)
-const COLOR_WIDTH = "#5ee8ff"; // Electric Cyan
+const COLOR_LEN = "#5ee8ff";   // Electric Cyan (l)
+const COLOR_WIDTH = "#d8b4fe"; // Soft Lilac (w)
 const COLOR_HEIGHT = "#ffd45e";// Warm Gold (h)
 const COLOR_VOL = "#ffffff";   // Bold Crisp White
 
@@ -23,6 +23,10 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
   const w = 3; // width
   const maxLayers = 4;
   const [activeLayers, setActiveLayers] = useState(3);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const startYRef = useRef<number>(0);
+  const startLayersRef = useRef<number>(activeLayers);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 
@@ -47,6 +51,33 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
   const br = { x: ox + W + dxD, y: oy + dyD };
   const btl = { x: ox + dxD, y: oy - H + dyD };
   const btr = { x: ox + W + dxD, y: oy - H + dyD };
+
+  // Center of top face for drag handle
+  const topMid = { x: (ftl.x + ftr.x + btr.x + btl.x) / 4, y: (ftl.y + ftr.y + btr.y + btl.y) / 4 };
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    e.stopPropagation();
+    setIsDragging(true);
+    startYRef.current = e.clientY;
+    startLayersRef.current = activeLayers;
+    (e.target as Element).setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+    const dy = startYRef.current - e.clientY; // upward drag increases height
+    const deltaLayers = Math.round(dy / (unitPx * 1.15));
+    const nextLayers = Math.max(1, Math.min(maxLayers, startLayersRef.current + deltaLayers));
+    setActiveLayers(nextLayers);
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    try {
+      (e.target as Element).releasePointerCapture(e.pointerId);
+    } catch {}
+  };
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
@@ -92,6 +123,19 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
             </g>
           );
         })}
+
+        {/* Top Face Drag Handle */}
+        <g
+          className="cursor-ns-resize"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+        >
+          <circle cx={topMid.x} cy={topMid.y} r={14} fill="transparent" />
+          <circle cx={topMid.x} cy={topMid.y} r={6} fill="rgba(255, 212, 94, 0.35)" stroke={COLOR_HEIGHT} strokeWidth={1.5} />
+          <circle cx={topMid.x} cy={topMid.y} r={2.5} fill="#ffffff" />
+        </g>
 
         {/* Dimension Labels */}
         {/* Length (l) */}

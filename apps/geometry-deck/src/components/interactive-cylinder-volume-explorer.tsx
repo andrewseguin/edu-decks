@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
 
 type InteractiveCylinderVolumeProps = {
@@ -24,6 +24,10 @@ export function InteractiveCylinderVolumeExplorer({ color }: InteractiveCylinder
   const r = 3; // radius units
   const maxDisks = 4;
   const [h, setH] = useState(4); // height/disks [1..4]
+  const [isDragging, setIsDragging] = useState(false);
+
+  const startYRef = useRef<number>(0);
+  const startHRef = useRef<number>(h);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 
@@ -33,6 +37,30 @@ export function InteractiveCylinderVolumeExplorer({ color }: InteractiveCylinder
   const diskH = 18;
   const currentTotalH = h * diskH;
   const topCY = BOT_CY - currentTotalH;
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    e.stopPropagation();
+    setIsDragging(true);
+    startYRef.current = e.clientY;
+    startHRef.current = h;
+    (e.target as Element).setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+    const dy = startYRef.current - e.clientY;
+    const deltaH = Math.round(dy / diskH);
+    const nextH = Math.max(1, Math.min(maxDisks, startHRef.current + deltaH));
+    setH(nextH);
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    try {
+      (e.target as Element).releasePointerCapture(e.pointerId);
+    } catch {}
+  };
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
@@ -94,6 +122,19 @@ export function InteractiveCylinderVolumeExplorer({ color }: InteractiveCylinder
         <line x1={CX} y1={topCY} x2={CX + RX} y2={topCY} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
         <circle cx={CX} cy={topCY} r={3} fill="#ffffff" />
         <circle cx={CX + RX} cy={topCY} r={3} fill={COLOR_RADIUS} />
+
+        {/* Top Drag Handle */}
+        <g
+          className="cursor-ns-resize"
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+        >
+          <circle cx={CX} cy={topCY - RY} r={14} fill="transparent" />
+          <circle cx={CX} cy={topCY - RY} r={6} fill="rgba(255, 212, 94, 0.35)" stroke={COLOR_HEIGHT} strokeWidth={1.5} />
+          <circle cx={CX} cy={topCY - RY} r={2.5} fill="#ffffff" />
+        </g>
 
         {/* Radius Label */}
         <text

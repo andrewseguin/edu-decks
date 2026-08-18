@@ -157,6 +157,16 @@ export const MATH_GLOSSARY: Record<string, GlossaryEntry> = {
     explanation: "Multiply circular base area (πr²) by the vertical height (h).",
     formula: "V = πr²h",
   },
+  "cylinder surface area": {
+    title: "Cylinder Surface Area Formula",
+    explanation: "Add the areas of the 2 circular bases (2 × πr²) to the unrolled lateral rectangle area (2πr × h).",
+    formula: "SA = 2πr² + 2πrh",
+  },
+  "pyramid volume": {
+    title: "Pyramid Volume Formula",
+    explanation: "The volume of a pyramid is exactly ⅓ the base area (B) times the perpendicular height (h).",
+    formula: "V = ⅓Bh",
+  },
   divide: {
     title: "Divide Both Sides",
     explanation: "Divide both sides of the equation by the same number to isolate the variable.",
@@ -195,7 +205,9 @@ export function lookupGlossary(reason: string): GlossaryEntry | null {
   if (lower.includes("sphere surface area") || lower.includes("surface area of a sphere")) return MATH_GLOSSARY["sphere surface area"];
   if (lower.includes("prism volume") || lower.includes("volume of a prism")) return MATH_GLOSSARY["prism volume"];
   if (lower.includes("cube surface area") || lower.includes("surface area of a cube")) return MATH_GLOSSARY["cube surface area"];
+  if (lower.includes("cylinder surface area") || lower.includes("surface area of a cylinder")) return MATH_GLOSSARY["cylinder surface area"];
   if (lower.includes("cylinder volume") || lower.includes("volume of a cylinder")) return MATH_GLOSSARY["cylinder volume"];
+  if (lower.includes("pyramid volume") || lower.includes("volume of a pyramid") || lower.includes("pyramid")) return MATH_GLOSSARY["pyramid volume"];
   if (lower.includes("euler")) return MATH_GLOSSARY.euler;
   if (lower.includes("divide")) return MATH_GLOSSARY.divide;
   return null;

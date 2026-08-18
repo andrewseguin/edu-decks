@@ -38,9 +38,9 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
         {current.shape === "cube" && (
           <g transform={`translate(${CX - 45}, 20)`}>
             {/* Hidden back edges */}
-            <line x1={25} y1={85} x2={25} y2={15} stroke={COLOR_GOLD} strokeWidth={1.5} strokeDasharray="4 3" />
-            <line x1={25} y1={85} x2={0} y2={105} stroke={COLOR_GOLD} strokeWidth={1.5} strokeDasharray="4 3" />
-            <line x1={25} y1={85} x2={95} y2={85} stroke={COLOR_GOLD} strokeWidth={1.5} strokeDasharray="4 3" />
+            <line x1={25} y1={85} x2={25} y2={15} stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} strokeDasharray="4 3" />
+            <line x1={25} y1={85} x2={0} y2={105} stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} strokeDasharray="4 3" />
+            <line x1={25} y1={85} x2={95} y2={85} stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} strokeDasharray="4 3" />
 
             {/* Front face */}
             <polygon
@@ -98,10 +98,16 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
 
         {current.shape === "octa" && (
           <g transform={`translate(${CX - 50}, 15)`}>
+            {/* Hidden back edges */}
+            <line x1={50} y1={15} x2={25} y2={65} stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} strokeDasharray="4 3" />
+            <line x1={50} y1={115} x2={25} y2={65} stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} strokeDasharray="4 3" />
+            <line x1={0} y1={65} x2={25} y2={65} stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} strokeDasharray="4 3" />
+            <line x1={100} y1={65} x2={25} y2={65} stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} strokeDasharray="4 3" />
+
             <polygon points="50,15 0,65 50,115 100,65" fill="rgba(94,232,255,0.20)" stroke="rgba(255,255,255,0.95)" strokeWidth={2} />
             <line x1={0} y1={65} x2={100} y2={65} stroke="rgba(255,255,255,0.95)" strokeWidth={2} />
             <line x1={50} y1={15} x2={50} y2={115} stroke="rgba(255,255,255,0.95)" strokeWidth={2} />
-            {[{ x: 50, y: 15 }, { x: 0, y: 65 }, { x: 100, y: 65 }, { x: 50, y: 115 }, { x: 35, y: 55 }, { x: 65, y: 75 }].map((v, i) => (
+            {[{ x: 50, y: 15 }, { x: 0, y: 65 }, { x: 100, y: 65 }, { x: 50, y: 115 }, { x: 25, y: 65 }, { x: 75, y: 65 }].map((v, i) => (
               <circle key={i} cx={v.x} cy={v.y} r={3.5} fill={COLOR_WHITE} />
             ))}
           </g>
@@ -109,12 +115,31 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
 
         {current.shape === "prism5" && (
           <g transform={`translate(${CX - 50}, 15)`}>
-            <polygon points="20,35 50,15 80,35 70,70 30,70" fill="rgba(94,232,255,0.28)" stroke="rgba(255,255,255,0.95)" strokeWidth={2} />
-            <polygon points="20,90 50,70 80,90 70,125 30,125" fill="rgba(94,232,255,0.12)" stroke="rgba(255,255,255,0.95)" strokeWidth={2} />
-            <line x1={20} y1={35} x2={20} y2={90} stroke="rgba(255,255,255,0.95)" strokeWidth={2} />
-            <line x1={80} y1={35} x2={80} y2={90} stroke="rgba(255,255,255,0.95)" strokeWidth={2} />
-            <line x1={70} y1={70} x2={70} y2={125} stroke="rgba(255,255,255,0.95)" strokeWidth={2} />
-            <line x1={30} y1={70} x2={30} y2={125} stroke="rgba(255,255,255,0.95)" strokeWidth={2} />
+            {/* Hidden back edge */}
+            <line x1={50} y1={15} x2={50} y2={70} stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} strokeDasharray="4 3" />
+            <line x1={20} y1={90} x2={50} y2={70} stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} strokeDasharray="4 3" />
+            <line x1={80} y1={90} x2={50} y2={70} stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} strokeDasharray="4 3" />
+
+            {/* Top Pentagonal Face */}
+            <polygon points="20,35 50,15 80,35 70,70 30,70" fill="rgba(94,232,255,0.32)" stroke="rgba(255,255,255,0.95)" strokeWidth={2} />
+
+            {/* Front & Side Rectangular Faces */}
+            <polygon points="30,70 70,70 70,125 30,125" fill="rgba(94,232,255,0.22)" stroke="rgba(255,255,255,0.95)" strokeWidth={2} />
+            <polygon points="70,70 80,35 80,90 70,125" fill="rgba(94,232,255,0.12)" stroke="rgba(255,255,255,0.95)" strokeWidth={2} />
+            <polygon points="20,35 30,70 30,125 20,90" fill="rgba(94,232,255,0.16)" stroke="rgba(255,255,255,0.95)" strokeWidth={2} />
+
+            {/* Bottom Front Visible Edges */}
+            <line x1={20} y1={90} x2={30} y2={125} stroke="rgba(255,255,255,0.95)" strokeWidth={2} />
+            <line x1={30} y1={125} x2={70} y2={125} stroke="rgba(255,255,255,0.95)" strokeWidth={2} />
+            <line x1={70} y1={125} x2={80} y2={90} stroke="rgba(255,255,255,0.95)" strokeWidth={2} />
+
+            {/* Vertices (10 total) */}
+            {[
+              { x: 50, y: 15 }, { x: 80, y: 35 }, { x: 70, y: 70 }, { x: 30, y: 70 }, { x: 20, y: 35 },
+              { x: 50, y: 70 }, { x: 80, y: 90 }, { x: 70, y: 125 }, { x: 30, y: 125 }, { x: 20, y: 90 }
+            ].map((v, i) => (
+              <circle key={i} cx={v.x} cy={v.y} r={3.2} fill={COLOR_WHITE} />
+            ))}
           </g>
         )}
       </svg>

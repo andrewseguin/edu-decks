@@ -14,7 +14,7 @@ import { Triangle, RightTriangle } from "./triangle-shapes";
 import { Rectangle, Parallelogram, Trapezoid, Rhombus } from "./quadrilateral-shapes";
 import { Circle } from "./circle-shapes";
 import { Polygon } from "./polygon-shapes";
-import { Prism, Cylinder, Cone, Sphere } from "./solid-shapes";
+import { Prism, Cylinder, Cone, Sphere, Pyramid } from "./solid-shapes";
 
 // ── Re-exports (public API) ─────────────────────────────────────────────────
 export { RightAngleMarker, SvgTriangle, computeRightTriangleVertices } from "./svg-primitives";
@@ -55,6 +55,7 @@ export function renderShapeSvg(descriptor: SvgDescriptor, mutation?: SvgMutation
     case "cylinder":      return <Cylinder dims={dims} />;
     case "cone":          return <Cone dims={dims} />;
     case "sphere":        return <Sphere dims={dims} />;
+    case "pyramid":       return <Pyramid dims={dims} />;
     default:
       return (
         <svg viewBox="0 0 200 180" className="w-full h-full" aria-hidden>

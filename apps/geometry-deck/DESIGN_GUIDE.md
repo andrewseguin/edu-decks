@@ -23,10 +23,11 @@ The geometry deck is built on the principle that **true mathematical understandi
      - **Pythagorean Theorem ($a² + b² = c²$)**: Visualized with actual geometric squares built on each side and animated rearrangement proofs.
      - **Circle Area ($A = \pi r²$)**: Unrolling circular sectors into an equivalent parallelogram of base $\pi r$ and height $r$.
 
-3. **Simplicity Over Clutter (Low Cognitive Load)**:
-   - **Ambient Interactivity on Reveal (Auto-Pulse / Ambient Motion)**: Explorer cards feature gentle ambient motion on initial reveal (e.g. subtle Lissajous orbit, slow rotation, height breathing) to immediately show learners that the diagram is dynamic and interactive. The instant the user touches or drags any handle, the animation cancels permanently, yielding 100% direct control.
+3. **Simplicity Over Clutter (Low Cognitive Load & Clean Typography)**:
+   - **Ambient Interactivity on Reveal (Auto-Pulse / Ambient Motion)**: Explorer cards feature gentle ambient motion on initial reveal (e.g. subtle Lissajous orbit, slow rotation) to immediately show learners that the diagram is dynamic and interactive. The instant the user touches or drags any handle, the animation cancels permanently, yielding 100% direct control.
    - **No Decimal Noise**: Dragging is continuous and smooth in 2D, while displayed numbers ($b, h, A, \text{degrees}$) are cleanly rounded to whole integers so learners focus on conceptual relationships rather than floating-point decimals.
    - **Minimalist Controls**: Use subtle, translucent controls (frosted pills, clear slider tracks) that keep the focus entirely on the geometric figure.
+   - **Strictly No Emojis**: Never use emojis in button labels, shape switchers, steppers, or control pills (e.g. write `Cube`, `Prism`, `Pyramid`, `Cylinder`, `Unfold`, `Fold 3D`, `Pause` — never emoji icons). The aesthetic is clean, textbook-quality math typography.
 
 4. **Instant Algebraic-Visual Feedback**:
    - The live equation at the bottom updates instantaneously as the user drags handles, cementing the direct 1:1 mapping between visual shapes and algebraic formulas.

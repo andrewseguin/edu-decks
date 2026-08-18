@@ -38,7 +38,8 @@ export type SvgShape =
   | "prism"
   | "cylinder"
   | "cone"
-  | "sphere";
+  | "sphere"
+  | "pyramid";
 
 export type SvgDescriptor = {
   shape: SvgShape;

@@ -863,22 +863,22 @@ function make3DTermCards(): GeometryCard[] {
   return [
     {
       id: nextId(), topic: "3d-shapes", cardType: "term", variant: "definition",
-      frontLabel: "A face", frontPrompt: "is…?",
+      frontLabel: "Face", frontPrompt: "is…?",
       frontSpeechText: "A face is…?",
-      backDefinition: "A flat planar 2D surface of a 3D solid",
-      backDefinitionSubtitle: "A cube has 6 identical square faces",
+      backDefinition: "A 2D surface of a 3D solid",
+      backDefinitionSubtitle: "The 2D surfaces that join together to form a 3D shape",
       backSvgExamples: [{ shape: "prism", dimensions: { l: 4, w: 3, h: 2, labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ formulaLine: "Face = flat surface" }, { formulaLine: "A cube has 6 faces" }],
-      backSpeechText: "A face is a flat surface of a 3D shape", color,
+      backSteps: [{ formulaLine: "Face = 2D surface forming the boundary of a 3D solid" }, { formulaLine: "Polyhedra have polygon faces; cylinders and cones have circular faces" }],
+      backSpeechText: "A face is a two-dimensional surface of a three-dimensional shape", color,
     },
     {
       id: nextId(), topic: "3d-shapes", cardType: "term", variant: "definition",
       frontLabel: "An edge", frontPrompt: "is…?",
       frontSpeechText: "An edge is…?",
       backDefinition: "A line segment where two faces meet",
-      backDefinitionSubtitle: "A cube has 12 straight edges",
+      backDefinitionSubtitle: "A rectangular prism has 12 straight edges",
       backSvgExamples: [{ shape: "prism", dimensions: { l: 4, w: 3, h: 2, labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ formulaLine: "Edge = line where 2 faces meet" }, { formulaLine: "A cube has 12 edges" }],
+      backSteps: [{ formulaLine: "Edge = straight line where 2 faces intersect" }, { formulaLine: "A rectangular prism has 12 edges" }],
       backSpeechText: "An edge is where two faces meet", color,
     },
     {
@@ -886,10 +886,10 @@ function make3DTermCards(): GeometryCard[] {
       frontLabel: "A vertex", frontPrompt: "is…?",
       frontSpeechText: "A vertex is…?",
       backDefinition: "A corner point where 3 or more edges meet",
-      backDefinitionSubtitle: "A cube has 8 corner vertices",
-      backSvgExamples: [{ shape: "prism", dimensions: { l: 4, w: 3, h: 2, labelMode: "numeric" }, labelMode: "numeric" }],
-      backSteps: [{ formulaLine: "Vertex = corner where edges meet" }, { formulaLine: "A cube has 8 vertices" }],
-      backSpeechText: "A vertex is a corner point where edges meet", color,
+      backDefinitionSubtitle: "A square pyramid has 5 vertices (1 top apex + 4 base corners)",
+      backSvgExamples: [{ shape: "pyramid", dimensions: { B: "B", h: "h", labelMode: "variable" }, labelMode: "variable" }],
+      backSteps: [{ formulaLine: "Vertex = corner point where 3 or more edges meet" }, { formulaLine: "A square pyramid has 5 vertices (1 apex + 4 base corners)" }],
+      backSpeechText: "A vertex is a corner point where 3 or more edges meet", color,
     },
     {
       id: nextId(), topic: "3d-shapes", cardType: "term", variant: "definition",
@@ -954,13 +954,43 @@ function make3DTermCards(): GeometryCard[] {
       backSteps: [{ formulaLine: "SA = 4 × π × r²" }],
       backSpeechText: "Surface area equals 4 pi r squared", color,
     },
+    {
+      id: nextId(), topic: "3d-shapes", cardType: "term", variant: "definition",
+      frontLabel: "Surface area of a cylinder", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the surface area of a cylinder is…?",
+      backDefinition: "SA = 2πr² + 2πrh",
+      backDefinitionSubtitle: "Surface Area = 2 Bases (2πr²) + Lateral Rectangle (2πrh)",
+      backSvgExamples: [{ shape: "cylinder", dimensions: { r: "r", h: "h", labelMode: "variable" }, labelMode: "variable" }],
+      backSteps: [{ formulaLine: "SA = 2πr² + 2πrh" }],
+      backSpeechText: "Surface area equals 2 pi r squared plus 2 pi r h", color,
+    },
+    {
+      id: nextId(), topic: "3d-shapes", cardType: "term", variant: "definition",
+      frontLabel: "Surface area of a cube", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the surface area of a cube is…?",
+      backDefinition: "SA = 6s²",
+      backDefinitionSubtitle: "Surface Area = 6 · side² (six identical square faces)",
+      backSvgExamples: [{ shape: "prism", dimensions: { s: "s", labelMode: "variable" }, labelMode: "variable" }],
+      backSteps: [{ formulaLine: "SA = 6 × s²" }],
+      backSpeechText: "Surface area equals 6 s squared", color,
+    },
+    {
+      id: nextId(), topic: "3d-shapes", cardType: "term", variant: "definition",
+      frontLabel: "Volume of a pyramid", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the volume of a pyramid is…?",
+      backDefinition: "V = ⅓Bh",
+      backDefinitionSubtitle: "Volume = ⅓ · Base Area · height (⅓ of equivalent prism)",
+      backSvgExamples: [{ shape: "pyramid", dimensions: { B: "B", h: "h", labelMode: "variable" }, labelMode: "variable" }],
+      backSteps: [{ formulaLine: "V = ⅓ × Base Area × height" }],
+      backSpeechText: "Volume equals one third base area times height", color,
+    },
   ];
 }
 
 function make3DCalcCard(settings: GeneratorSettings): GeometryCard {
   const color = TOPIC_COLORS["3d-shapes"];
   const u = uid(settings.measurementUnit);
-  const t = pick(["prism", "cylinder", "euler"] as const);
+  const t = pick(["prism", "cylinder", "cylinder-sa", "cube-sa", "pyramid", "cone", "sphere-vol", "sphere-sa", "euler"] as const);
 
   if (t === "prism") {
     const l = randInt(2, 10), w = randInt(2, 8), h = randInt(2, 8);
@@ -971,8 +1001,8 @@ function make3DCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSvg: { shape: "prism", dimensions: { l, w, h, labelMode: "numeric", unknownDimension: "V" }, labelMode: "numeric" },
       frontSpeechText: `Length is ${l}, width is ${w}, height is ${h}. Find the volume.`,
       backSteps: [
-        { equationTokens: [tok("lhs","V"), eq(), tok("l","l","#5ee8ff"), op("·"), tok("w","w","#5ee8ff"), op("·"), tok("h","h","#ffd45e")], reason: "Rectangular Prism Volume Formula" },
-        { equationTokens: [tok("lhs","V"), eq(), tok("l",`${l}`,"#5ee8ff"), op("·"), tok("w",`${w}`,"#5ee8ff"), op("·"), tok("h",`${h}`,"#ffd45e")], reason: "Substitute known values" },
+        { equationTokens: [tok("lhs","V"), eq(), tok("l","l","#5ee8ff"), op("·"), tok("w","w","#d8b4fe"), op("·"), tok("h","h","#ffd45e")], reason: "Rectangular Prism Volume Formula" },
+        { equationTokens: [tok("lhs","V"), eq(), tok("l",`${l}`,"#5ee8ff"), op("·"), tok("w",`${w}`,"#d8b4fe"), op("·"), tok("h",`${h}`,"#ffd45e")], reason: "Substitute known values" },
         { equationTokens: [tok("lhs","V"), eq(), tok("rhs",`${V}${u}³`)], reason: "Evaluate" },
       ],
       backSpeechText: `V equals ${V}`, numericAnswer: V, color,
@@ -991,6 +1021,109 @@ function make3DCalcCard(settings: GeneratorSettings): GeometryCard {
         { equationTokens: [tok("lhs","V"), eq(), tok("rhs",`${r * r * h}π${u}³`)], reason: "Evaluate" },
       ],
       backSpeechText: `V equals ${r * r * h} pi`, numericAnswer: r * r * h, color,
+    };
+  }
+  if (t === "cylinder-sa") {
+    const r = randInt(2, 5), h = randInt(3, 8);
+    const twoBases = 2 * r * r;
+    const lateral = 2 * r * h;
+    const total = twoBases + lateral;
+    return {
+      id: nextId(), topic: "3d-shapes", cardType: "calculation", variant: "compute",
+      frontPrompt: "Solve for the cylinder surface area",
+      frontSvg: { shape: "cylinder", dimensions: { r, h, labelMode: "numeric", unknownDimension: "SA" }, labelMode: "numeric" },
+      frontSpeechText: `Radius is ${r}, height is ${h}. Find the surface area.`,
+      backSteps: [
+        { equationTokens: [tok("lhs","SA"), eq(), tok("two","2"), op("·"), dim("pi","π·"), tok("r","r²","#5ee8ff"), op("+"), tok("two2","2"), op("·"), dim("pi2","π·"), tok("r2","r","#5ee8ff"), op("·"), tok("h","h","#ffd45e")], reason: "Cylinder Surface Area Formula" },
+        { equationTokens: [tok("lhs","SA"), eq(), tok("two","2"), op("·"), dim("pi","π·"), tok("r",`${r}²`,"#5ee8ff"), op("+"), tok("two2","2"), op("·"), dim("pi2","π·"), tok("r2",`${r}`,"#5ee8ff"), op("·"), tok("h",`${h}`,"#ffd45e")], reason: "Substitute known values" },
+        { equationTokens: [tok("lhs","SA"), eq(), tok("b",`${twoBases}π`,"#5ee8ff"), op("+"), tok("l",`${lateral}π`,"#d8b4fe"), eq(), tok("rhs",`${total}π${u}²`)], reason: "Evaluate" },
+      ],
+      backSpeechText: `Surface area equals ${total} pi`, numericAnswer: total, color,
+    };
+  }
+  if (t === "cube-sa") {
+    const s = randInt(2, 6);
+    const sa = 6 * s * s;
+    return {
+      id: nextId(), topic: "3d-shapes", cardType: "calculation", variant: "compute",
+      frontPrompt: "Solve for the cube surface area",
+      frontSvg: { shape: "prism", dimensions: { s, labelMode: "numeric", unknownDimension: "SA" }, labelMode: "numeric" },
+      frontSpeechText: `Side is ${s}. Find the cube surface area.`,
+      backSteps: [
+        { equationTokens: [tok("lhs","SA"), eq(), tok("six","6"), op("·"), tok("s","s²","#5ee8ff")], reason: "Cube Surface Area Formula" },
+        { equationTokens: [tok("lhs","SA"), eq(), tok("six","6"), op("·"), tok("s",`${s}²`,"#5ee8ff")], reason: "Substitute known values" },
+        { equationTokens: [tok("lhs","SA"), eq(), tok("rhs",`${sa}${u}²`)], reason: "Evaluate" },
+      ],
+      backSpeechText: `Surface area equals ${sa}`, numericAnswer: sa, color,
+    };
+  }
+  if (t === "pyramid") {
+    const b = randInt(2, 6);
+    const B = b * b;
+    const h = randInt(1, 4) * 3;
+    const vol = (B * h) / 3;
+    return {
+      id: nextId(), topic: "3d-shapes", cardType: "calculation", variant: "compute",
+      frontPrompt: "Solve for the pyramid volume",
+      frontSvg: { shape: "pyramid", dimensions: { B, h, labelMode: "numeric", unknownDimension: "V" }, labelMode: "numeric" },
+      frontSpeechText: `Base area is ${B}, height is ${h}. Find the volume.`,
+      backSteps: [
+        { equationTokens: [tok("lhs","V"), eq(), dim("third","⅓·"), tok("B","B","#5ee8ff"), op("·"), tok("h","h","#ffd45e")], reason: "Pyramid Volume Formula" },
+        { equationTokens: [tok("lhs","V"), eq(), dim("third","⅓·"), tok("B",`${B}`,"#5ee8ff"), op("·"), tok("h",`${h}`,"#ffd45e")], reason: "Substitute known values" },
+        { equationTokens: [tok("lhs","V"), eq(), tok("rhs",`${vol}${u}³`)], reason: "Evaluate" },
+      ],
+      backSpeechText: `V equals ${vol}`, numericAnswer: vol, color,
+    };
+  }
+  if (t === "cone") {
+    const r = randInt(2, 6);
+    const h = randInt(1, 4) * 3; // multiple of 3
+    const vol = (r * r * h) / 3;
+    return {
+      id: nextId(), topic: "3d-shapes", cardType: "calculation", variant: "compute",
+      frontPrompt: "Solve for the cone volume",
+      frontSvg: { shape: "cone", dimensions: { r, h, labelMode: "numeric", unknownDimension: "V" }, labelMode: "numeric" },
+      frontSpeechText: `Radius is ${r}, height is ${h}. Find the volume.`,
+      backSteps: [
+        { equationTokens: [tok("lhs","V"), eq(), dim("third","⅓·"), dim("pi","π·"), tok("r","r²","#5ee8ff"), op("·"), tok("h","h","#ffd45e")], reason: "Cone Volume Formula" },
+        { equationTokens: [tok("lhs","V"), eq(), dim("third","⅓·"), dim("pi","π·"), tok("r",`${r}²`,"#5ee8ff"), op("·"), tok("h",`${h}`,"#ffd45e")], reason: "Substitute known values" },
+        { equationTokens: [tok("lhs","V"), eq(), tok("rhs",`${vol}π${u}³`)], reason: "Evaluate" },
+      ],
+      backSpeechText: `V equals ${vol} pi`, numericAnswer: vol, color,
+    };
+  }
+  if (t === "sphere-vol") {
+    const r = randInt(2, 6);
+    const rCubed = r * r * r;
+    const isInt = rCubed % 3 === 0;
+    const vol = isInt ? `${(4 * rCubed) / 3}π${u}³` : `${4 * rCubed}⁄₃π${u}³`;
+    return {
+      id: nextId(), topic: "3d-shapes", cardType: "calculation", variant: "compute",
+      frontPrompt: "Solve for the sphere volume",
+      frontSvg: { shape: "sphere", dimensions: { r, labelMode: "numeric", unknownDimension: "V" }, labelMode: "numeric" },
+      frontSpeechText: `Radius is ${r}. Find the sphere volume.`,
+      backSteps: [
+        { equationTokens: [tok("lhs","V"), eq(), dim("four_thirds","⁴⁄₃·"), dim("pi","π·"), tok("r","r³","#5ee8ff")], reason: "Sphere Volume Formula" },
+        { equationTokens: [tok("lhs","V"), eq(), dim("four_thirds","⁴⁄₃·"), dim("pi","π·"), tok("r",`${r}³`,"#5ee8ff")], reason: "Substitute known values" },
+        { equationTokens: [tok("lhs","V"), eq(), tok("rhs",vol)], reason: "Evaluate" },
+      ],
+      backSpeechText: `Sphere volume equals ${vol}`, numericAnswer: Math.round((4 * rCubed) / 3), color,
+    };
+  }
+  if (t === "sphere-sa") {
+    const r = randInt(2, 6);
+    const sa = 4 * r * r;
+    return {
+      id: nextId(), topic: "3d-shapes", cardType: "calculation", variant: "compute",
+      frontPrompt: "Solve for the sphere surface area",
+      frontSvg: { shape: "sphere", dimensions: { r, labelMode: "numeric", unknownDimension: "SA" }, labelMode: "numeric" },
+      frontSpeechText: `Radius is ${r}. Find the surface area.`,
+      backSteps: [
+        { equationTokens: [tok("lhs","SA"), eq(), tok("four","4"), op("·"), dim("pi","π·"), tok("r","r²","#5ee8ff")], reason: "Sphere Surface Area Formula" },
+        { equationTokens: [tok("lhs","SA"), eq(), tok("four","4"), op("·"), dim("pi","π·"), tok("r",`${r}²`,"#5ee8ff")], reason: "Substitute known values" },
+        { equationTokens: [tok("lhs","SA"), eq(), tok("rhs",`${sa}π${u}²`)], reason: "Evaluate" },
+      ],
+      backSpeechText: `Surface area equals ${sa} pi`, numericAnswer: sa, color,
     };
   }
   // Euler's formula: cube — find V

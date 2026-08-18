@@ -35,7 +35,12 @@ import { InteractiveCylinderVolumeExplorer } from "./interactive-cylinder-volume
 import { InteractiveConeVolumeExplorer } from "./interactive-cone-volume-explorer";
 import { InteractiveSphereVolumeExplorer } from "./interactive-sphere-volume-explorer";
 import { InteractiveSphereSurfaceAreaExplorer } from "./interactive-sphere-surface-area-explorer";
-import { InteractiveSolidFeatureExplorer } from "./interactive-solid-feature-explorer";
+import { InteractiveCylinderSurfaceAreaExplorer } from "./interactive-cylinder-surface-area-explorer";
+import { InteractiveCubeSurfaceAreaExplorer } from "./interactive-cube-surface-area-explorer";
+import { InteractivePyramidVolumeExplorer } from "./interactive-pyramid-volume-explorer";
+import { InteractiveFaceExplorer } from "./interactive-face-explorer";
+import { InteractiveEdgeExplorer } from "./interactive-edge-explorer";
+import { InteractiveVertexExplorer } from "./interactive-vertex-explorer";
 import { FormattedMathText } from "./ui/formatted-math-text";
 import type {
   GeometryCard as GeometryCardType,
@@ -223,6 +228,15 @@ export function GeometryCard({
       if (card.id === "term-3d-cylinder-vol" || card.frontLabel === "Volume of a cylinder") {
         return <InteractiveCylinderVolumeExplorer color={card.color} />;
       }
+      if (card.id === "term-3d-cylinder-sa" || card.frontLabel === "Surface area of a cylinder") {
+        return <InteractiveCylinderSurfaceAreaExplorer color={card.color} />;
+      }
+      if (card.id === "term-3d-cube-sa" || card.frontLabel === "Surface area of a cube") {
+        return <InteractiveCubeSurfaceAreaExplorer color={card.color} />;
+      }
+      if (card.id === "term-3d-pyramid-vol" || card.frontLabel === "Volume of a pyramid") {
+        return <InteractivePyramidVolumeExplorer color={card.color} />;
+      }
       if (card.id === "term-3d-cone-vol" || card.frontLabel === "Volume of a cone") {
         return <InteractiveConeVolumeExplorer color={card.color} />;
       }
@@ -232,14 +246,14 @@ export function GeometryCard({
       if (card.id === "term-3d-sphere-sa" || card.frontLabel === "Surface area of a sphere") {
         return <InteractiveSphereSurfaceAreaExplorer color={card.color} />;
       }
-      if (card.id === "term-3d-face" || card.frontLabel === "A face") {
-        return <InteractiveSolidFeatureExplorer feature="face" color={card.color} />;
+      if (card.id === "term-3d-face" || card.frontLabel === "Face" || card.frontLabel === "A face") {
+        return <InteractiveFaceExplorer color={card.color} />;
       }
       if (card.id === "term-3d-edge" || card.frontLabel === "An edge") {
-        return <InteractiveSolidFeatureExplorer feature="edge" color={card.color} />;
+        return <InteractiveEdgeExplorer color={card.color} />;
       }
       if (card.id === "term-3d-vertex" || card.frontLabel === "A vertex") {
-        return <InteractiveSolidFeatureExplorer feature="vertex" color={card.color} />;
+        return <InteractiveVertexExplorer color={card.color} />;
       }
       if (hasSvg) {
         return (
