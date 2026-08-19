@@ -878,16 +878,15 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "term-3d-edge": {
     id: "term-3d-edge", topic: "3d-shapes", cardType: "term", variant: "definition",
     color: TOPIC_COLORS["3d-shapes"],
-    frontLabel: "An edge", frontPrompt: "is…?",
+    frontLabel: "Edge", frontPrompt: "is…?",
     frontSpeechText: "An edge is…?",
     backDefinition: "A line segment where two faces meet",
-    backDefinitionSubtitle: "A rectangular prism has 12 straight edges",
     backSvgExamples: [{ shape: "prism", dimensions: { l: 4, w: 3, h: 2, labelMode: "numeric" }, labelMode: "numeric" }],
     backSteps: [
-      { formulaLine: "Edge = straight line where 2 faces intersect" },
+      { formulaLine: "Edge = straight line segment where 2 faces intersect" },
       { formulaLine: "A rectangular prism has 12 edges" },
     ],
-    backSpeechText: "An edge is where two faces meet",
+    backSpeechText: "An edge is a line segment where two faces meet",
   },
 
   "term-3d-vertex": {

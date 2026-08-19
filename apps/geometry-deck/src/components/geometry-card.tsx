@@ -249,7 +249,7 @@ export function GeometryCard({
       if (card.id === "term-3d-face" || card.frontLabel === "Face" || card.frontLabel === "A face") {
         return <InteractiveFaceExplorer color={card.color} />;
       }
-      if (card.id === "term-3d-edge" || card.frontLabel === "An edge") {
+      if (card.id === "term-3d-edge" || card.frontLabel === "Edge" || card.frontLabel === "An edge") {
         return <InteractiveEdgeExplorer color={card.color} />;
       }
       if (card.id === "term-3d-vertex" || card.frontLabel === "A vertex") {
