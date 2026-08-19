@@ -473,14 +473,6 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
     });
   }, [poly]);
 
-  // ──────────────────────────────────────────────────────────────────────────
-  // Active Counts & Tallies
-  // ──────────────────────────────────────────────────────────────────────────
-  const activeStep = viewMode === "build" ? poly.buildSteps[Math.max(0, Math.min(buildStepIndex - 1, poly.buildSteps.length - 1))] : null;
-  const currentV = viewMode === "build" ? (buildStepIndex === 0 ? 1 : activeStep?.stepV ?? poly.V) : poly.V;
-  const currentE = viewMode === "build" ? buildStepIndex : poly.E;
-  const currentF = viewMode === "build" ? (buildStepIndex === 0 ? 1 : activeStep?.stepF ?? poly.F) : poly.F;
-
   // Helper: check if an edge [a, b] is built up to current buildStepIndex
   const isEdgeBuilt = useCallback(
     (a: number, b: number, builtCount: number) => {
@@ -571,6 +563,13 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
     });
   }, [poly, viewMode, buildStepIndex, explodeProgress, projectVec]);
 
+  // Active Counts & Tallies
+  const activeStep = viewMode === "build" ? poly.buildSteps[Math.max(0, Math.min(buildStepIndex - 1, poly.buildSteps.length - 1))] : null;
+  const currentV = viewMode === "build" ? (buildStepIndex === 0 ? 1 : activeStep?.stepV ?? poly.V) : poly.V;
+  const currentE = viewMode === "build" ? buildStepIndex : poly.E;
+  const currentF = viewMode === "build" ? renderedFaces.length : poly.F;
+  const currentEulerValue = currentV - currentE + currentF;
+
   // Render Projected Vertices
   const renderedVertices = useMemo(() => {
     const explodeDist = viewMode === "explode" ? explodeProgress * 12 : 0;
@@ -599,12 +598,10 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
         {viewMode === "build" ? (
           <div className="flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 border border-white/20 text-white">
             <span className="text-white/70">Step {buildStepIndex}/{poly.edges.length}:</span>
-            {buildStepIndex === 0 ? (
-              <span className="text-cyan-300">1 Vertex on Surface (1 - 0 + 1 = 2)</span>
-            ) : activeStep?.isNewVertex ? (
-              <span className="text-amber-300 font-semibold">+1 Vertex & +1 Edge (Δ=0 → Balance stays 2)</span>
+            {buildStepIndex < poly.edges.length ? (
+              <span className="text-amber-300 font-semibold">Open Shell (V − E + F = 1)</span>
             ) : (
-              <span className="text-cyan-300 font-semibold">+1 Edge & +1 Face (Δ=0 → Balance stays 2)</span>
+              <span className="text-emerald-400 font-extrabold">Sealed 3D Polyhedron (V − E + F = 2)</span>
             )}
           </div>
         ) : viewMode === "explode" ? (
@@ -860,7 +857,14 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
             F ({currentF})
           </button>
           <span className="text-white/50">=</span>
-          <span className="text-white font-extrabold text-base">2</span>
+          <span
+            className={cn(
+              "font-extrabold text-base transition-colors",
+              currentEulerValue === 2 ? "text-emerald-400" : "text-amber-300"
+            )}
+          >
+            {currentEulerValue}
+          </span>
         </div>
       </div>
 
