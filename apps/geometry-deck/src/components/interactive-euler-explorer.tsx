@@ -29,9 +29,7 @@ interface PolyhedronData {
   faces: number[][]; // vertex indices in CCW order
 }
 
-const COLOR_CYAN = "#5ee8ff"; // Faces
-const COLOR_GOLD = "#ffd45e"; // Edges
-const COLOR_VERTEX = "#ffffff"; // Vertices
+const COLOR_CYAN = "#5ee8ff"; // Single uniform highlight color
 
 const SVG_H = 205;
 
@@ -408,15 +406,15 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
       {/* ── Subtitle / Invariant Status Indicator ── */}
       <div className="flex items-center justify-center gap-2 text-xs sm:text-sm font-bold font-headline select-none">
         <div className="flex items-center gap-2 text-white/90">
-          <span style={{ color: highlight === "V" || highlight === "all" ? COLOR_VERTEX : "rgba(255, 255, 255, 0.5)" }}>
+          <span style={{ color: highlight === "V" ? COLOR_CYAN : highlight === "all" ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0.45)" }}>
             {poly.V} Vertices
           </span>
           <span className="text-white/40">•</span>
-          <span style={{ color: highlight === "E" || highlight === "all" ? COLOR_GOLD : "rgba(255, 255, 255, 0.5)" }}>
+          <span style={{ color: highlight === "E" ? COLOR_CYAN : highlight === "all" ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0.45)" }}>
             {poly.E} Edges
           </span>
           <span className="text-white/40">•</span>
-          <span style={{ color: highlight === "F" || highlight === "all" ? COLOR_CYAN : "rgba(255, 255, 255, 0.5)" }}>
+          <span style={{ color: highlight === "F" ? COLOR_CYAN : highlight === "all" ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0.45)" }}>
             {poly.F} Faces
           </span>
         </div>
@@ -432,15 +430,21 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
       >
         {/* Render Shaded Faces */}
         {renderedFaces.map(({ fIdx, pointsStr, avgZ }) => {
-          const isHighlighted = highlight === "all" || highlight === "F";
-          const fillOpacity = isHighlighted ? (avgZ > 0 ? 0.45 : 0.28) : 0.12;
+          const isFaceHighlighted = highlight === "F";
+          const isAll = highlight === "all";
+          const fill = isFaceHighlighted
+            ? `rgba(94, 232, 255, ${avgZ > 0 ? 0.55 : 0.38})`
+            : isAll
+            ? `rgba(94, 232, 255, ${avgZ > 0 ? 0.32 : 0.18})`
+            : `rgba(255, 255, 255, ${avgZ > 0 ? 0.08 : 0.04})`;
+
           return (
             <polygon
               key={`face-${fIdx}`}
               points={pointsStr}
-              fill={isHighlighted ? `rgba(94, 232, 255, ${fillOpacity})` : `rgba(255, 255, 255, ${fillOpacity})`}
-              stroke={highlight === "F" ? "rgba(94, 232, 255, 0.9)" : "rgba(255, 255, 255, 0.35)"}
-              strokeWidth={highlight === "F" ? 2.0 : 1.2}
+              fill={fill}
+              stroke={isFaceHighlighted ? COLOR_CYAN : isAll ? "rgba(255, 255, 255, 0.4)" : "rgba(255, 255, 255, 0.15)"}
+              strokeWidth={isFaceHighlighted ? 2.2 : 1.0}
               className="transition-colors pointer-events-none"
             />
           );
@@ -448,6 +452,9 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
 
         {/* Render Edges (Solid wireframe struts) */}
         {renderedEdges.map(({ eIdx, p1, p2 }) => {
+          const isEdgeHighlighted = highlight === "E";
+          const isAll = highlight === "all";
+
           return (
             <line
               key={`edge-${eIdx}`}
@@ -456,11 +463,13 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
               x2={p2.x}
               y2={p2.y}
               stroke={
-                highlight === "E"
-                  ? COLOR_GOLD
-                  : "rgba(255, 255, 255, 0.9)"
+                isEdgeHighlighted
+                  ? COLOR_CYAN
+                  : isAll
+                  ? "rgba(255, 255, 255, 0.9)"
+                  : "rgba(255, 255, 255, 0.3)"
               }
-              strokeWidth={highlight === "E" ? 2.6 : 1.8}
+              strokeWidth={isEdgeHighlighted ? 2.8 : isAll ? 1.8 : 1.2}
               strokeLinecap="round"
               className="pointer-events-none transition-colors"
             />
@@ -469,19 +478,25 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
 
         {/* Render Vertices (Anchor Nodes) */}
         {renderedVertices.map(({ vIdx, p }) => {
-          const isHighlighted = highlight === "all" || highlight === "V";
-          const r = highlight === "V" ? 4.5 : 3.2;
+          const isVertHighlighted = highlight === "V";
+          const isAll = highlight === "all";
 
           return (
             <circle
               key={`vert-${vIdx}`}
               cx={p.x}
               cy={p.y}
-              r={r}
-              fill={isHighlighted ? COLOR_VERTEX : "rgba(255, 255, 255, 0.5)"}
-              stroke="rgba(0, 0, 0, 0.4)"
-              strokeWidth={1.0}
-              className="pointer-events-none"
+              r={isVertHighlighted ? 4.8 : isAll ? 3.5 : 2.8}
+              fill={
+                isVertHighlighted
+                  ? COLOR_CYAN
+                  : isAll
+                  ? "#ffffff"
+                  : "rgba(255, 255, 255, 0.35)"
+              }
+              stroke={isVertHighlighted ? "#ffffff" : isAll ? "rgba(0, 0, 0, 0.4)" : "transparent"}
+              strokeWidth={isVertHighlighted ? 1.5 : 1.0}
+              className="pointer-events-none transition-all"
             />
           );
         })}
@@ -518,13 +533,9 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
                 className={cn(
                   "px-2.5 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
                   highlight === mode
-                    ? mode === "V"
-                      ? "bg-white text-black shadow-sm"
-                      : mode === "E"
-                      ? "bg-[#ffd45e] text-black shadow-sm"
-                      : mode === "F"
-                      ? "bg-[#5ee8ff] text-black shadow-sm"
-                      : "bg-white/30 text-white shadow-sm"
+                    ? mode === "all"
+                      ? "bg-white/30 text-white shadow-sm"
+                      : "bg-[#5ee8ff] text-black shadow-sm"
                     : "bg-transparent text-white/70 hover:text-white"
                 )}
               >
@@ -560,7 +571,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
           <button
             onClick={() => setHighlight(highlight === "V" ? "all" : "V")}
             className="hover:scale-105 transition-transform border-none bg-transparent"
-            style={{ color: COLOR_VERTEX }}
+            style={{ color: highlight === "V" ? COLOR_CYAN : "rgba(255, 255, 255, 0.9)" }}
           >
             V ({poly.V})
           </button>
@@ -568,7 +579,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
           <button
             onClick={() => setHighlight(highlight === "E" ? "all" : "E")}
             className="hover:scale-105 transition-transform border-none bg-transparent"
-            style={{ color: COLOR_GOLD }}
+            style={{ color: highlight === "E" ? COLOR_CYAN : "rgba(255, 255, 255, 0.9)" }}
           >
             E ({poly.E})
           </button>
@@ -576,7 +587,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
           <button
             onClick={() => setHighlight(highlight === "F" ? "all" : "F")}
             className="hover:scale-105 transition-transform border-none bg-transparent"
-            style={{ color: COLOR_CYAN }}
+            style={{ color: highlight === "F" ? COLOR_CYAN : "rgba(255, 255, 255, 0.9)" }}
           >
             F ({poly.F})
           </button>
