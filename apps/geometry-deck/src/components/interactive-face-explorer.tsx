@@ -218,12 +218,9 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
 
   const getFaceFill = (id: number) => {
     if (selectedFace === id) {
-      return "rgba(255, 212, 94, 0.65)"; // Glowing Gold 2D Surface
+      return "rgba(255, 212, 94, 0.72)"; // Glowing Gold Active Surface
     }
-    if (selectedFace === 0) {
-      return "rgba(94, 232, 255, 0.38)"; // Electric Cyan 2D Surface
-    }
-    return "rgba(255, 255, 255, 0.08)";  // Dimmed unselected surfaces
+    return "rgba(94, 232, 255, 0.38)";   // Persistent Electric Cyan 2D Surface across all faces
   };
 
   const getFaceStroke = (_id: number) => {
