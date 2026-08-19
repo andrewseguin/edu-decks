@@ -215,7 +215,7 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
     <div ref={containerRef} className="flex flex-col items-center gap-1 w-full pt-0.5 pb-1" onClick={stop} onPointerDown={stop}>
       {/* ── Descriptive Header Badge (Above SVG to prevent overlap) ── */}
       <div className="text-center text-xs sm:text-sm font-bold font-headline tracking-wide select-none" style={{ color: COLOR_EDGE }}>
-        {selectedEdge > 0 ? `Edge ${selectedEdge} of ${summary.total}` : summary.desc}
+        {summary.desc}
       </div>
 
       {/* ── Large & Prominent Interactive 3D / 2D Canvas ── */}
