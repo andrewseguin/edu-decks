@@ -892,16 +892,15 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "term-3d-vertex": {
     id: "term-3d-vertex", topic: "3d-shapes", cardType: "term", variant: "definition",
     color: TOPIC_COLORS["3d-shapes"],
-    frontLabel: "A vertex", frontPrompt: "is…?",
+    frontLabel: "Vertex", frontPrompt: "is…?",
     frontSpeechText: "A vertex is…?",
-    backDefinition: "A corner point where 3 or more edges meet",
-    backDefinitionSubtitle: "A square pyramid has 5 vertices (1 top apex + 4 base corners)",
+    backDefinition: "A corner point where edges meet",
     backSvgExamples: [{ shape: "pyramid", dimensions: { B: "B", h: "h", labelMode: "variable" }, labelMode: "variable" }],
     backSteps: [
       { formulaLine: "Vertex = corner point where 3 or more edges meet" },
-      { formulaLine: "A square pyramid has 5 vertices (1 apex + 4 base corners)" },
+      { formulaLine: "A cube has 8 vertices; a square pyramid has 5 vertices" },
     ],
-    backSpeechText: "A vertex is a corner point where 3 or more edges meet",
+    backSpeechText: "A vertex is a corner point where edges meet",
   },
 
   "term-3d-euler": {

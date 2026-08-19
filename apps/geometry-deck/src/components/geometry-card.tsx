@@ -252,7 +252,7 @@ export function GeometryCard({
       if (card.id === "term-3d-edge" || card.frontLabel === "Edge" || card.frontLabel === "An edge") {
         return <InteractiveEdgeExplorer color={card.color} />;
       }
-      if (card.id === "term-3d-vertex" || card.frontLabel === "A vertex") {
+      if (card.id === "term-3d-vertex" || card.frontLabel === "Vertex" || card.frontLabel === "A vertex") {
         return <InteractiveVertexExplorer color={card.color} />;
       }
       if (hasSvg) {
