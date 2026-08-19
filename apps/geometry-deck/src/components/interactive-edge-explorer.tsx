@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
+import { Play, Pause } from "lucide-react";
 import { useContainerWidth } from "@/hooks/use-container-width";
 import { cn } from "@/lib/utils";
 
@@ -10,7 +11,7 @@ type InteractiveEdgeProps = {
 
 type ShapeType = "cube" | "prism" | "pyramid" | "cylinder";
 
-const SVG_H = 175;
+const SVG_H = 225;
 const COLOR_EDGE = "#5ee8ff"; // Electric Cyan for Edges
 const COLOR_GOLD = "#ffd45e"; // Active Selected / Hovered Edge Highlight
 
@@ -171,7 +172,7 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
   // ──────────────────────────────────────────────────────────────────────────
 
   // 1. CUBE (12 Edges)
-  const cubeS = 64;
+  const cubeS = 104;
   const hs = cubeS / 2;
   const c_b_fl = project(-hs, -hs, hs);
   const c_b_fr = project(hs, -hs, hs);
@@ -211,9 +212,9 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
   ];
 
   // 2. TRIANGULAR PRISM (9 Edges)
-  const pW = 72;
-  const pH = 56;
-  const pL = 76;
+  const pW = 114;
+  const pH = 90;
+  const pL = 120;
   const pv_fl = project(-pW / 2, -pH / 2, pL / 2);
   const pv_fr = project(pW / 2, -pH / 2, pL / 2);
   const pv_fa = project(0, pH / 2, pL / 2);
@@ -246,8 +247,8 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
   ];
 
   // 3. SQUARE PYRAMID (8 Edges)
-  const pyrW = 74;
-  const pyrH = 64;
+  const pyrW = 118;
+  const pyrH = 100;
   const py_fl = project(-pyrW / 2, -pyrH / 3, pyrW / 2);
   const py_fr = project(pyrW / 2, -pyrH / 3, pyrW / 2);
   const py_br = project(pyrW / 2, -pyrH / 3, -pyrW / 2);
@@ -276,17 +277,17 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
   ];
 
   // 4. CYLINDER (2 Curved Edges)
-  const cylR = 36;
-  const cylH = 64;
+  const cylR = 56;
+  const cylH = 98;
   const topCenter = project(0, cylH / 2, 0);
   const botCenter = project(0, -cylH / 2, 0);
   const cylRy = cylR * Math.sin(pitch); // Vertical ellipse radius in isometric projection
 
-  // Silhouette lines for cylinder side walls
-  const cylLeftTop = project(-cylR * Math.cos(yaw + Math.PI / 2), cylH / 2, -cylR * Math.sin(yaw + Math.PI / 2));
-  const cylLeftBot = project(-cylR * Math.cos(yaw + Math.PI / 2), -cylH / 2, -cylR * Math.sin(yaw + Math.PI / 2));
-  const cylRightTop = project(cylR * Math.cos(yaw + Math.PI / 2), cylH / 2, cylR * Math.sin(yaw + Math.PI / 2));
-  const cylRightBot = project(cylR * Math.cos(yaw + Math.PI / 2), -cylH / 2, cylR * Math.sin(yaw + Math.PI / 2));
+  // Silhouette lines for cylinder outer side walls in 2D projection
+  const cylLeftTop = { x: topCenter.x - cylR, y: topCenter.y };
+  const cylLeftBot = { x: botCenter.x - cylR, y: botCenter.y };
+  const cylRightTop = { x: topCenter.x + cylR, y: topCenter.y };
+  const cylRightBot = { x: botCenter.x + cylR, y: botCenter.y };
 
   // ──────────────────────────────────────────────────────────────────────────
   // Nearest Edge Distance Calculations
@@ -459,7 +460,7 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
         onPointerMove={handleSvgPointerMove}
         onPointerUp={handleCanvasPointerUp}
         onPointerLeave={handleSvgPointerLeave}
-        className="w-full touch-none select-none overflow-visible max-h-[175px] cursor-grab active:cursor-grabbing"
+        className="w-full touch-none select-none overflow-visible max-h-[225px] cursor-grab active:cursor-grabbing"
       >
         {/* ───────── CUBE RENDERING ───────── */}
         {shape === "cube" && (
@@ -607,7 +608,7 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
           <g>
             {/* Shaded Body Fill */}
             <path
-              d={`M ${cylLeftTop.x} ${cylLeftTop.y} A ${cylR} ${cylRy} 0 0 0 ${cylRightTop.x} ${cylRightTop.y} L ${cylRightBot.x} ${cylRightBot.y} A ${cylR} ${cylRy} 0 0 1 ${cylLeftBot.x} ${cylLeftBot.y} Z`}
+              d={`M ${cylLeftTop.x} ${cylLeftTop.y} L ${cylRightTop.x} ${cylRightTop.y} L ${cylRightBot.x} ${cylRightBot.y} A ${cylR} ${cylRy} 0 0 1 ${cylLeftBot.x} ${cylLeftBot.y} Z`}
               fill="rgba(255, 255, 255, 0.08)"
               stroke="none"
             />
@@ -616,27 +617,24 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
             <line x1={cylLeftTop.x} y1={cylLeftTop.y} x2={cylLeftBot.x} y2={cylLeftBot.y} stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
             <line x1={cylRightTop.x} y1={cylRightTop.y} x2={cylRightBot.x} y2={cylRightBot.y} stroke="rgba(255, 255, 255, 0.25)" strokeWidth={1.5} />
 
-            {/* Dashed Back Rim of Bottom Base */}
+            {/* Dashed Back Half-Rim of Bottom Base (Occluded in 3D) */}
             <path
               d={`M ${botCenter.x - cylR} ${botCenter.y} A ${cylR} ${cylRy} 0 0 1 ${botCenter.x + cylR} ${botCenter.y}`}
               fill="none"
-              stroke={selectedEdge === 2 ? COLOR_GOLD : "rgba(94, 232, 255, 0.4)"}
-              strokeWidth={selectedEdge === 2 ? 4.5 : 2}
+              stroke={selectedEdge === 2 ? COLOR_GOLD : "rgba(94, 232, 255, 0.45)"}
+              strokeWidth={selectedEdge === 2 ? 4.8 : 2}
               strokeDasharray={selectedEdge === 2 ? "none" : "4 3"}
             />
 
-            {/* Bottom Circular Rim Edge */}
-            <ellipse
-              cx={botCenter.x}
-              cy={botCenter.y}
-              rx={cylR}
-              ry={cylRy}
-              fill="rgba(255, 255, 255, 0.06)"
+            {/* Front Half-Rim of Bottom Base (Visible in 3D) */}
+            <path
+              d={`M ${botCenter.x - cylR} ${botCenter.y} A ${cylR} ${cylRy} 0 0 0 ${botCenter.x + cylR} ${botCenter.y}`}
+              fill="none"
               stroke={selectedEdge === 2 ? COLOR_GOLD : COLOR_EDGE}
               strokeWidth={selectedEdge === 2 ? 4.8 : 2.8}
             />
 
-            {/* Top Circular Rim Edge */}
+            {/* Top Circular Rim Edge (Full visible ellipse) */}
             <ellipse
               cx={topCenter.x}
               cy={topCenter.y}
@@ -650,61 +648,41 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
         )}
       </svg>
 
-      {/* ── Shape Switcher Capsule & Rotation Scrubber ── */}
-      <div className="flex flex-col items-center gap-2 w-full max-w-[340px] px-2 pt-1 select-none z-30 pointer-events-auto">
-        {/* Shape Switcher Pills */}
-        <div className="flex items-center justify-center gap-1.5 p-1 rounded-full bg-black/35 border border-white/20 shadow-inner">
-          {(["cube", "prism", "pyramid", "cylinder"] as const).map((s) => {
-            const isActive = shape === s;
-            const label = s.charAt(0).toUpperCase() + s.slice(1);
-            return (
-              <button
-                key={s}
-                type="button"
-                onClick={() => handleShapeChange(s)}
-                className={cn(
-                  "px-2.5 py-0.5 rounded-full text-[11px] font-bold transition-all select-none tracking-tight",
-                  isActive
-                    ? "bg-white/25 text-white shadow-sm font-black border border-white/30"
-                    : "text-white/60 hover:text-white/90 hover:bg-white/10"
-                )}
-              >
-                {label}
-              </button>
-            );
-          })}
-        </div>
+      {/* ── Minimalist Bottom Controls: Shape Switcher + Auto-Rotate Toggle ── */}
+      <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm pointer-events-auto select-none z-30">
+        {(["cube", "prism", "pyramid", "cylinder"] as const).map((s) => {
+          const isActive = shape === s;
+          const label = s.charAt(0).toUpperCase() + s.slice(1);
+          return (
+            <button
+              key={s}
+              type="button"
+              onClick={() => handleShapeChange(s)}
+              className={cn(
+                "px-3 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
+                isActive
+                  ? "bg-white/25 text-white shadow-sm"
+                  : "bg-transparent text-white/70 hover:text-white"
+              )}
+            >
+              {label}
+            </button>
+          );
+        })}
 
-        {/* 360° 3D Rotation Scrubber & Auto-Rotate Play Button */}
-        <div className="flex items-center gap-2 w-full px-1">
-          <button
-            type="button"
-            onClick={() => setIsAutoRotating((prev) => !prev)}
-            aria-label={isAutoRotating ? "Pause auto-rotation" : "Play auto-rotation"}
-            className={cn(
-              "w-6 h-6 shrink-0 flex items-center justify-center rounded-full border border-white/25 transition-all text-xs font-bold",
-              isAutoRotating ? "bg-white/30 text-white" : "bg-black/30 text-white/70 hover:text-white"
-            )}
-          >
-            {isAutoRotating ? "⏸" : "▶"}
-          </button>
-          <input
-            type="range"
-            min={0}
-            max={360}
-            step={1}
-            value={Math.round(rotationDeg)}
-            onChange={(e) => {
-              if (isAutoRotating) setIsAutoRotating(false);
-              setRotationDeg(parseFloat(e.target.value));
-            }}
-            className="w-full accent-white h-1.5 bg-white/20 rounded-lg cursor-pointer transition-all"
-            aria-label="3D Rotation angle"
-          />
-          <span className="text-[11px] font-mono text-white/60 w-8 text-right select-none">
-            {Math.round(rotationDeg)}°
-          </span>
-        </div>
+        {/* Subtle Vertical Divider */}
+        <div className="w-px h-3 bg-white/20 mx-0.5" />
+
+        {/* Play/Pause Auto-Rotate Button */}
+        <button
+          type="button"
+          onClick={() => setIsAutoRotating((prev) => !prev)}
+          title={isAutoRotating ? "Pause auto-rotation" : "Play auto-rotation"}
+          aria-label={isAutoRotating ? "Pause auto-rotation" : "Play auto-rotation"}
+          className="p-1 rounded-full text-white/70 hover:text-white hover:bg-white/15 transition-all active:scale-95 border-none flex items-center justify-center"
+        >
+          {isAutoRotating ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
+        </button>
       </div>
     </div>
   );
