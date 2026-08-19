@@ -9,7 +9,7 @@ type InteractiveEulerProps = {
 };
 
 type ShapeKey = "cube" | "tetra" | "octa" | "pyramid" | "prism5";
-type ViewMode = "inspect" | "explode" | "build";
+type ViewMode = "inspect" | "explode";
 type HighlightElement = "all" | "V" | "E" | "F";
 
 interface Vec3 {
@@ -28,15 +28,6 @@ interface PolyhedronData {
   vertices: Vec3[];
   edges: [number, number][];
   faces: number[][]; // vertex indices in CCW order
-  // Step-by-step construction sequence for the "Build" mode
-  buildSteps: {
-    edge: [number, number];
-    isNewVertex: boolean; // if true, introduces a new vertex
-    newFaceName?: string; // if present, closes a new face
-    stepV: number;
-    stepE: number;
-    stepF: number;
-  }[];
 }
 
 const COLOR_CYAN = "#5ee8ff"; // Faces
@@ -75,21 +66,6 @@ const CUBE_FACES: number[][] = [
   [0, 3, 7, 4], // Left (x = -S)
   [1, 5, 6, 2], // Right (x = +S)
 ];
-const CUBE_BUILD_STEPS = [
-  { edge: [0, 1] as [number, number], isNewVertex: true, stepV: 2, stepE: 1, stepF: 1 },
-  { edge: [1, 2] as [number, number], isNewVertex: true, stepV: 3, stepE: 2, stepF: 1 },
-  { edge: [2, 3] as [number, number], isNewVertex: true, stepV: 4, stepE: 3, stepF: 1 },
-  { edge: [3, 0] as [number, number], isNewVertex: false, newFaceName: "Bottom Face", stepV: 4, stepE: 4, stepF: 2 },
-  { edge: [0, 4] as [number, number], isNewVertex: true, stepV: 5, stepE: 5, stepF: 2 },
-  { edge: [4, 5] as [number, number], isNewVertex: true, stepV: 6, stepE: 6, stepF: 2 },
-  { edge: [5, 1] as [number, number], isNewVertex: false, newFaceName: "Back Face", stepV: 6, stepE: 7, stepF: 3 },
-  { edge: [5, 6] as [number, number], isNewVertex: true, stepV: 7, stepE: 8, stepF: 3 },
-  { edge: [6, 2] as [number, number], isNewVertex: false, newFaceName: "Right Face", stepV: 7, stepE: 9, stepF: 4 },
-  { edge: [6, 7] as [number, number], isNewVertex: true, stepV: 8, stepE: 10, stepF: 4 },
-  { edge: [7, 3] as [number, number], isNewVertex: false, newFaceName: "Front Face", stepV: 8, stepE: 11, stepF: 5 },
-  { edge: [7, 4] as [number, number], isNewVertex: false, newFaceName: "Left & Top Faces", stepV: 8, stepE: 12, stepF: 6 },
-];
-
 // 2. TETRAHEDRON (V=4, E=6, F=4)
 const S_TETRA = 56;
 const TETRA_VERTICES: Vec3[] = [
@@ -100,18 +76,10 @@ const TETRA_VERTICES: Vec3[] = [
 ];
 const TETRA_EDGES: [number, number][] = [
   [0, 1], [1, 2], [2, 0], // Base Loop (3)
-  [0, 3], [3, 1], [3, 2], // Apex spokes (3)
+  [0, 3], [1, 3], [2, 3], // Apex struts (3)
 ];
 const TETRA_FACES: number[][] = [
   [0, 1, 2], [0, 2, 3], [0, 3, 1], [1, 3, 2]
-];
-const TETRA_BUILD_STEPS = [
-  { edge: [0, 1] as [number, number], isNewVertex: true, stepV: 2, stepE: 1, stepF: 1 },
-  { edge: [1, 2] as [number, number], isNewVertex: true, stepV: 3, stepE: 2, stepF: 1 },
-  { edge: [2, 0] as [number, number], isNewVertex: false, newFaceName: "Base Face", stepV: 3, stepE: 3, stepF: 2 },
-  { edge: [0, 3] as [number, number], isNewVertex: true, stepV: 4, stepE: 4, stepF: 2 },
-  { edge: [3, 1] as [number, number], isNewVertex: false, newFaceName: "Face 2", stepV: 4, stepE: 5, stepF: 3 },
-  { edge: [3, 2] as [number, number], isNewVertex: false, newFaceName: "Final Closure", stepV: 4, stepE: 6, stepF: 4 },
 ];
 
 // 3. OCTAHEDRON (V=6, E=12, F=8)
@@ -125,30 +93,16 @@ const OCTA_VERTICES: Vec3[] = [
   { x: 0, y: 0, z: -S_OCTA },  // 5: back
 ];
 const OCTA_EDGES: [number, number][] = [
-  // Continuous Equatorial ring
+  // Equatorial ring
   [2, 3], [3, 4], [4, 5], [5, 2],
-  // Top cone from 2 -> 0 -> 3, 0 -> 4, 0 -> 5
-  [2, 0], [0, 3], [0, 4], [0, 5],
-  // Bottom cone from 2 -> 1 -> 3, 1 -> 4, 1 -> 5
-  [2, 1], [1, 3], [1, 4], [1, 5],
+  // Top cone
+  [0, 2], [0, 3], [0, 4], [0, 5],
+  // Bottom cone
+  [1, 2], [1, 3], [1, 4], [1, 5],
 ];
 const OCTA_FACES: number[][] = [
   [0, 2, 3], [0, 3, 4], [0, 4, 5], [0, 5, 2],
   [1, 3, 2], [1, 4, 3], [1, 5, 4], [1, 2, 5],
-];
-const OCTA_BUILD_STEPS = [
-  { edge: [2, 3] as [number, number], isNewVertex: true, stepV: 2, stepE: 1, stepF: 1 },
-  { edge: [3, 4] as [number, number], isNewVertex: true, stepV: 3, stepE: 2, stepF: 1 },
-  { edge: [4, 5] as [number, number], isNewVertex: true, stepV: 4, stepE: 3, stepF: 1 },
-  { edge: [5, 2] as [number, number], isNewVertex: false, newFaceName: "Equator Cycle", stepV: 4, stepE: 4, stepF: 2 },
-  { edge: [2, 0] as [number, number], isNewVertex: true, stepV: 5, stepE: 5, stepF: 2 },
-  { edge: [0, 3] as [number, number], isNewVertex: false, newFaceName: "Top Face 1", stepV: 5, stepE: 6, stepF: 3 },
-  { edge: [0, 4] as [number, number], isNewVertex: false, newFaceName: "Top Face 2", stepV: 5, stepE: 7, stepF: 4 },
-  { edge: [0, 5] as [number, number], isNewVertex: false, newFaceName: "Top Faces 3 & 4", stepV: 5, stepE: 8, stepF: 5 },
-  { edge: [2, 1] as [number, number], isNewVertex: true, stepV: 6, stepE: 9, stepF: 5 },
-  { edge: [1, 3] as [number, number], isNewVertex: false, newFaceName: "Bot Face 1", stepV: 6, stepE: 10, stepF: 6 },
-  { edge: [1, 4] as [number, number], isNewVertex: false, newFaceName: "Bot Face 2", stepV: 6, stepE: 11, stepF: 7 },
-  { edge: [1, 5] as [number, number], isNewVertex: false, newFaceName: "Final 3D Octahedron", stepV: 6, stepE: 12, stepF: 8 },
 ];
 
 // 4. SQUARE PYRAMID (V=5, E=8, F=5)
@@ -162,8 +116,8 @@ const PYRAMID_VERTICES: Vec3[] = [
   { x: 0, y: S_PYR_H * 0.8, z: 0 },               // 4: Apex
 ];
 const PYRAMID_EDGES: [number, number][] = [
-  [0, 1], [1, 2], [2, 3], [3, 0], // Continuous Base Loop (4)
-  [0, 4], [4, 1], [4, 2], [4, 3], // Apex Slants (4)
+  [0, 1], [1, 2], [2, 3], [3, 0], // Base square (4)
+  [4, 0], [4, 1], [4, 2], [4, 3], // Slants (4)
 ];
 const PYRAMID_FACES: number[][] = [
   [0, 1, 2, 3], // Base
@@ -171,16 +125,6 @@ const PYRAMID_FACES: number[][] = [
   [4, 1, 2],    // Right
   [4, 2, 3],    // Front
   [4, 3, 0],    // Left
-];
-const PYRAMID_BUILD_STEPS = [
-  { edge: [0, 1] as [number, number], isNewVertex: true, stepV: 2, stepE: 1, stepF: 1 },
-  { edge: [1, 2] as [number, number], isNewVertex: true, stepV: 3, stepE: 2, stepF: 1 },
-  { edge: [2, 3] as [number, number], isNewVertex: true, stepV: 4, stepE: 3, stepF: 1 },
-  { edge: [3, 0] as [number, number], isNewVertex: false, newFaceName: "Base Face", stepV: 4, stepE: 4, stepF: 2 },
-  { edge: [0, 4] as [number, number], isNewVertex: true, stepV: 5, stepE: 5, stepF: 2 },
-  { edge: [4, 1] as [number, number], isNewVertex: false, newFaceName: "Slant Face 1", stepV: 5, stepE: 6, stepF: 3 },
-  { edge: [4, 2] as [number, number], isNewVertex: false, newFaceName: "Slant Face 2", stepV: 5, stepE: 7, stepF: 4 },
-  { edge: [4, 3] as [number, number], isNewVertex: false, newFaceName: "Final Pyramid", stepV: 5, stepE: 8, stepF: 5 },
 ];
 
 // 5. PENTAGONAL PRISM (V=10, E=15, F=7)
@@ -211,10 +155,8 @@ const PRISM5_VERTICES: Vec3[] = (() => {
 
 const PRISM5_EDGES: [number, number][] = [
   [0, 1], [1, 2], [2, 3], [3, 4], [4, 0], // Bottom loop (5)
-  [0, 5], [5, 6], [6, 1],                 // Column 0->5, Top 5->6, Down 6->1 (Side 1 closed)
-  [6, 7], [7, 2],                         // Top 6->7, Down 7->2 (Side 2 closed)
-  [7, 8], [8, 3],                         // Top 7->8, Down 8->3 (Side 3 closed)
-  [8, 9], [9, 4], [9, 5],                 // Top 8->9, Down 9->4, Top 9->5 (Side 4, 5 & Top closed)
+  [5, 6], [6, 7], [7, 8], [8, 9], [9, 5], // Top loop (5)
+  [0, 5], [1, 6], [2, 7], [3, 8], [4, 9], // Vertical struts (5)
 ];
 
 const PRISM5_FACES: number[][] = [
@@ -225,24 +167,6 @@ const PRISM5_FACES: number[][] = [
   [2, 3, 8, 7],    // Side 3
   [3, 4, 9, 8],    // Side 4
   [4, 0, 5, 9],    // Side 5
-];
-
-const PRISM5_BUILD_STEPS = [
-  { edge: [0, 1] as [number, number], isNewVertex: true, stepV: 2, stepE: 1, stepF: 1 },
-  { edge: [1, 2] as [number, number], isNewVertex: true, stepV: 3, stepE: 2, stepF: 1 },
-  { edge: [2, 3] as [number, number], isNewVertex: true, stepV: 4, stepE: 3, stepF: 1 },
-  { edge: [3, 4] as [number, number], isNewVertex: true, stepV: 5, stepE: 4, stepF: 1 },
-  { edge: [4, 0] as [number, number], isNewVertex: false, newFaceName: "Bottom Pentagon", stepV: 5, stepE: 5, stepF: 2 },
-  { edge: [0, 5] as [number, number], isNewVertex: true, stepV: 6, stepE: 6, stepF: 2 },
-  { edge: [5, 6] as [number, number], isNewVertex: true, stepV: 7, stepE: 7, stepF: 2 },
-  { edge: [6, 1] as [number, number], isNewVertex: false, newFaceName: "Side Face 1", stepV: 7, stepE: 8, stepF: 3 },
-  { edge: [6, 7] as [number, number], isNewVertex: true, stepV: 8, stepE: 9, stepF: 3 },
-  { edge: [7, 2] as [number, number], isNewVertex: false, newFaceName: "Side Face 2", stepV: 8, stepE: 10, stepF: 4 },
-  { edge: [7, 8] as [number, number], isNewVertex: true, stepV: 9, stepE: 11, stepF: 4 },
-  { edge: [8, 3] as [number, number], isNewVertex: false, newFaceName: "Side Face 3", stepV: 9, stepE: 12, stepF: 5 },
-  { edge: [8, 9] as [number, number], isNewVertex: true, stepV: 10, stepE: 13, stepF: 5 },
-  { edge: [9, 4] as [number, number], isNewVertex: false, newFaceName: "Side Face 4", stepV: 10, stepE: 14, stepF: 6 },
-  { edge: [9, 5] as [number, number], isNewVertex: false, newFaceName: "Top Pentagon Closure", stepV: 10, stepE: 15, stepF: 7 },
 ];
 
 const POLYHEDRA_MAP: Record<ShapeKey, PolyhedronData> = {
@@ -256,7 +180,6 @@ const POLYHEDRA_MAP: Record<ShapeKey, PolyhedronData> = {
     vertices: CUBE_VERTICES,
     edges: CUBE_EDGES,
     faces: CUBE_FACES,
-    buildSteps: CUBE_BUILD_STEPS,
   },
   tetra: {
     key: "tetra",
@@ -268,7 +191,6 @@ const POLYHEDRA_MAP: Record<ShapeKey, PolyhedronData> = {
     vertices: TETRA_VERTICES,
     edges: TETRA_EDGES,
     faces: TETRA_FACES,
-    buildSteps: TETRA_BUILD_STEPS,
   },
   octa: {
     key: "octa",
@@ -280,7 +202,6 @@ const POLYHEDRA_MAP: Record<ShapeKey, PolyhedronData> = {
     vertices: OCTA_VERTICES,
     edges: OCTA_EDGES,
     faces: OCTA_FACES,
-    buildSteps: OCTA_BUILD_STEPS,
   },
   pyramid: {
     key: "pyramid",
@@ -292,7 +213,6 @@ const POLYHEDRA_MAP: Record<ShapeKey, PolyhedronData> = {
     vertices: PYRAMID_VERTICES,
     edges: PYRAMID_EDGES,
     faces: PYRAMID_FACES,
-    buildSteps: PYRAMID_BUILD_STEPS,
   },
   prism5: {
     key: "prism5",
@@ -304,7 +224,6 @@ const POLYHEDRA_MAP: Record<ShapeKey, PolyhedronData> = {
     vertices: PRISM5_VERTICES,
     edges: PRISM5_EDGES,
     faces: PRISM5_FACES,
-    buildSteps: PRISM5_BUILD_STEPS,
   },
 };
 
@@ -318,8 +237,6 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
   const [viewMode, setViewMode] = useState<ViewMode>("inspect");
   const [highlight, setHighlight] = useState<HighlightElement>("all");
   const [explodeProgress, setExplodeProgress] = useState(0); // 0..1
-  const [buildStepIndex, setBuildStepIndex] = useState(12); // step 0..E
-  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
 
   // 2-Axis Orbit Camera: Yaw (around Y axis) & Pitch (elevation angle)
   const [yawDeg, setYawDeg] = useState(36);
@@ -327,16 +244,11 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
 
   const isDraggingRef = useRef(false);
   const lastDragPosRef = useRef({ x: 0, y: 0 });
-  const playTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const poly = POLYHEDRA_MAP[shapeKey];
 
-  // Sync default build step when shape changes
   const handleShapeSelect = (key: ShapeKey) => {
     setShapeKey(key);
-    setBuildStepIndex(POLYHEDRA_MAP[key].edges.length);
-    setStrokeProgress(1);
-    setIsAutoPlaying(false);
   };
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
@@ -368,63 +280,6 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
       e.currentTarget.releasePointerCapture(e.pointerId);
     } catch {}
   };
-
-  const [strokeProgress, setStrokeProgress] = useState(1);
-  const strokeAnimRef = useRef<number | null>(null);
-  const buildStepIndexRef = useRef(buildStepIndex);
-  buildStepIndexRef.current = buildStepIndex;
-
-  // Advance build step with synchronous animation reset (eliminates 1-frame flash)
-  const advanceBuildStep = useCallback((targetStep: number) => {
-    if (strokeAnimRef.current) cancelAnimationFrame(strokeAnimRef.current);
-
-    if (targetStep === 0) {
-      setBuildStepIndex(0);
-      setStrokeProgress(1);
-      return;
-    }
-
-    // Synchronously batch step index and progress reset to 0
-    setBuildStepIndex(targetStep);
-    setStrokeProgress(0);
-
-    const startTime = performance.now();
-    const duration = 420; // 420ms smooth line shoot-out
-
-    const step = (now: number) => {
-      const elapsed = now - startTime;
-      const t = Math.min(1, elapsed / duration);
-      // Smooth easeOutQuad
-      const eased = 1 - (1 - t) * (1 - t);
-      setStrokeProgress(eased);
-
-      if (t < 1) {
-        strokeAnimRef.current = requestAnimationFrame(step);
-      } else {
-        setStrokeProgress(1);
-      }
-    };
-
-    strokeAnimRef.current = requestAnimationFrame(step);
-  }, []);
-
-  // ──────────────────────────────────────────────────────────────────────────
-  // Build Animation Auto-Play Loop
-  // ──────────────────────────────────────────────────────────────────────────
-  useEffect(() => {
-    if (isAutoPlaying && viewMode === "build") {
-      playTimerRef.current = setInterval(() => {
-        const current = buildStepIndexRef.current;
-        const next = current >= poly.edges.length ? 0 : current + 1;
-        advanceBuildStep(next);
-      }, 950);
-    } else {
-      if (playTimerRef.current) clearInterval(playTimerRef.current);
-    }
-    return () => {
-      if (playTimerRef.current) clearInterval(playTimerRef.current);
-    };
-  }, [isAutoPlaying, viewMode, poly.edges.length, advanceBuildStep]);
 
   // ──────────────────────────────────────────────────────────────────────────
   // 3D Math & Projection
@@ -473,42 +328,12 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
     });
   }, [poly]);
 
-  // Helper: check if an edge [a, b] is built up to current buildStepIndex
-  const isEdgeBuilt = useCallback(
-    (a: number, b: number, builtCount: number) => {
-      return poly.edges.slice(0, builtCount).some(
-        ([e1, e2]) => (e1 === a && e2 === b) || (e1 === b && e2 === a)
-      );
-    },
-    [poly.edges]
-  );
-
-  // Helper: check if all boundary edges of a face are built
-  const isFaceBuilt = useCallback(
-    (fVerts: number[], builtCount: number) => {
-      const len = fVerts.length;
-      for (let i = 0; i < len; i++) {
-        const v1 = fVerts[i];
-        const v2 = fVerts[(i + 1) % len];
-        if (!isEdgeBuilt(v1, v2, builtCount)) {
-          return false;
-        }
-      }
-      return true;
-    },
-    [isEdgeBuilt]
-  );
-
-  // Render Projected Faces with Depth Sorting (dynamically shows completed faces in Build mode)
+  // Render Projected Faces with Depth Sorting
   const renderedFaces = useMemo(() => {
     const explodeDist = viewMode === "explode" ? explodeProgress * 42 : 0;
-    const maxEdges = viewMode === "build" ? buildStepIndex : poly.edges.length;
 
     return poly.faces
       .map((fVerts, fIdx) => {
-        const completed = viewMode === "build" ? isFaceBuilt(fVerts, maxEdges) : true;
-        if (!completed) return null;
-
         const norm = faceCenters[fIdx].unit;
         const offset = {
           x: norm.x * explodeDist,
@@ -523,19 +348,16 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
           fIdx,
           avgZ,
           pointsStr,
-          completed,
         };
       })
-      .filter((f): f is NonNullable<typeof f> => f !== null)
       .sort((a, b) => a.avgZ - b.avgZ); // Sort back to front
-  }, [poly, viewMode, buildStepIndex, explodeProgress, faceCenters, isFaceBuilt, projectVec]);
+  }, [poly, viewMode, explodeProgress, faceCenters, projectVec]);
 
-  // Render Projected Edges (Solid struts with clean highlighting)
+  // Render Projected Edges (Solid struts)
   const renderedEdges = useMemo(() => {
-    const maxEdges = viewMode === "build" ? buildStepIndex : poly.edges.length;
     const explodeDist = viewMode === "explode" ? explodeProgress * 22 : 0;
 
-    return poly.edges.slice(0, maxEdges).map(([i1, i2], eIdx) => {
+    return poly.edges.map(([i1, i2], eIdx) => {
       const v1 = poly.vertices[i1];
       const v2 = poly.vertices[i2];
       const mid = {
@@ -561,21 +383,13 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
         avgZ,
       };
     });
-  }, [poly, viewMode, buildStepIndex, explodeProgress, projectVec]);
-
-  // Active Counts & Tallies
-  const activeStep = viewMode === "build" ? poly.buildSteps[Math.max(0, Math.min(buildStepIndex - 1, poly.buildSteps.length - 1))] : null;
-  const currentV = viewMode === "build" ? (buildStepIndex === 0 ? 1 : activeStep?.stepV ?? poly.V) : poly.V;
-  const currentE = viewMode === "build" ? buildStepIndex : poly.E;
-  const currentF = viewMode === "build" ? renderedFaces.length : poly.F;
-  const currentEulerValue = currentV - currentE + currentF;
+  }, [poly, viewMode, explodeProgress, projectVec]);
 
   // Render Projected Vertices
   const renderedVertices = useMemo(() => {
     const explodeDist = viewMode === "explode" ? explodeProgress * 12 : 0;
-    const maxV = viewMode === "build" ? currentV : poly.V;
 
-    return poly.vertices.slice(0, maxV).map((v, vIdx) => {
+    return poly.vertices.map((v, vIdx) => {
       const mag = Math.hypot(v.x, v.y, v.z) || 1;
       const offset = {
         x: (v.x / mag) * explodeDist,
@@ -588,24 +402,15 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
         p,
       };
     });
-  }, [poly, viewMode, currentV, explodeProgress, projectVec]);
+  }, [poly, viewMode, explodeProgress, projectVec]);
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-1.5 w-full pt-0.5 pb-1 select-none" onClick={stop} onPointerDown={stop}>
       
       {/* ── Subtitle / Invariant Status Indicator ── */}
       <div className="flex items-center justify-center gap-2 text-xs sm:text-sm font-bold font-headline select-none">
-        {viewMode === "build" ? (
-          <div className="flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 border border-white/20 text-white">
-            <span className="text-white/70">Step {buildStepIndex}/{poly.edges.length}:</span>
-            {buildStepIndex < poly.edges.length ? (
-              <span className="text-amber-300 font-semibold">Open Shell (V − E + F = 1)</span>
-            ) : (
-              <span className="text-emerald-400 font-extrabold">Sealed 3D Polyhedron (V − E + F = 2)</span>
-            )}
-          </div>
-        ) : viewMode === "explode" ? (
-          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-white/90">
+        {viewMode === "explode" ? (
+          <div className="flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 border border-white/20 text-white/90">
             <span>Concentric Layer Explosion</span>
             <span className="text-white/50">({Math.round(explodeProgress * 100)}%)</span>
           </div>
@@ -644,63 +449,31 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
           );
         })}
 
-        {/* Render Edges (Solid wireframe struts with active stroke draw-out animation) */}
+        {/* Render Edges (Solid wireframe struts) */}
         {renderedEdges.map(({ eIdx, p1, p2 }) => {
-          const isHighlighted = highlight === "all" || highlight === "E";
-          const isCurrentBuildEdge = viewMode === "build" && eIdx === buildStepIndex - 1;
-
-          // Interpolated tip for active shooting line from vertex p1 to p2
-          const currentP2 = isCurrentBuildEdge
-            ? {
-                x: p1.x + (p2.x - p1.x) * strokeProgress,
-                y: p1.y + (p2.y - p1.y) * strokeProgress,
-              }
-            : p2;
-
           return (
-            <g key={`edge-${eIdx}`}>
-              <line
-                x1={p1.x}
-                y1={p1.y}
-                x2={currentP2.x}
-                y2={currentP2.y}
-                stroke={
-                  isCurrentBuildEdge
-                    ? COLOR_GOLD
-                    : highlight === "E"
-                    ? COLOR_GOLD
-                    : "rgba(255, 255, 255, 0.9)"
-                }
-                strokeWidth={isCurrentBuildEdge ? 3.6 : highlight === "E" ? 2.6 : 1.8}
-                strokeLinecap="round"
-                className="pointer-events-none"
-              />
-              {/* Glowing leading tip particle during shoot-out */}
-              {isCurrentBuildEdge && strokeProgress < 0.96 && (
-                <circle
-                  cx={currentP2.x}
-                  cy={currentP2.y}
-                  r={4.2}
-                  fill="#ffffff"
-                  stroke={COLOR_GOLD}
-                  strokeWidth={2}
-                  className="pointer-events-none"
-                />
-              )}
-            </g>
+            <line
+              key={`edge-${eIdx}`}
+              x1={p1.x}
+              y1={p1.y}
+              x2={p2.x}
+              y2={p2.y}
+              stroke={
+                highlight === "E"
+                  ? COLOR_GOLD
+                  : "rgba(255, 255, 255, 0.9)"
+              }
+              strokeWidth={highlight === "E" ? 2.6 : 1.8}
+              strokeLinecap="round"
+              className="pointer-events-none transition-colors"
+            />
           );
         })}
 
         {/* Render Vertices (Anchor Nodes) */}
         {renderedVertices.map(({ vIdx, p }) => {
           const isHighlighted = highlight === "all" || highlight === "V";
-          const isNewVertexThisStep = viewMode === "build" && activeStep?.isNewVertex && vIdx === currentV - 1;
-          
-          // Animate vertex emergence as the line arrives
-          const vertScale = isNewVertexThisStep ? Math.max(0, (strokeProgress - 0.6) / 0.4) : 1;
-          if (vertScale <= 0) return null;
-
-          const r = (isNewVertexThisStep ? 5.2 : highlight === "V" ? 4.5 : 3.2) * (isNewVertexThisStep ? 0.4 + 0.6 * vertScale : 1);
+          const r = highlight === "V" ? 4.5 : 3.2;
 
           return (
             <circle
@@ -708,9 +481,9 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
               cx={p.x}
               cy={p.y}
               r={r}
-              fill={isNewVertexThisStep ? "#ffffff" : isHighlighted ? COLOR_VERTEX : "rgba(255, 255, 255, 0.5)"}
-              stroke={isNewVertexThisStep ? COLOR_GOLD : "rgba(0, 0, 0, 0.4)"}
-              strokeWidth={isNewVertexThisStep ? 2.0 : 1.0}
+              fill={isHighlighted ? COLOR_VERTEX : "rgba(255, 255, 255, 0.5)"}
+              stroke="rgba(0, 0, 0, 0.4)"
+              strokeWidth={1.0}
               className="pointer-events-none"
             />
           );
@@ -736,13 +509,13 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
           ))}
         </div>
 
-        {/* Mode Selector Capsule: Inspect | Explode | Build */}
+        {/* Mode Selector Capsule: Inspect | Explode */}
         <div className="flex items-center justify-between gap-2 w-full bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/25 shadow-sm">
           
           {/* Mode Switcher */}
           <div className="flex items-center gap-1">
             <button
-              onClick={() => { setViewMode("inspect"); setIsAutoPlaying(false); }}
+              onClick={() => setViewMode("inspect")}
               className={cn(
                 "px-2.5 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
                 viewMode === "inspect" ? "bg-white/25 text-white shadow-sm" : "bg-transparent text-white/70 hover:text-white"
@@ -751,22 +524,13 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
               Inspect
             </button>
             <button
-              onClick={() => { setViewMode("explode"); setIsAutoPlaying(false); }}
+              onClick={() => setViewMode("explode")}
               className={cn(
                 "px-2.5 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
                 viewMode === "explode" ? "bg-white/25 text-white shadow-sm" : "bg-transparent text-white/70 hover:text-white"
               )}
             >
               Explode
-            </button>
-            <button
-              onClick={() => { setViewMode("build"); advanceBuildStep(0); }}
-              className={cn(
-                "px-2.5 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
-                viewMode === "build" ? "bg-white/25 text-white shadow-sm" : "bg-transparent text-white/70 hover:text-white"
-              )}
-            >
-              Build
             </button>
           </div>
 
@@ -809,24 +573,6 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
               />
             </div>
           )}
-
-          {viewMode === "build" && (
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setIsAutoPlaying((prev) => !prev)}
-                className="px-2.5 py-0.5 rounded-full text-xs font-headline font-bold bg-white/20 hover:bg-white/30 text-white transition-all active:scale-95 border-none"
-              >
-                {isAutoPlaying ? "Pause" : "Play"}
-              </button>
-              <button
-                onClick={() => advanceBuildStep(Math.min(poly.edges.length, buildStepIndex + 1))}
-                disabled={buildStepIndex >= poly.edges.length}
-                className="px-2 py-0.5 rounded-full text-xs font-headline font-bold bg-white/15 hover:bg-white/25 disabled:opacity-30 text-white transition-all border-none"
-              >
-                Step +
-              </button>
-            </div>
-          )}
         </div>
       </div>
 
@@ -838,7 +584,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
             className="hover:scale-105 transition-transform border-none bg-transparent"
             style={{ color: COLOR_VERTEX }}
           >
-            V ({currentV})
+            V ({poly.V})
           </button>
           <span className="text-white/50">−</span>
           <button
@@ -846,7 +592,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
             className="hover:scale-105 transition-transform border-none bg-transparent"
             style={{ color: COLOR_GOLD }}
           >
-            E ({currentE})
+            E ({poly.E})
           </button>
           <span className="text-white/50">+</span>
           <button
@@ -854,17 +600,10 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
             className="hover:scale-105 transition-transform border-none bg-transparent"
             style={{ color: COLOR_CYAN }}
           >
-            F ({currentF})
+            F ({poly.F})
           </button>
           <span className="text-white/50">=</span>
-          <span
-            className={cn(
-              "font-extrabold text-base transition-colors",
-              currentEulerValue === 2 ? "text-emerald-400" : "text-amber-300"
-            )}
-          >
-            {currentEulerValue}
-          </span>
+          <span className="text-white font-extrabold text-base">2</span>
         </div>
       </div>
 
