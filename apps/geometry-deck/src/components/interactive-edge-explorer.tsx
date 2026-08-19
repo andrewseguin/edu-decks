@@ -212,7 +212,7 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
     { id: 6, p1: pb_fr, p2: pv_fa },
     { id: 7, p1: pb_bl, p2: pv_ba },
     { id: 8, p1: pb_br, p2: pv_ba },
-    { id: 9, p1: pv_fa, p2: pv_ba },
+    { id: 9, p1: pv_r_front, p2: pv_r_back },
   ];
 
   const pyramidEdges = [
@@ -262,7 +262,11 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
       });
     } else if (shape === "prism") {
       prismEdges.forEach((edge) => {
-        const dSq = distSqToSegment(svgP.x, svgP.y, edge.p1.x, edge.p1.y, edge.p2.x, edge.p2.y);
+        let dSq = distSqToSegment(svgP.x, svgP.y, edge.p1.x, edge.p1.y, edge.p2.x, edge.p2.y);
+        if (edge.id === 9) {
+          const lSq = distSqToSegment(svgP.x, svgP.y, pv_l_front.x, pv_l_front.y, pv_l_back.x, pv_l_back.y);
+          if (lSq < dSq) dSq = lSq;
+        }
         if (dSq < minDistSq) {
           minDistSq = dSq;
           closestId = edge.id;
@@ -323,7 +327,13 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
       if (cur) currentDistSq = distSqToSegment(svgP.x, svgP.y, cur.p1.x, cur.p1.y, cur.p2.x, cur.p2.y);
     } else if (shape === "prism") {
       const cur = prismEdges.find((edge) => edge.id === selectedEdge);
-      if (cur) currentDistSq = distSqToSegment(svgP.x, svgP.y, cur.p1.x, cur.p1.y, cur.p2.x, cur.p2.y);
+      if (cur) {
+        currentDistSq = distSqToSegment(svgP.x, svgP.y, cur.p1.x, cur.p1.y, cur.p2.x, cur.p2.y);
+        if (cur.id === 9) {
+          const lSq = distSqToSegment(svgP.x, svgP.y, pv_l_front.x, pv_l_front.y, pv_l_back.x, pv_l_back.y);
+          if (lSq < currentDistSq) currentDistSq = lSq;
+        }
+      }
     } else if (shape === "pyramid") {
       const cur = pyramidEdges.find((edge) => edge.id === selectedEdge);
       if (cur) currentDistSq = distSqToSegment(svgP.x, svgP.y, cur.p1.x, cur.p1.y, cur.p2.x, cur.p2.y);
@@ -502,16 +512,30 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
                     className="cursor-pointer"
                   />
                   {isSelected && (
-                    <line
-                      x1={e.p1.x}
-                      y1={e.p1.y}
-                      x2={e.p2.x}
-                      y2={e.p2.y}
-                      stroke={COLOR_GOLD}
-                      strokeWidth={4.5}
-                      strokeLinecap="round"
-                      className="pointer-events-none"
-                    />
+                    <>
+                      <line
+                        x1={e.p1.x}
+                        y1={e.p1.y}
+                        x2={e.p2.x}
+                        y2={e.p2.y}
+                        stroke={COLOR_GOLD}
+                        strokeWidth={4.5}
+                        strokeLinecap="round"
+                        className="pointer-events-none"
+                      />
+                      {e.id === 9 && (
+                        <line
+                          x1={pv_l_front.x}
+                          y1={pv_l_front.y}
+                          x2={pv_l_back.x}
+                          y2={pv_l_back.y}
+                          stroke={COLOR_GOLD}
+                          strokeWidth={4.5}
+                          strokeLinecap="round"
+                          className="pointer-events-none"
+                        />
+                      )}
+                    </>
                   )}
                 </g>
               );
