@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useCallback, useEffect, useRef } from "react";
-import { Play, Pause } from "lucide-react";
 import { useContainerWidth } from "@/hooks/use-container-width";
 import { cn } from "@/lib/utils";
 
@@ -24,7 +23,7 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
   const [shape, setShape] = useState<ShapeType>("cube");
   const [rotationDeg, setRotationDeg] = useState<number>(38); // 0..360
   const [selectedEdge, setSelectedEdge] = useState<number>(0);
-  const [isAutoRotating, setIsAutoRotating] = useState(false);
+  const [isAutoRotating, setIsAutoRotating] = useState(true);
   const animRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
   const isDraggingRef = useRef(false);
@@ -69,6 +68,7 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
   // ──────────────────────────────────────────────────────────────────────────
   const handleCanvasPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
     stop(e);
+    if (isAutoRotating) setIsAutoRotating(false);
     isDraggingRef.current = true;
     lastDragXRef.current = e.clientX;
     dragDistRef.current = 0;
@@ -648,7 +648,7 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
         )}
       </svg>
 
-      {/* ── Minimalist Bottom Controls: Shape Switcher + Auto-Rotate Toggle ── */}
+      {/* ── Minimalist Bottom Controls: Shape Switcher ── */}
       <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm pointer-events-auto select-none z-30">
         {(["cube", "prism", "pyramid", "cylinder"] as const).map((s) => {
           const isActive = shape === s;
@@ -669,20 +669,6 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
             </button>
           );
         })}
-
-        {/* Subtle Vertical Divider */}
-        <div className="w-px h-3 bg-white/20 mx-0.5" />
-
-        {/* Play/Pause Auto-Rotate Button */}
-        <button
-          type="button"
-          onClick={() => setIsAutoRotating((prev) => !prev)}
-          title={isAutoRotating ? "Pause auto-rotation" : "Play auto-rotation"}
-          aria-label={isAutoRotating ? "Pause auto-rotation" : "Play auto-rotation"}
-          className="p-1 rounded-full text-white/70 hover:text-white hover:bg-white/15 transition-all active:scale-95 border-none flex items-center justify-center"
-        >
-          {isAutoRotating ? <Pause className="w-3.5 h-3.5" /> : <Play className="w-3.5 h-3.5" />}
-        </button>
       </div>
     </div>
   );
