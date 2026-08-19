@@ -359,8 +359,14 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
     const currentDist = Math.sqrt(currentDistSq);
     const candidateDist = Math.sqrt(minDistSq);
 
-    // Hysteresis buffer: new edge must be at least 14px closer to overcome the current edge
-    const HYSTERESIS_BUFFER = 14;
+    // If directly hovering over or very close to another segment (< 9px), switch immediately
+    if (candidateDist <= 9) {
+      setSelectedEdge(closestId);
+      return;
+    }
+
+    // Gentle 3.5px hysteresis when gliding across face interiors to prevent midpoint jitter
+    const HYSTERESIS_BUFFER = 3.5;
     if (candidateDist < currentDist - HYSTERESIS_BUFFER) {
       setSelectedEdge(closestId);
     }
