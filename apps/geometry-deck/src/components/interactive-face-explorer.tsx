@@ -565,9 +565,9 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
         <div className="flex items-center gap-3 w-full bg-white/10 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/25 shadow-sm">
           <div className="relative flex-1 flex items-center h-5">
             {/* Frosted Background Track */}
-            <div className="absolute inset-x-0 h-1.5 rounded-full bg-white/20 overflow-hidden pointer-events-none">
+            <div className="absolute inset-x-0 h-1.5 rounded-full bg-white/40 overflow-hidden pointer-events-none">
               <div
-                className="h-full bg-white/50 rounded-full"
+                className="h-full bg-white rounded-full"
                 style={{ width: `${unfold * 100}%` }}
               />
             </div>

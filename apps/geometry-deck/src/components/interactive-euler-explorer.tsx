@@ -546,48 +546,60 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
 
           <div className="h-3.5 w-px bg-white/25 mx-0.5" />
 
-          {/* Explode Slider */}
+          {/* Explode Slider with White Background */}
           <div className="flex items-center gap-1.5 pl-0.5">
             <span className="text-xs font-headline font-bold text-white/80 select-none">
               Explode
             </span>
-            <input
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={explodeProgress}
-              onChange={(e) => setExplodeProgress(parseFloat(e.target.value))}
-              className="w-16 sm:w-20 accent-white h-1.5 rounded-full cursor-pointer"
-            />
+            <div className="relative flex items-center w-16 sm:w-20 h-4">
+              {/* White Frosted Background Track */}
+              <div className="absolute inset-x-0 h-1.5 rounded-full bg-white/40 overflow-hidden pointer-events-none">
+                <div
+                  className="h-full bg-white rounded-full"
+                  style={{ width: `${explodeProgress * 100}%` }}
+                />
+              </div>
+              {/* Transparent Native Range Input */}
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.01"
+                value={explodeProgress}
+                onChange={(e) => setExplodeProgress(parseFloat(e.target.value))}
+                className="w-full h-4 opacity-0 cursor-pointer z-10 m-0"
+              />
+              {/* White Handle Thumb */}
+              <div
+                className="absolute top-1/2 w-3.5 h-3.5 rounded-full bg-white shadow-md pointer-events-none -translate-x-1/2 -translate-y-1/2"
+                style={{ left: `${explodeProgress * 100}%` }}
+              />
+            </div>
           </div>
 
         </div>
       </div>
 
-      {/* ── Live Euler Typographic Equation Banner ── */}
+      {/* ── Live Euler Typographic Equation Banner (Clean White) ── */}
       <div className="flex justify-center mt-1">
-        <div className="flex items-center gap-2 px-5 py-1.5 rounded-full bg-black/35 border-y border-white/20 shadow-md text-xs sm:text-sm font-bold font-headline select-none">
+        <div className="flex items-center gap-2 px-5 py-1.5 rounded-full bg-black/35 border-y border-white/20 shadow-md text-xs sm:text-sm font-bold font-headline select-none text-white">
           <button
             onClick={() => setHighlight(highlight === "V" ? "all" : "V")}
-            className="hover:scale-105 transition-transform border-none bg-transparent"
-            style={{ color: highlight === "V" ? COLOR_CYAN : "rgba(255, 255, 255, 0.9)" }}
+            className="hover:scale-105 transition-transform border-none bg-transparent text-white font-bold"
           >
             V ({poly.V})
           </button>
           <span className="text-white/50">−</span>
           <button
             onClick={() => setHighlight(highlight === "E" ? "all" : "E")}
-            className="hover:scale-105 transition-transform border-none bg-transparent"
-            style={{ color: highlight === "E" ? COLOR_CYAN : "rgba(255, 255, 255, 0.9)" }}
+            className="hover:scale-105 transition-transform border-none bg-transparent text-white font-bold"
           >
             E ({poly.E})
           </button>
           <span className="text-white/50">+</span>
           <button
             onClick={() => setHighlight(highlight === "F" ? "all" : "F")}
-            className="hover:scale-105 transition-transform border-none bg-transparent"
-            style={{ color: highlight === "F" ? COLOR_CYAN : "rgba(255, 255, 255, 0.9)" }}
+            className="hover:scale-105 transition-transform border-none bg-transparent text-white font-bold"
           >
             F ({poly.F})
           </button>
