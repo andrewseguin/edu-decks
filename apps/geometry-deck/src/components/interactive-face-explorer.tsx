@@ -10,7 +10,7 @@ type InteractiveFaceProps = {
 
 type ShapeType = "cube" | "prism" | "pyramid" | "cylinder";
 
-const SVG_H = 160;
+const SVG_H = 205;
 
 const COLOR_FACE = "#5ee8ff";   // Unified Face Color (Cyan)
 const COLOR_GOLD = "#ffd45e";   // Active Selected Face
@@ -19,7 +19,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
   const SVG_W = Math.max(280, Math.min(460, rawW - 24));
   const CX = SVG_W / 2;
-  const CY = 80;
+  const CY = 95;
 
   const [shape, setShape] = useState<ShapeType>("cube");
   const [unfold, setUnfold] = useState<number>(0);
@@ -73,7 +73,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
   }, []);
 
   // ──────────────────────────────────────────────────────────────────────────
-  // 3D Camera & Projection
+  // 3D Camera & Projection with Dynamic Zoom-Out
   // ──────────────────────────────────────────────────────────────────────────
   const p = unfold;
   const tFold = Math.min(1, p / 0.55);
@@ -84,13 +84,19 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
   const pitch = (pitchDeg * Math.PI) / 180;
   const yaw = (yawDeg * Math.PI) / 180;
 
-  const project = (x: number, y: number, z: number, scale = 0.95) => {
+  // Dynamic zoom: occupies full space when folded in 3D (1.95x),
+  // smoothly zooms out as it unfolds to fit the 2D flat net (0.95x)
+  const baseScale3D = 1.95;
+  const baseScaleNet = 0.95;
+  const currentScale = baseScale3D + (baseScaleNet - baseScale3D) * tFold;
+
+  const project = (x: number, y: number, z: number) => {
     const x1 = x * Math.cos(yaw) + z * Math.sin(yaw);
     const z1 = -x * Math.sin(yaw) + z * Math.cos(yaw);
     const y2 = y * Math.cos(pitch) - z1 * Math.sin(pitch);
     return {
-      x: CX + x1 * scale,
-      y: CY - y2 * scale,
+      x: CX + x1 * currentScale,
+      y: CY - y2 * currentScale,
     };
   };
 
@@ -229,7 +235,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
       </div>
 
       {/* ── Large & Prominent Interactive 3D / 2D Canvas ── */}
-      <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="w-full touch-none select-none overflow-visible max-h-[160px]">
+      <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="w-full touch-none select-none overflow-visible max-h-[205px]">
 
         {/* ───────── CUBE RENDERING ───────── */}
         {shape === "cube" && (
@@ -427,14 +433,17 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
 
         {/* ───────── CYLINDER RENDERING (Full Smooth [0, 1] Progression) ───────── */}
         {shape === "cylinder" && (() => {
-          const cR = 18;
-          const cH = 42;
-          const cCirc = 2 * Math.PI * cR;
+          const cylScale = 1.95 - 1.0 * p;
+          const baseCR = 19;
+          const baseCH = 42;
+          const cR = baseCR * cylScale;
+          const cH = baseCH * cylScale;
+          const cCirc = 2 * Math.PI * (baseCR * 0.95);
           const bodyW = cR * 2 + (cCirc - cR * 2) * p;
           const cRy = 0.32 * cR;
           const arcRy = cRy * (1 - p);
-          const topCy = (CY - cH / 2) - (cR + 3) * p;
-          const botCy = (CY + cH / 2) + (cR + 3) * p;
+          const topCy = (CY - cH / 2) - (cR + 4) * p;
+          const botCy = (CY + cH / 2) + (cR + 4) * p;
           const topRy = cRy + (cR - cRy) * p;
           const botRy = cRy + (cR - cRy) * p;
 
