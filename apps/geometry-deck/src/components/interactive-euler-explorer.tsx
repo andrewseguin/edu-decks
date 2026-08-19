@@ -9,7 +9,6 @@ type InteractiveEulerProps = {
 };
 
 type ShapeKey = "cube" | "tetra" | "octa" | "pyramid" | "prism5";
-type ViewMode = "inspect" | "explode";
 type HighlightElement = "all" | "V" | "E" | "F";
 
 interface Vec3 {
@@ -234,7 +233,6 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
   const CY = 95;
 
   const [shapeKey, setShapeKey] = useState<ShapeKey>("cube");
-  const [viewMode, setViewMode] = useState<ViewMode>("inspect");
   const [highlight, setHighlight] = useState<HighlightElement>("all");
   const [explodeProgress, setExplodeProgress] = useState(0); // 0..1
 
@@ -330,7 +328,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
 
   // Render Projected Faces with Depth Sorting
   const renderedFaces = useMemo(() => {
-    const explodeDist = viewMode === "explode" ? explodeProgress * 42 : 0;
+    const explodeDist = explodeProgress * 42;
 
     return poly.faces
       .map((fVerts, fIdx) => {
@@ -351,11 +349,11 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
         };
       })
       .sort((a, b) => a.avgZ - b.avgZ); // Sort back to front
-  }, [poly, viewMode, explodeProgress, faceCenters, projectVec]);
+  }, [poly, explodeProgress, faceCenters, projectVec]);
 
   // Render Projected Edges (Solid struts)
   const renderedEdges = useMemo(() => {
-    const explodeDist = viewMode === "explode" ? explodeProgress * 22 : 0;
+    const explodeDist = explodeProgress * 22;
 
     return poly.edges.map(([i1, i2], eIdx) => {
       const v1 = poly.vertices[i1];
@@ -383,11 +381,11 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
         avgZ,
       };
     });
-  }, [poly, viewMode, explodeProgress, projectVec]);
+  }, [poly, explodeProgress, projectVec]);
 
   // Render Projected Vertices
   const renderedVertices = useMemo(() => {
-    const explodeDist = viewMode === "explode" ? explodeProgress * 12 : 0;
+    const explodeDist = explodeProgress * 12;
 
     return poly.vertices.map((v, vIdx) => {
       const mag = Math.hypot(v.x, v.y, v.z) || 1;
@@ -402,27 +400,26 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
         p,
       };
     });
-  }, [poly, viewMode, explodeProgress, projectVec]);
+  }, [poly, explodeProgress, projectVec]);
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-1.5 w-full pt-0.5 pb-1 select-none" onClick={stop} onPointerDown={stop}>
       
       {/* ── Subtitle / Invariant Status Indicator ── */}
       <div className="flex items-center justify-center gap-2 text-xs sm:text-sm font-bold font-headline select-none">
-        {viewMode === "explode" ? (
-          <div className="flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 border border-white/20 text-white/90">
-            <span>Concentric Layer Explosion</span>
-            <span className="text-white/50">({Math.round(explodeProgress * 100)}%)</span>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 text-white/90">
-            <span style={{ color: COLOR_VERTEX }}>{poly.V} Vertices</span>
-            <span className="text-white/40">•</span>
-            <span style={{ color: COLOR_GOLD }}>{poly.E} Edges</span>
-            <span className="text-white/40">•</span>
-            <span style={{ color: COLOR_CYAN }}>{poly.F} Faces</span>
-          </div>
-        )}
+        <div className="flex items-center gap-2 text-white/90">
+          <span style={{ color: highlight === "V" || highlight === "all" ? COLOR_VERTEX : "rgba(255, 255, 255, 0.5)" }}>
+            {poly.V} Vertices
+          </span>
+          <span className="text-white/40">•</span>
+          <span style={{ color: highlight === "E" || highlight === "all" ? COLOR_GOLD : "rgba(255, 255, 255, 0.5)" }}>
+            {poly.E} Edges
+          </span>
+          <span className="text-white/40">•</span>
+          <span style={{ color: highlight === "F" || highlight === "all" ? COLOR_CYAN : "rgba(255, 255, 255, 0.5)" }}>
+            {poly.F} Faces
+          </span>
+        </div>
       </div>
 
       {/* ── 2-Axis Interactive 3D Canvas ── */}
@@ -509,21 +506,18 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
           ))}
         </div>
 
-        {/* Mode Selector Capsule: Unified Spotlight & Explode */}
-        <div className="flex items-center justify-center gap-1.5 bg-white/10 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/25 shadow-sm">
+        {/* Combined Controls Capsule: Spotlight (All | V | E | F) + Explode Slider */}
+        <div className="flex items-center justify-center gap-2 sm:gap-2.5 bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/25 shadow-sm">
           
           {/* Element Highlights: All | V | E | F */}
           <div className="flex items-center gap-1">
             {(["all", "V", "E", "F"] as HighlightElement[]).map((mode) => (
               <button
                 key={mode}
-                onClick={() => {
-                  setHighlight(mode);
-                  if (viewMode === "explode") setViewMode("inspect");
-                }}
+                onClick={() => setHighlight(mode)}
                 className={cn(
                   "px-2.5 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
-                  viewMode === "inspect" && highlight === mode
+                  highlight === mode
                     ? mode === "V"
                       ? "bg-white text-black shadow-sm"
                       : mode === "E"
@@ -541,39 +535,21 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
 
           <div className="h-3.5 w-px bg-white/25 mx-0.5" />
 
-          {/* Explode Toggle & Slider */}
-          {viewMode === "explode" ? (
-            <div className="flex items-center gap-2 pl-0.5">
-              <button
-                onClick={() => {
-                  setViewMode("inspect");
-                  setExplodeProgress(0);
-                }}
-                className="text-xs font-headline font-bold text-white px-2 py-0.5 rounded-full bg-white/20 hover:bg-white/30 border-none transition-all"
-              >
-                Reset
-              </button>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={explodeProgress}
-                onChange={(e) => setExplodeProgress(parseFloat(e.target.value))}
-                className="w-20 sm:w-24 accent-white h-1.5 rounded-full cursor-pointer"
-              />
-            </div>
-          ) : (
-            <button
-              onClick={() => {
-                setViewMode("explode");
-                if (explodeProgress === 0) setExplodeProgress(0.65);
-              }}
-              className="px-2.5 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none bg-transparent text-white/70 hover:text-white"
-            >
+          {/* Explode Slider */}
+          <div className="flex items-center gap-1.5 pl-0.5">
+            <span className="text-xs font-headline font-bold text-white/80 select-none">
               Explode
-            </button>
-          )}
+            </span>
+            <input
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={explodeProgress}
+              onChange={(e) => setExplodeProgress(parseFloat(e.target.value))}
+              className="w-16 sm:w-20 accent-white h-1.5 rounded-full cursor-pointer"
+            />
+          </div>
 
         </div>
       </div>
