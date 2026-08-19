@@ -84,9 +84,9 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
   const pitch = (pitchDeg * Math.PI) / 180;
   const yaw = (yawDeg * Math.PI) / 180;
 
-  // Dynamic zoom: occupies full space when folded in 3D (1.95x),
+  // Dynamic zoom: occupies full space when folded in 3D (1.75x),
   // smoothly zooms out as it unfolds to fit the 2D flat net (0.95x)
-  const baseScale3D = 1.95;
+  const baseScale3D = 1.75;
   const baseScaleNet = 0.95;
   const currentScale = baseScale3D + (baseScaleNet - baseScale3D) * tFold;
 
@@ -107,30 +107,31 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
   const halfS = cubeS / 2;
   const cubeFoldAngle = (1 - tFold) * (Math.PI / 2);
   const cubeXShift = shape === "cube" ? -halfS * tRotate : 0;
+  const cubeYShift = -halfS * (1 - tFold);
 
   // Bottom (Face 6)
-  const c_b_fl = project(-halfS + cubeXShift, 0, halfS);
-  const c_b_fr = project(halfS + cubeXShift, 0, halfS);
-  const c_b_br = project(halfS + cubeXShift, 0, -halfS);
-  const c_b_bl = project(-halfS + cubeXShift, 0, -halfS);
+  const c_b_fl = project(-halfS + cubeXShift, cubeYShift, halfS);
+  const c_b_fr = project(halfS + cubeXShift, cubeYShift, halfS);
+  const c_b_br = project(halfS + cubeXShift, cubeYShift, -halfS);
+  const c_b_bl = project(-halfS + cubeXShift, cubeYShift, -halfS);
 
   // Front (Face 1)
-  const c_f_tl = project(-halfS + cubeXShift, cubeS * Math.sin(cubeFoldAngle), halfS + cubeS * Math.cos(cubeFoldAngle));
-  const c_f_tr = project(halfS + cubeXShift, cubeS * Math.sin(cubeFoldAngle), halfS + cubeS * Math.cos(cubeFoldAngle));
+  const c_f_tl = project(-halfS + cubeXShift, cubeS * Math.sin(cubeFoldAngle) + cubeYShift, halfS + cubeS * Math.cos(cubeFoldAngle));
+  const c_f_tr = project(halfS + cubeXShift, cubeS * Math.sin(cubeFoldAngle) + cubeYShift, halfS + cubeS * Math.cos(cubeFoldAngle));
 
   // Back (Face 2)
-  const c_bk_y = cubeS * Math.sin(cubeFoldAngle);
+  const c_bk_y = cubeS * Math.sin(cubeFoldAngle) + cubeYShift;
   const c_bk_z = -halfS - cubeS * Math.cos(cubeFoldAngle);
   const c_bk_tl = project(-halfS + cubeXShift, c_bk_y, c_bk_z);
   const c_bk_tr = project(halfS + cubeXShift, c_bk_y, c_bk_z);
 
   // Left (Face 3)
-  const c_l_tl = project(-halfS - cubeS * Math.cos(cubeFoldAngle) + cubeXShift, cubeS * Math.sin(cubeFoldAngle), halfS);
-  const c_l_bl = project(-halfS - cubeS * Math.cos(cubeFoldAngle) + cubeXShift, cubeS * Math.sin(cubeFoldAngle), -halfS);
+  const c_l_tl = project(-halfS - cubeS * Math.cos(cubeFoldAngle) + cubeXShift, cubeS * Math.sin(cubeFoldAngle) + cubeYShift, halfS);
+  const c_l_bl = project(-halfS - cubeS * Math.cos(cubeFoldAngle) + cubeXShift, cubeS * Math.sin(cubeFoldAngle) + cubeYShift, -halfS);
 
   // Right (Face 4)
   const c_r_x = halfS + cubeS * Math.cos(cubeFoldAngle);
-  const c_r_y = cubeS * Math.sin(cubeFoldAngle);
+  const c_r_y = cubeS * Math.sin(cubeFoldAngle) + cubeYShift;
   const c_r_tr = project(c_r_x + cubeXShift, c_r_y, halfS);
   const c_r_br = project(c_r_x + cubeXShift, c_r_y, -halfS);
 
@@ -148,23 +149,24 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
   const pL = 56;
   const pR = Math.sqrt((pW / 2) * (pW / 2) + pH * pH);
   const pRoofAngleInit = Math.atan2(pH, pW / 2);
+  const prismYShift = -(pH / 2) * (1 - tFold);
 
-  const pb_fl = project(-pW / 2, 0, pL / 2);
-  const pb_fr = project(pW / 2, 0, pL / 2);
-  const pb_br = project(pW / 2, 0, -pL / 2);
-  const pb_bl = project(-pW / 2, 0, -pL / 2);
+  const pb_fl = project(-pW / 2, prismYShift, pL / 2);
+  const pb_fr = project(pW / 2, prismYShift, pL / 2);
+  const pb_br = project(pW / 2, prismYShift, -pL / 2);
+  const pb_bl = project(-pW / 2, prismYShift, -pL / 2);
 
   const triAngle = (1 - tFold) * (Math.PI / 2);
-  const pv_fa = project(0, pH * Math.sin(triAngle), pL / 2 + pH * Math.cos(triAngle));
-  const pv_ba = project(0, pH * Math.sin(triAngle), -pL / 2 - pH * Math.cos(triAngle));
+  const pv_fa = project(0, pH * Math.sin(triAngle) + prismYShift, pL / 2 + pH * Math.cos(triAngle));
+  const pv_ba = project(0, pH * Math.sin(triAngle) + prismYShift, -pL / 2 - pH * Math.cos(triAngle));
 
   const r_angle = (1 - tFold) * (Math.PI - pRoofAngleInit);
-  const pv_r_front = project(pW / 2 + pR * Math.cos(r_angle), pR * Math.sin(r_angle), pL / 2);
-  const pv_r_back = project(pW / 2 + pR * Math.cos(r_angle), pR * Math.sin(r_angle), -pL / 2);
+  const pv_r_front = project(pW / 2 + pR * Math.cos(r_angle), pR * Math.sin(r_angle) + prismYShift, pL / 2);
+  const pv_r_back = project(pW / 2 + pR * Math.cos(r_angle), pR * Math.sin(r_angle) + prismYShift, -pL / 2);
 
   const l_angle = (1 - tFold) * (Math.PI - pRoofAngleInit);
-  const pv_l_front = project(-pW / 2 - pR * Math.cos(l_angle), pR * Math.sin(l_angle), pL / 2);
-  const pv_l_back = project(-pW / 2 - pR * Math.cos(l_angle), pR * Math.sin(l_angle), -pL / 2);
+  const pv_l_front = project(-pW / 2 - pR * Math.cos(l_angle), pR * Math.sin(l_angle) + prismYShift, pL / 2);
+  const pv_l_back = project(-pW / 2 - pR * Math.cos(l_angle), pR * Math.sin(l_angle) + prismYShift, -pL / 2);
 
   // ──────────────────────────────────────────────────────────────────────────
   // 3. SQUARE PYRAMID KINEMATICS (Closed 3D Apex at (0, pyrH, 0))
@@ -174,16 +176,17 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
   const pyrSlant = Math.sqrt((pyrW / 2) * (pyrW / 2) + pyrH * pyrH);
   const pyrInitAngle = Math.atan2(pyrH, pyrW / 2);
   const pyrPhi = (1 - tFold) * (Math.PI - pyrInitAngle);
+  const pyrYShift = -(pyrH / 2) * (1 - tFold);
 
-  const pyrb_fl = project(-pyrW / 2, 0, pyrW / 2);
-  const pyrb_fr = project(pyrW / 2, 0, pyrW / 2);
-  const pyrb_br = project(pyrW / 2, 0, -pyrW / 2);
-  const pyrb_bl = project(-pyrW / 2, 0, -pyrW / 2);
+  const pyrb_fl = project(-pyrW / 2, pyrYShift, pyrW / 2);
+  const pyrb_fr = project(pyrW / 2, pyrYShift, pyrW / 2);
+  const pyrb_br = project(pyrW / 2, pyrYShift, -pyrW / 2);
+  const pyrb_bl = project(-pyrW / 2, pyrYShift, -pyrW / 2);
 
-  const pyr_f_apex = project(0, pyrSlant * Math.sin(pyrPhi), pyrW / 2 + pyrSlant * Math.cos(pyrPhi));
-  const pyr_bk_apex = project(0, pyrSlant * Math.sin(pyrPhi), -pyrW / 2 - pyrSlant * Math.cos(pyrPhi));
-  const pyr_r_apex = project(pyrW / 2 + pyrSlant * Math.cos(pyrPhi), pyrSlant * Math.sin(pyrPhi), 0);
-  const pyr_l_apex = project(-pyrW / 2 - pyrSlant * Math.cos(pyrPhi), pyrSlant * Math.sin(pyrPhi), 0);
+  const pyr_f_apex = project(0, pyrSlant * Math.sin(pyrPhi) + pyrYShift, pyrW / 2 + pyrSlant * Math.cos(pyrPhi));
+  const pyr_bk_apex = project(0, pyrSlant * Math.sin(pyrPhi) + pyrYShift, -pyrW / 2 - pyrSlant * Math.cos(pyrPhi));
+  const pyr_r_apex = project(pyrW / 2 + pyrSlant * Math.cos(pyrPhi), pyrSlant * Math.sin(pyrPhi) + pyrYShift, 0);
+  const pyr_l_apex = project(-pyrW / 2 - pyrSlant * Math.cos(pyrPhi), pyrSlant * Math.sin(pyrPhi) + pyrYShift, 0);
 
   // ──────────────────────────────────────────────────────────────────────────
   // 4. CYLINDER KINEMATICS
