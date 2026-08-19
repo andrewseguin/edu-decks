@@ -326,7 +326,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
 
   // Render Projected Faces with Depth Sorting
   const renderedFaces = useMemo(() => {
-    const explodeDist = explodeProgress * 42;
+    const explodeDist = explodeProgress * 32;
 
     return poly.faces
       .map((fVerts, fIdx) => {
@@ -351,7 +351,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
 
   // Render Projected Edges (Solid struts)
   const renderedEdges = useMemo(() => {
-    const explodeDist = explodeProgress * 22;
+    const explodeDist = explodeProgress * 32;
 
     return poly.edges.map(([i1, i2], eIdx) => {
       const v1 = poly.vertices[i1];
@@ -383,7 +383,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
 
   // Render Projected Vertices
   const renderedVertices = useMemo(() => {
-    const explodeDist = explodeProgress * 12;
+    const explodeDist = explodeProgress * 32;
 
     return poly.vertices.map((v, vIdx) => {
       const mag = Math.hypot(v.x, v.y, v.z) || 1;
@@ -445,7 +445,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
               fill={fill}
               stroke={isFaceHighlighted ? COLOR_CYAN : isAll ? "rgba(255, 255, 255, 0.4)" : "rgba(255, 255, 255, 0.15)"}
               strokeWidth={isFaceHighlighted ? 2.2 : 1.0}
-              className="transition-colors pointer-events-none"
+              className="pointer-events-none"
             />
           );
         })}
@@ -471,7 +471,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
               }
               strokeWidth={isEdgeHighlighted ? 2.8 : isAll ? 1.8 : 1.2}
               strokeLinecap="round"
-              className="pointer-events-none transition-colors"
+              className="pointer-events-none"
             />
           );
         })}
@@ -496,7 +496,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
               }
               stroke={isVertHighlighted ? "#ffffff" : isAll ? "rgba(0, 0, 0, 0.4)" : "transparent"}
               strokeWidth={isVertHighlighted ? 1.5 : 1.0}
-              className="pointer-events-none transition-all"
+              className="pointer-events-none"
             />
           );
         })}
