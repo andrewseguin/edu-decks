@@ -509,59 +509,50 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
           ))}
         </div>
 
-        {/* Mode Selector Capsule: Inspect | Explode */}
-        <div className="flex items-center justify-between gap-2 w-full bg-white/10 backdrop-blur-md px-3 py-1 rounded-full border border-white/25 shadow-sm">
+        {/* Mode Selector Capsule: Unified Spotlight & Explode */}
+        <div className="flex items-center justify-center gap-1.5 bg-white/10 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/25 shadow-sm">
           
-          {/* Mode Switcher */}
+          {/* Element Highlights: All | V | E | F */}
           <div className="flex items-center gap-1">
-            <button
-              onClick={() => setViewMode("inspect")}
-              className={cn(
-                "px-2.5 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
-                viewMode === "inspect" ? "bg-white/25 text-white shadow-sm" : "bg-transparent text-white/70 hover:text-white"
-              )}
-            >
-              Inspect
-            </button>
-            <button
-              onClick={() => setViewMode("explode")}
-              className={cn(
-                "px-2.5 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
-                viewMode === "explode" ? "bg-white/25 text-white shadow-sm" : "bg-transparent text-white/70 hover:text-white"
-              )}
-            >
-              Explode
-            </button>
+            {(["all", "V", "E", "F"] as HighlightElement[]).map((mode) => (
+              <button
+                key={mode}
+                onClick={() => {
+                  setHighlight(mode);
+                  if (viewMode === "explode") setViewMode("inspect");
+                }}
+                className={cn(
+                  "px-2.5 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
+                  viewMode === "inspect" && highlight === mode
+                    ? mode === "V"
+                      ? "bg-white text-black shadow-sm"
+                      : mode === "E"
+                      ? "bg-[#ffd45e] text-black shadow-sm"
+                      : mode === "F"
+                      ? "bg-[#5ee8ff] text-black shadow-sm"
+                      : "bg-white/30 text-white shadow-sm"
+                    : "bg-transparent text-white/70 hover:text-white"
+                )}
+              >
+                {mode === "all" ? "All" : mode}
+              </button>
+            ))}
           </div>
 
-          {/* Mode-Specific Interaction Widgets */}
-          {viewMode === "inspect" && (
-            <div className="flex items-center gap-1">
-              {(["all", "V", "E", "F"] as HighlightElement[]).map((mode) => (
-                <button
-                  key={mode}
-                  onClick={() => setHighlight(mode)}
-                  className={cn(
-                    "px-2 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
-                    highlight === mode
-                      ? mode === "V"
-                        ? "bg-white text-black shadow-sm"
-                        : mode === "E"
-                        ? "bg-[#ffd45e] text-black shadow-sm"
-                        : mode === "F"
-                        ? "bg-[#5ee8ff] text-black shadow-sm"
-                        : "bg-white/30 text-white shadow-sm"
-                      : "bg-transparent text-white/70 hover:text-white"
-                  )}
-                >
-                  {mode === "all" ? "All" : mode}
-                </button>
-              ))}
-            </div>
-          )}
+          <div className="h-3.5 w-px bg-white/25 mx-0.5" />
 
-          {viewMode === "explode" && (
-            <div className="flex items-center gap-2 flex-1 max-w-[150px] pl-2">
+          {/* Explode Toggle & Slider */}
+          {viewMode === "explode" ? (
+            <div className="flex items-center gap-2 pl-0.5">
+              <button
+                onClick={() => {
+                  setViewMode("inspect");
+                  setExplodeProgress(0);
+                }}
+                className="text-xs font-headline font-bold text-white px-2 py-0.5 rounded-full bg-white/20 hover:bg-white/30 border-none transition-all"
+              >
+                Reset
+              </button>
               <input
                 type="range"
                 min="0"
@@ -569,10 +560,21 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
                 step="0.01"
                 value={explodeProgress}
                 onChange={(e) => setExplodeProgress(parseFloat(e.target.value))}
-                className="w-full accent-white h-1.5 rounded-full cursor-pointer"
+                className="w-20 sm:w-24 accent-white h-1.5 rounded-full cursor-pointer"
               />
             </div>
+          ) : (
+            <button
+              onClick={() => {
+                setViewMode("explode");
+                if (explodeProgress === 0) setExplodeProgress(0.65);
+              }}
+              className="px-2.5 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none bg-transparent text-white/70 hover:text-white"
+            >
+              Explode
+            </button>
           )}
+
         </div>
       </div>
 
