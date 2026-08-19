@@ -28,8 +28,7 @@ export function InteractiveVertexExplorer({ color }: InteractiveVertexProps) {
   const animRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
   const isDraggingRef = useRef(false);
-  const lastDragPosRef = useRef<{ x: number; y: number }>({ x: 0, y: 0 });
-  const lastDragAngleRef = useRef<number>(0);
+  const lastDragXRef = useRef(0);
   const dragDistRef = useRef(0);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
@@ -281,23 +280,13 @@ export function InteractiveVertexExplorer({ color }: InteractiveVertexProps) {
   };
 
   // ──────────────────────────────────────────────────────────────────────────
-  // Canvas Drag (Circular Arc + Swipe) to Rotate & Tap to Select
+  // Canvas Drag to Rotate & Tap to Select
   // ──────────────────────────────────────────────────────────────────────────
   const handleCanvasPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
     stop(e);
     isDraggingRef.current = true;
+    lastDragXRef.current = e.clientX;
     dragDistRef.current = 0;
-
-    const svg = e.currentTarget;
-    const pt = svg.createSVGPoint();
-    pt.x = e.clientX;
-    pt.y = e.clientY;
-    const svgP = pt.matrixTransform(svg.getScreenCTM()?.inverse());
-    const px = svgP ? svgP.x : e.clientX;
-    const py = svgP ? svgP.y : e.clientY;
-
-    lastDragPosRef.current = { x: px, y: py };
-    lastDragAngleRef.current = Math.atan2(py - CY, px - CX);
     (e.currentTarget as Element).setPointerCapture(e.pointerId);
   };
 
@@ -324,50 +313,21 @@ export function InteractiveVertexExplorer({ color }: InteractiveVertexProps) {
   };
 
   const handleSvgPointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (isDraggingRef.current) {
+      const dx = e.clientX - lastDragXRef.current;
+      lastDragXRef.current = e.clientX;
+      dragDistRef.current += Math.abs(dx);
+      setRotationDeg((prev) => (prev + dx * 0.75 + 360) % 360);
+      return;
+    }
+
+    if (e.pointerType !== "mouse" || shape === "cylinder") return;
     const svg = e.currentTarget;
     const pt = svg.createSVGPoint();
     pt.x = e.clientX;
     pt.y = e.clientY;
     const svgP = pt.matrixTransform(svg.getScreenCTM()?.inverse());
     if (!svgP) return;
-
-    if (isDraggingRef.current) {
-      const px = svgP.x;
-      const py = svgP.y;
-      const dx = px - lastDragPosRef.current.x;
-      const dy = py - lastDragPosRef.current.y;
-      dragDistRef.current += Math.hypot(dx, dy);
-
-      // 1. Polar angle delta (circular / arc dragging around center)
-      const currentAngle = Math.atan2(py - CY, px - CX);
-      let angleDelta = (currentAngle - lastDragAngleRef.current) * (180 / Math.PI);
-      if (angleDelta > 180) angleDelta -= 360;
-      if (angleDelta < -180) angleDelta += 360;
-
-      // 2. Linear displacement delta (horizontal swipe)
-      const linearDelta = dx * 0.75;
-
-      // Distance from turntable center
-      const r = Math.hypot(px - CX, py - CY);
-
-      // Smart fusion: If orbiting outside the inner singularity core (r > 30px),
-      // follow circular angle directly.
-      let finalDelta = linearDelta;
-      if (r > 30 && Math.abs(angleDelta) > 0.25) {
-        finalDelta = angleDelta;
-      } else if (r <= 30) {
-        finalDelta = linearDelta;
-      } else {
-        finalDelta = Math.abs(angleDelta) > Math.abs(linearDelta) ? angleDelta : linearDelta;
-      }
-
-      setRotationDeg((prev) => (prev + finalDelta + 360) % 360);
-      lastDragPosRef.current = { x: px, y: py };
-      lastDragAngleRef.current = currentAngle;
-      return;
-    }
-
-    if (e.pointerType !== "mouse" || shape === "cylinder") return;
 
     const { closestId, minDistSq } = getClosestVertexData(svgP.x, svgP.y);
 
@@ -452,19 +412,6 @@ export function InteractiveVertexExplorer({ color }: InteractiveVertexProps) {
         onPointerLeave={handleSvgPointerLeave}
         className="w-full touch-none select-none overflow-visible max-h-[225px] cursor-grab active:cursor-grabbing"
       >
-        {/* Subtle 3D Turntable Base Platter Ring */}
-        <ellipse
-          cx={CX}
-          cy={CY + 54}
-          rx={Math.min(135, SVG_W * 0.38)}
-          ry={Math.min(135, SVG_W * 0.38) * Math.sin(pitch)}
-          fill="rgba(255, 255, 255, 0.025)"
-          stroke="rgba(255, 255, 255, 0.16)"
-          strokeWidth={1.2}
-          strokeDasharray="4 4"
-          className="pointer-events-none"
-        />
-
         {/* ───────── CUBE RENDERING ───────── */}
         {shape === "cube" && (
           <g>
