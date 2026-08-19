@@ -10,7 +10,7 @@ type InteractiveFaceProps = {
 
 type ShapeType = "cube" | "prism" | "pyramid" | "cylinder";
 
-const SVG_H = 148;
+const SVG_H = 160;
 
 const COLOR_FACE = "#5ee8ff";   // Unified Face Color (Cyan)
 const COLOR_GOLD = "#ffd45e";   // Active Selected Face
@@ -19,7 +19,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
   const SVG_W = Math.max(280, Math.min(460, rawW - 24));
   const CX = SVG_W / 2;
-  const CY = 74;
+  const CY = 80;
 
   const [shape, setShape] = useState<ShapeType>("cube");
   const [unfold, setUnfold] = useState<number>(0);
@@ -97,7 +97,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
   // ──────────────────────────────────────────────────────────────────────────
   // 1. CUBE KINEMATICS (Unfolds Sideways)
   // ──────────────────────────────────────────────────────────────────────────
-  const cubeS = 42;
+  const cubeS = 46;
   const halfS = cubeS / 2;
   const cubeFoldAngle = (1 - tFold) * (Math.PI / 2);
   const cubeXShift = shape === "cube" ? -halfS * tRotate : 0;
@@ -137,9 +137,9 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
   // ──────────────────────────────────────────────────────────────────────────
   // 2. TRIANGULAR PRISM KINEMATICS
   // ──────────────────────────────────────────────────────────────────────────
-  const pW = 46;
-  const pH = 38;
-  const pL = 50;
+  const pW = 50;
+  const pH = 40;
+  const pL = 56;
   const pR = Math.sqrt((pW / 2) * (pW / 2) + pH * pH);
   const pRoofAngleInit = Math.atan2(pH, pW / 2);
 
@@ -163,8 +163,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
   // ──────────────────────────────────────────────────────────────────────────
   // 3. SQUARE PYRAMID KINEMATICS (Closed 3D Apex at (0, pyrH, 0))
   // ──────────────────────────────────────────────────────────────────────────
-  const pyrW = 44;
-  const pyrH = 40;
+  const pyrW = 46;
+  const pyrH = 42;
   const pyrSlant = Math.sqrt((pyrW / 2) * (pyrW / 2) + pyrH * pyrH);
   const pyrInitAngle = Math.atan2(pyrH, pyrW / 2);
   const pyrPhi = (1 - tFold) * (Math.PI - pyrInitAngle);
@@ -182,8 +182,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
   // ──────────────────────────────────────────────────────────────────────────
   // 4. CYLINDER KINEMATICS
   // ──────────────────────────────────────────────────────────────────────────
-  const cylR = 22;
-  const cylH = 46;
+  const cylR = 18;
+  const cylH = 42;
   const cylCirc = 2 * Math.PI * cylR;
   const netRectW = cylR * 2 + (cylCirc - cylR * 2) * tFold;
   const lidOffset = cylH / 2 + (cylR + 4) * tFold;
@@ -229,7 +229,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
       </div>
 
       {/* ── Large & Prominent Interactive 3D / 2D Canvas ── */}
-      <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="w-full touch-none select-none overflow-visible max-h-[148px]">
+      <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="w-full touch-none select-none overflow-visible max-h-[160px]">
 
         {/* ───────── CUBE RENDERING ───────── */}
         {shape === "cube" && (

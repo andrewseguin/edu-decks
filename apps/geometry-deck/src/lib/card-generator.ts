@@ -866,7 +866,6 @@ function make3DTermCards(): GeometryCard[] {
       frontLabel: "Face", frontPrompt: "is…?",
       frontSpeechText: "A face is…?",
       backDefinition: "A 2D surface of a 3D solid",
-      backDefinitionSubtitle: "The 2D surfaces that join together to form a 3D shape",
       backSvgExamples: [{ shape: "prism", dimensions: { l: 4, w: 3, h: 2, labelMode: "numeric" }, labelMode: "numeric" }],
       backSteps: [{ formulaLine: "Face = 2D surface forming the boundary of a 3D solid" }, { formulaLine: "Polyhedra have polygon faces; cylinders and cones have circular faces" }],
       backSpeechText: "A face is a two-dimensional surface of a three-dimensional shape", color,
