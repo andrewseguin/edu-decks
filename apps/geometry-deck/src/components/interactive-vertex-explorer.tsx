@@ -425,22 +425,19 @@ export function InteractiveVertexExplorer({ color }: InteractiveVertexProps) {
               />
             ))}
 
-            {/* Base White Wireframe Edges (Illuminated in Gold if connecting to Selected Vertex) */}
-            {cubeEdges.map((e) => {
-              const isIncident = selectedVertex > 0 && (e.v1 === selectedVertex || e.v2 === selectedVertex);
-              return (
-                <line
-                  key={e.id}
-                  x1={e.p1.x}
-                  y1={e.p1.y}
-                  x2={e.p2.x}
-                  y2={e.p2.y}
-                  stroke={isIncident ? COLOR_GOLD : "rgba(255, 255, 255, 0.35)"}
-                  strokeWidth={isIncident ? 3.5 : 1.8}
-                  strokeLinecap="round"
-                />
-              );
-            })}
+            {/* Base White Wireframe Edges */}
+            {cubeEdges.map((e) => (
+              <line
+                key={e.id}
+                x1={e.p1.x}
+                y1={e.p1.y}
+                x2={e.p2.x}
+                y2={e.p2.y}
+                stroke="rgba(255, 255, 255, 0.35)"
+                strokeWidth={1.8}
+                strokeLinecap="round"
+              />
+            ))}
 
             {/* Cyan Vertex Corner Dots (Electric Cyan by default, Glowing Gold on hover/select) */}
             {cubeVertices.map((v) => {
@@ -487,22 +484,19 @@ export function InteractiveVertexExplorer({ color }: InteractiveVertexProps) {
               />
             ))}
 
-            {/* Base White Wireframe Edges (Illuminated in Gold if connecting to Selected Vertex) */}
-            {prismEdges.map((e) => {
-              const isIncident = selectedVertex > 0 && (e.v1 === selectedVertex || e.v2 === selectedVertex);
-              return (
-                <line
-                  key={e.id}
-                  x1={e.p1.x}
-                  y1={e.p1.y}
-                  x2={e.p2.x}
-                  y2={e.p2.y}
-                  stroke={isIncident ? COLOR_GOLD : "rgba(255, 255, 255, 0.35)"}
-                  strokeWidth={isIncident ? 3.5 : 1.8}
-                  strokeLinecap="round"
-                />
-              );
-            })}
+            {/* Base White Wireframe Edges */}
+            {prismEdges.map((e) => (
+              <line
+                key={e.id}
+                x1={e.p1.x}
+                y1={e.p1.y}
+                x2={e.p2.x}
+                y2={e.p2.y}
+                stroke="rgba(255, 255, 255, 0.35)"
+                strokeWidth={1.8}
+                strokeLinecap="round"
+              />
+            ))}
 
             {/* Cyan Vertex Corner Dots */}
             {prismVertices.map((v) => {
@@ -549,22 +543,19 @@ export function InteractiveVertexExplorer({ color }: InteractiveVertexProps) {
               />
             ))}
 
-            {/* Base White Wireframe Edges (Illuminated in Gold if connecting to Selected Vertex) */}
-            {pyramidEdges.map((e) => {
-              const isIncident = selectedVertex > 0 && (e.v1 === selectedVertex || e.v2 === selectedVertex);
-              return (
-                <line
-                  key={e.id}
-                  x1={e.p1.x}
-                  y1={e.p1.y}
-                  x2={e.p2.x}
-                  y2={e.p2.y}
-                  stroke={isIncident ? COLOR_GOLD : "rgba(255, 255, 255, 0.35)"}
-                  strokeWidth={isIncident ? 3.5 : 1.8}
-                  strokeLinecap="round"
-                />
-              );
-            })}
+            {/* Base White Wireframe Edges */}
+            {pyramidEdges.map((e) => (
+              <line
+                key={e.id}
+                x1={e.p1.x}
+                y1={e.p1.y}
+                x2={e.p2.x}
+                y2={e.p2.y}
+                stroke="rgba(255, 255, 255, 0.35)"
+                strokeWidth={1.8}
+                strokeLinecap="round"
+              />
+            ))}
 
             {/* Cyan Vertex Corner Dots */}
             {pyramidVertices.map((v) => {
