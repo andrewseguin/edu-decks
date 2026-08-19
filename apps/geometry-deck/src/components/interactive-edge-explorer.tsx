@@ -186,6 +186,139 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
   const cylH = 42;
 
   // ──────────────────────────────────────────────────────────────────────────
+  // Edge Geometry Lists
+  // ──────────────────────────────────────────────────────────────────────────
+  const cubeEdges = [
+    { id: 1, p1: c_b_fl, p2: c_b_fr },
+    { id: 2, p1: c_b_fr, p2: c_b_br },
+    { id: 3, p1: c_b_br, p2: c_b_bl },
+    { id: 4, p1: c_b_bl, p2: c_b_fl },
+    { id: 5, p1: c_b_fl, p2: c_f_tl },
+    { id: 6, p1: c_f_tl, p2: c_f_tr },
+    { id: 7, p1: c_f_tr, p2: c_b_fr },
+    { id: 8, p1: c_b_bl, p2: c_bk_tl },
+    { id: 9, p1: c_bk_tl, p2: c_bk_tr },
+    { id: 10, p1: c_bk_tr, p2: c_b_br },
+    { id: 11, p1: c_l_tl, p2: c_l_bl },
+    { id: 12, p1: c_r_tr, p2: c_r_br },
+  ];
+
+  const prismEdges = [
+    { id: 1, p1: pb_fl, p2: pb_fr },
+    { id: 2, p1: pb_fr, p2: pb_br },
+    { id: 3, p1: pb_br, p2: pb_bl },
+    { id: 4, p1: pb_bl, p2: pb_fl },
+    { id: 5, p1: pb_fl, p2: pv_fa },
+    { id: 6, p1: pb_fr, p2: pv_fa },
+    { id: 7, p1: pb_bl, p2: pv_ba },
+    { id: 8, p1: pb_br, p2: pv_ba },
+    { id: 9, p1: pv_fa, p2: pv_ba },
+  ];
+
+  const pyramidEdges = [
+    { id: 1, p1: pyrb_fl, p2: pyrb_fr },
+    { id: 2, p1: pyrb_fr, p2: pyrb_br },
+    { id: 3, p1: pyrb_br, p2: pyrb_bl },
+    { id: 4, p1: pyrb_bl, p2: pyrb_fl },
+    { id: 5, p1: pyrb_fl, p2: pyr_f_apex },
+    { id: 6, p1: pyrb_fr, p2: pyr_f_apex },
+    { id: 7, p1: pyrb_br, p2: pyr_r_apex },
+    { id: 8, p1: pyrb_bl, p2: pyr_l_apex },
+  ];
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // Nearest Edge Proximity Calculation
+  // ──────────────────────────────────────────────────────────────────────────
+  const distSqToSegment = (px: number, py: number, x1: number, y1: number, x2: number, y2: number) => {
+    const dx = x2 - x1;
+    const dy = y2 - y1;
+    const lSq = dx * dx + dy * dy;
+    if (lSq === 0) return (px - x1) * (px - x1) + (py - y1) * (py - y1);
+    const t = Math.max(0, Math.min(1, ((px - x1) * dx + (py - y1) * dy) / lSq));
+    const nx = x1 + t * dx;
+    const ny = y1 + t * dy;
+    return (px - nx) * (px - nx) + (py - ny) * (py - ny);
+  };
+
+  const handleSvgPointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (e.pointerType !== "mouse") return;
+    const svg = e.currentTarget;
+    const pt = svg.createSVGPoint();
+    pt.x = e.clientX;
+    pt.y = e.clientY;
+    const svgP = pt.matrixTransform(svg.getScreenCTM()?.inverse());
+    if (!svgP) return;
+
+    let closestId = 0;
+    let minDistSq = Infinity;
+
+    if (shape === "cube") {
+      cubeEdges.forEach((edge) => {
+        const dSq = distSqToSegment(svgP.x, svgP.y, edge.p1.x, edge.p1.y, edge.p2.x, edge.p2.y);
+        if (dSq < minDistSq) {
+          minDistSq = dSq;
+          closestId = edge.id;
+        }
+      });
+    } else if (shape === "prism") {
+      prismEdges.forEach((edge) => {
+        const dSq = distSqToSegment(svgP.x, svgP.y, edge.p1.x, edge.p1.y, edge.p2.x, edge.p2.y);
+        if (dSq < minDistSq) {
+          minDistSq = dSq;
+          closestId = edge.id;
+        }
+      });
+    } else if (shape === "pyramid") {
+      pyramidEdges.forEach((edge) => {
+        const dSq = distSqToSegment(svgP.x, svgP.y, edge.p1.x, edge.p1.y, edge.p2.x, edge.p2.y);
+        if (dSq < minDistSq) {
+          minDistSq = dSq;
+          closestId = edge.id;
+        }
+      });
+    } else if (shape === "cylinder") {
+      const topCy = (CY - cylH / 2) - (cylR + 3) * p;
+      const botCy = (CY + cylH / 2) + (cylR + 3) * p;
+      const cRy = 0.32 * cylR;
+      const topRy = cRy + (cylR - cRy) * p;
+      const botRy = cRy + (cylR - cRy) * p;
+
+      const thetaTop = Math.atan2((svgP.y - topCy) / topRy, (svgP.x - CX) / cylR);
+      const topNx = CX + cylR * Math.cos(thetaTop);
+      const topNy = topCy + topRy * Math.sin(thetaTop);
+      const topDistSq = (svgP.x - topNx) * (svgP.x - topNx) + (svgP.y - topNy) * (svgP.y - topNy);
+
+      const thetaBot = Math.atan2((svgP.y - botCy) / botRy, (svgP.x - CX) / cylR);
+      const botNx = CX + cylR * Math.cos(thetaBot);
+      const botNy = botCy + botRy * Math.sin(thetaBot);
+      const botDistSq = (svgP.x - botNx) * (svgP.x - botNx) + (svgP.y - botNy) * (svgP.y - botNy);
+
+      if (topDistSq < botDistSq) {
+        minDistSq = topDistSq;
+        closestId = 1;
+      } else {
+        minDistSq = botDistSq;
+        closestId = 2;
+      }
+    }
+
+    // Proximity threshold: within 80px of the nearest segment
+    if (minDistSq <= 6400) {
+      if (closestId !== selectedEdge) {
+        setSelectedEdge(closestId);
+      }
+    } else if (selectedEdge !== 0) {
+      setSelectedEdge(0);
+    }
+  };
+
+  const handleSvgPointerLeave = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (e.pointerType === "mouse") {
+      setSelectedEdge(0);
+    }
+  };
+
+  // ──────────────────────────────────────────────────────────────────────────
   // Shape-specific In-Diagram Header Data
   // ──────────────────────────────────────────────────────────────────────────
   const getShapeSummary = () => {
@@ -219,25 +352,14 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
       </div>
 
       {/* ── Large & Prominent Interactive 3D / 2D Canvas ── */}
-      <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="w-full touch-none select-none overflow-visible max-h-[160px]">
+      <svg
+        viewBox={`0 0 ${SVG_W} ${SVG_H}`}
+        onPointerMove={handleSvgPointerMove}
+        onPointerLeave={handleSvgPointerLeave}
+        className="w-full touch-none select-none overflow-visible max-h-[160px]"
+      >
         {/* ───────── CUBE RENDERING ───────── */}
-        {shape === "cube" && (() => {
-          const cubeEdges = [
-            { id: 1, p1: c_b_fl, p2: c_b_fr },
-            { id: 2, p1: c_b_fr, p2: c_b_br },
-            { id: 3, p1: c_b_br, p2: c_b_bl },
-            { id: 4, p1: c_b_bl, p2: c_b_fl },
-            { id: 5, p1: c_b_fl, p2: c_f_tl },
-            { id: 6, p1: c_f_tl, p2: c_f_tr },
-            { id: 7, p1: c_f_tr, p2: c_b_fr },
-            { id: 8, p1: c_b_bl, p2: c_bk_tl },
-            { id: 9, p1: c_bk_tl, p2: c_bk_tr },
-            { id: 10, p1: c_bk_tr, p2: c_b_br },
-            { id: 11, p1: c_l_tl, p2: c_l_bl },
-            { id: 12, p1: c_r_tr, p2: c_r_br },
-          ];
-
-          return (
+        {shape === "cube" && (
             <g>
               {/* Hidden back wireframe in 3D */}
               {tFold < 0.15 && (
@@ -296,140 +418,112 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
                 );
               })}
             </g>
-          );
-        })()}
+          )}
 
         {/* ───────── PRISM RENDERING ───────── */}
-        {shape === "prism" && (() => {
-          const prismEdges = [
-            { id: 1, p1: pb_fl, p2: pb_fr },
-            { id: 2, p1: pb_fr, p2: pb_br },
-            { id: 3, p1: pb_br, p2: pb_bl },
-            { id: 4, p1: pb_bl, p2: pb_fl },
-            { id: 5, p1: pb_fl, p2: pv_fa },
-            { id: 6, p1: pb_fr, p2: pv_fa },
-            { id: 7, p1: pb_bl, p2: pv_ba },
-            { id: 8, p1: pb_br, p2: pv_ba },
-            { id: 9, p1: pv_fa, p2: pv_ba },
-          ];
+        {shape === "prism" && (
+          <g>
+            {/* 5 Dim Translucent White Faces with Bright Cyan Edges */}
+            <polygon points={`${pb_fl.x},${pb_fl.y} ${pb_fr.x},${pb_fr.y} ${pb_br.x},${pb_br.y} ${pb_bl.x},${pb_bl.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+            <polygon points={`${pb_bl.x},${pb_bl.y} ${pb_br.x},${pb_br.y} ${pv_ba.x},${pv_ba.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+            <polygon points={`${pb_fl.x},${pb_fl.y} ${pb_bl.x},${pb_bl.y} ${pv_l_back.x},${pv_l_back.y} ${pv_l_front.x},${pv_l_front.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+            <polygon points={`${pb_fr.x},${pb_fr.y} ${pb_br.x},${pb_br.y} ${pv_r_back.x},${pv_r_back.y} ${pv_r_front.x},${pv_r_front.y}`} fill="rgba(255, 255, 255, 0.10)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+            <polygon points={`${pb_fl.x},${pb_fl.y} ${pb_fr.x},${pb_fr.y} ${pv_fa.x},${pv_fa.y}`} fill="rgba(255, 255, 255, 0.12)" stroke={COLOR_EDGE} strokeWidth={2.5} />
 
-          return (
-            <g>
-              {/* 5 Dim Translucent White Faces with Bright Cyan Edges */}
-              <polygon points={`${pb_fl.x},${pb_fl.y} ${pb_fr.x},${pb_fr.y} ${pb_br.x},${pb_br.y} ${pb_bl.x},${pb_bl.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
-              <polygon points={`${pb_bl.x},${pb_bl.y} ${pb_br.x},${pb_br.y} ${pv_ba.x},${pv_ba.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
-              <polygon points={`${pb_fl.x},${pb_fl.y} ${pb_bl.x},${pb_bl.y} ${pv_l_back.x},${pv_l_back.y} ${pv_l_front.x},${pv_l_front.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
-              <polygon points={`${pb_fr.x},${pb_fr.y} ${pb_br.x},${pb_br.y} ${pv_r_back.x},${pv_r_back.y} ${pv_r_front.x},${pv_r_front.y}`} fill="rgba(255, 255, 255, 0.10)" stroke={COLOR_EDGE} strokeWidth={2.5} />
-              <polygon points={`${pb_fl.x},${pb_fl.y} ${pb_fr.x},${pb_fr.y} ${pv_fa.x},${pv_fa.y}`} fill="rgba(255, 255, 255, 0.12)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+            {/* In 3D: Top Ridge edge */}
+            {tFold < 0.05 && (
+              <line x1={pv_fa.x} y1={pv_fa.y} x2={pv_ba.x} y2={pv_ba.y} stroke={COLOR_EDGE} strokeWidth={2.5} strokeLinecap="round" />
+            )}
 
-              {/* In 3D: Top Ridge edge */}
-              {tFold < 0.05 && (
-                <line x1={pv_fa.x} y1={pv_fa.y} x2={pv_ba.x} y2={pv_ba.y} stroke={COLOR_EDGE} strokeWidth={2.5} strokeLinecap="round" />
-              )}
-
-              {/* Clickable Edge Hit Targets & Yellow/Orange Selection Highlights */}
-              {prismEdges.map((e) => {
-                const isSelected = selectedEdge === e.id;
-                return (
-                  <g key={e.id}>
+            {/* Clickable Edge Hit Targets & Yellow/Orange Selection Highlights */}
+            {prismEdges.map((e) => {
+              const isSelected = selectedEdge === e.id;
+              return (
+                <g key={e.id}>
+                  <line
+                    x1={e.p1.x}
+                    y1={e.p1.y}
+                    x2={e.p2.x}
+                    y2={e.p2.y}
+                    stroke="transparent"
+                    strokeWidth={14}
+                    strokeLinecap="round"
+                    onPointerEnter={(ev) => {
+                      if (ev.pointerType === "mouse") setSelectedEdge(e.id);
+                    }}
+                    onPointerLeave={(ev) => {
+                      if (ev.pointerType === "mouse") setSelectedEdge(0);
+                    }}
+                    onClick={() => setSelectedEdge((prev) => (prev === e.id ? 0 : e.id))}
+                    className="cursor-pointer"
+                  />
+                  {isSelected && (
                     <line
                       x1={e.p1.x}
                       y1={e.p1.y}
                       x2={e.p2.x}
                       y2={e.p2.y}
-                      stroke="transparent"
-                      strokeWidth={14}
+                      stroke={COLOR_GOLD}
+                      strokeWidth={4.5}
                       strokeLinecap="round"
-                      onPointerEnter={(ev) => {
-                        if (ev.pointerType === "mouse") setSelectedEdge(e.id);
-                      }}
-                      onPointerLeave={(ev) => {
-                        if (ev.pointerType === "mouse") setSelectedEdge(0);
-                      }}
-                      onClick={() => setSelectedEdge((prev) => (prev === e.id ? 0 : e.id))}
-                      className="cursor-pointer"
+                      className="pointer-events-none"
                     />
-                    {isSelected && (
-                      <line
-                        x1={e.p1.x}
-                        y1={e.p1.y}
-                        x2={e.p2.x}
-                        y2={e.p2.y}
-                        stroke={COLOR_GOLD}
-                        strokeWidth={4.5}
-                        strokeLinecap="round"
-                        className="pointer-events-none"
-                      />
-                    )}
-                  </g>
-                );
-              })}
-            </g>
-          );
-        })()}
+                  )}
+                </g>
+              );
+            })}
+          </g>
+        )}
 
         {/* ───────── PYRAMID RENDERING ───────── */}
-        {shape === "pyramid" && (() => {
-          const pyramidEdges = [
-            { id: 1, p1: pyrb_fl, p2: pyrb_fr },
-            { id: 2, p1: pyrb_fr, p2: pyrb_br },
-            { id: 3, p1: pyrb_br, p2: pyrb_bl },
-            { id: 4, p1: pyrb_bl, p2: pyrb_fl },
-            { id: 5, p1: pyrb_fl, p2: pyr_f_apex },
-            { id: 6, p1: pyrb_fr, p2: pyr_f_apex },
-            { id: 7, p1: pyrb_br, p2: pyr_r_apex },
-            { id: 8, p1: pyrb_bl, p2: pyr_l_apex },
-          ];
+        {shape === "pyramid" && (
+          <g>
+            {/* 5 Dim Translucent White Faces with Bright Cyan Edges */}
+            <polygon points={`${pyrb_fl.x},${pyrb_fl.y} ${pyrb_fr.x},${pyrb_fr.y} ${pyrb_br.x},${pyrb_br.y} ${pyrb_bl.x},${pyrb_bl.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+            <polygon points={`${pyrb_bl.x},${pyrb_bl.y} ${pyrb_br.x},${pyrb_br.y} ${pyr_bk_apex.x},${pyr_bk_apex.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+            <polygon points={`${pyrb_fl.x},${pyrb_fl.y} ${pyrb_bl.x},${pyrb_bl.y} ${pyr_l_apex.x},${pyr_l_apex.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+            <polygon points={`${pyrb_fr.x},${pyrb_fr.y} ${pyrb_br.x},${pyrb_br.y} ${pyr_r_apex.x},${pyr_r_apex.y}`} fill="rgba(255, 255, 255, 0.10)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+            <polygon points={`${pyrb_fl.x},${pyrb_fl.y} ${pyrb_fr.x},${pyrb_fr.y} ${pyr_f_apex.x},${pyr_f_apex.y}`} fill="rgba(255, 255, 255, 0.12)" stroke={COLOR_EDGE} strokeWidth={2.5} />
 
-          return (
-            <g>
-              {/* 5 Dim Translucent White Faces with Bright Cyan Edges */}
-              <polygon points={`${pyrb_fl.x},${pyrb_fl.y} ${pyrb_fr.x},${pyrb_fr.y} ${pyrb_br.x},${pyrb_br.y} ${pyrb_bl.x},${pyrb_bl.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
-              <polygon points={`${pyrb_bl.x},${pyrb_bl.y} ${pyrb_br.x},${pyrb_br.y} ${pyr_bk_apex.x},${pyr_bk_apex.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
-              <polygon points={`${pyrb_fl.x},${pyrb_fl.y} ${pyrb_bl.x},${pyrb_bl.y} ${pyr_l_apex.x},${pyr_l_apex.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
-              <polygon points={`${pyrb_fr.x},${pyrb_fr.y} ${pyrb_br.x},${pyrb_br.y} ${pyr_r_apex.x},${pyr_r_apex.y}`} fill="rgba(255, 255, 255, 0.10)" stroke={COLOR_EDGE} strokeWidth={2.5} />
-              <polygon points={`${pyrb_fl.x},${pyrb_fl.y} ${pyrb_fr.x},${pyrb_fr.y} ${pyr_f_apex.x},${pyr_f_apex.y}`} fill="rgba(255, 255, 255, 0.12)" stroke={COLOR_EDGE} strokeWidth={2.5} />
-
-              {/* Clickable Edge Hit Targets & Yellow/Orange Selection Highlights */}
-              {pyramidEdges.map((e) => {
-                const isSelected = selectedEdge === e.id;
-                return (
-                  <g key={e.id}>
+            {/* Clickable Edge Hit Targets & Yellow/Orange Selection Highlights */}
+            {pyramidEdges.map((e) => {
+              const isSelected = selectedEdge === e.id;
+              return (
+                <g key={e.id}>
+                  <line
+                    x1={e.p1.x}
+                    y1={e.p1.y}
+                    x2={e.p2.x}
+                    y2={e.p2.y}
+                    stroke="transparent"
+                    strokeWidth={14}
+                    strokeLinecap="round"
+                    onPointerEnter={(ev) => {
+                      if (ev.pointerType === "mouse") setSelectedEdge(e.id);
+                    }}
+                    onPointerLeave={(ev) => {
+                      if (ev.pointerType === "mouse") setSelectedEdge(0);
+                    }}
+                    onClick={() => setSelectedEdge((prev) => (prev === e.id ? 0 : e.id))}
+                    className="cursor-pointer"
+                  />
+                  {isSelected && (
                     <line
                       x1={e.p1.x}
                       y1={e.p1.y}
                       x2={e.p2.x}
                       y2={e.p2.y}
-                      stroke="transparent"
-                      strokeWidth={14}
+                      stroke={COLOR_GOLD}
+                      strokeWidth={4.5}
                       strokeLinecap="round"
-                      onPointerEnter={(ev) => {
-                        if (ev.pointerType === "mouse") setSelectedEdge(e.id);
-                      }}
-                      onPointerLeave={(ev) => {
-                        if (ev.pointerType === "mouse") setSelectedEdge(0);
-                      }}
-                      onClick={() => setSelectedEdge((prev) => (prev === e.id ? 0 : e.id))}
-                      className="cursor-pointer"
+                      className="pointer-events-none"
                     />
-                    {isSelected && (
-                      <line
-                        x1={e.p1.x}
-                        y1={e.p1.y}
-                        x2={e.p2.x}
-                        y2={e.p2.y}
-                        stroke={COLOR_GOLD}
-                        strokeWidth={4.5}
-                        strokeLinecap="round"
-                        className="pointer-events-none"
-                      />
-                    )}
-                  </g>
-                );
-              })}
-            </g>
-          );
-        })()}
+                  )}
+                </g>
+              );
+            })}
+          </g>
+        )}
 
         {/* ───────── CYLINDER RENDERING (Full Smooth [0, 1] Progression) ───────── */}
         {shape === "cylinder" && (() => {
