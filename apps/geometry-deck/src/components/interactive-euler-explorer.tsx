@@ -52,19 +52,20 @@ const SVG_H = 205;
 // 1. CUBE (V=8, E=12, F=6)
 const S_CUBE = 42;
 const CUBE_VERTICES: Vec3[] = [
-  { x: -S_CUBE, y: -S_CUBE, z: -S_CUBE }, // 0
-  { x:  S_CUBE, y: -S_CUBE, z: -S_CUBE }, // 1
-  { x:  S_CUBE, y: -S_CUBE, z:  S_CUBE }, // 2
-  { x: -S_CUBE, y: -S_CUBE, z:  S_CUBE }, // 3
-  { x: -S_CUBE, y:  S_CUBE, z: -S_CUBE }, // 4
-  { x:  S_CUBE, y:  S_CUBE, z: -S_CUBE }, // 5
-  { x:  S_CUBE, y:  S_CUBE, z:  S_CUBE }, // 6
-  { x: -S_CUBE, y:  S_CUBE, z:  S_CUBE }, // 7
+  { x: -S_CUBE, y: -S_CUBE, z: -S_CUBE }, // 0: bot back-left
+  { x:  S_CUBE, y: -S_CUBE, z: -S_CUBE }, // 1: bot back-right
+  { x:  S_CUBE, y: -S_CUBE, z:  S_CUBE }, // 2: bot front-right
+  { x: -S_CUBE, y: -S_CUBE, z:  S_CUBE }, // 3: bot front-left
+  { x: -S_CUBE, y:  S_CUBE, z: -S_CUBE }, // 4: top back-left
+  { x:  S_CUBE, y:  S_CUBE, z: -S_CUBE }, // 5: top back-right
+  { x:  S_CUBE, y:  S_CUBE, z:  S_CUBE }, // 6: top front-right
+  { x: -S_CUBE, y:  S_CUBE, z:  S_CUBE }, // 7: top front-left
 ];
 const CUBE_EDGES: [number, number][] = [
-  [0, 1], [1, 2], [2, 3], [3, 0], // bottom loop (4)
-  [4, 5], [5, 6], [6, 7], [7, 4], // top loop (4)
-  [0, 4], [1, 5], [2, 6], [3, 7], // verticals (4)
+  [0, 1], [1, 2], [2, 3], [3, 0], // Continuous Bottom Loop (4)
+  [0, 4], [4, 5], [5, 1],         // Climb 0->4, Across 4->5, Down 5->1 (Back Wall closed)
+  [5, 6], [6, 2],                 // Across 5->6, Down 6->2 (Right Wall closed)
+  [6, 7], [7, 3], [7, 4],         // Across 6->7, Down 7->3, Across 7->4 (Front, Left, Top closed)
 ];
 const CUBE_FACES: number[][] = [
   [0, 1, 2, 3], // Bottom (y = -S)
@@ -80,13 +81,13 @@ const CUBE_BUILD_STEPS = [
   { edge: [2, 3] as [number, number], isNewVertex: true, stepV: 4, stepE: 3, stepF: 1 },
   { edge: [3, 0] as [number, number], isNewVertex: false, newFaceName: "Bottom Face", stepV: 4, stepE: 4, stepF: 2 },
   { edge: [0, 4] as [number, number], isNewVertex: true, stepV: 5, stepE: 5, stepF: 2 },
-  { edge: [1, 5] as [number, number], isNewVertex: true, stepV: 6, stepE: 6, stepF: 2 },
-  { edge: [4, 5] as [number, number], isNewVertex: false, newFaceName: "Back Face", stepV: 6, stepE: 7, stepF: 3 },
-  { edge: [2, 6] as [number, number], isNewVertex: true, stepV: 7, stepE: 8, stepF: 3 },
-  { edge: [5, 6] as [number, number], isNewVertex: false, newFaceName: "Right Face", stepV: 7, stepE: 9, stepF: 4 },
-  { edge: [3, 7] as [number, number], isNewVertex: true, stepV: 8, stepE: 10, stepF: 4 },
-  { edge: [6, 7] as [number, number], isNewVertex: false, newFaceName: "Front Face", stepV: 8, stepE: 11, stepF: 5 },
-  { edge: [7, 4] as [number, number], isNewVertex: false, newFaceName: "Top Face", stepV: 8, stepE: 12, stepF: 6 },
+  { edge: [4, 5] as [number, number], isNewVertex: true, stepV: 6, stepE: 6, stepF: 2 },
+  { edge: [5, 1] as [number, number], isNewVertex: false, newFaceName: "Back Face", stepV: 6, stepE: 7, stepF: 3 },
+  { edge: [5, 6] as [number, number], isNewVertex: true, stepV: 7, stepE: 8, stepF: 3 },
+  { edge: [6, 2] as [number, number], isNewVertex: false, newFaceName: "Right Face", stepV: 7, stepE: 9, stepF: 4 },
+  { edge: [6, 7] as [number, number], isNewVertex: true, stepV: 8, stepE: 10, stepF: 4 },
+  { edge: [7, 3] as [number, number], isNewVertex: false, newFaceName: "Front Face", stepV: 8, stepE: 11, stepF: 5 },
+  { edge: [7, 4] as [number, number], isNewVertex: false, newFaceName: "Left & Top Faces", stepV: 8, stepE: 12, stepF: 6 },
 ];
 
 // 2. TETRAHEDRON (V=4, E=6, F=4)
@@ -98,7 +99,8 @@ const TETRA_VERTICES: Vec3[] = [
   { x: -S_TETRA * 0.9, y: -S_TETRA * 0.9, z:  S_TETRA * 0.9 },
 ];
 const TETRA_EDGES: [number, number][] = [
-  [0, 1], [0, 2], [0, 3], [1, 2], [2, 3], [3, 1]
+  [0, 1], [1, 2], [2, 0], // Base Loop (3)
+  [0, 3], [3, 1], [3, 2], // Apex spokes (3)
 ];
 const TETRA_FACES: number[][] = [
   [0, 1, 2], [0, 2, 3], [0, 3, 1], [1, 3, 2]
@@ -106,10 +108,10 @@ const TETRA_FACES: number[][] = [
 const TETRA_BUILD_STEPS = [
   { edge: [0, 1] as [number, number], isNewVertex: true, stepV: 2, stepE: 1, stepF: 1 },
   { edge: [1, 2] as [number, number], isNewVertex: true, stepV: 3, stepE: 2, stepF: 1 },
-  { edge: [2, 0] as [number, number], isNewVertex: false, newFaceName: "Face 1", stepV: 3, stepE: 3, stepF: 2 },
+  { edge: [2, 0] as [number, number], isNewVertex: false, newFaceName: "Base Face", stepV: 3, stepE: 3, stepF: 2 },
   { edge: [0, 3] as [number, number], isNewVertex: true, stepV: 4, stepE: 4, stepF: 2 },
-  { edge: [2, 3] as [number, number], isNewVertex: false, newFaceName: "Face 2", stepV: 4, stepE: 5, stepF: 3 },
-  { edge: [3, 1] as [number, number], isNewVertex: false, newFaceName: "Final Closure", stepV: 4, stepE: 6, stepF: 4 },
+  { edge: [3, 1] as [number, number], isNewVertex: false, newFaceName: "Face 2", stepV: 4, stepE: 5, stepF: 3 },
+  { edge: [3, 2] as [number, number], isNewVertex: false, newFaceName: "Final Closure", stepV: 4, stepE: 6, stepF: 4 },
 ];
 
 // 3. OCTAHEDRON (V=6, E=12, F=8)
@@ -123,12 +125,12 @@ const OCTA_VERTICES: Vec3[] = [
   { x: 0, y: 0, z: -S_OCTA },  // 5: back
 ];
 const OCTA_EDGES: [number, number][] = [
-  // Equatorial ring
+  // Continuous Equatorial ring
   [2, 3], [3, 4], [4, 5], [5, 2],
-  // Top cone
-  [0, 2], [0, 3], [0, 4], [0, 5],
-  // Bottom cone
-  [1, 2], [1, 3], [1, 4], [1, 5],
+  // Top cone from 2 -> 0 -> 3, 0 -> 4, 0 -> 5
+  [2, 0], [0, 3], [0, 4], [0, 5],
+  // Bottom cone from 2 -> 1 -> 3, 1 -> 4, 1 -> 5
+  [2, 1], [1, 3], [1, 4], [1, 5],
 ];
 const OCTA_FACES: number[][] = [
   [0, 2, 3], [0, 3, 4], [0, 4, 5], [0, 5, 2],
@@ -139,11 +141,11 @@ const OCTA_BUILD_STEPS = [
   { edge: [3, 4] as [number, number], isNewVertex: true, stepV: 3, stepE: 2, stepF: 1 },
   { edge: [4, 5] as [number, number], isNewVertex: true, stepV: 4, stepE: 3, stepF: 1 },
   { edge: [5, 2] as [number, number], isNewVertex: false, newFaceName: "Equator Cycle", stepV: 4, stepE: 4, stepF: 2 },
-  { edge: [0, 2] as [number, number], isNewVertex: true, stepV: 5, stepE: 5, stepF: 2 },
+  { edge: [2, 0] as [number, number], isNewVertex: true, stepV: 5, stepE: 5, stepF: 2 },
   { edge: [0, 3] as [number, number], isNewVertex: false, newFaceName: "Top Face 1", stepV: 5, stepE: 6, stepF: 3 },
   { edge: [0, 4] as [number, number], isNewVertex: false, newFaceName: "Top Face 2", stepV: 5, stepE: 7, stepF: 4 },
-  { edge: [0, 5] as [number, number], isNewVertex: false, newFaceName: "Top Face 3", stepV: 5, stepE: 8, stepF: 5 },
-  { edge: [1, 2] as [number, number], isNewVertex: true, stepV: 6, stepE: 9, stepF: 5 },
+  { edge: [0, 5] as [number, number], isNewVertex: false, newFaceName: "Top Faces 3 & 4", stepV: 5, stepE: 8, stepF: 5 },
+  { edge: [2, 1] as [number, number], isNewVertex: true, stepV: 6, stepE: 9, stepF: 5 },
   { edge: [1, 3] as [number, number], isNewVertex: false, newFaceName: "Bot Face 1", stepV: 6, stepE: 10, stepF: 6 },
   { edge: [1, 4] as [number, number], isNewVertex: false, newFaceName: "Bot Face 2", stepV: 6, stepE: 11, stepF: 7 },
   { edge: [1, 5] as [number, number], isNewVertex: false, newFaceName: "Final 3D Octahedron", stepV: 6, stepE: 12, stepF: 8 },
@@ -160,8 +162,8 @@ const PYRAMID_VERTICES: Vec3[] = [
   { x: 0, y: S_PYR_H * 0.8, z: 0 },               // 4: Apex
 ];
 const PYRAMID_EDGES: [number, number][] = [
-  [0, 1], [1, 2], [2, 3], [3, 0], // Base (4)
-  [4, 0], [4, 1], [4, 2], [4, 3], // Slants (4)
+  [0, 1], [1, 2], [2, 3], [3, 0], // Continuous Base Loop (4)
+  [0, 4], [4, 1], [4, 2], [4, 3], // Apex Slants (4)
 ];
 const PYRAMID_FACES: number[][] = [
   [0, 1, 2, 3], // Base
@@ -175,7 +177,7 @@ const PYRAMID_BUILD_STEPS = [
   { edge: [1, 2] as [number, number], isNewVertex: true, stepV: 3, stepE: 2, stepF: 1 },
   { edge: [2, 3] as [number, number], isNewVertex: true, stepV: 4, stepE: 3, stepF: 1 },
   { edge: [3, 0] as [number, number], isNewVertex: false, newFaceName: "Base Face", stepV: 4, stepE: 4, stepF: 2 },
-  { edge: [4, 0] as [number, number], isNewVertex: true, stepV: 5, stepE: 5, stepF: 2 },
+  { edge: [0, 4] as [number, number], isNewVertex: true, stepV: 5, stepE: 5, stepF: 2 },
   { edge: [4, 1] as [number, number], isNewVertex: false, newFaceName: "Slant Face 1", stepV: 5, stepE: 6, stepF: 3 },
   { edge: [4, 2] as [number, number], isNewVertex: false, newFaceName: "Slant Face 2", stepV: 5, stepE: 7, stepF: 4 },
   { edge: [4, 3] as [number, number], isNewVertex: false, newFaceName: "Final Pyramid", stepV: 5, stepE: 8, stepF: 5 },
@@ -209,8 +211,10 @@ const PRISM5_VERTICES: Vec3[] = (() => {
 
 const PRISM5_EDGES: [number, number][] = [
   [0, 1], [1, 2], [2, 3], [3, 4], [4, 0], // Bottom loop (5)
-  [5, 6], [6, 7], [7, 8], [8, 9], [9, 5], // Top loop (5)
-  [0, 5], [1, 6], [2, 7], [3, 8], [4, 9], // Verticals (5)
+  [0, 5], [5, 6], [6, 1],                 // Column 0->5, Top 5->6, Down 6->1 (Side 1 closed)
+  [6, 7], [7, 2],                         // Top 6->7, Down 7->2 (Side 2 closed)
+  [7, 8], [8, 3],                         // Top 7->8, Down 8->3 (Side 3 closed)
+  [8, 9], [9, 4], [9, 5],                 // Top 8->9, Down 9->4, Top 9->5 (Side 4, 5 & Top closed)
 ];
 
 const PRISM5_FACES: number[][] = [
@@ -230,14 +234,14 @@ const PRISM5_BUILD_STEPS = [
   { edge: [3, 4] as [number, number], isNewVertex: true, stepV: 5, stepE: 4, stepF: 1 },
   { edge: [4, 0] as [number, number], isNewVertex: false, newFaceName: "Bottom Pentagon", stepV: 5, stepE: 5, stepF: 2 },
   { edge: [0, 5] as [number, number], isNewVertex: true, stepV: 6, stepE: 6, stepF: 2 },
-  { edge: [1, 6] as [number, number], isNewVertex: true, stepV: 7, stepE: 7, stepF: 2 },
-  { edge: [5, 6] as [number, number], isNewVertex: false, newFaceName: "Side Face 1", stepV: 7, stepE: 8, stepF: 3 },
-  { edge: [2, 7] as [number, number], isNewVertex: true, stepV: 8, stepE: 9, stepF: 3 },
-  { edge: [6, 7] as [number, number], isNewVertex: false, newFaceName: "Side Face 2", stepV: 8, stepE: 10, stepF: 4 },
-  { edge: [3, 8] as [number, number], isNewVertex: true, stepV: 9, stepE: 11, stepF: 4 },
-  { edge: [7, 8] as [number, number], isNewVertex: false, newFaceName: "Side Face 3", stepV: 9, stepE: 12, stepF: 5 },
-  { edge: [4, 9] as [number, number], isNewVertex: true, stepV: 10, stepE: 13, stepF: 5 },
-  { edge: [8, 9] as [number, number], isNewVertex: false, newFaceName: "Side Face 4", stepV: 10, stepE: 14, stepF: 6 },
+  { edge: [5, 6] as [number, number], isNewVertex: true, stepV: 7, stepE: 7, stepF: 2 },
+  { edge: [6, 1] as [number, number], isNewVertex: false, newFaceName: "Side Face 1", stepV: 7, stepE: 8, stepF: 3 },
+  { edge: [6, 7] as [number, number], isNewVertex: true, stepV: 8, stepE: 9, stepF: 3 },
+  { edge: [7, 2] as [number, number], isNewVertex: false, newFaceName: "Side Face 2", stepV: 8, stepE: 10, stepF: 4 },
+  { edge: [7, 8] as [number, number], isNewVertex: true, stepV: 9, stepE: 11, stepF: 4 },
+  { edge: [8, 3] as [number, number], isNewVertex: false, newFaceName: "Side Face 3", stepV: 9, stepE: 12, stepF: 5 },
+  { edge: [8, 9] as [number, number], isNewVertex: true, stepV: 10, stepE: 13, stepF: 5 },
+  { edge: [9, 4] as [number, number], isNewVertex: false, newFaceName: "Side Face 4", stepV: 10, stepE: 14, stepF: 6 },
   { edge: [9, 5] as [number, number], isNewVertex: false, newFaceName: "Top Pentagon Closure", stepV: 10, stepE: 15, stepF: 7 },
 ];
 
@@ -331,6 +335,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
   const handleShapeSelect = (key: ShapeKey) => {
     setShapeKey(key);
     setBuildStepIndex(POLYHEDRA_MAP[key].edges.length);
+    setStrokeProgress(1);
     setIsAutoPlaying(false);
   };
 
@@ -366,15 +371,21 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
 
   const [strokeProgress, setStrokeProgress] = useState(1);
   const strokeAnimRef = useRef<number | null>(null);
+  const buildStepIndexRef = useRef(buildStepIndex);
+  buildStepIndexRef.current = buildStepIndex;
 
-  // Trigger line draw-out animation whenever build step advances
-  useEffect(() => {
-    if (viewMode !== "build" || buildStepIndex === 0) {
+  // Advance build step with synchronous animation reset (eliminates 1-frame flash)
+  const advanceBuildStep = useCallback((targetStep: number) => {
+    if (strokeAnimRef.current) cancelAnimationFrame(strokeAnimRef.current);
+
+    if (targetStep === 0) {
+      setBuildStepIndex(0);
       setStrokeProgress(1);
       return;
     }
 
-    if (strokeAnimRef.current) cancelAnimationFrame(strokeAnimRef.current);
+    // Synchronously batch step index and progress reset to 0
+    setBuildStepIndex(targetStep);
     setStrokeProgress(0);
 
     const startTime = performance.now();
@@ -395,11 +406,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
     };
 
     strokeAnimRef.current = requestAnimationFrame(step);
-
-    return () => {
-      if (strokeAnimRef.current) cancelAnimationFrame(strokeAnimRef.current);
-    };
-  }, [buildStepIndex, viewMode]);
+  }, []);
 
   // ──────────────────────────────────────────────────────────────────────────
   // Build Animation Auto-Play Loop
@@ -407,12 +414,9 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
   useEffect(() => {
     if (isAutoPlaying && viewMode === "build") {
       playTimerRef.current = setInterval(() => {
-        setBuildStepIndex((prev) => {
-          if (prev >= poly.edges.length) {
-            return 0;
-          }
-          return prev + 1;
-        });
+        const current = buildStepIndexRef.current;
+        const next = current >= poly.edges.length ? 0 : current + 1;
+        advanceBuildStep(next);
       }, 950);
     } else {
       if (playTimerRef.current) clearInterval(playTimerRef.current);
@@ -420,7 +424,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
     return () => {
       if (playTimerRef.current) clearInterval(playTimerRef.current);
     };
-  }, [isAutoPlaying, viewMode, poly.edges.length]);
+  }, [isAutoPlaying, viewMode, poly.edges.length, advanceBuildStep]);
 
   // ──────────────────────────────────────────────────────────────────────────
   // 3D Math & Projection
@@ -710,7 +714,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
               fill={isNewVertexThisStep ? "#ffffff" : isHighlighted ? COLOR_VERTEX : "rgba(255, 255, 255, 0.5)"}
               stroke={isNewVertexThisStep ? COLOR_GOLD : "rgba(0, 0, 0, 0.4)"}
               strokeWidth={isNewVertexThisStep ? 2.0 : 1.0}
-              className="pointer-events-none transition-all"
+              className="pointer-events-none"
             />
           );
         })}
@@ -759,7 +763,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
               Explode
             </button>
             <button
-              onClick={() => { setViewMode("build"); setBuildStepIndex(0); }}
+              onClick={() => { setViewMode("build"); advanceBuildStep(0); }}
               className={cn(
                 "px-2.5 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
                 viewMode === "build" ? "bg-white/25 text-white shadow-sm" : "bg-transparent text-white/70 hover:text-white"
@@ -818,7 +822,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
                 {isAutoPlaying ? "Pause" : "Play"}
               </button>
               <button
-                onClick={() => setBuildStepIndex((prev) => Math.min(poly.edges.length, prev + 1))}
+                onClick={() => advanceBuildStep(Math.min(poly.edges.length, buildStepIndex + 1))}
                 disabled={buildStepIndex >= poly.edges.length}
                 className="px-2 py-0.5 rounded-full text-xs font-headline font-bold bg-white/15 hover:bg-white/25 disabled:opacity-30 text-white transition-all border-none"
               >
