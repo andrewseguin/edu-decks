@@ -302,13 +302,57 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
       }
     }
 
-    // Proximity threshold: within 80px of the nearest segment
-    if (minDistSq <= 6400) {
-      if (closestId !== selectedEdge) {
-        setSelectedEdge(closestId);
+    // Proximity threshold: within 80px of any edge
+    if (minDistSq > 6400) {
+      if (selectedEdge !== 0) setSelectedEdge(0);
+      return;
+    }
+
+    // If nothing selected yet, select the closest immediately
+    if (selectedEdge === 0) {
+      setSelectedEdge(closestId);
+      return;
+    }
+
+    if (closestId === selectedEdge) return;
+
+    // Hysteresis calculation: measure distance to the currently selected edge
+    let currentDistSq = Infinity;
+    if (shape === "cube") {
+      const cur = cubeEdges.find((edge) => edge.id === selectedEdge);
+      if (cur) currentDistSq = distSqToSegment(svgP.x, svgP.y, cur.p1.x, cur.p1.y, cur.p2.x, cur.p2.y);
+    } else if (shape === "prism") {
+      const cur = prismEdges.find((edge) => edge.id === selectedEdge);
+      if (cur) currentDistSq = distSqToSegment(svgP.x, svgP.y, cur.p1.x, cur.p1.y, cur.p2.x, cur.p2.y);
+    } else if (shape === "pyramid") {
+      const cur = pyramidEdges.find((edge) => edge.id === selectedEdge);
+      if (cur) currentDistSq = distSqToSegment(svgP.x, svgP.y, cur.p1.x, cur.p1.y, cur.p2.x, cur.p2.y);
+    } else if (shape === "cylinder") {
+      const cRy = 0.32 * cylR;
+      if (selectedEdge === 1) {
+        const topCy = (CY - cylH / 2) - (cylR + 3) * p;
+        const topRy = cRy + (cylR - cRy) * p;
+        const thetaTop = Math.atan2((svgP.y - topCy) / topRy, (svgP.x - CX) / cylR);
+        const topNx = CX + cylR * Math.cos(thetaTop);
+        const topNy = topCy + topRy * Math.sin(thetaTop);
+        currentDistSq = (svgP.x - topNx) * (svgP.x - topNx) + (svgP.y - topNy) * (svgP.y - topNy);
+      } else {
+        const botCy = (CY + cylH / 2) + (cylR + 3) * p;
+        const botRy = cRy + (cylR - cRy) * p;
+        const thetaBot = Math.atan2((svgP.y - botCy) / botRy, (svgP.x - CX) / cylR);
+        const botNx = CX + cylR * Math.cos(thetaBot);
+        const botNy = botCy + botRy * Math.sin(thetaBot);
+        currentDistSq = (svgP.x - botNx) * (svgP.x - botNx) + (svgP.y - botNy) * (svgP.y - botNy);
       }
-    } else if (selectedEdge !== 0) {
-      setSelectedEdge(0);
+    }
+
+    const currentDist = Math.sqrt(currentDistSq);
+    const candidateDist = Math.sqrt(minDistSq);
+
+    // Hysteresis buffer: new edge must be at least 14px closer to overcome the current edge
+    const HYSTERESIS_BUFFER = 14;
+    if (candidateDist < currentDist - HYSTERESIS_BUFFER) {
+      setSelectedEdge(closestId);
     }
   };
 
