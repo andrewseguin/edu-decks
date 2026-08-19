@@ -437,21 +437,15 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
                 const isSelected = selectedEdge === e.id;
                 return (
                   <g key={e.id}>
-                    {/* Transparent wide hit area for easy tapping & mouse hover */}
+                    {/* Transparent wide hit area for mobile tapping */}
                     <line
                       x1={e.p1.x}
                       y1={e.p1.y}
                       x2={e.p2.x}
                       y2={e.p2.y}
                       stroke="transparent"
-                      strokeWidth={14}
+                      strokeWidth={16}
                       strokeLinecap="round"
-                      onPointerEnter={(ev) => {
-                        if (ev.pointerType === "mouse") setSelectedEdge(e.id);
-                      }}
-                      onPointerLeave={(ev) => {
-                        if (ev.pointerType === "mouse") setSelectedEdge(0);
-                      }}
                       onClick={() => setSelectedEdge((prev) => (prev === e.id ? 0 : e.id))}
                       className="cursor-pointer"
                     />
@@ -500,14 +494,8 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
                     x2={e.p2.x}
                     y2={e.p2.y}
                     stroke="transparent"
-                    strokeWidth={14}
+                    strokeWidth={16}
                     strokeLinecap="round"
-                    onPointerEnter={(ev) => {
-                      if (ev.pointerType === "mouse") setSelectedEdge(e.id);
-                    }}
-                    onPointerLeave={(ev) => {
-                      if (ev.pointerType === "mouse") setSelectedEdge(0);
-                    }}
                     onClick={() => setSelectedEdge((prev) => (prev === e.id ? 0 : e.id))}
                     className="cursor-pointer"
                   />
@@ -564,14 +552,8 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
                     x2={e.p2.x}
                     y2={e.p2.y}
                     stroke="transparent"
-                    strokeWidth={14}
+                    strokeWidth={16}
                     strokeLinecap="round"
-                    onPointerEnter={(ev) => {
-                      if (ev.pointerType === "mouse") setSelectedEdge(e.id);
-                    }}
-                    onPointerLeave={(ev) => {
-                      if (ev.pointerType === "mouse") setSelectedEdge(0);
-                    }}
                     onClick={() => setSelectedEdge((prev) => (prev === e.id ? 0 : e.id))}
                     className="cursor-pointer"
                   />
@@ -636,7 +618,7 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
                 />
               )}
 
-              {/* Curved Edge 2: Bottom Circular Rim Edge (Bright Cyan / Gold on hover/selection) */}
+              {/* Curved Edge 2: Bottom Circular Rim Edge */}
               <ellipse
                 cx={CX}
                 cy={botCy}
@@ -645,17 +627,11 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
                 fill="rgba(255, 255, 255, 0.08)"
                 stroke={getEdgeStroke(2)}
                 strokeWidth={getEdgeStrokeWidth(2)}
-                onPointerEnter={(ev) => {
-                  if (ev.pointerType === "mouse") setSelectedEdge(2);
-                }}
-                onPointerLeave={(ev) => {
-                  if (ev.pointerType === "mouse") setSelectedEdge(0);
-                }}
                 onClick={() => setSelectedEdge((prev) => (prev === 2 ? 0 : 2))}
                 className="cursor-pointer transition-colors"
               />
 
-              {/* Curved Edge 1: Top Circular Rim Edge (Bright Cyan / Gold on hover/selection) */}
+              {/* Curved Edge 1: Top Circular Rim Edge */}
               <ellipse
                 cx={CX}
                 cy={topCy}
@@ -664,12 +640,6 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
                 fill="rgba(255, 255, 255, 0.08)"
                 stroke={getEdgeStroke(1)}
                 strokeWidth={getEdgeStrokeWidth(1)}
-                onPointerEnter={(ev) => {
-                  if (ev.pointerType === "mouse") setSelectedEdge(1);
-                }}
-                onPointerLeave={(ev) => {
-                  if (ev.pointerType === "mouse") setSelectedEdge(0);
-                }}
                 onClick={() => setSelectedEdge((prev) => (prev === 1 ? 0 : 1))}
                 className="cursor-pointer transition-colors"
               />
