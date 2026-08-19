@@ -217,18 +217,21 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
   const summary = getShapeSummary();
 
   const getFaceFill = (id: number) => {
-    if (selectedFace === 0 || selectedFace === id) {
-      return "rgba(94, 232, 255, 0.42)";
+    if (selectedFace === id) {
+      return "rgba(255, 212, 94, 0.65)"; // Glowing Gold 2D Surface
     }
-    return "rgba(255, 255, 255, 0.08)";
+    if (selectedFace === 0) {
+      return "rgba(94, 232, 255, 0.38)"; // Electric Cyan 2D Surface
+    }
+    return "rgba(255, 255, 255, 0.08)";  // Dimmed unselected surfaces
   };
 
-  const getFaceStroke = (id: number) => {
-    return selectedFace === id ? COLOR_GOLD : "rgba(255, 255, 255, 0.9)";
+  const getFaceStroke = (_id: number) => {
+    return "rgba(255, 255, 255, 0.85)"; // Neutral white wireframe boundary
   };
 
-  const getFaceStrokeWidth = (id: number) => {
-    return selectedFace === id ? 2.5 : 1.5;
+  const getFaceStrokeWidth = (_id: number) => {
+    return 1.5; // Always clean uniform stroke
   };
 
   return (
