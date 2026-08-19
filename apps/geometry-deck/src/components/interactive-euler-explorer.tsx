@@ -364,6 +364,43 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
     } catch {}
   };
 
+  const [strokeProgress, setStrokeProgress] = useState(1);
+  const strokeAnimRef = useRef<number | null>(null);
+
+  // Trigger line draw-out animation whenever build step advances
+  useEffect(() => {
+    if (viewMode !== "build" || buildStepIndex === 0) {
+      setStrokeProgress(1);
+      return;
+    }
+
+    if (strokeAnimRef.current) cancelAnimationFrame(strokeAnimRef.current);
+    setStrokeProgress(0);
+
+    const startTime = performance.now();
+    const duration = 420; // 420ms smooth line shoot-out
+
+    const step = (now: number) => {
+      const elapsed = now - startTime;
+      const t = Math.min(1, elapsed / duration);
+      // Smooth easeOutQuad
+      const eased = 1 - (1 - t) * (1 - t);
+      setStrokeProgress(eased);
+
+      if (t < 1) {
+        strokeAnimRef.current = requestAnimationFrame(step);
+      } else {
+        setStrokeProgress(1);
+      }
+    };
+
+    strokeAnimRef.current = requestAnimationFrame(step);
+
+    return () => {
+      if (strokeAnimRef.current) cancelAnimationFrame(strokeAnimRef.current);
+    };
+  }, [buildStepIndex, viewMode]);
+
   // ──────────────────────────────────────────────────────────────────────────
   // Build Animation Auto-Play Loop
   // ──────────────────────────────────────────────────────────────────────────
@@ -376,7 +413,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
           }
           return prev + 1;
         });
-      }, 750);
+      }, 950);
     } else {
       if (playTimerRef.current) clearInterval(playTimerRef.current);
     }
@@ -606,36 +643,63 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
           );
         })}
 
-        {/* Render Edges (Solid wireframe struts with active build glow) */}
+        {/* Render Edges (Solid wireframe struts with active stroke draw-out animation) */}
         {renderedEdges.map(({ eIdx, p1, p2 }) => {
           const isHighlighted = highlight === "all" || highlight === "E";
           const isCurrentBuildEdge = viewMode === "build" && eIdx === buildStepIndex - 1;
 
-          return (
-            <line
-              key={`edge-${eIdx}`}
-              x1={p1.x}
-              y1={p1.y}
-              x2={p2.x}
-              y2={p2.y}
-              stroke={
-                isCurrentBuildEdge
-                  ? COLOR_GOLD
-                  : highlight === "E"
-                  ? COLOR_GOLD
-                  : "rgba(255, 255, 255, 0.9)"
+          // Interpolated tip for active shooting line from vertex p1 to p2
+          const currentP2 = isCurrentBuildEdge
+            ? {
+                x: p1.x + (p2.x - p1.x) * strokeProgress,
+                y: p1.y + (p2.y - p1.y) * strokeProgress,
               }
-              strokeWidth={isCurrentBuildEdge ? 3.4 : highlight === "E" ? 2.6 : 1.8}
-              className="pointer-events-none transition-colors"
-            />
+            : p2;
+
+          return (
+            <g key={`edge-${eIdx}`}>
+              <line
+                x1={p1.x}
+                y1={p1.y}
+                x2={currentP2.x}
+                y2={currentP2.y}
+                stroke={
+                  isCurrentBuildEdge
+                    ? COLOR_GOLD
+                    : highlight === "E"
+                    ? COLOR_GOLD
+                    : "rgba(255, 255, 255, 0.9)"
+                }
+                strokeWidth={isCurrentBuildEdge ? 3.6 : highlight === "E" ? 2.6 : 1.8}
+                strokeLinecap="round"
+                className="pointer-events-none"
+              />
+              {/* Glowing leading tip particle during shoot-out */}
+              {isCurrentBuildEdge && strokeProgress < 0.96 && (
+                <circle
+                  cx={currentP2.x}
+                  cy={currentP2.y}
+                  r={4.2}
+                  fill="#ffffff"
+                  stroke={COLOR_GOLD}
+                  strokeWidth={2}
+                  className="pointer-events-none"
+                />
+              )}
+            </g>
           );
         })}
 
         {/* Render Vertices (Anchor Nodes) */}
         {renderedVertices.map(({ vIdx, p }) => {
           const isHighlighted = highlight === "all" || highlight === "V";
-          const isCurrentBuildVert = viewMode === "build" && (buildStepIndex === 0 ? vIdx === 0 : vIdx === currentV - 1);
-          const r = isCurrentBuildVert ? 5.0 : highlight === "V" ? 4.5 : 3.2;
+          const isNewVertexThisStep = viewMode === "build" && activeStep?.isNewVertex && vIdx === currentV - 1;
+          
+          // Animate vertex emergence as the line arrives
+          const vertScale = isNewVertexThisStep ? Math.max(0, (strokeProgress - 0.6) / 0.4) : 1;
+          if (vertScale <= 0) return null;
+
+          const r = (isNewVertexThisStep ? 5.2 : highlight === "V" ? 4.5 : 3.2) * (isNewVertexThisStep ? 0.4 + 0.6 * vertScale : 1);
 
           return (
             <circle
@@ -643,9 +707,9 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
               cx={p.x}
               cy={p.y}
               r={r}
-              fill={isCurrentBuildVert ? "#ffffff" : isHighlighted ? COLOR_VERTEX : "rgba(255, 255, 255, 0.5)"}
-              stroke={isCurrentBuildVert ? COLOR_GOLD : "rgba(0, 0, 0, 0.4)"}
-              strokeWidth={isCurrentBuildVert ? 1.8 : 1.0}
+              fill={isNewVertexThisStep ? "#ffffff" : isHighlighted ? COLOR_VERTEX : "rgba(255, 255, 255, 0.5)"}
+              stroke={isNewVertexThisStep ? COLOR_GOLD : "rgba(0, 0, 0, 0.4)"}
+              strokeWidth={isNewVertexThisStep ? 2.0 : 1.0}
               className="pointer-events-none transition-all"
             />
           );
