@@ -440,17 +440,42 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
   const currentE = viewMode === "build" ? buildStepIndex : poly.E;
   const currentF = viewMode === "build" ? (buildStepIndex === 0 ? 1 : activeStep?.stepF ?? poly.F) : poly.F;
 
-  // Render Projected Faces with Depth Sorting
-  const renderedFaces = useMemo(() => {
-    if (viewMode === "build" && buildStepIndex < poly.edges.length) {
-      // In build mode, show faces that have been completed
-      return [];
-    }
+  // Helper: check if an edge [a, b] is built up to current buildStepIndex
+  const isEdgeBuilt = useCallback(
+    (a: number, b: number, builtCount: number) => {
+      return poly.edges.slice(0, builtCount).some(
+        ([e1, e2]) => (e1 === a && e2 === b) || (e1 === b && e2 === a)
+      );
+    },
+    [poly.edges]
+  );
 
+  // Helper: check if all boundary edges of a face are built
+  const isFaceBuilt = useCallback(
+    (fVerts: number[], builtCount: number) => {
+      const len = fVerts.length;
+      for (let i = 0; i < len; i++) {
+        const v1 = fVerts[i];
+        const v2 = fVerts[(i + 1) % len];
+        if (!isEdgeBuilt(v1, v2, builtCount)) {
+          return false;
+        }
+      }
+      return true;
+    },
+    [isEdgeBuilt]
+  );
+
+  // Render Projected Faces with Depth Sorting (dynamically shows completed faces in Build mode)
+  const renderedFaces = useMemo(() => {
     const explodeDist = viewMode === "explode" ? explodeProgress * 42 : 0;
+    const maxEdges = viewMode === "build" ? buildStepIndex : poly.edges.length;
 
     return poly.faces
       .map((fVerts, fIdx) => {
+        const completed = viewMode === "build" ? isFaceBuilt(fVerts, maxEdges) : true;
+        if (!completed) return null;
+
         const norm = faceCenters[fIdx].unit;
         const offset = {
           x: norm.x * explodeDist,
@@ -465,12 +490,14 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
           fIdx,
           avgZ,
           pointsStr,
+          completed,
         };
       })
+      .filter((f): f is NonNullable<typeof f> => f !== null)
       .sort((a, b) => a.avgZ - b.avgZ); // Sort back to front
-  }, [poly, viewMode, buildStepIndex, explodeProgress, faceCenters, projectVec]);
+  }, [poly, viewMode, buildStepIndex, explodeProgress, faceCenters, isFaceBuilt, projectVec]);
 
-  // Render Projected Edges
+  // Render Projected Edges (Solid struts with clean highlighting)
   const renderedEdges = useMemo(() => {
     const maxEdges = viewMode === "build" ? buildStepIndex : poly.edges.length;
     const explodeDist = viewMode === "explode" ? explodeProgress * 22 : 0;
@@ -529,9 +556,15 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
       {/* ── Subtitle / Invariant Status Indicator ── */}
       <div className="flex items-center justify-center gap-2 text-xs sm:text-sm font-bold font-headline select-none">
         {viewMode === "build" ? (
-          <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-white">
+          <div className="flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-white/10 border border-white/20 text-white">
             <span className="text-white/70">Step {buildStepIndex}/{poly.edges.length}:</span>
-            <span className="text-emerald-400 font-extrabold">Δ = 0 (Balance = 2)</span>
+            {buildStepIndex === 0 ? (
+              <span className="text-cyan-300">1 Vertex on Surface (1 - 0 + 1 = 2)</span>
+            ) : activeStep?.isNewVertex ? (
+              <span className="text-amber-300 font-semibold">+1 Vertex & +1 Edge (Δ=0 → Balance stays 2)</span>
+            ) : (
+              <span className="text-cyan-300 font-semibold">+1 Edge & +1 Face (Δ=0 → Balance stays 2)</span>
+            )}
           </div>
         ) : viewMode === "explode" ? (
           <div className="flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-white/10 border border-white/20 text-white/90">
@@ -560,23 +593,24 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
         {/* Render Shaded Faces */}
         {renderedFaces.map(({ fIdx, pointsStr, avgZ }) => {
           const isHighlighted = highlight === "all" || highlight === "F";
-          const fillOpacity = isHighlighted ? (avgZ > 0 ? 0.45 : 0.25) : 0.08;
+          const fillOpacity = isHighlighted ? (avgZ > 0 ? 0.45 : 0.28) : 0.12;
           return (
             <polygon
               key={`face-${fIdx}`}
               points={pointsStr}
               fill={isHighlighted ? `rgba(94, 232, 255, ${fillOpacity})` : `rgba(255, 255, 255, ${fillOpacity})`}
-              stroke={highlight === "F" ? "rgba(94, 232, 255, 0.9)" : "rgba(255, 255, 255, 0.25)"}
-              strokeWidth={highlight === "F" ? 1.8 : 1.0}
+              stroke={highlight === "F" ? "rgba(94, 232, 255, 0.9)" : "rgba(255, 255, 255, 0.35)"}
+              strokeWidth={highlight === "F" ? 2.0 : 1.2}
               className="transition-colors pointer-events-none"
             />
           );
         })}
 
-        {/* Render Edges (Wireframe struts) */}
-        {renderedEdges.map(({ eIdx, p1, p2, avgZ }) => {
+        {/* Render Edges (Solid wireframe struts with active build glow) */}
+        {renderedEdges.map(({ eIdx, p1, p2 }) => {
           const isHighlighted = highlight === "all" || highlight === "E";
-          const isOccluded = avgZ < -15 && viewMode !== "explode";
+          const isCurrentBuildEdge = viewMode === "build" && eIdx === buildStepIndex - 1;
+
           return (
             <line
               key={`edge-${eIdx}`}
@@ -585,15 +619,14 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
               x2={p2.x}
               y2={p2.y}
               stroke={
-                highlight === "E"
+                isCurrentBuildEdge
                   ? COLOR_GOLD
-                  : isOccluded
-                  ? "rgba(255, 255, 255, 0.35)"
+                  : highlight === "E"
+                  ? COLOR_GOLD
                   : "rgba(255, 255, 255, 0.9)"
               }
-              strokeWidth={highlight === "E" ? 2.6 : isOccluded ? 1.2 : 1.8}
-              strokeDasharray={isOccluded ? "4 3" : undefined}
-              className="pointer-events-none"
+              strokeWidth={isCurrentBuildEdge ? 3.4 : highlight === "E" ? 2.6 : 1.8}
+              className="pointer-events-none transition-colors"
             />
           );
         })}
@@ -601,17 +634,19 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
         {/* Render Vertices (Anchor Nodes) */}
         {renderedVertices.map(({ vIdx, p }) => {
           const isHighlighted = highlight === "all" || highlight === "V";
-          const r = highlight === "V" ? 4.5 : 3.2;
+          const isCurrentBuildVert = viewMode === "build" && (buildStepIndex === 0 ? vIdx === 0 : vIdx === currentV - 1);
+          const r = isCurrentBuildVert ? 5.0 : highlight === "V" ? 4.5 : 3.2;
+
           return (
             <circle
               key={`vert-${vIdx}`}
               cx={p.x}
               cy={p.y}
               r={r}
-              fill={isHighlighted ? COLOR_VERTEX : "rgba(255, 255, 255, 0.4)"}
-              stroke="rgba(0, 0, 0, 0.4)"
-              strokeWidth={1}
-              className="pointer-events-none"
+              fill={isCurrentBuildVert ? "#ffffff" : isHighlighted ? COLOR_VERTEX : "rgba(255, 255, 255, 0.5)"}
+              stroke={isCurrentBuildVert ? COLOR_GOLD : "rgba(0, 0, 0, 0.4)"}
+              strokeWidth={isCurrentBuildVert ? 1.8 : 1.0}
+              className="pointer-events-none transition-all"
             />
           );
         })}
