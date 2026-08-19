@@ -51,7 +51,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
     const step = (now: number) => {
       const elapsed = now - startTime;
       const prog = Math.min(1, elapsed / duration);
-      const eased = prog < 0.5 ? 4 * prog * prog * prog : 1 - Math.pow(-2 * prog + 2, 3) / 2;
+      // Gentle sinusoidal ease-in-out (no center whipping)
+      const eased = -(Math.cos(Math.PI * prog) - 1) / 2;
       const current = startVal + (target - startVal) * eased;
       setUnfold(current);
 
