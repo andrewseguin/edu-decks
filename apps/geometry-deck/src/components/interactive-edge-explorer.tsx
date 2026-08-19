@@ -208,7 +208,7 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
   };
 
   const getEdgeStrokeWidth = (id: number) => {
-    return selectedEdge === id ? 3.5 : 2;
+    return selectedEdge === id ? 4.5 : 2.5;
   };
 
   return (
@@ -221,116 +221,215 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
       {/* ── Large & Prominent Interactive 3D / 2D Canvas ── */}
       <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="w-full touch-none select-none overflow-visible max-h-[160px]">
         {/* ───────── CUBE RENDERING ───────── */}
-        {shape === "cube" && (
-          <g>
-            {/* Subtle Face Fills to visualize surfaces meeting */}
-            <polygon points={`${c_b_fl.x},${c_b_fl.y} ${c_b_fr.x},${c_b_fr.y} ${c_b_br.x},${c_b_br.y} ${c_b_bl.x},${c_b_bl.y}`} fill="rgba(94, 232, 255, 0.12)" />
-            <polygon points={`${c_b_bl.x},${c_b_bl.y} ${c_b_br.x},${c_b_br.y} ${c_bk_tr.x},${c_bk_tr.y} ${c_bk_tl.x},${c_bk_tl.y}`} fill="rgba(94, 232, 255, 0.12)" />
-            <polygon points={`${c_r_tr.x},${c_r_tr.y} ${c_r_br.x},${c_r_br.y} ${c_top_br.x},${c_top_br.y} ${c_top_tr.x},${c_top_tr.y}`} fill="rgba(94, 232, 255, 0.12)" />
-            <polygon points={`${c_b_fl.x},${c_b_fl.y} ${c_b_bl.x},${c_b_bl.y} ${c_l_bl.x},${c_l_bl.y} ${c_l_tl.x},${c_l_tl.y}`} fill="rgba(94, 232, 255, 0.12)" />
-            <polygon points={`${c_b_fr.x},${c_b_fr.y} ${c_b_br.x},${c_b_br.y} ${c_r_br.x},${c_r_br.y} ${c_r_tr.x},${c_r_tr.y}`} fill="rgba(94, 232, 255, 0.14)" />
-            <polygon points={`${c_b_fl.x},${c_b_fl.y} ${c_b_fr.x},${c_b_fr.y} ${c_f_tr.x},${c_f_tr.y} ${c_f_tl.x},${c_f_tl.y}`} fill="rgba(94, 232, 255, 0.18)" />
+        {shape === "cube" && (() => {
+          const cubeEdges = [
+            { id: 1, p1: c_b_fl, p2: c_b_fr },
+            { id: 2, p1: c_b_fr, p2: c_b_br },
+            { id: 3, p1: c_b_br, p2: c_b_bl },
+            { id: 4, p1: c_b_bl, p2: c_b_fl },
+            { id: 5, p1: c_b_fl, p2: c_f_tl },
+            { id: 6, p1: c_f_tl, p2: c_f_tr },
+            { id: 7, p1: c_f_tr, p2: c_b_fr },
+            { id: 8, p1: c_b_bl, p2: c_bk_tl },
+            { id: 9, p1: c_bk_tl, p2: c_bk_tr },
+            { id: 10, p1: c_bk_tr, p2: c_b_br },
+            { id: 11, p1: c_l_tl, p2: c_l_bl },
+            { id: 12, p1: c_r_tr, p2: c_r_br },
+          ];
 
-            {/* Hidden back edges in 3D */}
-            {tFold < 0.15 && (
-              <>
-                <line x1={c_b_bl.x} y1={c_b_bl.y} x2={c_b_br.x} y2={c_b_br.y} stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} strokeDasharray="4 3" />
-                <line x1={c_b_bl.x} y1={c_b_bl.y} x2={c_b_fl.x} y2={c_b_fl.y} stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} strokeDasharray="4 3" />
-                <line x1={c_b_bl.x} y1={c_b_bl.y} x2={c_bk_tl.x} y2={c_bk_tl.y} stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} strokeDasharray="4 3" />
-              </>
-            )}
+          return (
+            <g>
+              {/* Hidden back wireframe in 3D */}
+              {tFold < 0.15 && (
+                <>
+                  <line x1={c_b_bl.x} y1={c_b_bl.y} x2={c_b_br.x} y2={c_b_br.y} stroke="rgba(255,255,255,0.25)" strokeWidth={1.5} strokeDasharray="4 3" />
+                  <line x1={c_b_bl.x} y1={c_b_bl.y} x2={c_b_fl.x} y2={c_b_fl.y} stroke="rgba(255,255,255,0.25)" strokeWidth={1.5} strokeDasharray="4 3" />
+                  <line x1={c_b_bl.x} y1={c_b_bl.y} x2={c_bk_tl.x} y2={c_bk_tl.y} stroke="rgba(255,255,255,0.25)" strokeWidth={1.5} strokeDasharray="4 3" />
+                </>
+              )}
 
-            {/* Bottom Face Edges */}
-            <line x1={c_b_fl.x} y1={c_b_fl.y} x2={c_b_fr.x} y2={c_b_fr.y} stroke={getEdgeStroke(1)} strokeWidth={getEdgeStrokeWidth(1)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 1 ? 0 : 1)} className="cursor-pointer" />
-            <line x1={c_b_fr.x} y1={c_b_fr.y} x2={c_b_br.x} y2={c_b_br.y} stroke={getEdgeStroke(2)} strokeWidth={getEdgeStrokeWidth(2)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 2 ? 0 : 2)} className="cursor-pointer" />
-            <line x1={c_b_br.x} y1={c_b_br.y} x2={c_b_bl.x} y2={c_b_bl.y} stroke={getEdgeStroke(3)} strokeWidth={getEdgeStrokeWidth(3)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 3 ? 0 : 3)} className="cursor-pointer" />
-            <line x1={c_b_bl.x} y1={c_b_bl.y} x2={c_b_fl.x} y2={c_b_fl.y} stroke={getEdgeStroke(4)} strokeWidth={getEdgeStrokeWidth(4)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 4 ? 0 : 4)} className="cursor-pointer" />
+              {/* 6 Dim Translucent White Square Faces with Bright Cyan Edges */}
+              <polygon points={`${c_b_fl.x},${c_b_fl.y} ${c_b_fr.x},${c_b_fr.y} ${c_b_br.x},${c_b_br.y} ${c_b_bl.x},${c_b_bl.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+              <polygon points={`${c_b_bl.x},${c_b_bl.y} ${c_b_br.x},${c_b_br.y} ${c_bk_tr.x},${c_bk_tr.y} ${c_bk_tl.x},${c_bk_tl.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+              <polygon points={`${c_b_fl.x},${c_b_fl.y} ${c_b_bl.x},${c_b_bl.y} ${c_l_bl.x},${c_l_bl.y} ${c_l_tl.x},${c_l_tl.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+              <polygon points={`${c_b_fr.x},${c_b_fr.y} ${c_b_br.x},${c_b_br.y} ${c_r_br.x},${c_r_br.y} ${c_r_tr.x},${c_r_tr.y}`} fill="rgba(255, 255, 255, 0.10)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+              <polygon points={`${c_r_tr.x},${c_r_tr.y} ${c_r_br.x},${c_r_br.y} ${c_top_br.x},${c_top_br.y} ${c_top_tr.x},${c_top_tr.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+              <polygon points={`${c_b_fl.x},${c_b_fl.y} ${c_b_fr.x},${c_b_fr.y} ${c_f_tr.x},${c_f_tr.y} ${c_f_tl.x},${c_f_tl.y}`} fill="rgba(255, 255, 255, 0.12)" stroke={COLOR_EDGE} strokeWidth={2.5} />
 
-            {/* Front Face Edges */}
-            <line x1={c_b_fl.x} y1={c_b_fl.y} x2={c_f_tl.x} y2={c_f_tl.y} stroke={getEdgeStroke(5)} strokeWidth={getEdgeStrokeWidth(5)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 5 ? 0 : 5)} className="cursor-pointer" />
-            <line x1={c_f_tl.x} y1={c_f_tl.y} x2={c_f_tr.x} y2={c_f_tr.y} stroke={getEdgeStroke(6)} strokeWidth={getEdgeStrokeWidth(6)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 6 ? 0 : 6)} className="cursor-pointer" />
-            <line x1={c_f_tr.x} y1={c_f_tr.y} x2={c_b_fr.x} y2={c_b_fr.y} stroke={getEdgeStroke(7)} strokeWidth={getEdgeStrokeWidth(7)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 7 ? 0 : 7)} className="cursor-pointer" />
-
-            {/* Back Face Edges */}
-            <line x1={c_b_bl.x} y1={c_b_bl.y} x2={c_bk_tl.x} y2={c_bk_tl.y} stroke={getEdgeStroke(8)} strokeWidth={getEdgeStrokeWidth(8)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 8 ? 0 : 8)} className="cursor-pointer" />
-            <line x1={c_bk_tl.x} y1={c_bk_tl.y} x2={c_bk_tr.x} y2={c_bk_tr.y} stroke={getEdgeStroke(9)} strokeWidth={getEdgeStrokeWidth(9)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 9 ? 0 : 9)} className="cursor-pointer" />
-            <line x1={c_bk_tr.x} y1={c_bk_tr.y} x2={c_b_br.x} y2={c_b_br.y} stroke={getEdgeStroke(10)} strokeWidth={getEdgeStrokeWidth(10)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 10 ? 0 : 10)} className="cursor-pointer" />
-
-            {/* Left & Right Flap Edges */}
-            <line x1={c_l_tl.x} y1={c_l_tl.y} x2={c_l_bl.x} y2={c_l_bl.y} stroke={getEdgeStroke(11)} strokeWidth={getEdgeStrokeWidth(11)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 11 ? 0 : 11)} className="cursor-pointer" />
-            <line x1={c_r_tr.x} y1={c_r_tr.y} x2={c_r_br.x} y2={c_r_br.y} stroke={getEdgeStroke(12)} strokeWidth={getEdgeStrokeWidth(12)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 12 ? 0 : 12)} className="cursor-pointer" />
-
-            {/* Top Flap Edges (when unfolded) */}
-            {tFold > 0.05 && (
-              <>
-                <line x1={c_top_tr.x} y1={c_top_tr.y} x2={c_top_br.x} y2={c_top_br.y} stroke={COLOR_EDGE} strokeWidth={2} strokeLinecap="round" />
-                <line x1={c_r_tr.x} y1={c_r_tr.y} x2={c_top_tr.x} y2={c_top_tr.y} stroke={COLOR_EDGE} strokeWidth={2} strokeLinecap="round" />
-                <line x1={c_r_br.x} y1={c_r_br.y} x2={c_top_br.x} y2={c_top_br.y} stroke={COLOR_EDGE} strokeWidth={2} strokeLinecap="round" />
-              </>
-            )}
-          </g>
-        )}
+              {/* Clickable Edge Hit Targets & Yellow/Orange Selection Highlights */}
+              {cubeEdges.map((e) => {
+                const isSelected = selectedEdge === e.id;
+                return (
+                  <g key={e.id}>
+                    {/* Transparent wide hit area for easy tapping & mouse hover */}
+                    <line
+                      x1={e.p1.x}
+                      y1={e.p1.y}
+                      x2={e.p2.x}
+                      y2={e.p2.y}
+                      stroke="transparent"
+                      strokeWidth={14}
+                      strokeLinecap="round"
+                      onPointerEnter={(ev) => {
+                        if (ev.pointerType === "mouse") setSelectedEdge(e.id);
+                      }}
+                      onPointerLeave={(ev) => {
+                        if (ev.pointerType === "mouse") setSelectedEdge(0);
+                      }}
+                      onClick={() => setSelectedEdge((prev) => (prev === e.id ? 0 : e.id))}
+                      className="cursor-pointer"
+                    />
+                    {/* Yellow/Orange Highlight when selected */}
+                    {isSelected && (
+                      <line
+                        x1={e.p1.x}
+                        y1={e.p1.y}
+                        x2={e.p2.x}
+                        y2={e.p2.y}
+                        stroke={COLOR_GOLD}
+                        strokeWidth={4.5}
+                        strokeLinecap="round"
+                        className="pointer-events-none"
+                      />
+                    )}
+                  </g>
+                );
+              })}
+            </g>
+          );
+        })()}
 
         {/* ───────── PRISM RENDERING ───────── */}
-        {shape === "prism" && (
-          <g>
-            {/* Subtle Face Fills */}
-            <polygon points={`${pb_fl.x},${pb_fl.y} ${pb_fr.x},${pb_fr.y} ${pb_br.x},${pb_br.y} ${pb_bl.x},${pb_bl.y}`} fill="rgba(94, 232, 255, 0.12)" />
-            <polygon points={`${pb_bl.x},${pb_bl.y} ${pb_br.x},${pb_br.y} ${pv_ba.x},${pv_ba.y}`} fill="rgba(94, 232, 255, 0.12)" />
-            <polygon points={`${pb_fl.x},${pb_fl.y} ${pb_bl.x},${pb_bl.y} ${pv_l_back.x},${pv_l_back.y} ${pv_l_front.x},${pv_l_front.y}`} fill="rgba(94, 232, 255, 0.12)" />
-            <polygon points={`${pb_fr.x},${pb_fr.y} ${pb_br.x},${pb_br.y} ${pv_r_back.x},${pv_r_back.y} ${pv_r_front.x},${pv_r_front.y}`} fill="rgba(94, 232, 255, 0.15)" />
-            <polygon points={`${pb_fl.x},${pb_fl.y} ${pb_fr.x},${pb_fr.y} ${pv_fa.x},${pv_fa.y}`} fill="rgba(94, 232, 255, 0.18)" />
+        {shape === "prism" && (() => {
+          const prismEdges = [
+            { id: 1, p1: pb_fl, p2: pb_fr },
+            { id: 2, p1: pb_fr, p2: pb_br },
+            { id: 3, p1: pb_br, p2: pb_bl },
+            { id: 4, p1: pb_bl, p2: pb_fl },
+            { id: 5, p1: pb_fl, p2: pv_fa },
+            { id: 6, p1: pb_fr, p2: pv_fa },
+            { id: 7, p1: pb_bl, p2: pv_ba },
+            { id: 8, p1: pb_br, p2: pv_ba },
+            { id: 9, p1: pv_fa, p2: pv_ba },
+          ];
 
-            {/* Base Rectangle 4 Edges */}
-            <line x1={pb_fl.x} y1={pb_fl.y} x2={pb_fr.x} y2={pb_fr.y} stroke={getEdgeStroke(1)} strokeWidth={getEdgeStrokeWidth(1)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 1 ? 0 : 1)} className="cursor-pointer" />
-            <line x1={pb_fr.x} y1={pb_fr.y} x2={pb_br.x} y2={pb_br.y} stroke={getEdgeStroke(2)} strokeWidth={getEdgeStrokeWidth(2)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 2 ? 0 : 2)} className="cursor-pointer" />
-            <line x1={pb_br.x} y1={pb_br.y} x2={pb_bl.x} y2={pb_bl.y} stroke={getEdgeStroke(3)} strokeWidth={getEdgeStrokeWidth(3)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 3 ? 0 : 3)} className="cursor-pointer" />
-            <line x1={pb_bl.x} y1={pb_bl.y} x2={pb_fl.x} y2={pb_fl.y} stroke={getEdgeStroke(4)} strokeWidth={getEdgeStrokeWidth(4)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 4 ? 0 : 4)} className="cursor-pointer" />
+          return (
+            <g>
+              {/* 5 Dim Translucent White Faces with Bright Cyan Edges */}
+              <polygon points={`${pb_fl.x},${pb_fl.y} ${pb_fr.x},${pb_fr.y} ${pb_br.x},${pb_br.y} ${pb_bl.x},${pb_bl.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+              <polygon points={`${pb_bl.x},${pb_bl.y} ${pb_br.x},${pb_br.y} ${pv_ba.x},${pv_ba.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+              <polygon points={`${pb_fl.x},${pb_fl.y} ${pb_bl.x},${pb_bl.y} ${pv_l_back.x},${pv_l_back.y} ${pv_l_front.x},${pv_l_front.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+              <polygon points={`${pb_fr.x},${pb_fr.y} ${pb_br.x},${pb_br.y} ${pv_r_back.x},${pv_r_back.y} ${pv_r_front.x},${pv_r_front.y}`} fill="rgba(255, 255, 255, 0.10)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+              <polygon points={`${pb_fl.x},${pb_fl.y} ${pb_fr.x},${pb_fr.y} ${pv_fa.x},${pv_fa.y}`} fill="rgba(255, 255, 255, 0.12)" stroke={COLOR_EDGE} strokeWidth={2.5} />
 
-            {/* Front Triangle Slant Edges */}
-            <line x1={pb_fl.x} y1={pb_fl.y} x2={pv_fa.x} y2={pv_fa.y} stroke={getEdgeStroke(5)} strokeWidth={getEdgeStrokeWidth(5)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 5 ? 0 : 5)} className="cursor-pointer" />
-            <line x1={pb_fr.x} y1={pb_fr.y} x2={pv_fa.x} y2={pv_fa.y} stroke={getEdgeStroke(6)} strokeWidth={getEdgeStrokeWidth(6)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 6 ? 0 : 6)} className="cursor-pointer" />
+              {/* In 3D: Top Ridge edge */}
+              {tFold < 0.05 && (
+                <line x1={pv_fa.x} y1={pv_fa.y} x2={pv_ba.x} y2={pv_ba.y} stroke={COLOR_EDGE} strokeWidth={2.5} strokeLinecap="round" />
+              )}
 
-            {/* Back Triangle Slant Edges */}
-            <line x1={pb_bl.x} y1={pb_bl.y} x2={pv_ba.x} y2={pv_ba.y} stroke={getEdgeStroke(7)} strokeWidth={getEdgeStrokeWidth(7)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 7 ? 0 : 7)} className="cursor-pointer" />
-            <line x1={pb_br.x} y1={pb_br.y} x2={pv_ba.x} y2={pv_ba.y} stroke={getEdgeStroke(8)} strokeWidth={getEdgeStrokeWidth(8)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 8 ? 0 : 8)} className="cursor-pointer" />
-
-            {/* Top Ridge / Lateral Edge */}
-            <line x1={pv_fa.x} y1={pv_fa.y} x2={pv_ba.x} y2={pv_ba.y} stroke={getEdgeStroke(9)} strokeWidth={getEdgeStrokeWidth(9)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 9 ? 0 : 9)} className="cursor-pointer" />
-
-            {/* Unfolded outer rectangle edges */}
-            {tFold > 0.05 && (
-              <>
-                <line x1={pv_l_front.x} y1={pv_l_front.y} x2={pv_l_back.x} y2={pv_l_back.y} stroke={COLOR_EDGE} strokeWidth={2} strokeLinecap="round" />
-                <line x1={pv_r_front.x} y1={pv_r_front.y} x2={pv_r_back.x} y2={pv_r_back.y} stroke={COLOR_EDGE} strokeWidth={2} strokeLinecap="round" />
-              </>
-            )}
-          </g>
-        )}
+              {/* Clickable Edge Hit Targets & Yellow/Orange Selection Highlights */}
+              {prismEdges.map((e) => {
+                const isSelected = selectedEdge === e.id;
+                return (
+                  <g key={e.id}>
+                    <line
+                      x1={e.p1.x}
+                      y1={e.p1.y}
+                      x2={e.p2.x}
+                      y2={e.p2.y}
+                      stroke="transparent"
+                      strokeWidth={14}
+                      strokeLinecap="round"
+                      onPointerEnter={(ev) => {
+                        if (ev.pointerType === "mouse") setSelectedEdge(e.id);
+                      }}
+                      onPointerLeave={(ev) => {
+                        if (ev.pointerType === "mouse") setSelectedEdge(0);
+                      }}
+                      onClick={() => setSelectedEdge((prev) => (prev === e.id ? 0 : e.id))}
+                      className="cursor-pointer"
+                    />
+                    {isSelected && (
+                      <line
+                        x1={e.p1.x}
+                        y1={e.p1.y}
+                        x2={e.p2.x}
+                        y2={e.p2.y}
+                        stroke={COLOR_GOLD}
+                        strokeWidth={4.5}
+                        strokeLinecap="round"
+                        className="pointer-events-none"
+                      />
+                    )}
+                  </g>
+                );
+              })}
+            </g>
+          );
+        })()}
 
         {/* ───────── PYRAMID RENDERING ───────── */}
-        {shape === "pyramid" && (
-          <g>
-            {/* Subtle Face Fills */}
-            <polygon points={`${pyrb_fl.x},${pyrb_fl.y} ${pyrb_fr.x},${pyrb_fr.y} ${pyrb_br.x},${pyrb_br.y} ${pyrb_bl.x},${pyrb_bl.y}`} fill="rgba(94, 232, 255, 0.12)" />
-            <polygon points={`${pyrb_bl.x},${pyrb_bl.y} ${pyrb_br.x},${pyrb_br.y} ${pyr_bk_apex.x},${pyr_bk_apex.y}`} fill="rgba(94, 232, 255, 0.12)" />
-            <polygon points={`${pyrb_fl.x},${pyrb_fl.y} ${pyrb_bl.x},${pyrb_bl.y} ${pyr_l_apex.x},${pyr_l_apex.y}`} fill="rgba(94, 232, 255, 0.12)" />
-            <polygon points={`${pyrb_fr.x},${pyrb_fr.y} ${pyrb_br.x},${pyrb_br.y} ${pyr_r_apex.x},${pyr_r_apex.y}`} fill="rgba(94, 232, 255, 0.15)" />
-            <polygon points={`${pyrb_fl.x},${pyrb_fl.y} ${pyrb_fr.x},${pyrb_fr.y} ${pyr_f_apex.x},${pyr_f_apex.y}`} fill="rgba(94, 232, 255, 0.18)" />
+        {shape === "pyramid" && (() => {
+          const pyramidEdges = [
+            { id: 1, p1: pyrb_fl, p2: pyrb_fr },
+            { id: 2, p1: pyrb_fr, p2: pyrb_br },
+            { id: 3, p1: pyrb_br, p2: pyrb_bl },
+            { id: 4, p1: pyrb_bl, p2: pyrb_fl },
+            { id: 5, p1: pyrb_fl, p2: pyr_f_apex },
+            { id: 6, p1: pyrb_fr, p2: pyr_f_apex },
+            { id: 7, p1: pyrb_br, p2: pyr_r_apex },
+            { id: 8, p1: pyrb_bl, p2: pyr_l_apex },
+          ];
 
-            {/* Base Square 4 Edges */}
-            <line x1={pyrb_fl.x} y1={pyrb_fl.y} x2={pyrb_fr.x} y2={pyrb_fr.y} stroke={getEdgeStroke(1)} strokeWidth={getEdgeStrokeWidth(1)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 1 ? 0 : 1)} className="cursor-pointer" />
-            <line x1={pyrb_fr.x} y1={pyrb_fr.y} x2={pyrb_br.x} y2={pyrb_br.y} stroke={getEdgeStroke(2)} strokeWidth={getEdgeStrokeWidth(2)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 2 ? 0 : 2)} className="cursor-pointer" />
-            <line x1={pyrb_br.x} y1={pyrb_br.y} x2={pyrb_bl.x} y2={pyrb_bl.y} stroke={getEdgeStroke(3)} strokeWidth={getEdgeStrokeWidth(3)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 3 ? 0 : 3)} className="cursor-pointer" />
-            <line x1={pyrb_bl.x} y1={pyrb_bl.y} x2={pyrb_fl.x} y2={pyrb_fl.y} stroke={getEdgeStroke(4)} strokeWidth={getEdgeStrokeWidth(4)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 4 ? 0 : 4)} className="cursor-pointer" />
+          return (
+            <g>
+              {/* 5 Dim Translucent White Faces with Bright Cyan Edges */}
+              <polygon points={`${pyrb_fl.x},${pyrb_fl.y} ${pyrb_fr.x},${pyrb_fr.y} ${pyrb_br.x},${pyrb_br.y} ${pyrb_bl.x},${pyrb_bl.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+              <polygon points={`${pyrb_bl.x},${pyrb_bl.y} ${pyrb_br.x},${pyrb_br.y} ${pyr_bk_apex.x},${pyr_bk_apex.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+              <polygon points={`${pyrb_fl.x},${pyrb_fl.y} ${pyrb_bl.x},${pyrb_bl.y} ${pyr_l_apex.x},${pyr_l_apex.y}`} fill="rgba(255, 255, 255, 0.08)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+              <polygon points={`${pyrb_fr.x},${pyrb_fr.y} ${pyrb_br.x},${pyrb_br.y} ${pyr_r_apex.x},${pyr_r_apex.y}`} fill="rgba(255, 255, 255, 0.10)" stroke={COLOR_EDGE} strokeWidth={2.5} />
+              <polygon points={`${pyrb_fl.x},${pyrb_fl.y} ${pyrb_fr.x},${pyrb_fr.y} ${pyr_f_apex.x},${pyr_f_apex.y}`} fill="rgba(255, 255, 255, 0.12)" stroke={COLOR_EDGE} strokeWidth={2.5} />
 
-            {/* 4 Slant Edges meeting at apex */}
-            <line x1={pyrb_fl.x} y1={pyrb_fl.y} x2={pyr_f_apex.x} y2={pyr_f_apex.y} stroke={getEdgeStroke(5)} strokeWidth={getEdgeStrokeWidth(5)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 5 ? 0 : 5)} className="cursor-pointer" />
-            <line x1={pyrb_fr.x} y1={pyrb_fr.y} x2={pyr_f_apex.x} y2={pyr_f_apex.y} stroke={getEdgeStroke(6)} strokeWidth={getEdgeStrokeWidth(6)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 6 ? 0 : 6)} className="cursor-pointer" />
-            <line x1={pyrb_br.x} y1={pyrb_br.y} x2={pyr_r_apex.x} y2={pyr_r_apex.y} stroke={getEdgeStroke(7)} strokeWidth={getEdgeStrokeWidth(7)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 7 ? 0 : 7)} className="cursor-pointer" />
-            <line x1={pyrb_bl.x} y1={pyrb_bl.y} x2={pyr_l_apex.x} y2={pyr_l_apex.y} stroke={getEdgeStroke(8)} strokeWidth={getEdgeStrokeWidth(8)} strokeLinecap="round" onClick={() => setSelectedEdge(selectedEdge === 8 ? 0 : 8)} className="cursor-pointer" />
-          </g>
-        )}
+              {/* Clickable Edge Hit Targets & Yellow/Orange Selection Highlights */}
+              {pyramidEdges.map((e) => {
+                const isSelected = selectedEdge === e.id;
+                return (
+                  <g key={e.id}>
+                    <line
+                      x1={e.p1.x}
+                      y1={e.p1.y}
+                      x2={e.p2.x}
+                      y2={e.p2.y}
+                      stroke="transparent"
+                      strokeWidth={14}
+                      strokeLinecap="round"
+                      onPointerEnter={(ev) => {
+                        if (ev.pointerType === "mouse") setSelectedEdge(e.id);
+                      }}
+                      onPointerLeave={(ev) => {
+                        if (ev.pointerType === "mouse") setSelectedEdge(0);
+                      }}
+                      onClick={() => setSelectedEdge((prev) => (prev === e.id ? 0 : e.id))}
+                      className="cursor-pointer"
+                    />
+                    {isSelected && (
+                      <line
+                        x1={e.p1.x}
+                        y1={e.p1.y}
+                        x2={e.p2.x}
+                        y2={e.p2.y}
+                        stroke={COLOR_GOLD}
+                        strokeWidth={4.5}
+                        strokeLinecap="round"
+                        className="pointer-events-none"
+                      />
+                    )}
+                  </g>
+                );
+              })}
+            </g>
+          );
+        })()}
 
         {/* ───────── CYLINDER RENDERING (Full Smooth [0, 1] Progression) ───────── */}
         {shape === "cylinder" && (() => {
@@ -356,12 +455,12 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
 
           return (
             <g>
-              {/* Shaded body fill */}
+              {/* Dim white shaded body fill */}
               <path
                 d={`M ${CX - bodyW / 2} ${CY - cH / 2} ${topPath} L ${CX + bodyW / 2} ${CY + cH / 2} ${botPath} Z`}
-                fill="rgba(94, 232, 255, 0.12)"
-                stroke="rgba(255, 255, 255, 0.3)"
-                strokeWidth={1}
+                fill="rgba(255, 255, 255, 0.08)"
+                stroke={p > 0.5 ? "rgba(255, 255, 255, 0.3)" : "rgba(255, 255, 255, 0.15)"}
+                strokeWidth={1.5}
               />
 
               {/* 3D Hidden Dashed Back Arc on bottom base when folded */}
@@ -369,35 +468,47 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
                 <path
                   d={`M ${CX - cR} ${CY + cH / 2} A ${cR} ${cRy} 0 0 1 ${CX + cR} ${CY + cH / 2}`}
                   fill="none"
-                  stroke="rgba(255, 255, 255, 0.3)"
+                  stroke="rgba(255, 255, 255, 0.25)"
                   strokeWidth={1.5}
                   strokeDasharray="4 3"
                 />
               )}
 
-              {/* Curved Edge 2: Bottom Circular Rim Edge */}
+              {/* Curved Edge 2: Bottom Circular Rim Edge (Bright Cyan / Gold on hover/selection) */}
               <ellipse
                 cx={CX}
                 cy={botCy}
                 rx={cR}
                 ry={botRy}
-                fill="rgba(94, 232, 255, 0.16)"
+                fill="rgba(255, 255, 255, 0.08)"
                 stroke={getEdgeStroke(2)}
                 strokeWidth={getEdgeStrokeWidth(2)}
-                onClick={() => setSelectedEdge(selectedEdge === 2 ? 0 : 2)}
+                onPointerEnter={(ev) => {
+                  if (ev.pointerType === "mouse") setSelectedEdge(2);
+                }}
+                onPointerLeave={(ev) => {
+                  if (ev.pointerType === "mouse") setSelectedEdge(0);
+                }}
+                onClick={() => setSelectedEdge((prev) => (prev === 2 ? 0 : 2))}
                 className="cursor-pointer transition-colors"
               />
 
-              {/* Curved Edge 1: Top Circular Rim Edge */}
+              {/* Curved Edge 1: Top Circular Rim Edge (Bright Cyan / Gold on hover/selection) */}
               <ellipse
                 cx={CX}
                 cy={topCy}
                 rx={cR}
                 ry={topRy}
-                fill="rgba(94, 232, 255, 0.16)"
+                fill="rgba(255, 255, 255, 0.08)"
                 stroke={getEdgeStroke(1)}
                 strokeWidth={getEdgeStrokeWidth(1)}
-                onClick={() => setSelectedEdge(selectedEdge === 1 ? 0 : 1)}
+                onPointerEnter={(ev) => {
+                  if (ev.pointerType === "mouse") setSelectedEdge(1);
+                }}
+                onPointerLeave={(ev) => {
+                  if (ev.pointerType === "mouse") setSelectedEdge(0);
+                }}
+                onClick={() => setSelectedEdge((prev) => (prev === 1 ? 0 : 1))}
                 className="cursor-pointer transition-colors"
               />
             </g>

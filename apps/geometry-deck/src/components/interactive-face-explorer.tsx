@@ -240,6 +240,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               fill={getFaceFill(6)}
               stroke={getFaceStroke(6)}
               strokeWidth={getFaceStrokeWidth(6)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(6); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
               onClick={() => setSelectedFace(selectedFace === 6 ? 0 : 6)}
               className="cursor-pointer transition-colors"
             />
@@ -249,6 +251,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               fill={getFaceFill(2)}
               stroke={getFaceStroke(2)}
               strokeWidth={getFaceStrokeWidth(2)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(2); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
               onClick={() => setSelectedFace(selectedFace === 2 ? 0 : 2)}
               className="cursor-pointer transition-colors"
             />
@@ -258,6 +262,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               fill={getFaceFill(5)}
               stroke={getFaceStroke(5)}
               strokeWidth={getFaceStrokeWidth(5)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(5); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
               onClick={() => setSelectedFace(selectedFace === 5 ? 0 : 5)}
               className="cursor-pointer transition-colors"
             />
@@ -267,6 +273,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               fill={getFaceFill(3)}
               stroke={getFaceStroke(3)}
               strokeWidth={getFaceStrokeWidth(3)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(3); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
               onClick={() => setSelectedFace(selectedFace === 3 ? 0 : 3)}
               className="cursor-pointer transition-colors"
             />
@@ -276,6 +284,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               fill={getFaceFill(4)}
               stroke={getFaceStroke(4)}
               strokeWidth={getFaceStrokeWidth(4)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(4); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
               onClick={() => setSelectedFace(selectedFace === 4 ? 0 : 4)}
               className="cursor-pointer transition-colors"
             />
@@ -285,6 +295,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               fill={getFaceFill(1)}
               stroke={getFaceStroke(1)}
               strokeWidth={getFaceStrokeWidth(1)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(1); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
               onClick={() => setSelectedFace(selectedFace === 1 ? 0 : 1)}
               className="cursor-pointer transition-colors"
             />
@@ -300,6 +312,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               fill={getFaceFill(5)}
               stroke={getFaceStroke(5)}
               strokeWidth={getFaceStrokeWidth(5)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(5); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
               onClick={() => setSelectedFace(selectedFace === 5 ? 0 : 5)}
               className="cursor-pointer transition-colors"
             />
@@ -309,6 +323,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               fill={getFaceFill(2)}
               stroke={getFaceStroke(2)}
               strokeWidth={getFaceStrokeWidth(2)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(2); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
               onClick={() => setSelectedFace(selectedFace === 2 ? 0 : 2)}
               className="cursor-pointer transition-colors"
             />
@@ -318,6 +334,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               fill={getFaceFill(4)}
               stroke={getFaceStroke(4)}
               strokeWidth={getFaceStrokeWidth(4)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(4); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
               onClick={() => setSelectedFace(selectedFace === 4 ? 0 : 4)}
               className="cursor-pointer transition-colors"
             />
@@ -327,6 +345,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               fill={getFaceFill(3)}
               stroke={getFaceStroke(3)}
               strokeWidth={getFaceStrokeWidth(3)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(3); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
               onClick={() => setSelectedFace(selectedFace === 3 ? 0 : 3)}
               className="cursor-pointer transition-colors"
             />
@@ -336,6 +356,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               fill={getFaceFill(1)}
               stroke={getFaceStroke(1)}
               strokeWidth={getFaceStrokeWidth(1)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(1); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
               onClick={() => setSelectedFace(selectedFace === 1 ? 0 : 1)}
               className="cursor-pointer transition-colors"
             />
@@ -351,6 +373,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               fill={getFaceFill(1)}
               stroke={getFaceStroke(1)}
               strokeWidth={getFaceStrokeWidth(1)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(1); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
               onClick={() => setSelectedFace(selectedFace === 1 ? 0 : 1)}
               className="cursor-pointer transition-colors"
             />
@@ -360,6 +384,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               fill={getFaceFill(3)}
               stroke={getFaceStroke(3)}
               strokeWidth={getFaceStrokeWidth(3)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(3); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
               onClick={() => setSelectedFace(selectedFace === 3 ? 0 : 3)}
               className="cursor-pointer transition-colors"
             />
@@ -369,6 +395,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               fill={getFaceFill(4)}
               stroke={getFaceStroke(4)}
               strokeWidth={getFaceStrokeWidth(4)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(4); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
               onClick={() => setSelectedFace(selectedFace === 4 ? 0 : 4)}
               className="cursor-pointer transition-colors"
             />
@@ -378,6 +406,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               fill={getFaceFill(5)}
               stroke={getFaceStroke(5)}
               strokeWidth={getFaceStrokeWidth(5)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(5); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
               onClick={() => setSelectedFace(selectedFace === 5 ? 0 : 5)}
               className="cursor-pointer transition-colors"
             />
@@ -387,6 +417,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               fill={getFaceFill(2)}
               stroke={getFaceStroke(2)}
               strokeWidth={getFaceStrokeWidth(2)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(2); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
               onClick={() => setSelectedFace(selectedFace === 2 ? 0 : 2)}
               className="cursor-pointer transition-colors"
             />
@@ -434,6 +466,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
                 fill={getFaceFill(3)}
                 stroke={getFaceStroke(3)}
                 strokeWidth={getFaceStrokeWidth(3)}
+                onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(3); }}
+                onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
                 onClick={() => setSelectedFace(selectedFace === 3 ? 0 : 3)}
                 className="cursor-pointer transition-colors"
               />
@@ -447,6 +481,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
                 fill={getFaceFill(2)}
                 stroke={getFaceStroke(2)}
                 strokeWidth={getFaceStrokeWidth(2)}
+                onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(2); }}
+                onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
                 onClick={() => setSelectedFace(selectedFace === 2 ? 0 : 2)}
                 className="cursor-pointer transition-colors"
               />
@@ -460,6 +496,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
                 fill={getFaceFill(1)}
                 stroke={getFaceStroke(1)}
                 strokeWidth={getFaceStrokeWidth(1)}
+                onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(1); }}
+                onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
                 onClick={() => setSelectedFace(selectedFace === 1 ? 0 : 1)}
                 className="cursor-pointer transition-colors"
               />
