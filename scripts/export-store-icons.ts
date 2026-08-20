@@ -167,6 +167,46 @@ async function exportStoreIcons() {
   await sharp(geometryTransTemp).resize(32, 32).png().toFile(path.join(geometryPublic, 'favicon.ico'));
   console.log('✅ Generated Geometry Deck web & app icons');
 
+  // -------------------------------------------------------------------------
+  // Part 4: Native iOS (1024x1024) & Android Launcher Mipmaps
+  // -------------------------------------------------------------------------
+  const mobileApps = [
+    { name: 'arithmetic-deck', storeIcon: arithmeticStorePath },
+    { name: 'reading-deck', storeIcon: readingStorePath },
+    { name: 'geometry-deck', storeIcon: geometryStorePath },
+  ];
+
+  for (const app of mobileApps) {
+    // 1. iOS AppIcon (1024x1024)
+    const iosAppIcon = path.join(root, `apps/${app.name}/ios/App/App/Assets.xcassets/AppIcon.appiconset/AppIcon-512@2x.png`);
+    if (fs.existsSync(path.dirname(iosAppIcon))) {
+      await sharp(app.storeIcon).resize(1024, 1024).toFile(iosAppIcon);
+      console.log(`✅ Generated native 1024x1024 iOS AppIcon for ${app.name}`);
+    }
+
+    // 2. Android Mipmaps
+    const androidRes = path.join(root, `apps/${app.name}/android/app/src/main/res`);
+    if (fs.existsSync(androidRes)) {
+      const sizes = [
+        { dir: 'mipmap-mdpi', launcher: 48, fore: 108 },
+        { dir: 'mipmap-hdpi', launcher: 72, fore: 162 },
+        { dir: 'mipmap-xhdpi', launcher: 96, fore: 216 },
+        { dir: 'mipmap-xxhdpi', launcher: 144, fore: 324 },
+        { dir: 'mipmap-xxxhdpi', launcher: 192, fore: 432 },
+      ];
+
+      for (const s of sizes) {
+        const targetDir = path.join(androidRes, s.dir);
+        if (fs.existsSync(targetDir)) {
+          await sharp(app.storeIcon).resize(s.launcher, s.launcher).toFile(path.join(targetDir, 'ic_launcher.png'));
+          await sharp(app.storeIcon).resize(s.launcher, s.launcher).toFile(path.join(targetDir, 'ic_launcher_round.png'));
+          await sharp(app.storeIcon).resize(s.fore, s.fore).toFile(path.join(targetDir, 'ic_launcher_foreground.png'));
+        }
+      }
+      console.log(`✅ Generated native Android launcher icons for ${app.name}`);
+    }
+  }
+
   console.log('✨ All icons and feature graphics exported successfully!');
 }
 
