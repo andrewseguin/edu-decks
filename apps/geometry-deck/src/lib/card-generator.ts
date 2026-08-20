@@ -891,11 +891,11 @@ function make3DTermCards(): GeometryCard[] {
     },
     {
       id: nextId(), topic: "3d-shapes", cardType: "term", variant: "definition",
-      frontLabel: "Euler's formula (V − E + F = 2)", frontPrompt: "states…?",
+      frontLabel: "Euler's formula", frontPrompt: "states…?",
       frontSpeechText: "Euler's formula states…?",
       backDefinition: "V − E + F = 2",
       backDefinitionSubtitle: "Vertices − Edges + Faces = 2 for any convex 3D polyhedron",
-      backSvgExamples: [{ shape: "prism", dimensions: { l: 2, w: 2, h: 2, labelMode: "numeric" }, labelMode: "numeric" }],
+      backSvgExamples: [{ shape: "prism", dimensions: { labelMode: "numeric" }, labelMode: "numeric" }],
       backSteps: [
         { formulaLine: "V − E + F = 2" },
         { formulaLine: "Cube: 8 − 12 + 6 = 2 ✓" },
@@ -1127,8 +1127,8 @@ function make3DCalcCard(settings: GeneratorSettings): GeometryCard {
   // Euler's formula: polyhedron — find V
   return {
     id: nextId(), topic: "3d-shapes", cardType: "calculation", variant: "compute",
-    frontPrompt: "A solid has 6 faces and 12 edges. Solve for vertices (V).",
-    frontSpeechText: "A solid has 6 faces and 12 edges. How many vertices does it have?",
+    frontPrompt: "A polyhedron has 6 faces and 12 edges. Solve for the number of vertices.",
+    frontSpeechText: "A polyhedron has 6 faces and 12 edges. How many vertices does it have?",
     backSvgExamples: [{ shape: "prism", dimensions: { labelMode: "numeric" }, labelMode: "numeric" }],
     backSteps: [
       { equationTokens: [tok("v","V","#ffffff"), op("−"), tok("e","E","#ffd45e"), op("+"), tok("f","F","#5ee8ff"), eq(), tok("two","2")], reason: "Euler's Polyhedral Formula" },
@@ -1136,7 +1136,7 @@ function make3DCalcCard(settings: GeneratorSettings): GeometryCard {
       { equationTokens: [tok("v","V","#ffffff"), op("−"), tok("num","6"), eq(), tok("two","2")], reason: "Simplify expression" },
       { equationTokens: [tok("v","V","#ffffff"), eq(), tok("rhs","8","#ffffff")], reason: "Evaluate" },
     ],
-    backSpeechText: "V minus E plus F equals 2. The solid has 8 vertices", numericAnswer: 8, color,
+    backSpeechText: "Vertices minus edges plus faces equals 2. The polyhedron has 8 vertices", numericAnswer: 8, color,
   };
 }
 

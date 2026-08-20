@@ -219,7 +219,7 @@ export function GeometryCard({
       if (card.id === "term-poly-exterior-sum" || card.frontLabel === "Polygon exterior angle sum" || card.frontLabel === "Exterior angle sum of any polygon") {
         return <InteractivePolygonExteriorSumExplorer color={card.color} />;
       }
-      if (card.id === "term-3d-euler" || card.frontLabel === "Euler's formula (V − E + F = 2)" || card.frontLabel === "Euler's formula") {
+      if (card.id === "term-3d-euler" || card.frontLabel === "Euler's formula" || card.frontLabel === "Euler's formula (V − E + F = 2)") {
         return <InteractiveEulerExplorer color={card.color} />;
       }
       if (card.id === "term-3d-prism-vol" || card.frontLabel === "Volume of a prism") {

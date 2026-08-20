@@ -906,7 +906,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "term-3d-euler": {
     id: "term-3d-euler", topic: "3d-shapes", cardType: "term", variant: "definition",
     color: TOPIC_COLORS["3d-shapes"],
-    frontLabel: "Euler's formula (V − E + F = 2)", frontPrompt: "states…?",
+    frontLabel: "Euler's formula", frontPrompt: "states…?",
     frontSpeechText: "Euler's formula states…?",
     backDefinition: "V − E + F = 2",
     backDefinitionSubtitle: "Vertices − Edges + Faces = 2 for any convex 3D polyhedron",
@@ -1133,8 +1133,8 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-3d-euler": {
     id: "calc-3d-euler", topic: "3d-shapes", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS["3d-shapes"],
-    frontPrompt: "A solid has 6 faces and 12 edges. Solve for vertices (V).",
-    frontSpeechText: "A solid has 6 faces and 12 edges. How many vertices does it have?",
+    frontPrompt: "A polyhedron has 6 faces and 12 edges. Solve for the number of vertices.",
+    frontSpeechText: "A polyhedron has 6 faces and 12 edges. How many vertices does it have?",
     backSvgExamples: [{ shape: "prism", dimensions: { labelMode: "numeric" }, labelMode: "numeric" }],
     backSteps: [
       { equationTokens: [t("v","V","#ffffff"), op("−"), t("e","E","#ffd45e"), op("+"), t("f","F","#5ee8ff"), eq(), t("two","2")], reason: "Euler's Polyhedral Formula" },
@@ -1142,7 +1142,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
       { equationTokens: [t("v","V","#ffffff"), op("−"), t("num","6"), eq(), t("two","2")], reason: "Simplify expression" },
       { equationTokens: [t("v","V","#ffffff"), eq(), t("rhs","8","#ffffff")], reason: "Evaluate" },
     ],
-    backSpeechText: "V equals 8. The solid has 8 vertices", numericAnswer: 8,
+    backSpeechText: "Vertices minus edges plus faces equals 2. The polyhedron has 8 vertices", numericAnswer: 8,
   },
 };
 
