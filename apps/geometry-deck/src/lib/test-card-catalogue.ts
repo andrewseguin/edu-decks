@@ -1144,6 +1144,36 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     ],
     backSpeechText: "Vertices minus edges plus faces equals 2. The polyhedron has 8 vertices", numericAnswer: 8,
   },
+
+  "calc-3d-euler-edges": {
+    id: "calc-3d-euler-edges", topic: "3d-shapes", cardType: "calculation", variant: "compute",
+    color: TOPIC_COLORS["3d-shapes"],
+    frontPrompt: "A polyhedron has 8 vertices and 6 faces. Solve for the number of edges.",
+    frontSpeechText: "A polyhedron has 8 vertices and 6 faces. How many edges does it have?",
+    backSvgExamples: [{ shape: "prism", dimensions: { labelMode: "numeric" }, labelMode: "numeric" }],
+    backSteps: [
+      { equationTokens: [t("v","V","#ffffff"), op("−"), t("e","E","#ffd45e"), op("+"), t("f","F","#5ee8ff"), eq(), t("two","2")], reason: "Euler's Polyhedral Formula" },
+      { equationTokens: [t("v","8","#ffffff"), op("−"), t("e","E","#ffd45e"), op("+"), t("f","6","#5ee8ff"), eq(), t("two","2")], reason: "Substitute known values" },
+      { equationTokens: [t("num","14"), op("−"), t("e","E","#ffd45e"), eq(), t("two","2")], reason: "Simplify expression" },
+      { equationTokens: [t("e","E","#ffd45e"), eq(), t("rhs","12","#ffd45e")], reason: "Evaluate" },
+    ],
+    backSpeechText: "The polyhedron has 12 edges", numericAnswer: 12,
+  },
+
+  "calc-3d-euler-faces": {
+    id: "calc-3d-euler-faces", topic: "3d-shapes", cardType: "calculation", variant: "compute",
+    color: TOPIC_COLORS["3d-shapes"],
+    frontPrompt: "A polyhedron has 8 vertices and 12 edges. Solve for the number of faces.",
+    frontSpeechText: "A polyhedron has 8 vertices and 12 edges. How many faces does it have?",
+    backSvgExamples: [{ shape: "prism", dimensions: { labelMode: "numeric" }, labelMode: "numeric" }],
+    backSteps: [
+      { equationTokens: [t("v","V","#ffffff"), op("−"), t("e","E","#ffd45e"), op("+"), t("f","F","#5ee8ff"), eq(), t("two","2")], reason: "Euler's Polyhedral Formula" },
+      { equationTokens: [t("v","8","#ffffff"), op("−"), t("e","12","#ffd45e"), op("+"), t("f","F","#5ee8ff"), eq(), t("two","2")], reason: "Substitute known values" },
+      { equationTokens: [t("num","−4"), op("+"), t("f","F","#5ee8ff"), eq(), t("two","2")], reason: "Simplify expression" },
+      { equationTokens: [t("f","F","#5ee8ff"), eq(), t("rhs","6","#5ee8ff")], reason: "Evaluate" },
+    ],
+    backSpeechText: "The polyhedron has 6 faces", numericAnswer: 6,
+  },
 };
 
 /** All catalogue IDs in a stable order for Playwright iteration */

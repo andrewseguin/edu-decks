@@ -1124,19 +1124,61 @@ function make3DCalcCard(settings: GeneratorSettings): GeometryCard {
       backSpeechText: `Surface area equals ${sa} pi`, numericAnswer: sa, color,
     };
   }
-  // Euler's formula: polyhedron — find V
+  // Euler's formula: polyhedron — find V, E, or F
+  const polyhedra = [
+    { name: "cube", V: 8, E: 12, F: 6, shape: "prism" as const },
+    { name: "square pyramid", V: 5, E: 8, F: 5, shape: "pyramid" as const },
+  ];
+  const poly = pick(polyhedra);
+  const target = pick(["vertices", "edges", "faces"] as const);
+
+  if (target === "vertices") {
+    return {
+      id: nextId(), topic: "3d-shapes", cardType: "calculation", variant: "compute",
+      frontPrompt: `A polyhedron has ${poly.F} faces and ${poly.E} edges. Solve for the number of vertices.`,
+      frontSpeechText: `A polyhedron has ${poly.F} faces and ${poly.E} edges. How many vertices does it have?`,
+      backSvgExamples: [{ shape: poly.shape, dimensions: { labelMode: "numeric" }, labelMode: "numeric" }],
+      backSteps: [
+        { equationTokens: [tok("v","V","#ffffff"), op("−"), tok("e","E","#ffd45e"), op("+"), tok("f","F","#5ee8ff"), eq(), tok("two","2")], reason: "Euler's Polyhedral Formula" },
+        { equationTokens: [tok("v","V","#ffffff"), op("−"), tok("e",`${poly.E}`,"#ffd45e"), op("+"), tok("f",`${poly.F}`,"#5ee8ff"), eq(), tok("two","2")], reason: "Substitute known values" },
+        { equationTokens: [tok("v","V","#ffffff"), op("−"), tok("num",`${poly.E - poly.F}`), eq(), tok("two","2")], reason: "Simplify expression" },
+        { equationTokens: [tok("v","V","#ffffff"), eq(), tok("rhs",`${poly.V}`,"#ffffff")], reason: "Evaluate" },
+      ],
+      backSpeechText: `Vertices minus edges plus faces equals 2. The polyhedron has ${poly.V} vertices`, numericAnswer: poly.V, color,
+    };
+  }
+
+  if (target === "edges") {
+    const sumVF = poly.V + poly.F;
+    return {
+      id: nextId(), topic: "3d-shapes", cardType: "calculation", variant: "compute",
+      frontPrompt: `A polyhedron has ${poly.V} vertices and ${poly.F} faces. Solve for the number of edges.`,
+      frontSpeechText: `A polyhedron has ${poly.V} vertices and ${poly.F} faces. How many edges does it have?`,
+      backSvgExamples: [{ shape: poly.shape, dimensions: { labelMode: "numeric" }, labelMode: "numeric" }],
+      backSteps: [
+        { equationTokens: [tok("v","V","#ffffff"), op("−"), tok("e","E","#ffd45e"), op("+"), tok("f","F","#5ee8ff"), eq(), tok("two","2")], reason: "Euler's Polyhedral Formula" },
+        { equationTokens: [tok("v",`${poly.V}`,"#ffffff"), op("−"), tok("e","E","#ffd45e"), op("+"), tok("f",`${poly.F}`,"#5ee8ff"), eq(), tok("two","2")], reason: "Substitute known values" },
+        { equationTokens: [tok("num",`${sumVF}`), op("−"), tok("e","E","#ffd45e"), eq(), tok("two","2")], reason: "Simplify expression" },
+        { equationTokens: [tok("e","E","#ffd45e"), eq(), tok("rhs",`${poly.E}`,"#ffd45e")], reason: "Evaluate" },
+      ],
+      backSpeechText: `The polyhedron has ${poly.E} edges`, numericAnswer: poly.E, color,
+    };
+  }
+
+  // target === "faces"
+  const diffVE = poly.V - poly.E;
   return {
     id: nextId(), topic: "3d-shapes", cardType: "calculation", variant: "compute",
-    frontPrompt: "A polyhedron has 6 faces and 12 edges. Solve for the number of vertices.",
-    frontSpeechText: "A polyhedron has 6 faces and 12 edges. How many vertices does it have?",
-    backSvgExamples: [{ shape: "prism", dimensions: { labelMode: "numeric" }, labelMode: "numeric" }],
+    frontPrompt: `A polyhedron has ${poly.V} vertices and ${poly.E} edges. Solve for the number of faces.`,
+    frontSpeechText: `A polyhedron has ${poly.V} vertices and ${poly.E} edges. How many faces does it have?`,
+    backSvgExamples: [{ shape: poly.shape, dimensions: { labelMode: "numeric" }, labelMode: "numeric" }],
     backSteps: [
       { equationTokens: [tok("v","V","#ffffff"), op("−"), tok("e","E","#ffd45e"), op("+"), tok("f","F","#5ee8ff"), eq(), tok("two","2")], reason: "Euler's Polyhedral Formula" },
-      { equationTokens: [tok("v","V","#ffffff"), op("−"), tok("e","12","#ffd45e"), op("+"), tok("f","6","#5ee8ff"), eq(), tok("two","2")], reason: "Substitute known values" },
-      { equationTokens: [tok("v","V","#ffffff"), op("−"), tok("num","6"), eq(), tok("two","2")], reason: "Simplify expression" },
-      { equationTokens: [tok("v","V","#ffffff"), eq(), tok("rhs","8","#ffffff")], reason: "Evaluate" },
+      { equationTokens: [tok("v",`${poly.V}`,"#ffffff"), op("−"), tok("e",`${poly.E}`,"#ffd45e"), op("+"), tok("f","F","#5ee8ff"), eq(), tok("two","2")], reason: "Substitute known values" },
+      { equationTokens: [tok("num",`${diffVE}`), op("+"), tok("f","F","#5ee8ff"), eq(), tok("two","2")], reason: "Simplify expression" },
+      { equationTokens: [tok("f","F","#5ee8ff"), eq(), tok("rhs",`${poly.F}`,"#5ee8ff")], reason: "Evaluate" },
     ],
-    backSpeechText: "Vertices minus edges plus faces equals 2. The polyhedron has 8 vertices", numericAnswer: 8, color,
+    backSpeechText: `The polyhedron has ${poly.F} faces`, numericAnswer: poly.F, color,
   };
 }
 
