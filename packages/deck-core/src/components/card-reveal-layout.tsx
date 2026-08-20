@@ -196,9 +196,10 @@ export function CardRevealLayout({
     isTransitioningRef.current = true;
     const timer = setTimeout(() => {
       isTransitioningRef.current = false;
+      calculateLayout();
     }, 600);
     return () => clearTimeout(timer);
-  }, [isRevealed]);
+  }, [isRevealed, calculateLayout]);
 
   React.useEffect(() => {
     const primaryEl = primaryRef.current;

@@ -56,37 +56,20 @@ export function ProofRow({ tokens, formulaLine, reason, isAnswer }: ProofRowProp
 
   return (
     <div className="proof-row-item w-full min-w-0">
-      {/* ── Wide Container (Two-Column Proof Table: >= 480px) ─────────────── */}
-      <div className="proof-row-desktop relative w-full items-center grid-cols-[1fr_1px_1fr] gap-x-0 py-1.5 min-w-0">
-        <div className="flex items-center justify-end pr-4 min-w-0">
+      <div className="relative w-full items-center grid grid-cols-1 sm:grid-cols-[1fr_1px_1fr] gap-y-1 sm:gap-y-0 gap-x-0 py-1 sm:py-1.5 min-w-0">
+        <div className="flex items-center justify-center sm:justify-end sm:pr-4 min-w-0">
           <ProofReasonTooltip
             reason={reason}
             className={cn(
-              "leading-tight text-right italic text-xs sm:text-sm text-white",
-              isAnswer ? "font-bold" : "font-medium",
-            )}
-          />
-        </div>
-
-        <div className="self-stretch bg-white/20 min-h-[20px]" />
-
-        <div className="flex justify-start pl-4 min-w-0">
-          {equationNode}
-        </div>
-      </div>
-
-      {/* ── Narrow Container (Stacked Step Layout: < 480px) ───────────────── */}
-      <div className="proof-row-mobile relative flex-col items-center justify-center w-full py-1.5 px-2 text-center min-w-0 gap-0.5">
-        <div className="flex items-center justify-center min-w-0 max-w-full">
-          <ProofReasonTooltip
-            reason={reason}
-            className={cn(
-              "leading-tight text-center italic text-xs text-white/85",
+              "leading-tight text-center sm:text-right italic text-xs sm:text-sm text-white/90",
               isAnswer ? "font-bold text-white" : "font-medium",
             )}
           />
         </div>
-        <div className="flex items-center justify-center min-w-0 w-full overflow-x-auto no-scrollbar py-0.5">
+
+        <div className="hidden sm:block self-stretch bg-white/20 min-h-[20px]" />
+
+        <div className="flex items-center justify-center sm:justify-start sm:pl-4 min-w-0">
           {equationNode}
         </div>
       </div>
