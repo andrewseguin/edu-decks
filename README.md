@@ -28,6 +28,11 @@ EduDecks apps are interactive flash cards made for practicing together. Each dec
   - [Geometry Deck Web App](https://geometry.edudecks.org)
   - [Reading Deck Web App](https://reading.edudecks.org)
   - [Arithmetic Deck Web App](https://arithmetic.edudecks.org)
+- **Design System & Architecture**:
+  - [EduDecks Philosophy, Pedagogy & Design System](./docs/philosophy-and-design-system.md)
+  - [Reading Deck Design Guide](./apps/reading-deck/DESIGN_GUIDE.md)
+  - [Arithmetic Deck Design Guide](./apps/arithmetic-deck/DESIGN_GUIDE.md)
+  - [Geometry Deck Design Guide](./apps/geometry-deck/DESIGN_GUIDE.md)
 - **Documentation & Publishing**:
   - [Multi-Environment & Deployment Guide](./docs/deployment-guide.md)
   - [App Store Listings & Copy](./docs/store_listings.md)
