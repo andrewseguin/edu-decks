@@ -281,17 +281,20 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
 
   const getFaceFill = (id: number) => {
     if (selectedFace === id) {
-      return "rgba(255, 212, 94, 0.72)"; // Glowing Gold Active Surface
+      return "rgba(255, 212, 94, 0.90)"; // Glowing Gold Active Surface
     }
-    return "rgba(94, 232, 255, 0.38)";   // Persistent Electric Cyan 2D Surface across all faces
+    return "rgba(94, 232, 255, 0.72)";   // Vibrant Solid Electric Cyan Surface
   };
 
-  const getFaceStroke = (_id: number) => {
-    return "rgba(255, 255, 255, 0.85)"; // Neutral white wireframe boundary
+  const getFaceStroke = (id: number) => {
+    if (selectedFace === id) {
+      return "#ffd45e";
+    }
+    return "rgba(255, 255, 255, 0.95)"; // Crisp white wireframe boundary
   };
 
-  const getFaceStrokeWidth = (_id: number) => {
-    return 1.5; // Always clean uniform stroke
+  const getFaceStrokeWidth = (id: number) => {
+    return selectedFace === id ? 2.2 : 1.6;
   };
 
   return (

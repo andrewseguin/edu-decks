@@ -433,9 +433,9 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
           const isFaceHighlighted = highlight === "F";
           const isAll = highlight === "all";
           const fill = isFaceHighlighted
-            ? `rgba(94, 232, 255, ${avgZ > 0 ? 0.55 : 0.38})`
+            ? `rgba(94, 232, 255, ${avgZ > 0 ? 0.78 : 0.62})`
             : isAll
-            ? `rgba(94, 232, 255, ${avgZ > 0 ? 0.32 : 0.18})`
+            ? `rgba(94, 232, 255, ${avgZ > 0 ? 0.55 : 0.40})`
             : `rgba(255, 255, 255, ${avgZ > 0 ? 0.08 : 0.04})`;
 
           return (
@@ -443,8 +443,8 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
               key={`face-${fIdx}`}
               points={pointsStr}
               fill={fill}
-              stroke={isFaceHighlighted ? COLOR_CYAN : isAll ? "rgba(255, 255, 255, 0.4)" : "rgba(255, 255, 255, 0.15)"}
-              strokeWidth={isFaceHighlighted ? 2.2 : 1.0}
+              stroke={isFaceHighlighted ? COLOR_CYAN : isAll ? "rgba(255, 255, 255, 0.7)" : "rgba(255, 255, 255, 0.15)"}
+              strokeWidth={isFaceHighlighted ? 2.4 : 1.2}
               className="pointer-events-none"
             />
           );
