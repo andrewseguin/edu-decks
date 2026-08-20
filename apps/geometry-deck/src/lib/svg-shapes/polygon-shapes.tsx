@@ -344,42 +344,40 @@ export function Polygon({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMut
         />
       ) : (dims.exteriorAngle || unknownDim === "extAngle" || unknownDim === "exteriorAngle") ? (
         (() => {
-          // Find rightmost edge to place exterior angle with generous margin
-          let extEdgeIdx = 0;
-          let maxMidX = -Infinity;
+          // Find the rightmost vertex (maximum X) with spacious horizontal margin
+          let rightmostIdx = 1;
+          let maxX = -Infinity;
           for (let i = 0; i < n; i++) {
-            const nextV = vertices[(i + 1) % n];
-            const midX = (vertices[i].x + nextV.x) / 2;
-            if (midX > maxMidX) {
-              maxMidX = midX;
-              extEdgeIdx = i;
+            if (vertices[i].x > maxX) {
+              maxX = vertices[i].x;
+              rightmostIdx = i;
             }
           }
-          const extVA = vertices[extEdgeIdx];
-          const extVB = vertices[(extEdgeIdx + 1) % n];
-          const extVC = vertices[(extEdgeIdx + 2) % n];
+          const vPrev = vertices[(rightmostIdx - 1 + n) % n];
+          const vMain = vertices[rightmostIdx];
+          const vNext = vertices[(rightmostIdx + 1) % n];
 
-          const d1x = extVB.x - extVA.x;
-          const d1y = extVB.y - extVA.y;
+          const d1x = vMain.x - vPrev.x;
+          const d1y = vMain.y - vPrev.y;
           const len1 = Math.hypot(d1x, d1y) || 1;
           const u1x = d1x / len1;
           const u1y = d1y / len1;
 
-          const d2x = extVC.x - extVB.x;
-          const d2y = extVC.y - extVB.y;
+          const d2x = vNext.x - vMain.x;
+          const d2y = vNext.y - vMain.y;
           const len2 = Math.hypot(d2x, d2y) || 1;
           const u2x = d2x / len2;
           const u2y = d2y / len2;
 
-          const extRayLen = 32;
-          const extX = extVB.x + u1x * extRayLen;
-          const extY = extVB.y + u1y * extRayLen;
+          const extRayLen = 34;
+          const extX = vMain.x + u1x * extRayLen;
+          const extY = vMain.y + u1y * extRayLen;
 
-          const arcR = 18;
-          const p1x = extVB.x + u1x * arcR;
-          const p1y = extVB.y + u1y * arcR;
-          const p2x = extVB.x + u2x * arcR;
-          const p2y = extVB.y + u2y * arcR;
+          const arcR = 19;
+          const p1x = vMain.x + u1x * arcR;
+          const p1y = vMain.y + u1y * arcR;
+          const p2x = vMain.x + u2x * arcR;
+          const p2y = vMain.y + u2y * arcR;
 
           const cross = u1x * u2y - u1y * u2x;
           const sweep = cross > 0 ? 1 : 0;
@@ -387,8 +385,8 @@ export function Polygon({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMut
           const midUX = u1x + u2x;
           const midUY = u1y + u2y;
           const midLen = Math.hypot(midUX, midUY) || 1;
-          const lblX = extVB.x + (midUX / midLen) * 32;
-          const lblY = extVB.y + (midUY / midLen) * 32;
+          const lblX = vMain.x + (midUX / midLen) * 32;
+          const lblY = vMain.y + (midUY / midLen) * 32;
 
           const isExtUnknown = unknownDim === "extAngle" || unknownDim === "exteriorAngle";
           const knownAngle = typeof dims.extAngle === "number" ? dims.extAngle : (typeof dims.exteriorAngle === "number" ? dims.exteriorAngle : null);
@@ -397,8 +395,8 @@ export function Polygon({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMut
             <g>
               {/* Extended dashed baseline */}
               <line
-                x1={extVB.x}
-                y1={extVB.y}
+                x1={vMain.x}
+                y1={vMain.y}
                 x2={extX}
                 y2={extY}
                 stroke="#ffd45e"
@@ -406,7 +404,7 @@ export function Polygon({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMut
                 strokeDasharray="4 3"
               />
               {/* Vertex dot */}
-              <circle cx={extVB.x} cy={extVB.y} r={3} fill="#ffd45e" />
+              <circle cx={vMain.x} cy={vMain.y} r={3} fill="#ffd45e" />
               {/* Exterior Angle Arc */}
               <path
                 d={`M ${p1x} ${p1y} A ${arcR} ${arcR} 0 0 ${sweep} ${p2x} ${p2y}`}
@@ -417,7 +415,7 @@ export function Polygon({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMut
               />
               {/* Exterior Angle Sector Fill */}
               <path
-                d={`M ${extVB.x} ${extVB.y} L ${p1x} ${p1y} A ${arcR} ${arcR} 0 0 ${sweep} ${p2x} ${p2y} Z`}
+                d={`M ${vMain.x} ${vMain.y} L ${p1x} ${p1y} A ${arcR} ${arcR} 0 0 ${sweep} ${p2x} ${p2y} Z`}
                 fill="rgba(255, 212, 94, 0.25)"
                 stroke="none"
               />
