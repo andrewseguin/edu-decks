@@ -244,8 +244,102 @@ async function generateLandingScreenshots() {
   await page.screenshot({ path: path.join(readingDir, 'landscape-3-quiz-mode-dark.png') });
   console.log('Saved: reading/landscape-3-quiz-mode-dark.png');
 
+  // ==========================================
+  // 3. GEOMETRY DECK (9004)
+  // ==========================================
+  const geometryDir = path.join(root, 'apps/landing-page/public/screenshots/geometry');
+  fs.mkdirSync(geometryDir, { recursive: true });
+
+  console.log('Capturing Geometry Deck screenshots (Light & Dark)...');
+  await page.goto('http://localhost:9004');
+  await page.waitForSelector('main');
+  await page.waitForTimeout(600);
+
+  // Set Light Theme
+  await page.evaluate(() => {
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+    localStorage.setItem('theme', 'light');
+    localStorage.setItem('geometry-deck-topic', '"triangles"');
+  });
+  await page.waitForTimeout(400);
+  await clearFocus(page);
+
+  // 1. Front (Light)
+  await page.screenshot({ path: path.join(geometryDir, 'landscape-1-card-front.png') });
+  console.log('Saved: geometry/landscape-1-card-front.png');
+
+  // 1. Front (Dark)
+  await page.evaluate(() => {
+    document.documentElement.classList.remove('light');
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+  });
+  await page.waitForTimeout(300);
+  await clearFocus(page);
+  await page.screenshot({ path: path.join(geometryDir, 'landscape-1-card-front-dark.png') });
+  console.log('Saved: geometry/landscape-1-card-front-dark.png');
+
+  // 2. Step Reveal / Back (Light)
+  await page.evaluate(() => {
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+    localStorage.setItem('theme', 'light');
+  });
+  await page.goto('http://localhost:9004');
+  await page.waitForSelector('main');
+  await page.waitForTimeout(400);
+  const flipBtn = page.locator("button[aria-label='Flip Card'], button[aria-label='Show Solution']").first();
+  if (await flipBtn.isVisible()) {
+    await flipBtn.click();
+    await page.waitForTimeout(500);
+  }
+  await clearFocus(page);
+  await page.screenshot({ path: path.join(geometryDir, 'landscape-2-card-back.png') });
+  console.log('Saved: geometry/landscape-2-card-back.png');
+
+  // 2. Step Reveal / Back (Dark)
+  await page.evaluate(() => {
+    document.documentElement.classList.remove('light');
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+  });
+  await page.waitForTimeout(300);
+  await clearFocus(page);
+  await page.screenshot({ path: path.join(geometryDir, 'landscape-2-card-back-dark.png') });
+  console.log('Saved: geometry/landscape-2-card-back-dark.png');
+
+  // 3. Quiz Mode (Light)
+  await page.evaluate(() => {
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+    localStorage.setItem('theme', 'light');
+  });
+  await page.goto('http://localhost:9004');
+  await page.waitForSelector('main');
+  await page.waitForTimeout(400);
+  const quizLaunchBtn = page.locator("button[aria-label='Start Quiz Mode'], button[aria-label='Quiz Mode']").first();
+  if (await quizLaunchBtn.isVisible()) {
+    await quizLaunchBtn.click();
+    await page.waitForTimeout(600);
+  }
+  await clearFocus(page);
+  await page.screenshot({ path: path.join(geometryDir, 'landscape-3-quiz-mode.png') });
+  console.log('Saved: geometry/landscape-3-quiz-mode.png');
+
+  // 3. Quiz Mode (Dark)
+  await page.evaluate(() => {
+    document.documentElement.classList.remove('light');
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('theme', 'dark');
+  });
+  await page.waitForTimeout(300);
+  await clearFocus(page);
+  await page.screenshot({ path: path.join(geometryDir, 'landscape-3-quiz-mode-dark.png') });
+  console.log('Saved: geometry/landscape-3-quiz-mode-dark.png');
+
   await browser.close();
-  console.log('\n=== All 12 light and dark screenshots successfully generated! ===');
+  console.log('\n=== All 18 light and dark screenshots successfully generated! ===');
 }
 
 generateLandingScreenshots().catch(console.error);

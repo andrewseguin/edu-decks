@@ -106,16 +106,19 @@ const APPS: AppInfo[] = [
     accentBorder: "border-t-emerald-500",
     screenshots: [
       {
-        label: "Angle Sum",
+        label: "Card Front",
         src: "/screenshots/geometry/landscape-1-card-front.png",
+        srcDark: "/screenshots/geometry/landscape-1-card-front-dark.png",
       },
       {
-        label: "Euler's Law",
+        label: "Step Reveal",
         src: "/screenshots/geometry/landscape-2-card-back.png",
+        srcDark: "/screenshots/geometry/landscape-2-card-back-dark.png",
       },
       {
-        label: "Pythagorean",
+        label: "Quiz Mode",
         src: "/screenshots/geometry/landscape-3-quiz-mode.png",
+        srcDark: "/screenshots/geometry/landscape-3-quiz-mode-dark.png",
       },
     ],
   },
