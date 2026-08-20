@@ -7,6 +7,7 @@ import {
   SettingsToggle,
 } from "./app-settings-modal";
 import { ThemeToggleGroup } from "./theme-toggle-group";
+import { useDevSettings } from "../hooks/use-dev-settings";
 
 export type DeckStandardSettingsProps = {
   open: boolean;
@@ -19,10 +20,13 @@ export type DeckStandardSettingsProps = {
   onAutoPlaySoundChange?: (autoPlay: boolean) => void;
   keepScreenAwake?: boolean;
   onKeepScreenAwakeChange?: (keep: boolean) => void;
+  showDebugOutlines?: boolean;
+  onShowDebugOutlinesChange?: (show: boolean) => void;
   onLockApp?: () => void;
   themeSectionTitle?: string;
   countersSectionTitle?: string;
   systemSectionTitle?: string;
+  devSectionTitle?: string;
   children?: React.ReactNode;
   triggerClassName?: string;
   contentClassName?: string;
@@ -43,10 +47,13 @@ export function DeckStandardSettings({
   onAutoPlaySoundChange,
   keepScreenAwake,
   onKeepScreenAwakeChange,
+  showDebugOutlines,
+  onShowDebugOutlinesChange,
   onLockApp,
   themeSectionTitle = "Theme",
   countersSectionTitle = "Counters",
   systemSectionTitle = "System",
+  devSectionTitle = "Developer",
   children,
   triggerClassName,
   contentClassName,
@@ -55,6 +62,11 @@ export function DeckStandardSettings({
   eduDecksUrl = "https://edudecks.org",
   eduDecksLabel = "More decks at edudecks.org",
 }: DeckStandardSettingsProps) {
+  const devSettings = useDevSettings();
+  const isOutlinesActive =
+    showDebugOutlines !== undefined ? showDebugOutlines : devSettings.showDebugOutlines;
+  const handleOutlinesChange = onShowDebugOutlinesChange || devSettings.setShowDebugOutlines;
+
   const hasCounters = onShowCardCountChange || onShowTimerChange;
   const hasSystem = onAutoPlaySoundChange || onKeepScreenAwakeChange;
 
@@ -116,6 +128,18 @@ export function DeckStandardSettings({
               onCheckedChange={onKeepScreenAwakeChange}
             />
           )}
+        </SettingsSection>
+      )}
+
+      {/* Developer Section (Localhost & Dev Environments Only) */}
+      {devSettings.isDev && (
+        <SettingsSection title={devSectionTitle}>
+          <SettingsToggle
+            id="deck-dev-outlines-toggle"
+            label="Container Outlines (D)"
+            checked={isOutlinesActive}
+            onCheckedChange={handleOutlinesChange}
+          />
         </SettingsSection>
       )}
 

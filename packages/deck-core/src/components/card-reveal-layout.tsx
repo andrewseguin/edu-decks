@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { cn, isDevSite } from "../lib/utils";
+import { useDevSettings } from "../hooks/use-dev-settings";
 
 export interface CardRevealLayoutProps {
   /**
@@ -58,10 +59,8 @@ export function CardRevealLayout({
   onHeightChange,
   showDebugOutlines,
 }: CardRevealLayoutProps) {
-  // Defer isDevSite() to client to avoid SSR hydration mismatch (window.location unavailable on server).
-  const [isDevEnv, setIsDevEnv] = React.useState(false);
-  React.useEffect(() => { setIsDevEnv(isDevSite()); }, []);
-  const shouldShowDebug = showDebugOutlines ?? isDevEnv;
+  const devSettings = useDevSettings();
+  const shouldShowDebug = showDebugOutlines !== undefined ? showDebugOutlines : devSettings.showDebugOutlines;
 
   const containerRef = React.useRef<HTMLDivElement>(null);
   const primaryRef = React.useRef<HTMLDivElement>(null);
