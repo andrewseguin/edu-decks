@@ -51,11 +51,14 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
     }
   };
 
+  const isFullyFolded = unfold <= 0.001;
+
   // ──────────────────────────────────────────────────────────────────────────
-  // 3D Canvas Drag to Orbit
+  // 3D Canvas Drag to Orbit (Allowed only when totally folded in 3D)
   // ──────────────────────────────────────────────────────────────────────────
   const handleCanvasPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
     stop(e);
+    if (!isFullyFolded) return;
     isDraggingRef.current = true;
     lastDragPosRef.current = { x: e.clientX, y: e.clientY };
     dragDistRef.current = 0;
@@ -63,19 +66,13 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
   };
 
   const handleCanvasPointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
-    if (!isDraggingRef.current) return;
+    if (!isDraggingRef.current || !isFullyFolded) return;
     const dx = e.clientX - lastDragPosRef.current.x;
     const dy = e.clientY - lastDragPosRef.current.y;
     lastDragPosRef.current = { x: e.clientX, y: e.clientY };
     dragDistRef.current += Math.hypot(dx, dy);
 
     if (dragDistRef.current > 3) {
-      // If user rotates while partially unfolded, fold it back to 3D
-      if (unfold > 0) {
-        if (animRef.current) cancelAnimationFrame(animRef.current);
-        setIsAnimating(false);
-        setUnfold(0);
-      }
       setUserYaw((prev) => (prev + dx * 0.75 + 360) % 360);
       setUserPitch((prev) => Math.max(10, Math.min(80, prev + dy * 0.65)));
     }
@@ -310,7 +307,10 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
         onPointerDown={handleCanvasPointerDown}
         onPointerMove={handleCanvasPointerMove}
         onPointerUp={handleCanvasPointerUp}
-        className="w-full touch-none select-none overflow-visible max-h-[205px] cursor-grab active:cursor-grabbing"
+        className={cn(
+          "w-full touch-none select-none overflow-visible max-h-[205px]",
+          isFullyFolded ? "cursor-grab active:cursor-grabbing" : "cursor-default"
+        )}
       >
 
         {/* ───────── CUBE RENDERING ───────── */}
