@@ -1133,9 +1133,9 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-3d-euler": {
     id: "calc-3d-euler", topic: "3d-shapes", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS["3d-shapes"],
-    frontPrompt: "6 faces, 12 edges, ? vertices",
-    revealedPrompt: "6 faces, 12 edges, 8 vertices",
-    frontSpeechText: "6 faces, 12 edges. How many vertices?",
+    frontPrompt: "A polyhedron has 6 faces and 12 edges. Solve for the number of vertices.",
+    revealedPrompt: "A polyhedron has 6 faces, 12 edges, and 8 vertices.",
+    frontSpeechText: "A polyhedron has 6 faces and 12 edges. How many vertices does it have?",
     backSvgExamples: [{ shape: "prism", dimensions: { labelMode: "numeric" }, labelMode: "numeric" }],
     backSteps: [
       { equationTokens: [t("v","V","#d8b4fe"), op("−"), t("e","E","#ffd45e"), op("+"), t("f","F","#5ee8ff"), eq(), t("two","2")], reason: "Euler's Polyhedral Formula" },
@@ -1149,9 +1149,9 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-3d-euler-edges": {
     id: "calc-3d-euler-edges", topic: "3d-shapes", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS["3d-shapes"],
-    frontPrompt: "8 vertices, 6 faces, ? edges",
-    revealedPrompt: "8 vertices, 6 faces, 12 edges",
-    frontSpeechText: "8 vertices, 6 faces. How many edges?",
+    frontPrompt: "A polyhedron has 8 vertices and 6 faces. Solve for the number of edges.",
+    revealedPrompt: "A polyhedron has 8 vertices, 6 faces, and 12 edges.",
+    frontSpeechText: "A polyhedron has 8 vertices and 6 faces. How many edges does it have?",
     backSvgExamples: [{ shape: "prism", dimensions: { labelMode: "numeric" }, labelMode: "numeric" }],
     backSteps: [
       { equationTokens: [t("v","V","#d8b4fe"), op("−"), t("e","E","#ffd45e"), op("+"), t("f","F","#5ee8ff"), eq(), t("two","2")], reason: "Euler's Polyhedral Formula" },
@@ -1165,9 +1165,9 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-3d-euler-faces": {
     id: "calc-3d-euler-faces", topic: "3d-shapes", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS["3d-shapes"],
-    frontPrompt: "8 vertices, 12 edges, ? faces",
-    revealedPrompt: "8 vertices, 12 edges, 6 faces",
-    frontSpeechText: "8 vertices, 12 edges. How many faces?",
+    frontPrompt: "A polyhedron has 8 vertices and 12 edges. Solve for the number of faces.",
+    revealedPrompt: "A polyhedron has 8 vertices, 12 edges, and 6 faces.",
+    frontSpeechText: "A polyhedron has 8 vertices and 12 edges. How many faces does it have?",
     backSvgExamples: [{ shape: "prism", dimensions: { labelMode: "numeric" }, labelMode: "numeric" }],
     backSteps: [
       { equationTokens: [t("v","V","#d8b4fe"), op("−"), t("e","E","#ffd45e"), op("+"), t("f","F","#5ee8ff"), eq(), t("two","2")], reason: "Euler's Polyhedral Formula" },
