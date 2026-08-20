@@ -7,7 +7,7 @@ type InteractivePrismVolumeProps = {
   color?: string;
 };
 
-const SVG_H = 115;
+const SVG_H = 145;
 
 const COLOR_LEN = "#5ee8ff";   // Electric Cyan (l)
 const COLOR_WIDTH = "#d8b4fe"; // Soft Lilac (w)
@@ -33,13 +33,13 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
   const baseArea = l * w;
   const currentVol = baseArea * activeLayers;
 
-  const unitPx = 11;
+  const unitPx = 16;
   const W = l * unitPx;
-  const H = activeLayers * unitPx * 1.05;
-  const D = w * unitPx * 0.7;
+  const H = activeLayers * unitPx * 0.95;
+  const D = w * unitPx * 0.65;
 
   const ox = CX - (W + D * Math.cos(Math.PI / 6)) / 2;
-  const oy = 92;
+  const oy = 115;
   const cos30 = Math.cos(Math.PI / 6), sin30 = Math.sin(Math.PI / 6);
   const dxD = D * cos30, dyD = -D * sin30;
 
@@ -66,7 +66,7 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging) return;
     const dy = startYRef.current - e.clientY; // upward drag increases height
-    const deltaLayers = Math.round(dy / (unitPx * 1.05));
+    const deltaLayers = Math.round(dy / (unitPx * 0.95));
     const nextLayers = Math.max(1, Math.min(maxLayers, startLayersRef.current + deltaLayers));
     setActiveLayers(nextLayers);
   };
@@ -81,7 +81,7 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-1.5 w-full pt-0.5 pb-1" onClick={stop} onPointerDown={stop}>
-      <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="w-full touch-none select-none overflow-visible max-h-[115px]">
+      <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="w-full touch-none select-none overflow-visible max-h-[145px]">
         {/* Hidden back edges */}
         <line x1={bl.x} y1={bl.y} x2={btl.x} y2={btl.y} stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} strokeDasharray="4 3" />
         <line x1={bl.x} y1={bl.y} x2={fl.x} y2={fl.y} stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} strokeDasharray="4 3" />
