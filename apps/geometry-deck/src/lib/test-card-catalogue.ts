@@ -924,7 +924,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontLabel: "Volume of a prism", frontPrompt: "formula is…?",
     frontSpeechText: "The formula for the volume of a prism is…?",
     backDefinition: "V = l · w · h",
-    backDefinitionSubtitle: "Volume = Base Area · height (l · w · h)",
+    backDefinitionSubtitle: "Volume = length · width · height",
     backSvgExamples: [{ shape: "prism", dimensions: { l: "l", w: "w", h: "h", labelMode: "variable" }, labelMode: "variable" }],
     backSteps: [{ formulaLine: "V = length × width × height" }],
     backSpeechText: "Volume equals length times width times height",

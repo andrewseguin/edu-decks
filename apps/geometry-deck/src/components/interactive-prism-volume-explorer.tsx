@@ -7,7 +7,7 @@ type InteractivePrismVolumeProps = {
   color?: string;
 };
 
-const SVG_H = 155;
+const SVG_H = 115;
 
 const COLOR_LEN = "#5ee8ff";   // Electric Cyan (l)
 const COLOR_WIDTH = "#d8b4fe"; // Soft Lilac (w)
@@ -33,13 +33,13 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
   const baseArea = l * w;
   const currentVol = baseArea * activeLayers;
 
-  const unitPx = SVG_W >= 380 ? 15 : 13;
+  const unitPx = 11;
   const W = l * unitPx;
-  const H = activeLayers * unitPx * 1.15;
+  const H = activeLayers * unitPx * 1.05;
   const D = w * unitPx * 0.7;
 
   const ox = CX - (W + D * Math.cos(Math.PI / 6)) / 2;
-  const oy = 115;
+  const oy = 92;
   const cos30 = Math.cos(Math.PI / 6), sin30 = Math.sin(Math.PI / 6);
   const dxD = D * cos30, dyD = -D * sin30;
 
@@ -66,7 +66,7 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging) return;
     const dy = startYRef.current - e.clientY; // upward drag increases height
-    const deltaLayers = Math.round(dy / (unitPx * 1.15));
+    const deltaLayers = Math.round(dy / (unitPx * 1.05));
     const nextLayers = Math.max(1, Math.min(maxLayers, startLayersRef.current + deltaLayers));
     setActiveLayers(nextLayers);
   };
@@ -80,8 +80,8 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
   };
 
   return (
-    <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
-      <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="w-full touch-none select-none overflow-visible">
+    <div ref={containerRef} className="flex flex-col items-center gap-1.5 w-full pt-0.5 pb-1" onClick={stop} onPointerDown={stop}>
+      <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="w-full touch-none select-none overflow-visible max-h-[115px]">
         {/* Hidden back edges */}
         <line x1={bl.x} y1={bl.y} x2={btl.x} y2={btl.y} stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} strokeDasharray="4 3" />
         <line x1={bl.x} y1={bl.y} x2={fl.x} y2={fl.y} stroke="rgba(255,255,255,0.3)" strokeWidth={1.5} strokeDasharray="4 3" />
@@ -132,19 +132,19 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
           onPointerUp={handlePointerUp}
           onPointerCancel={handlePointerUp}
         >
-          <circle cx={topMid.x} cy={topMid.y} r={14} fill="transparent" />
-          <circle cx={topMid.x} cy={topMid.y} r={6} fill="rgba(255, 212, 94, 0.35)" stroke={COLOR_HEIGHT} strokeWidth={1.5} />
-          <circle cx={topMid.x} cy={topMid.y} r={2.5} fill="#ffffff" />
+          <circle cx={topMid.x} cy={topMid.y} r={12} fill="transparent" />
+          <circle cx={topMid.x} cy={topMid.y} r={5.5} fill="rgba(255, 212, 94, 0.35)" stroke={COLOR_HEIGHT} strokeWidth={1.5} />
+          <circle cx={topMid.x} cy={topMid.y} r={2} fill="#ffffff" />
         </g>
 
         {/* Dimension Labels */}
         {/* Length (l) */}
         <text
           x={(fl.x + fr.x) / 2}
-          y={fl.y + 14}
+          y={fl.y + 13}
           textAnchor="middle"
           dominantBaseline="central"
-          fontSize={12.5}
+          fontSize={12}
           fontWeight="800"
           fill={COLOR_LEN}
           fontFamily="var(--font-heading, system-ui)"
@@ -155,11 +155,11 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
 
         {/* Width (w) */}
         <text
-          x={fr.x + dxD / 2 + 12}
-          y={fr.y + dyD / 2 + 6}
+          x={fr.x + dxD / 2 + 10}
+          y={fr.y + dyD / 2 + 5}
           textAnchor="start"
           dominantBaseline="central"
-          fontSize={12.5}
+          fontSize={12}
           fontWeight="800"
           fill={COLOR_WIDTH}
           fontFamily="var(--font-heading, system-ui)"
@@ -170,11 +170,11 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
 
         {/* Height (h) */}
         <text
-          x={ftl.x - 12}
+          x={ftl.x - 10}
           y={(ftl.y + fl.y) / 2}
           textAnchor="end"
           dominantBaseline="central"
-          fontSize={12.5}
+          fontSize={12}
           fontWeight="800"
           fill={COLOR_HEIGHT}
           fontFamily="var(--font-heading, system-ui)"
@@ -185,30 +185,30 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
       </svg>
 
       {/* Stepper Controls for activeLayers in Frosted Capsule */}
-      <div className="flex items-center gap-1 sm:gap-1.5 bg-white/10 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-white/25 shadow-sm pointer-events-auto z-30 select-none">
+      <div className="flex items-center gap-1 sm:gap-1.5 bg-white/10 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/25 shadow-sm pointer-events-auto z-30 select-none">
         <button
           onClick={() => setActiveLayers((prev) => Math.max(1, prev - 1))}
           disabled={activeLayers <= 1}
-          className="w-6 h-6 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95"
+          className="w-5 h-5 rounded-full flex items-center justify-center font-bold text-xs transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95"
         >
           −
         </button>
-        <div className="flex items-center px-2 py-0.5 text-xs sm:text-sm font-headline font-bold text-white">
+        <div className="flex items-center px-2 py-0.5 text-xs font-headline font-bold text-white">
           {activeLayers} of {maxLayers} Layers (Base Area = {baseArea})
         </div>
         <button
           onClick={() => setActiveLayers((prev) => Math.min(maxLayers, prev + 1))}
           disabled={activeLayers >= maxLayers}
-          className="w-6 h-6 rounded-full flex items-center justify-center font-bold text-sm transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95"
+          className="w-5 h-5 rounded-full flex items-center justify-center font-bold text-xs transition-all border-none bg-transparent hover:bg-white/15 text-white disabled:opacity-30 disabled:pointer-events-none active:scale-95"
         >
           +
         </button>
       </div>
 
       {/* Live Typographic Equation Banner */}
-      <div className="flex justify-center mt-1">
-        <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
-          <span className="text-white">V</span>
+      <div className="flex justify-center mt-0.5">
+        <div className="flex items-center gap-2 px-4 py-1 rounded-full bg-black/35 border-y border-white/20 shadow-md text-xs sm:text-sm font-bold font-headline select-none text-white">
+          <span>V</span>
           <span className="text-white/50">=</span>
           <span style={{ color: COLOR_LEN }}>{l}</span>
           <span className="text-white/50">·</span>
