@@ -10,7 +10,8 @@ type InteractivePyramidVolumeProps = {
 
 const SVG_H = 195;
 
-const COLOR_BASE = "#ffd45e"; // Warm Gold (B, b / base)
+const COLOR_LENGTH = "#ffd45e"; // Warm Gold (l / length)
+const COLOR_WIDTH = "#d8b4fe";  // Neon Lilac (w / width)
 const COLOR_HEIGHT = "#5ee8ff"; // Electric Cyan (h / altitude)
 const COLOR_VOL = "#ffffff";    // Bold Crisp White
 
@@ -20,7 +21,8 @@ export function InteractivePyramidVolumeExplorer({ color }: InteractivePyramidVo
   const SVG_W = Math.max(280, Math.min(460, rawW - 24));
   const CX = SVG_W / 2;
 
-  const b = 4; // base side
+  const l = 4; // length units
+  const w = 3; // width units
   const minH = 3;
   const maxH = 9;
   const [h, setH] = useState(6); // height [3, 6, 9] (multiples of 3)
@@ -28,8 +30,7 @@ export function InteractivePyramidVolumeExplorer({ color }: InteractivePyramidVo
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 
-  const baseArea = b * b; // 16
-  const pyramidVol = (baseArea * h) / 3;
+  const pyramidVol = (l * w * h) / 3;
 
   // Geometry coordinates
   const W = 96, D = 48;
@@ -127,7 +128,7 @@ export function InteractivePyramidVolumeExplorer({ color }: InteractivePyramidVo
           <circle cx={apex.x} cy={apex.y} r={2.5} fill="#ffffff" />
         </g>
 
-        {/* Labels */}
+        {/* Length Label (Front) */}
         <text
           x={(fl.x + fr.x) / 2}
           y={fl.y + 14}
@@ -135,12 +136,29 @@ export function InteractivePyramidVolumeExplorer({ color }: InteractivePyramidVo
           dominantBaseline="central"
           fontSize={13.5}
           fontWeight="800"
-          fill={COLOR_BASE}
+          fill={COLOR_LENGTH}
           fontFamily="var(--font-heading, system-ui)"
           style={{ filter: "drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.9))" }}
         >
-          Base Area B = {baseArea}
+          {l}
         </text>
+
+        {/* Width Label (Right side slant) */}
+        <text
+          x={(fr.x + br.x) / 2 + 10}
+          y={(fr.y + br.y) / 2 + 4}
+          textAnchor="start"
+          dominantBaseline="central"
+          fontSize={13}
+          fontWeight="800"
+          fill={COLOR_WIDTH}
+          fontFamily="var(--font-heading, system-ui)"
+          style={{ filter: "drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.9))" }}
+        >
+          {w}
+        </text>
+
+        {/* Height Label */}
         <text
           x={apex.x - 14}
           y={(apex.y + baseMid.y) / 2}
@@ -163,7 +181,9 @@ export function InteractivePyramidVolumeExplorer({ color }: InteractivePyramidVo
           <span className="text-white/50">=</span>
           <div className="inline-flex items-center"><StackedFraction numerator="1" denominator="3" /></div>
           <span className="text-white/80">·</span>
-          <span style={{ color: COLOR_BASE }}>B ({baseArea})</span>
+          <span style={{ color: COLOR_LENGTH }}>{l}</span>
+          <span className="text-white/50">·</span>
+          <span style={{ color: COLOR_WIDTH }}>{w}</span>
           <span className="text-white/50">·</span>
           <span style={{ color: COLOR_HEIGHT }}>{h}</span>
           <span className="text-white/50">=</span>

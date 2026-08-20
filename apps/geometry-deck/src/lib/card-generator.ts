@@ -976,11 +976,11 @@ function make3DTermCards(): GeometryCard[] {
       id: nextId(), topic: "3d-shapes", cardType: "term", variant: "definition",
       frontLabel: "Volume of a pyramid", frontPrompt: "formula is…?",
       frontSpeechText: "The formula for the volume of a pyramid is…?",
-      backDefinition: "V = ⅓Bh",
-      backDefinitionSubtitle: "Volume = ⅓ · Base Area · height (⅓ of equivalent prism)",
-      backSvgExamples: [{ shape: "pyramid", dimensions: { B: "B", h: "h", labelMode: "variable" }, labelMode: "variable" }],
-      backSteps: [{ formulaLine: "V = ⅓ × Base Area × height" }],
-      backSpeechText: "Volume equals one third base area times height", color,
+      backDefinition: "V = ⅓ · l · w · h",
+      backDefinitionSubtitle: "Volume = ⅓ · length · width · height (⅓ of equivalent prism)",
+      backSvgExamples: [{ shape: "pyramid", dimensions: { l: "l", w: "w", h: "h", labelMode: "variable" }, labelMode: "variable" }],
+      backSteps: [{ formulaLine: "V = ⅓ × length × width × height" }],
+      backSpeechText: "Volume equals one third length times width times height", color,
     },
   ];
 }
@@ -1056,18 +1056,18 @@ function make3DCalcCard(settings: GeneratorSettings): GeometryCard {
     };
   }
   if (t === "pyramid") {
-    const b = randInt(2, 6);
-    const B = b * b;
+    const l = randInt(2, 5);
+    const w = randInt(2, 5);
     const h = randInt(1, 4) * 3;
-    const vol = (B * h) / 3;
+    const vol = (l * w * h) / 3;
     return {
       id: nextId(), topic: "3d-shapes", cardType: "calculation", variant: "compute",
       frontPrompt: "Solve for the pyramid volume",
-      frontSvg: { shape: "pyramid", dimensions: { B, h, labelMode: "numeric", unknownDimension: "V" }, labelMode: "numeric" },
-      frontSpeechText: `Base area is ${B}, height is ${h}. Find the volume.`,
+      frontSvg: { shape: "pyramid", dimensions: { l, w, h, labelMode: "numeric", unknownDimension: "V" }, labelMode: "numeric" },
+      frontSpeechText: `Length is ${l}, width is ${w}, height is ${h}. Find the volume.`,
       backSteps: [
-        { equationTokens: [tok("lhs","V"), eq(), dim("third","⅓·"), tok("B","B","#5ee8ff"), op("·"), tok("h","h","#ffd45e")], reason: "Pyramid Volume Formula" },
-        { equationTokens: [tok("lhs","V"), eq(), dim("third","⅓·"), tok("B",`${B}`,"#5ee8ff"), op("·"), tok("h",`${h}`,"#ffd45e")], reason: "Substitute known values" },
+        { equationTokens: [tok("lhs","V"), eq(), dim("third","⅓·"), tok("l","l","#ffd45e"), op("·"), tok("w","w","#d8b4fe"), op("·"), tok("h","h","#5ee8ff")], reason: "Pyramid Volume Formula" },
+        { equationTokens: [tok("lhs","V"), eq(), dim("third","⅓·"), tok("l",`${l}`,"#ffd45e"), op("·"), tok("w",`${w}`,"#d8b4fe"), op("·"), tok("h",`${h}`,"#5ee8ff")], reason: "Substitute known values" },
         { equationTokens: [tok("lhs","V"), eq(), tok("rhs",`${vol}${u}³`)], reason: "Evaluate" },
       ],
       backSpeechText: `V equals ${vol}`, numericAnswer: vol, color,
