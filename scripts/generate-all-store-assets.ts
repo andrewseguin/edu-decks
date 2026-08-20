@@ -93,7 +93,7 @@ async function generateAllStoreAssets() {
   const APPS = [
     {
       name: 'arithmetic-deck',
-      url: 'https://arithmetic-dev.edudecks.org',
+      url: process.env.USE_REMOTE ? 'https://arithmetic-dev.edudecks.org' : 'http://localhost:9003',
       dir: path.join(root, 'store-assets/arithmetic-deck'),
       setupCard1: async (page: Page) => {
         await page.evaluate(() => {
@@ -134,7 +134,7 @@ async function generateAllStoreAssets() {
     },
     {
       name: 'reading-deck',
-      url: 'https://reading-dev.edudecks.org',
+      url: process.env.USE_REMOTE ? 'https://reading-dev.edudecks.org' : 'http://localhost:9002',
       dir: path.join(root, 'store-assets/reading-deck'),
       setupCard1: async (page: Page) => {
         await page.evaluate(() => {
@@ -167,7 +167,7 @@ async function generateAllStoreAssets() {
     },
     {
       name: 'geometry-deck',
-      url: 'https://geometry-dev.edudecks.org',
+      url: process.env.USE_REMOTE ? 'https://geometry-dev.edudecks.org' : 'http://localhost:9004',
       dir: path.join(root, 'store-assets/geometry-deck'),
       setupCard1: async (page: Page) => {
         await page.evaluate(() => {

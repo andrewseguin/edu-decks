@@ -5,6 +5,7 @@ import * as path from 'path';
 const dirs = [
   path.join(process.cwd(), 'store-assets/reading-deck'),
   path.join(process.cwd(), 'store-assets/arithmetic-deck'),
+  path.join(process.cwd(), 'store-assets/geometry-deck'),
 ];
 
 async function formatAppStoreScreenshots() {

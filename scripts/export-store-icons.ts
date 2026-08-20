@@ -6,8 +6,8 @@ import sharp from 'sharp';
 async function exportStoreIcons() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({
-    viewport: { width: 3000, height: 3000 },
-    deviceScaleFactor: 2,
+    viewport: { width: 3000, height: 6000 },
+    deviceScaleFactor: 1,
   });
 
   const root = process.cwd();
@@ -66,6 +66,19 @@ async function exportStoreIcons() {
   await geometryIcon.screenshot({ path: geometryStorePath });
   fs.copyFileSync(geometryStorePath, geometryLandingPath);
   console.log('✅ Exported full-bleed Geometry Deck store icon (512x512)');
+
+  // -------------------------------------------------------------------------
+  // Part 1b: Google Play Feature Graphics (1024x500)
+  // -------------------------------------------------------------------------
+  const featureArithmetic = page.locator('#feature-arithmetic');
+  await featureArithmetic.screenshot({ path: path.join(root, 'store-assets/arithmetic-deck/feature-graphic-1024x500.png') });
+
+  const featureReading = page.locator('#feature-reading');
+  await featureReading.screenshot({ path: path.join(root, 'store-assets/reading-deck/feature-graphic-1024x500.png') });
+
+  const featureGeometry = page.locator('#feature-geometry');
+  await featureGeometry.screenshot({ path: path.join(root, 'store-assets/geometry-deck/feature-graphic-1024x500.png') });
+  console.log('✅ Generated Google Play 1024x500 Feature Graphics for all decks');
 
   // -------------------------------------------------------------------------
   // Part 2: True Transparent Web Icons & App Logos (No background canvas)
@@ -154,7 +167,7 @@ async function exportStoreIcons() {
   await sharp(geometryTransTemp).resize(32, 32).png().toFile(path.join(geometryPublic, 'favicon.ico'));
   console.log('✅ Generated Geometry Deck web & app icons');
 
-  console.log('✨ All icons exported successfully!');
+  console.log('✨ All icons and feature graphics exported successfully!');
 }
 
 exportStoreIcons().catch(console.error);
