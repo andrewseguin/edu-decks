@@ -352,17 +352,12 @@ export function GeometryCard({
       showDebugOutlines={showDebugOutlines}
       onCardTap={onCardTap || onTap}
       frontContent={
-        <div
-          className={cn(
-            "flex flex-col items-center justify-center px-4 transition-all duration-300 w-full",
-            isFlipped && card.frontSvg ? "gap-0 py-0" : "gap-3 sm:gap-4 py-2"
-          )}
-        >
+        <div className="relative flex flex-col items-center justify-center w-full">
           {(card.frontPrompt || card.revealedPrompt) && (
             <p
               className={cn(
-                "font-bold text-white text-center leading-tight text-xl sm:text-2xl md:text-3xl tracking-wide transition-all duration-300",
-                isFlipped && card.frontSvg ? "max-h-0 opacity-0 overflow-hidden pb-0 m-0" : "max-h-[80px] opacity-100 pb-1 sm:pb-2"
+                "absolute -top-9 sm:-top-11 inset-x-0 font-bold text-white text-center leading-tight text-xl sm:text-2xl md:text-3xl tracking-wide transition-opacity duration-300 pointer-events-none px-4",
+                isFlipped && card.frontSvg ? "opacity-0" : "opacity-100"
               )}
             >
               <FormattedMathText
@@ -371,14 +366,7 @@ export function GeometryCard({
             </p>
           )}
           {card.frontSvg && (
-            <div
-              className={cn(
-                "w-full flex items-center justify-center transition-all duration-300",
-                isFlipped
-                  ? "max-w-[230px] sm:max-w-[260px] max-h-[115px] sm:max-h-[130px]"
-                  : "max-w-[380px] sm:max-w-[420px]"
-              )}
-            >
+            <div className="w-full max-w-[270px] sm:max-w-[310px] max-h-[135px] sm:max-h-[150px] flex items-center justify-center">
               {renderShapeSvg(card.frontSvg, activeMutation)}
             </div>
           )}
