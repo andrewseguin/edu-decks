@@ -532,11 +532,11 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
           <div className="h-3.5 w-px bg-white/25 mx-0.5" />
 
           {/* Explode Slider with White Background */}
-          <div className="flex items-center gap-1.5 pl-0.5">
-            <span className="text-xs font-headline font-bold text-white/80 select-none">
+          <div className="flex items-center gap-2 pl-1 pr-0.5">
+            <span className="text-xs font-headline font-bold text-white/80 select-none whitespace-nowrap shrink-0">
               Explode
             </span>
-            <div className="relative flex items-center w-16 sm:w-20 h-4">
+            <div className="relative flex items-center w-20 sm:w-24 h-5">
               {/* White Frosted Background Track */}
               <div className="absolute inset-x-0 h-1.5 rounded-full bg-white/40 overflow-hidden pointer-events-none">
                 <div
@@ -552,12 +552,12 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
                 step="0.01"
                 value={explodeProgress}
                 onChange={(e) => setExplodeProgress(parseFloat(e.target.value))}
-                className="w-full h-4 opacity-0 cursor-pointer z-10 m-0"
+                className="w-full h-5 opacity-0 cursor-pointer z-10 m-0"
               />
-              {/* White Handle Thumb */}
+              {/* White Handle Thumb (Pixel-perfect clamped within bounds) */}
               <div
-                className="absolute top-1/2 w-3.5 h-3.5 rounded-full bg-white shadow-md pointer-events-none -translate-x-1/2 -translate-y-1/2"
-                style={{ left: `${explodeProgress * 100}%` }}
+                className="absolute top-1/2 w-4 h-4 rounded-full bg-white shadow-md pointer-events-none -translate-x-1/2 -translate-y-1/2"
+                style={{ left: `calc(8px + ${explodeProgress} * (100% - 16px))` }}
               />
             </div>
           </div>

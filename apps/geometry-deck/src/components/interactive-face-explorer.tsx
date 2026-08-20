@@ -736,7 +736,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
             {/* Custom Glowing Neutral White Handle */}
             <div
               className="absolute top-1/2 w-4 h-4 rounded-full bg-white shadow-md pointer-events-none -translate-x-1/2 -translate-y-1/2"
-              style={{ left: `${unfold * 100}%` }}
+              style={{ left: `calc(8px + ${unfold} * (100% - 16px))` }}
             />
           </div>
           <button
