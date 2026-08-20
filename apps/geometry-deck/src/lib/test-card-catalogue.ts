@@ -809,6 +809,21 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     backSpeechText: "Each interior angle equals n minus 2 times 180 degrees divided by n",
   },
 
+  "term-poly-each-ext-angle": {
+    id: "term-poly-each-ext-angle", topic: "polygons", cardType: "term", variant: "definition",
+    color: TOPIC_COLORS.polygons,
+    frontLabel: "Regular polygon exterior angle", frontPrompt: "formula is…?",
+    frontSpeechText: "Each exterior angle of a regular polygon is…?",
+    backDefinition: "Exterior angle = 360° ÷ n",
+    backDefinitionSubtitle: "Exterior angle = 360° ÷ number of sides (each interior + exterior = 180°)",
+    backSvgExamples: [{ shape: "polygon", dimensions: { n: 6, exteriorAngle: true, labelMode: "variable" }, labelMode: "variable" }],
+    backSteps: [
+      { formulaLine: "Exterior angle = 360° ÷ n" },
+      { formulaLine: "Interior + Exterior = 180° (supplementary)" },
+    ],
+    backSpeechText: "Each exterior angle of a regular polygon equals 360 degrees divided by n",
+  },
+
   // ──────────────────────────────────────────────────────────────────────────
   // POLYGONS — CALC CARDS
   // ──────────────────────────────────────────────────────────────────────────
@@ -855,6 +870,51 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
       { equationTokens: [t("lhs","θ","#5ee8ff"), eq(), t("rhs","120°","#5ee8ff")], reason: "Evaluate" },
     ],
     backSpeechText: "Each interior angle is 120 degrees", numericAnswer: 120,
+  },
+
+  "calc-poly-exterior-angle-oct": {
+    id: "calc-poly-exterior-angle-oct", topic: "polygons", cardType: "calculation", variant: "compute",
+    color: TOPIC_COLORS.polygons,
+    frontPrompt: "Solve for each exterior angle (θ)",
+    frontSvg: { shape: "polygon", dimensions: { n: 8, exteriorAngle: true, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "extAngle" },
+    frontSpeechText: "Regular octagon with 8 sides. Find each exterior angle.",
+    backSteps: [
+      { equationTokens: [t("lhs","θ","#ffd45e"), eq(), t("num","360°"), op("÷"), t("n","n","#5ee8ff")], reason: "Regular Polygon Exterior Angle" },
+      { equationTokens: [t("lhs","θ","#ffd45e"), eq(), t("num","360°"), op("÷"), t("n","8","#5ee8ff")], reason: "Substitute n = 8" },
+      { equationTokens: [t("lhs","θ","#ffd45e"), eq(), t("rhs","45°","#ffd45e")], reason: "Evaluate" },
+    ],
+    backSpeechText: "Each exterior angle is 45 degrees. 360 divided by 8 equals 45.", numericAnswer: 45,
+  },
+
+  "calc-poly-find-n-from-sum": {
+    id: "calc-poly-find-n-from-sum", topic: "polygons", cardType: "calculation", variant: "reverse",
+    color: TOPIC_COLORS.polygons,
+    frontPrompt: "A polygon has an interior angle sum of 1080°. Solve for the number of sides (n).",
+    revealedPrompt: "A polygon with an interior angle sum of 1080° has 8 sides (octagon).",
+    frontSpeechText: "A polygon has an interior angle sum of 1080 degrees. How many sides does it have?",
+    backSvgExamples: [{ shape: "polygon", dimensions: { n: 8, sum: 1080, showArcs: true, labelMode: "numeric" }, labelMode: "numeric" }],
+    backSteps: [
+      { equationTokens: [d("op","("), t("n","n","#ffd45e"), op("−"), d("two","2) · 180°"), eq(), t("sum","1080°")], reason: "Interior Angle Sum Formula" },
+      { equationTokens: [t("n","n","#ffd45e"), op("−"), t("two","2"), eq(), t("div","1080° ÷ 180°")], reason: "Divide both sides by 180°" },
+      { equationTokens: [t("n","n","#ffd45e"), op("−"), t("two","2"), eq(), t("ans","6")], reason: "Simplify expression" },
+      { equationTokens: [t("n","n","#ffd45e"), eq(), t("rhs","8","#ffd45e")], reason: "Add 2 to both sides" },
+    ],
+    backSpeechText: "The polygon has 8 sides. It is an octagon.", numericAnswer: 8,
+  },
+
+  "calc-poly-find-n-from-ext": {
+    id: "calc-poly-find-n-from-ext", topic: "polygons", cardType: "calculation", variant: "reverse",
+    color: TOPIC_COLORS.polygons,
+    frontPrompt: "A regular polygon has an exterior angle of 45°. Solve for the number of sides (n).",
+    revealedPrompt: "A regular polygon with an exterior angle of 45° has 8 sides (octagon).",
+    frontSpeechText: "A regular polygon has an exterior angle of 45 degrees. How many sides does it have?",
+    backSvgExamples: [{ shape: "polygon", dimensions: { n: 8, extAngle: 45, exteriorAngle: true, labelMode: "numeric" }, labelMode: "numeric" }],
+    backSteps: [
+      { equationTokens: [t("num","360°"), op("÷"), t("n","n","#ffd45e"), eq(), t("ext","45°")], reason: "Exterior Angle Formula" },
+      { equationTokens: [t("n","n","#ffd45e"), eq(), t("num","360°"), op("÷"), t("ext","45°")], reason: "Rearrange for n" },
+      { equationTokens: [t("n","n","#ffd45e"), eq(), t("rhs","8","#ffd45e")], reason: "Evaluate" },
+    ],
+    backSpeechText: "The regular polygon has 8 sides. 360 divided by 45 equals 8.", numericAnswer: 8,
   },
 
   // ──────────────────────────────────────────────────────────────────────────

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import type { SvgMutation } from "../types";
+import type { SvgMutation, ShapeDims } from "../types";
 import {
   FILL_COLOR, STROKE_W, WHITE70, WHITE90,
   SvgLabel,
@@ -89,7 +89,7 @@ function RevealText({
 // Regular polygon shape
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function Polygon({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
+export function Polygon({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMutation }) {
   const n = typeof dims.n === "number" ? dims.n : 5;
   const s = dims.s;
   const lm = (dims.labelMode as string) ?? "numeric";
@@ -138,7 +138,7 @@ export function Polygon({ dims, mutation }: { dims: Record<string, number | stri
   const maxX = Math.max(...vertices.map((v) => v.x));
   const polyCenterX = (minX + maxX) / 2;
 
-  const isAngleCard = unknownDim === "Sum" || unknownDim === "sum" || unknownDim === "angle" || unknownDim === "θ" || dims.showArcs === "true" || dims.showArcs === 1;
+  const isAngleCard = unknownDim === "Sum" || unknownDim === "sum" || unknownDim === "angle" || unknownDim === "θ" || dims.showArcs === "true" || dims.showArcs === true || dims.showArcs === 1 || dims.sum !== undefined;
 
   // Compute congruent interior angle arcs at all vertices
   const arcRadius = Math.max(10, Math.min(16, 85 / n));
@@ -236,8 +236,43 @@ export function Polygon({ dims, mutation }: { dims: Record<string, number | stri
         );
       })}
 
-      {/* 6. Centered Unknown Target at Exact Polygon Centroid */}
-      {unknownDim === "P" || unknownDim === "perimeter" ? (
+      {/* 6. Centered Unknown Target / Known Value at Exact Polygon Centroid */}
+      {dims.sum !== undefined ? (
+        <g style={{ filter: "drop-shadow(0px 2px 4px rgba(0, 0, 0, 0.7))" }}>
+          <g transform={`translate(${polyCenterX - (String(dims.sum).length > 3 ? 38 : 34)}, ${polyCenterY})`}>
+            {/* Vector Sigma Symbol (Standard right-facing) */}
+            <path
+              d="M 9.5 -6 L 0.5 -6 L 5.5 0 L 0.5 6 L 9.5 6"
+              fill="none"
+              stroke="#ffffff"
+              strokeWidth={2.2}
+              strokeLinecap="round"
+              strokeLinejoin="miter"
+            />
+            <text
+              x={14}
+              y={0}
+              dominantBaseline="central"
+              fill="#ffffff"
+              fontSize={14}
+              fontWeight="800"
+              fontFamily="var(--font-heading, system-ui)"
+            >
+              θ = {dims.sum}°
+            </text>
+          </g>
+        </g>
+      ) : unknownDim === "n" ? (
+        <RevealText
+          x={polyCenterX}
+          y={polyCenterY}
+          variable="n = ?"
+          revealedValue={revealedAnswer != null ? `n = ${revealedAnswer}` : undefined}
+          color="#ffffff"
+          fontSize={16}
+          fontWeight="800"
+        />
+      ) : unknownDim === "P" || unknownDim === "perimeter" ? (
         <RevealText
           x={polyCenterX}
           y={polyCenterY}
@@ -307,6 +342,107 @@ export function Polygon({ dims, mutation }: { dims: Record<string, number | stri
           fontSize={n >= 8 ? 12.5 : 14}
           fontWeight="800"
         />
+      ) : (dims.exteriorAngle || unknownDim === "extAngle" || unknownDim === "exteriorAngle") ? (
+        (() => {
+          const vC = vertices[(bestEdgeIdx + 2) % n];
+          const d2x = vC.x - vB.x;
+          const d2y = vC.y - vB.y;
+          const len2 = Math.hypot(d2x, d2y) || 1;
+          const u2x = d2x / len2;
+          const u2y = d2y / len2;
+
+          const ux = (vB.x - vA.x) / (Math.hypot(vB.x - vA.x, vB.y - vA.y) || 1);
+          const uy = (vB.y - vA.y) / (Math.hypot(vB.x - vA.x, vB.y - vA.y) || 1);
+
+          const extRayLen = 34;
+          const extX = vB.x + ux * extRayLen;
+          const extY = vB.y + uy * extRayLen;
+
+          const arcR = 20;
+          const p1x = vB.x + ux * arcR;
+          const p1y = vB.y + uy * arcR;
+          const p2x = vB.x + u2x * arcR;
+          const p2y = vB.y + u2y * arcR;
+
+          const cross = ux * u2y - uy * u2x;
+          const sweep = cross > 0 ? 1 : 0;
+
+          const midUX = ux + u2x;
+          const midUY = uy + u2y;
+          const midLen = Math.hypot(midUX, midUY) || 1;
+          const lblX = vB.x + (midUX / midLen) * 32;
+          const lblY = vB.y + (midUY / midLen) * 32;
+
+          const isExtUnknown = unknownDim === "extAngle" || unknownDim === "exteriorAngle";
+          const knownAngle = typeof dims.extAngle === "number" ? dims.extAngle : (typeof dims.exteriorAngle === "number" ? dims.exteriorAngle : null);
+
+          return (
+            <g>
+              {/* Extended dashed baseline */}
+              <line
+                x1={vB.x}
+                y1={vB.y}
+                x2={extX}
+                y2={extY}
+                stroke="#ffd45e"
+                strokeWidth={1.8}
+                strokeDasharray="4 3"
+              />
+              {/* Vertex dot */}
+              <circle cx={vB.x} cy={vB.y} r={3} fill="#ffd45e" />
+              {/* Exterior Angle Arc */}
+              <path
+                d={`M ${p1x} ${p1y} A ${arcR} ${arcR} 0 0 ${sweep} ${p2x} ${p2y}`}
+                fill="none"
+                stroke="#ffd45e"
+                strokeWidth={2.2}
+                strokeLinecap="round"
+              />
+              {/* Exterior Angle Sector Fill */}
+              <path
+                d={`M ${vB.x} ${vB.y} L ${p1x} ${p1y} A ${arcR} ${arcR} 0 0 ${sweep} ${p2x} ${p2y} Z`}
+                fill="rgba(255, 212, 94, 0.25)"
+                stroke="none"
+              />
+              {/* Label */}
+              {isExtUnknown ? (
+                <RevealText
+                  x={lblX}
+                  y={lblY}
+                  variable={lm === "variable" ? "θ" : "θ = ?"}
+                  revealedValue={revealedAnswer != null ? `θ = ${revealedAnswer}°` : undefined}
+                  color="#ffd45e"
+                  fontSize={13}
+                  fontWeight="800"
+                />
+              ) : knownAngle != null ? (
+                <SvgLabel
+                  x={lblX}
+                  y={lblY}
+                  text={`${knownAngle}°`}
+                  color={COLOR_GOLD}
+                  size={13}
+                />
+              ) : lm === "variable" ? (
+                <SvgLabel
+                  x={lblX}
+                  y={lblY}
+                  text="θ"
+                  color={COLOR_GOLD}
+                  size={13}
+                />
+              ) : (
+                <SvgLabel
+                  x={lblX}
+                  y={lblY}
+                  text={`${360 / n}°`}
+                  color={COLOR_GOLD}
+                  size={13}
+                />
+              )}
+            </g>
+          );
+        })()
       ) : null}
 
       {/* 7. Side Length Label Placed Cleanly Along Bottom Edge in Warm Gold */}

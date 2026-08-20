@@ -41,10 +41,12 @@ export type SvgShape =
   | "sphere"
   | "pyramid";
 
+export type ShapeDims = Record<string, number | string | boolean | undefined>;
+
 export type SvgDescriptor = {
   shape: SvgShape;
-  /** Named dimensions — variables use strings ("b", "h"), numbers use number */
-  dimensions: Record<string, number | string>;
+  /** Named dimensions — variables use strings ("b", "h"), numbers use number, flags use boolean */
+  dimensions: ShapeDims;
   /** Whether to render variable labels (formula card) or numeric labels (calculation) */
   labelMode: "variable" | "numeric";
   /** Which dimension label to mark with "?" (for calculation cards) */

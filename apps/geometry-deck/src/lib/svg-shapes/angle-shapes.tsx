@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import type { SvgMutation } from "../types";
+import type { SvgMutation, ShapeDims } from "../types";
 import {
   LABEL_FONT, STROKE_W, WHITE50, WHITE70, WHITE90,
   arcPath, SvgLabel, RevealText, UnknownPill,
@@ -11,7 +11,7 @@ import {
 // Angle shapes
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function AngleSingle({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
+export function AngleSingle({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMutation }) {
   const angleDeg = typeof dims.angle === "number" ? dims.angle : 60;
   const isUnknown = dims.unknown === "A";
   const vx = 60, vy = 150, rayLen = 100;
@@ -43,7 +43,7 @@ export function AngleSingle({ dims, mutation }: { dims: Record<string, number | 
   );
 }
 
-export function AngleSupplementary({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
+export function AngleSupplementary({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMutation }) {
   const aAngle = typeof dims.A === "number" ? dims.A : 53;
   const bAngle = 180 - aAngle;
   const unknownDim = dims.unknown as string | undefined;
@@ -103,7 +103,7 @@ export function AngleSupplementary({ dims, mutation }: { dims: Record<string, nu
   );
 }
 
-export function AngleComplementary({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
+export function AngleComplementary({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMutation }) {
   const aAngle = typeof dims.A === "number" ? dims.A : 34;
   const bAngle = 90 - aAngle;
   const unknownDim = dims.unknown as string | undefined;
@@ -165,7 +165,7 @@ export function AngleComplementary({ dims, mutation }: { dims: Record<string, nu
   );
 }
 
-export function AngleVerticallyOpposite({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
+export function AngleVerticallyOpposite({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMutation }) {
   const aAngle = typeof dims.A === "number" ? dims.A : 42;
   const bAngle = 180 - aAngle;
   const unknownDim = dims.unknown as string | undefined;
@@ -257,7 +257,7 @@ export function AngleVerticallyOpposite({ dims, mutation }: { dims: Record<strin
   );
 }
 
-export function AngleReflex({ dims }: { dims: Record<string, number | string> }) {
+export function AngleReflex({ dims }: { dims: ShapeDims }) {
   const angles = typeof dims.angles === "string" ? (dims.angles as string).split(",").map(Number) : [200, 270, 330];
   return (
     <svg viewBox="0 0 220 200" className="w-full h-full" aria-hidden>
@@ -280,7 +280,7 @@ export function AngleReflex({ dims }: { dims: Record<string, number | string> })
   );
 }
 
-export function AngleParallelAlternate({ dims }: { dims: Record<string, number | string> }) {
+export function AngleParallelAlternate({ dims }: { dims: ShapeDims }) {
   const angle = typeof dims.angle === "number" ? dims.angle : 55;
   const rad = (angle * Math.PI) / 180;
   const ar = 22;
@@ -306,7 +306,7 @@ export function AngleParallelAlternate({ dims }: { dims: Record<string, number |
   );
 }
 
-export function AngleParallelCointerior({ dims }: { dims: Record<string, number | string> }) {
+export function AngleParallelCointerior({ dims }: { dims: ShapeDims }) {
   const aAngle = typeof dims.A === "number" ? dims.A : 110;
   const bAngle = 180 - aAngle;
   const radA = (aAngle * Math.PI) / 180;

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import type { SvgMutation } from "../types";
+import type { SvgMutation, ShapeDims } from "../types";
 import {
   FILL_COLOR, STROKE_W, WHITE70, WHITE90,
   SvgLabel,
@@ -90,7 +90,7 @@ function RevealText({
 // ─────────────────────────────────────────────────────────────────────────────
 
 /** Isometric rectangular prism / cube */
-export function Prism({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
+export function Prism({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMutation }) {
   const lm = (dims.labelMode as string) ?? "numeric";
   const unknownDim = (dims.unknown as string | undefined) ?? (dims.unknownDimension as string | undefined);
   const revealedAnswer = mutation?.revealAnswer;
@@ -182,7 +182,7 @@ export function Prism({ dims, mutation }: { dims: Record<string, number | string
 }
 
 /** Cylinder */
-export function Cylinder({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
+export function Cylinder({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMutation }) {
   const lm = (dims.labelMode as string) ?? "numeric";
   const unknownDim = (dims.unknown as string | undefined) ?? (dims.unknownDimension as string | undefined);
   const revealedAnswer = mutation?.revealAnswer;
@@ -253,7 +253,7 @@ export function Cylinder({ dims, mutation }: { dims: Record<string, number | str
 }
 
 /** Cone */
-export function Cone({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
+export function Cone({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMutation }) {
   const lm = (dims.labelMode as string) ?? "numeric";
   const unknownDim = (dims.unknown as string | undefined) ?? (dims.unknownDimension as string | undefined);
   const revealedAnswer = mutation?.revealAnswer;
@@ -312,7 +312,7 @@ export function Cone({ dims, mutation }: { dims: Record<string, number | string>
 }
 
 /** Sphere */
-export function Sphere({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
+export function Sphere({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMutation }) {
   const lm = (dims.labelMode as string) ?? "numeric";
   const unknownDim = (dims.unknown as string | undefined) ?? (dims.unknownDimension as string | undefined);
   const revealedAnswer = mutation?.revealAnswer;
@@ -366,7 +366,7 @@ export function Sphere({ dims, mutation }: { dims: Record<string, number | strin
 }
 
 /** Square / Rectangular Pyramid */
-export function Pyramid({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
+export function Pyramid({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMutation }) {
   const lm = (dims.labelMode as string) ?? "numeric";
   const unknownDim = (dims.unknown as string | undefined) ?? (dims.unknownDimension as string | undefined);
   const revealedAnswer = mutation?.revealAnswer;

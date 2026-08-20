@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import type { SvgMutation } from "../types";
+import type { SvgMutation, ShapeDims } from "../types";
 import {
   FILL_COLOR, STROKE_W, WHITE90,
   SvgLabel, UnknownPill, TickMark, RightAngleMarker,
@@ -122,7 +122,7 @@ function RevealText({
 // General Triangle (Angle sum, Area, Perimeter, Classification)
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function Triangle({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
+export function Triangle({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMutation }) {
   const lm = (dims.labelMode as string) ?? "numeric";
   const b = dims.b, h = dims.h;
   const a = dims.a, c = dims.c;
@@ -499,7 +499,7 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
 // Right Triangle (Pythagorean Theorem, Right-Triangle Area)
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function RightTriangle({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
+export function RightTriangle({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMutation }) {
   const lm = (dims.labelMode as string) ?? "numeric";
   const a = dims.a, b = dims.b, c_val = dims.c;
   const unknownDim = dims.unknown as string | undefined;

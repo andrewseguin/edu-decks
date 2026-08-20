@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import type { SvgMutation } from "../types";
+import type { SvgMutation, ShapeDims } from "../types";
 import {
   FILL_COLOR, STROKE_W, WHITE70, WHITE90,
   SvgLabel,
@@ -89,7 +89,7 @@ function RevealText({
 // Circle shape
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function Circle({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
+export function Circle({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMutation }) {
   const lm = (dims.labelMode as string) ?? "numeric";
   const r = dims.r, cVal = dims.C, aVal = dims.A;
   const unknownDim = (dims.unknown as string | undefined) ?? (dims.unknownDimension as string | undefined);

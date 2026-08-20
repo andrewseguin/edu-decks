@@ -795,12 +795,25 @@ function makePolygonsTermCards(): GeometryCard[] {
       ],
       backSpeechText: "Each interior angle equals n minus 2 times 180 degrees divided by n", color,
     },
+    {
+      id: nextId(), topic: "polygons", cardType: "term", variant: "definition",
+      frontLabel: "Regular polygon exterior angle", frontPrompt: "formula is…?",
+      frontSpeechText: "Each exterior angle of a regular polygon is…?",
+      backDefinition: "Exterior angle = 360° ÷ n",
+      backDefinitionSubtitle: "Exterior angle = 360° ÷ number of sides (each interior + exterior = 180°)",
+      backSvgExamples: [{ shape: "polygon", dimensions: { n: 6, exteriorAngle: true, labelMode: "variable" }, labelMode: "variable" }],
+      backSteps: [
+        { formulaLine: "Exterior angle = 360° ÷ n" },
+        { formulaLine: "Interior + Exterior = 180° (supplementary)" },
+      ],
+      backSpeechText: "Each exterior angle of a regular polygon equals 360 degrees divided by n", color,
+    },
   ];
 }
 
 function makePolygonsCalcCard(): GeometryCard {
   const color = TOPIC_COLORS.polygons;
-  const t = pick(["perimeter", "angle-sum", "each-angle-hex", "each-angle-oct"] as const);
+  const t = pick(["perimeter", "angle-sum", "each-angle", "exterior-angle", "find-n-sum", "find-n-ext"] as const);
 
   if (t === "perimeter") {
     const n = pick([5, 6, 7, 8] as const), s = randInt(4, 12);
@@ -818,6 +831,7 @@ function makePolygonsCalcCard(): GeometryCard {
       backSpeechText: `P equals ${P}`, numericAnswer: P, color,
     };
   }
+
   if (t === "angle-sum") {
     const n = pick([5, 6, 7, 8, 9, 10] as const);
     const sum = (n - 2) * 180;
@@ -835,8 +849,63 @@ function makePolygonsCalcCard(): GeometryCard {
       backSpeechText: `Interior angle sum equals ${sum} degrees`, numericAnswer: sum, color,
     };
   }
-  // each-angle-hex or each-angle-oct
-  const n = t === "each-angle-hex" ? 6 : 8;
+
+  if (t === "exterior-angle") {
+    const n = pick([5, 6, 8, 9, 10] as const);
+    const ext = 360 / n;
+    return {
+      id: nextId(), topic: "polygons", cardType: "calculation", variant: "compute",
+      frontPrompt: "Solve for each exterior angle (θ)",
+      frontSvg: { shape: "polygon", dimensions: { n, exteriorAngle: true, labelMode: "numeric" }, labelMode: "numeric", unknownDimension: "extAngle" },
+      frontSpeechText: `Regular polygon with ${n} sides. Find each exterior angle.`,
+      backSteps: [
+        { equationTokens: [tok("lhs","θ","#ffd45e"), eq(), tok("num","360°"), op("÷"), tok("n","n","#5ee8ff")], reason: "Regular Polygon Exterior Angle" },
+        { equationTokens: [tok("lhs","θ","#ffd45e"), eq(), tok("num","360°"), op("÷"), tok("n",`${n}`,"#5ee8ff")], reason: `Substitute n = ${n}` },
+        { equationTokens: [tok("lhs","θ","#ffd45e"), eq(), tok("rhs",`${ext}°`,"#ffd45e")], reason: "Evaluate" },
+      ],
+      backSpeechText: `Each exterior angle is ${ext} degrees. 360 divided by ${n} equals ${ext}`, numericAnswer: ext, color,
+    };
+  }
+
+  if (t === "find-n-sum") {
+    const n = pick([5, 6, 7, 8, 9, 10] as const);
+    const sum = (n - 2) * 180;
+    return {
+      id: nextId(), topic: "polygons", cardType: "calculation", variant: "reverse",
+      frontPrompt: `A polygon has an interior angle sum of ${sum}°. Solve for the number of sides (n).`,
+      revealedPrompt: `A polygon with an interior angle sum of ${sum}° has ${n} sides.`,
+      frontSpeechText: `A polygon has an interior angle sum of ${sum} degrees. How many sides does it have?`,
+      backSvgExamples: [{ shape: "polygon", dimensions: { n, sum, showArcs: true, labelMode: "numeric" }, labelMode: "numeric" }],
+      backSteps: [
+        { equationTokens: [dim("op","("), tok("n","n","#ffd45e"), op("−"), dim("two","2) · 180°"), eq(), tok("sum",`${sum}°`)], reason: "Interior Angle Sum Formula" },
+        { equationTokens: [tok("n","n","#ffd45e"), op("−"), tok("two","2"), eq(), tok("div",`${sum}° ÷ 180°`)], reason: "Divide both sides by 180°" },
+        { equationTokens: [tok("n","n","#ffd45e"), op("−"), tok("two","2"), eq(), tok("ans",`${n - 2}`)], reason: "Simplify expression" },
+        { equationTokens: [tok("n","n","#ffd45e"), eq(), tok("rhs",`${n}`,"#ffd45e")], reason: "Add 2 to both sides" },
+      ],
+      backSpeechText: `The polygon has ${n} sides`, numericAnswer: n, color,
+    };
+  }
+
+  if (t === "find-n-ext") {
+    const n = pick([5, 6, 8, 9, 10] as const);
+    const ext = 360 / n;
+    return {
+      id: nextId(), topic: "polygons", cardType: "calculation", variant: "reverse",
+      frontPrompt: `A regular polygon has an exterior angle of ${ext}°. Solve for the number of sides (n).`,
+      revealedPrompt: `A regular polygon with an exterior angle of ${ext}° has ${n} sides.`,
+      frontSpeechText: `A regular polygon has an exterior angle of ${ext} degrees. How many sides does it have?`,
+      backSvgExamples: [{ shape: "polygon", dimensions: { n, extAngle: ext, exteriorAngle: true, labelMode: "numeric" }, labelMode: "numeric" }],
+      backSteps: [
+        { equationTokens: [tok("num","360°"), op("÷"), tok("n","n","#ffd45e"), eq(), tok("ext",`${ext}°`)], reason: "Exterior Angle Formula" },
+        { equationTokens: [tok("n","n","#ffd45e"), eq(), tok("num","360°"), op("÷"), tok("ext",`${ext}°`)], reason: "Rearrange for n" },
+        { equationTokens: [tok("n","n","#ffd45e"), eq(), tok("rhs",`${n}`,"#ffd45e")], reason: "Evaluate" },
+      ],
+      backSpeechText: `The regular polygon has ${n} sides. 360 divided by ${ext} equals ${n}`, numericAnswer: n, color,
+    };
+  }
+
+  // each-angle
+  const n = pick([5, 6, 8, 9, 10] as const);
   const sum = (n - 2) * 180;
   const each = sum / n;
   return {

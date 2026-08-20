@@ -171,11 +171,20 @@ export const MATH_GLOSSARY: Record<string, GlossaryEntry> = {
     title: "Divide Both Sides",
     explanation: "Divide both sides of the equation by the same number to isolate the variable.",
   },
+  add: {
+    title: "Add to Both Sides",
+    explanation: "Add the same number to both sides of the equation to isolate the variable.",
+  },
+  "polygon exterior angle": {
+    title: "Regular Polygon Exterior Angle",
+    explanation: "Each exterior angle of a regular polygon with n sides equals 360° ÷ n.",
+    formula: "θ = 360° ÷ n",
+  },
 };
 
 export function lookupGlossary(reason: string): GlossaryEntry | null {
   const lower = reason.toLowerCase();
-  if (lower.startsWith("isolate")) return MATH_GLOSSARY.isolate;
+  if (lower.startsWith("isolate") || lower.includes("rearrange")) return MATH_GLOSSARY.isolate;
   if (lower.startsWith("substitute")) return MATH_GLOSSARY.substitute;
   if (lower.startsWith("evaluate")) return MATH_GLOSSARY.evaluate;
   if (lower.includes("simplify")) return MATH_GLOSSARY.simplify;
@@ -197,6 +206,7 @@ export function lookupGlossary(reason: string): GlossaryEntry | null {
   if (lower.includes("triangle area")) return MATH_GLOSSARY["triangle area"];
   if (lower.includes("area")) return MATH_GLOSSARY.area;
   if (lower.includes("polygon interior") || lower.includes("interior angle sum")) return MATH_GLOSSARY["polygon interior sum"];
+  if (lower.includes("exterior angle formula") || lower.includes("regular polygon exterior angle") || lower.includes("exterior angle")) return MATH_GLOSSARY["polygon exterior angle"];
   if (lower.includes("exterior sum") || lower.includes("exterior angle sum")) return MATH_GLOSSARY["polygon exterior sum"];
   if (lower.includes("regular polygon angle") || lower.includes("regular polygon interior angle") || lower.includes("regular polygon")) return MATH_GLOSSARY["regular polygon angle"];
   if (lower.includes("circumference")) return MATH_GLOSSARY.circumference;
@@ -210,5 +220,6 @@ export function lookupGlossary(reason: string): GlossaryEntry | null {
   if (lower.includes("pyramid volume") || lower.includes("volume of a pyramid") || lower.includes("pyramid")) return MATH_GLOSSARY["pyramid volume"];
   if (lower.includes("euler")) return MATH_GLOSSARY.euler;
   if (lower.includes("divide")) return MATH_GLOSSARY.divide;
+  if (lower.includes("add")) return MATH_GLOSSARY.add;
   return null;
 }

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import type { SvgMutation } from "../types";
+import type { SvgMutation, ShapeDims } from "../types";
 import {
   FILL_COLOR, STROKE_W, WHITE70, WHITE90,
   SvgLabel, RightAngleMarker,
@@ -163,7 +163,7 @@ function SideTick({
 // 1. Rectangle
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function Rectangle({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
+export function Rectangle({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMutation }) {
   const lm = (dims.labelMode as string) ?? "numeric";
   const l = dims.l, w = dims.w;
   const unknownDim = (dims.unknown as string | undefined) ?? (dims.unknownDimension as string | undefined);
@@ -285,7 +285,7 @@ export function Rectangle({ dims, mutation }: { dims: Record<string, number | st
 // 2. Parallelogram
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function Parallelogram({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
+export function Parallelogram({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMutation }) {
   const lm = (dims.labelMode as string) ?? "numeric";
   const b = dims.b, h = dims.h, a = dims.a ?? dims.side;
   const unknownDim = (dims.unknown as string | undefined) ?? (dims.unknownDimension as string | undefined);
@@ -442,7 +442,7 @@ export function Parallelogram({ dims, mutation }: { dims: Record<string, number 
 // 3. Trapezoid
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function Trapezoid({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
+export function Trapezoid({ dims, mutation }: { dims: ShapeDims; mutation?: SvgMutation }) {
   const lm = (dims.labelMode as string) ?? "numeric";
   const a = dims.a, b = dims.b, h = dims.h;
   const c = dims.c ?? dims.side ?? dims.cSide;
@@ -596,7 +596,7 @@ export function Trapezoid({ dims, mutation }: { dims: Record<string, number | st
 // 4. Rhombus
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function Rhombus({ dims, mutation }: { dims?: Record<string, number | string>; mutation?: SvgMutation }) {
+export function Rhombus({ dims, mutation }: { dims?: ShapeDims; mutation?: SvgMutation }) {
   const lm = dims?.labelMode as string ?? "numeric";
   const s = dims?.s ?? dims?.b ?? dims?.side;
   const unknownDim = (dims?.unknown as string | undefined) ?? (dims?.unknownDimension as string | undefined);
