@@ -974,8 +974,8 @@ function make3DTermCards(): GeometryCard[] {
     },
     {
       id: nextId(), topic: "3d-shapes", cardType: "term", variant: "definition",
-      frontLabel: "Volume of a pyramid", frontPrompt: "formula is…?",
-      frontSpeechText: "The formula for the volume of a pyramid is…?",
+      frontLabel: "Volume of a rectangular pyramid", frontPrompt: "formula is…?",
+      frontSpeechText: "The formula for the volume of a rectangular pyramid is…?",
       backDefinition: "V = ⅓ · l · w · h",
       backDefinitionSubtitle: "Volume = ⅓ · length · width · height (⅓ of equivalent prism)",
       backSvgExamples: [{ shape: "pyramid", dimensions: { l: "l", w: "w", h: "h", labelMode: "variable" }, labelMode: "variable" }],

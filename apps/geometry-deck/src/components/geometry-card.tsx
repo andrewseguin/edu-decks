@@ -234,7 +234,7 @@ export function GeometryCard({
       if (card.id === "term-3d-cube-sa" || card.frontLabel === "Surface area of a cube") {
         return <InteractiveCubeSurfaceAreaExplorer color={card.color} />;
       }
-      if (card.id === "term-3d-pyramid-vol" || card.frontLabel === "Volume of a pyramid") {
+      if (card.id === "term-3d-pyramid-vol" || card.frontLabel === "Volume of a rectangular pyramid" || card.frontLabel === "Volume of a pyramid") {
         return <InteractivePyramidVolumeExplorer color={card.color} />;
       }
       if (card.id === "term-3d-cone-vol" || card.frontLabel === "Volume of a cone") {

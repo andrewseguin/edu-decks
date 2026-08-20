@@ -163,9 +163,9 @@ export const MATH_GLOSSARY: Record<string, GlossaryEntry> = {
     formula: "SA = 2πr² + 2πrh",
   },
   "pyramid volume": {
-    title: "Pyramid Volume Formula",
-    explanation: "The volume of a pyramid is exactly ⅓ the base area (B) times the perpendicular height (h).",
-    formula: "V = ⅓Bh",
+    title: "Rectangular Pyramid Volume Formula",
+    explanation: "The volume of a rectangular pyramid is exactly ⅓ the length times width times perpendicular height (⅓ · l · w · h).",
+    formula: "V = ⅓ · l · w · h",
   },
   divide: {
     title: "Divide Both Sides",
