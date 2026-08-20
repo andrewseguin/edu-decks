@@ -59,9 +59,8 @@ export function InteractiveSphereVolumeExplorer({ color }: InteractiveSphereVolu
     } catch {}
   };
 
-  const radAngle = -Math.PI / 4; // 45 degrees up-right
-  const handleX = CX + cr * Math.cos(radAngle);
-  const handleY = CY + cr * Math.sin(radAngle);
+  const handleX = CX + cr;
+  const handleY = CY;
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pt-1 pb-1" onClick={stop} onPointerDown={stop}>
@@ -82,10 +81,10 @@ export function InteractiveSphereVolumeExplorer({ color }: InteractiveSphereVolu
         {/* Center Dot */}
         <circle cx={CX} cy={CY} r={3.5} fill="#ffffff" />
 
-        {/* Radius 3D ray */}
+        {/* Radius Horizontal Line along Equator */}
         <line x1={CX} y1={CY} x2={handleX} y2={handleY} stroke={COLOR_RADIUS} strokeWidth={2.2} strokeDasharray="4 2" />
 
-        {/* Radius Drag Handle Indicator */}
+        {/* Radius Drag Handle Indicator on Right Edge */}
         <g className="pointer-events-none">
           <circle cx={handleX} cy={handleY} r={11} fill="none" stroke="rgba(255, 255, 255, 0.85)" strokeWidth={1.5} opacity={0.7} className="animate-pulse" />
           <circle cx={handleX} cy={handleY} r={7} fill="rgba(255, 255, 255, 0.35)" stroke="#ffffff" strokeWidth={2} />
@@ -94,8 +93,8 @@ export function InteractiveSphereVolumeExplorer({ color }: InteractiveSphereVolu
 
         {/* Radius Label */}
         <text
-          x={CX + cr * 0.45 * Math.cos(radAngle) - 8}
-          y={CY + cr * 0.45 * Math.sin(radAngle) - 8}
+          x={CX + cr / 2}
+          y={CY - 12}
           textAnchor="middle"
           dominantBaseline="central"
           fontSize={14}
