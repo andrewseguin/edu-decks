@@ -285,11 +285,17 @@ async function generateLandingScreenshots() {
   await page.waitForTimeout(500);
   await clearFocus(page);
 
-  // 1. Front (Light)
+  // 1. Learning Concept Revealed (Light)
+  const card1Light = page.locator('main > div').first();
+  if (await card1Light.isVisible()) {
+    await card1Light.click();
+    await page.waitForTimeout(500);
+  }
+  await clearFocus(page);
   await page.screenshot({ path: path.join(geometryDir, 'landscape-1-card-front.png') });
   console.log('Saved: geometry/landscape-1-card-front.png');
 
-  // 1. Front (Dark)
+  // 1. Learning Concept Revealed (Dark)
   await page.evaluate(() => {
     document.documentElement.classList.remove('light');
     document.documentElement.classList.add('dark');
@@ -297,7 +303,14 @@ async function generateLandingScreenshots() {
     localStorage.setItem('geometry-deck-topics', JSON.stringify(['triangles']));
     localStorage.setItem('geometry-deck-card-types', JSON.stringify(['term']));
   });
-  await page.waitForTimeout(300);
+  await page.goto('http://localhost:9004');
+  await page.waitForSelector('main');
+  await page.waitForTimeout(500);
+  const card1Dark = page.locator('main > div').first();
+  if (await card1Dark.isVisible()) {
+    await card1Dark.click();
+    await page.waitForTimeout(500);
+  }
   await clearFocus(page);
   await page.screenshot({ path: path.join(geometryDir, 'landscape-1-card-front-dark.png') });
   console.log('Saved: geometry/landscape-1-card-front-dark.png');
