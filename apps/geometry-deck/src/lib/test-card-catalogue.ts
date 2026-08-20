@@ -1133,16 +1133,16 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
   "calc-3d-euler": {
     id: "calc-3d-euler", topic: "3d-shapes", cardType: "calculation", variant: "compute",
     color: TOPIC_COLORS["3d-shapes"],
-    frontPrompt: "Solve for vertices (V)",
-    frontSvg: { shape: "prism", dimensions: { l: 2, w: 2, h: 2, labelMode: "numeric" }, labelMode: "numeric" },
-    frontSpeechText: "A cube has 6 faces and 12 edges. How many vertices?",
+    frontPrompt: "A solid has 6 faces and 12 edges. Solve for vertices (V).",
+    frontSpeechText: "A solid has 6 faces and 12 edges. How many vertices does it have?",
+    backSvgExamples: [{ shape: "prism", dimensions: { labelMode: "numeric" }, labelMode: "numeric" }],
     backSteps: [
       { equationTokens: [t("v","V","#ffffff"), op("−"), t("e","E","#ffd45e"), op("+"), t("f","F","#5ee8ff"), eq(), t("two","2")], reason: "Euler's Polyhedral Formula" },
       { equationTokens: [t("v","V","#ffffff"), op("−"), t("e","12","#ffd45e"), op("+"), t("f","6","#5ee8ff"), eq(), t("two","2")], reason: "Substitute known values" },
       { equationTokens: [t("v","V","#ffffff"), op("−"), t("num","6"), eq(), t("two","2")], reason: "Simplify expression" },
       { equationTokens: [t("v","V","#ffffff"), eq(), t("rhs","8","#ffffff")], reason: "Evaluate" },
     ],
-    backSpeechText: "The cube has 8 vertices", numericAnswer: 8,
+    backSpeechText: "V equals 8. The solid has 8 vertices", numericAnswer: 8,
   },
 };
 

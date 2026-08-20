@@ -379,19 +379,26 @@ export function GeometryCard({
         </div>
       }
       revealContent={
-        <div className="proof-table-container w-full flex-1 min-h-0 flex flex-col items-center justify-center">
+        <div className="proof-table-container w-full flex-1 min-h-0 flex flex-col items-center justify-center gap-2">
           {isFlipped && (
-            <div className="proof-table-banner w-full bg-black/35 border-y border-white/20 px-4 sm:px-6 py-2 divide-y divide-white/10">
-              {steps.map((step, i) => (
-                <ProofRow
-                  key={i}
-                  tokens={step.equationTokens ?? null}
-                  formulaLine={step.formulaLine ?? null}
-                  reason={step.reason ?? ""}
-                  isAnswer={i === steps.length - 1}
-                />
-              ))}
-            </div>
+            <>
+              {card.backSvgExamples && card.backSvgExamples.length > 0 && !card.frontSvg && (
+                <div className="max-w-[240px] sm:max-w-[280px] max-h-[120px] w-full flex items-center justify-center">
+                  {renderShapeSvg(card.backSvgExamples[0])}
+                </div>
+              )}
+              <div className="proof-table-banner w-full bg-black/35 border-y border-white/20 px-4 sm:px-6 py-2 divide-y divide-white/10">
+                {steps.map((step, i) => (
+                  <ProofRow
+                    key={i}
+                    tokens={step.equationTokens ?? null}
+                    formulaLine={step.formulaLine ?? null}
+                    reason={step.reason ?? ""}
+                    isAnswer={i === steps.length - 1}
+                  />
+                ))}
+              </div>
+            </>
           )}
         </div>
       }
