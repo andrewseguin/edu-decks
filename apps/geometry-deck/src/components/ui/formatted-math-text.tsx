@@ -234,11 +234,11 @@ export function FormattedMathText({
           return (
             <React.Fragment key={idx}>
               <span>V = </span>
-              <span style={{ color: "#5ee8ff" }} className="font-bold">l</span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">l</span>
               <span> · </span>
               <span style={{ color: "#d8b4fe" }} className="font-bold">w</span>
               <span> · </span>
-              <span style={{ color: "#ffd45e" }} className="font-bold">h</span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">h</span>
             </React.Fragment>
           );
         }

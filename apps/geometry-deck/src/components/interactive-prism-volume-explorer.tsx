@@ -7,11 +7,11 @@ type InteractivePrismVolumeProps = {
   color?: string;
 };
 
-const SVG_H = 190;
+const SVG_H = 195;
 
-const COLOR_LEN = "#5ee8ff";   // Electric Cyan (l)
-const COLOR_WIDTH = "#d8b4fe"; // Soft Lilac (w)
-const COLOR_HEIGHT = "#ffd45e";// Warm Gold (h)
+const COLOR_LEN = "#ffd45e";   // Warm Gold (l / length)
+const COLOR_WIDTH = "#d8b4fe"; // Soft Lilac (w / width)
+const COLOR_HEIGHT = "#5ee8ff";// Electric Cyan (h / height)
 const COLOR_VOL = "#ffffff";   // Bold Crisp White
 
 export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolumeProps) {
@@ -21,7 +21,7 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
 
   const l = 4; // length
   const w = 3; // width
-  const maxLayers = 4;
+  const maxLayers = 6;
   const [activeLayers, setActiveLayers] = useState(3);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -33,13 +33,13 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
   const baseArea = l * w;
   const currentVol = baseArea * activeLayers;
 
-  const unitPx = 24;
+  const unitPx = 22;
   const W = l * unitPx;
-  const H = activeLayers * unitPx * 0.95;
-  const D = w * unitPx * 0.65;
+  const H = activeLayers * unitPx * 0.85;
+  const D = w * unitPx * 0.6;
 
   const ox = CX - (W + D * Math.cos(Math.PI / 6)) / 2;
-  const oy = 158;
+  const oy = 162;
   const cos30 = Math.cos(Math.PI / 6), sin30 = Math.sin(Math.PI / 6);
   const dxD = D * cos30, dyD = -D * sin30;
 
@@ -66,7 +66,7 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging) return;
     const dy = startYRef.current - e.clientY; // upward drag increases height
-    const deltaLayers = Math.round(dy / (unitPx * 0.95));
+    const deltaLayers = Math.round(dy / (unitPx * 0.85));
     const nextLayers = Math.max(1, Math.min(maxLayers, startLayersRef.current + deltaLayers));
     setActiveLayers(nextLayers);
   };
@@ -87,7 +87,7 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
-        className="w-full touch-none select-none overflow-visible max-h-[190px] cursor-ns-resize"
+        className="w-full touch-none select-none overflow-visible max-h-[195px] cursor-ns-resize"
       >
         {/* Hidden back edges */}
         <line x1={bl.x} y1={bl.y} x2={btl.x} y2={btl.y} stroke="rgba(255,255,255,0.3)" strokeWidth={1.8} strokeDasharray="5 4" />
@@ -134,7 +134,7 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
         {/* Top Face Drag Handle Indicator */}
         <g className="pointer-events-none">
           <circle cx={topMid.x} cy={topMid.y} r={11} fill="none" stroke={COLOR_HEIGHT} strokeWidth={1.5} opacity={0.6} className="animate-pulse" />
-          <circle cx={topMid.x} cy={topMid.y} r={7} fill="rgba(255, 212, 94, 0.4)" stroke={COLOR_HEIGHT} strokeWidth={2} />
+          <circle cx={topMid.x} cy={topMid.y} r={7} fill="rgba(94, 232, 255, 0.45)" stroke={COLOR_HEIGHT} strokeWidth={2} />
           <circle cx={topMid.x} cy={topMid.y} r={2.5} fill="#ffffff" />
         </g>
 
