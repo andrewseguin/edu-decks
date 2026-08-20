@@ -48,17 +48,17 @@ const APPS: AppInfo[] = [
     accentBorder: "border-t-emerald-500",
     screenshots: [
       {
-        label: "Card Front",
+        label: "Front",
         src: "/screenshots/arithmetic/landscape-1-card-front.png",
         srcDark: "/screenshots/arithmetic/landscape-1-card-front-dark.png",
       },
       {
-        label: "Visual Model",
+        label: "Visuals",
         src: "/screenshots/arithmetic/landscape-2-card-back.png",
         srcDark: "/screenshots/arithmetic/landscape-2-card-back-dark.png",
       },
       {
-        label: "Quiz Mode",
+        label: "Quiz",
         src: "/screenshots/arithmetic/landscape-3-quiz-mode.png",
         srcDark: "/screenshots/arithmetic/landscape-3-quiz-mode-dark.png",
       },
@@ -78,17 +78,17 @@ const APPS: AppInfo[] = [
     accentBorder: "border-t-emerald-500",
     screenshots: [
       {
-        label: "Phonics Card",
+        label: "Letters",
         src: "/screenshots/reading/landscape-1-card-front.png",
         srcDark: "/screenshots/reading/landscape-1-card-front-dark.png",
       },
       {
-        label: "Sight Words",
+        label: "Words",
         src: "/screenshots/reading/landscape-2-card-back.png",
         srcDark: "/screenshots/reading/landscape-2-card-back-dark.png",
       },
       {
-        label: "Quiz Mode",
+        label: "Quiz",
         src: "/screenshots/reading/landscape-3-quiz-mode.png",
         srcDark: "/screenshots/reading/landscape-3-quiz-mode-dark.png",
       },
@@ -106,17 +106,17 @@ const APPS: AppInfo[] = [
     accentBorder: "border-t-emerald-500",
     screenshots: [
       {
-        label: "Card Front",
+        label: "Concepts",
         src: "/screenshots/geometry/landscape-1-card-front.png",
         srcDark: "/screenshots/geometry/landscape-1-card-front-dark.png",
       },
       {
-        label: "Step Reveal",
+        label: "Proofs",
         src: "/screenshots/geometry/landscape-2-card-back.png",
         srcDark: "/screenshots/geometry/landscape-2-card-back-dark.png",
       },
       {
-        label: "Quiz Mode",
+        label: "Quiz",
         src: "/screenshots/geometry/landscape-3-quiz-mode.png",
         srcDark: "/screenshots/geometry/landscape-3-quiz-mode-dark.png",
       },
@@ -249,7 +249,7 @@ export default function HomePage() {
                         key={s.label}
                         type="button"
                         onClick={() => handleSelectScreenshot(app.id, idx)}
-                        className={`py-1.5 px-2 rounded-lg text-xs font-medium transition-all text-center truncate ${
+                        className={`py-1.5 px-1 sm:px-2 rounded-lg text-[11px] sm:text-xs font-medium transition-all text-center whitespace-nowrap overflow-hidden ${
                           isSelected
                             ? "bg-card text-foreground font-semibold shadow-xs"
                             : "text-muted-foreground hover:text-foreground hover:bg-card/50"
