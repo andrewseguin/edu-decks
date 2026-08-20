@@ -4,7 +4,7 @@ import { TopicType, CardType } from "@/lib/types";
 import { TOPIC_LABELS } from "@/lib/colors";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Shapes, Check, X } from "lucide-react";
+import { GraduationCap, Check, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Topics available
@@ -55,7 +55,7 @@ export function TopicSelector({
           className="h-12 w-12 rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground shadow-xs active:scale-95 transition-transform"
           aria-label="Select topics"
         >
-          <Shapes className="h-6 w-6" />
+          <GraduationCap className="h-6 w-6" />
         </Button>
       </PopoverTrigger>
       <PopoverContent
