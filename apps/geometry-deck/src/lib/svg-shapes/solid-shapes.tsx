@@ -282,8 +282,10 @@ export function Cone({ dims, mutation }: { dims: Record<string, number | string>
       <line x1={cx} y1={botY} x2={cx + cr} y2={botY} stroke={COLOR_GOLD} strokeWidth={2} strokeDasharray="3 2" />
       <circle cx={cx + cr} cy={botY} r={3} fill={COLOR_GOLD} />
 
-      {/* Height line inside from apex to center */}
-      <line x1={cx} y1={apexY} x2={cx} y2={botY} stroke={COLOR_CYAN} strokeWidth={1.5} strokeDasharray="3 2" />
+      {/* Height line inside from apex to center (volume mode only) */}
+      {dims.h !== undefined && (
+        <line x1={cx} y1={apexY} x2={cx} y2={botY} stroke={COLOR_CYAN} strokeWidth={1.5} strokeDasharray="3 2" />
+      )}
 
       {/* Labels */}
       {dims.r !== undefined && (
@@ -370,8 +372,8 @@ export function Pyramid({ dims, mutation }: { dims: Record<string, number | stri
   const revealedAnswer = mutation?.revealAnswer;
   const filled = mutation?.fillInterior;
 
-  const W = 100, H = 75, D = 48;
-  const ox = 55, oy = 138;
+  const W = 96, H = 72, D = 46;
+  const ox = 57, oy = 126;
   const cos30 = Math.cos(Math.PI / 6), sin30 = Math.sin(Math.PI / 6);
   const dxD = (D / 2) * cos30, dyD = -(D / 2) * sin30;
 
@@ -383,7 +385,7 @@ export function Pyramid({ dims, mutation }: { dims: Record<string, number | stri
   const apex = { x: baseMid.x, y: baseMid.y - H };
 
   return (
-    <svg viewBox="0 0 240 170" className="w-full h-full select-none" aria-hidden>
+    <svg viewBox="0 0 240 160" className="w-full h-full select-none" aria-hidden>
       {/* Hidden back edges */}
       <line x1={bl.x} y1={bl.y} x2={apex.x} y2={apex.y} stroke="rgba(255,255,255,0.35)" strokeWidth={1.5} strokeDasharray="4 3" />
       <line x1={bl.x} y1={bl.y} x2={fl.x} y2={fl.y} stroke="rgba(255,255,255,0.35)" strokeWidth={1.5} strokeDasharray="4 3" />
@@ -409,9 +411,13 @@ export function Pyramid({ dims, mutation }: { dims: Record<string, number | stri
         strokeLinejoin="round"
       />
 
-      {/* Height line inside from apex to base center */}
-      <line x1={apex.x} y1={apex.y} x2={baseMid.x} y2={baseMid.y} stroke={COLOR_CYAN} strokeWidth={1.5} strokeDasharray="3 2" />
-      <circle cx={baseMid.x} cy={baseMid.y} r={2.5} fill={COLOR_CYAN} />
+      {/* Height line inside from apex to base center (volume mode only) */}
+      {dims.h !== undefined && (
+        <>
+          <line x1={apex.x} y1={apex.y} x2={baseMid.x} y2={baseMid.y} stroke={COLOR_CYAN} strokeWidth={1.5} strokeDasharray="3 2" />
+          <circle cx={baseMid.x} cy={baseMid.y} r={2.5} fill={COLOR_CYAN} />
+        </>
+      )}
 
       {/* Vertices */}
       {[fl, fr, br, apex].map((v, i) => (

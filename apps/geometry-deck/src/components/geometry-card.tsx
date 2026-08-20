@@ -381,11 +381,11 @@ export function GeometryCard({
         </div>
       }
       revealContent={
-        <div className="proof-table-container w-full flex-1 min-h-0 flex flex-col items-center justify-center gap-2">
+        <div className="proof-table-container w-full flex-1 min-h-0 flex flex-col items-center justify-center gap-3 sm:gap-4">
           {isFlipped && (
             <>
               {card.backSvgExamples && card.backSvgExamples.length > 0 && !card.frontSvg && (
-                <div className="max-w-[240px] sm:max-w-[280px] max-h-[120px] w-full flex items-center justify-center">
+                <div className="max-w-[210px] sm:max-w-[240px] max-h-[105px] w-full flex items-center justify-center mb-1.5 sm:mb-2">
                   {renderShapeSvg(card.backSvgExamples[0])}
                 </div>
               )}
