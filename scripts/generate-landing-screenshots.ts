@@ -83,7 +83,7 @@ async function generateLandingScreenshots() {
   fs.mkdirSync(readingDir, { recursive: true });
 
   const context = await browser.newContext({
-    viewport: { width: 1280, height: 720 },
+    viewport: { width: 880, height: 550 },
     deviceScaleFactor: 2,
   });
 
@@ -130,7 +130,10 @@ async function generateLandingScreenshots() {
   console.log('Saved: arithmetic/landscape-1-card-front-dark.png');
 
   // 2. Back (Dark)
-  await page.mouse.click(640, 360);
+  const arithCard = page.locator('main > div').first();
+  if (await arithCard.isVisible()) {
+    await arithCard.click();
+  }
   await advanceToLastStep(page);
   await clearFocus(page);
   await page.screenshot({ path: path.join(arithmeticDir, 'landscape-2-card-back-dark.png') });

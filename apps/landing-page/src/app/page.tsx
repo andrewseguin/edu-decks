@@ -217,8 +217,8 @@ export default function HomePage() {
                   </p>
                 </div>
 
-                {/* Actual Screenshot Frame (Native 16:9 Aspect Ratio) */}
-                <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-border/80 bg-card shadow-xs my-3 select-none">
+                {/* Actual Screenshot Frame (Native 16:10 Aspect Ratio) */}
+                <div className="relative aspect-[16/10] w-full rounded-2xl overflow-hidden border border-border/80 bg-card shadow-xs my-3 select-none">
                   {/* Light Mode Screenshot (or single fallback) */}
                   <Image
                     src={currentScreenshot.src}
