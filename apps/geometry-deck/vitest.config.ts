@@ -9,6 +9,7 @@ export default defineConfig({
     name: "geometry-deck",
     environment: "jsdom",
     globals: true,
+    setupFiles: [path.resolve(__dirname, "./test/setup.ts")],
     passWithNoTests: true,
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
   },

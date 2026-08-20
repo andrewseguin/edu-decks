@@ -31,6 +31,7 @@ type TopicSelectorProps = {
   onTopicSelectExclusive?: (topic: TopicType) => void;
   activeCardTypes: CardType[];
   onCardTypeToggle: (type: CardType) => void;
+  onStartQuiz?: () => void;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
@@ -41,6 +42,7 @@ export function TopicSelector({
   onTopicSelectExclusive,
   activeCardTypes,
   onCardTypeToggle,
+  onStartQuiz,
   open,
   onOpenChange,
 }: TopicSelectorProps) {
@@ -188,6 +190,22 @@ export function TopicSelector({
               })}
             </div>
           </div>
+
+          {/* Quiz Start Button */}
+          {onStartQuiz && (
+            <div className="pt-4 border-t">
+              <Button
+                variant="default"
+                className="w-full h-14 rounded-2xl text-lg font-bold font-headline bg-emerald-600 hover:bg-emerald-500 text-white shadow-md active:scale-95 transition-transform"
+                onClick={() => {
+                  onOpenChange?.(false);
+                  onStartQuiz();
+                }}
+              >
+                Start Quiz
+              </Button>
+            </div>
+          )}
         </div>
       </PopoverContent>
     </Popover>

@@ -17,6 +17,7 @@ import type { GeometryCard as GeometryCardType } from "@/lib/types";
 import { GeometryCard } from "@/components/geometry-card";
 import { AppSettings } from "@/components/app-settings";
 import { TopicSelector } from "@/components/topic-selector";
+import { QuizDisplay } from "@/components/quiz-display";
 
 export default function GeometryDeckPage() {
   const [hydrated, setHydrated] = useState(false);
@@ -27,10 +28,11 @@ export default function GeometryDeckPage() {
   // UI state
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isTopicSelectorOpen, setIsTopicSelectorOpen] = useState(false);
+  const [isQuizActive, setIsQuizActive] = useState(false);
   const [timeElapsed, setTimeElapsed] = useState(0);
 
   // Audio & screen wake-lock
-  const { speak } = useAudio(playGeometrySpeech);
+  const { speak, playChime } = useAudio(playGeometrySpeech);
   useWakeLock(settings.keepScreenAwake);
 
   // Hydration guard (avoids SSR/localStorage mismatch)
@@ -56,7 +58,7 @@ export default function GeometryDeckPage() {
         measurementUnit: settings.measurementUnit,
       }),
     autoPlayAudio: settings.autoPlayAudio,
-    isQuizActive: false,
+    isQuizActive,
     speak: (card, flipped) =>
       speak(flipped ? card.backSpeechText : card.frontSpeechText, true),
     hydrated,
@@ -71,12 +73,12 @@ export default function GeometryDeckPage() {
 
   // ── Timer ────────────────────────────────────────────────────────────────
   useEffect(() => {
-    if (!settings.showTimer) return;
+    if (!settings.showTimer || isQuizActive) return;
     const interval = setInterval(() => {
       setTimeElapsed((prev) => prev + 1);
     }, 1000);
     return () => clearInterval(interval);
-  }, [settings.showTimer]);
+  }, [settings.showTimer, isQuizActive]);
 
   // ── Gesture & keyboard ───────────────────────────────────────────────────
   const { handlePointerDown, handlePointerUp, notifyMenuClosed } =
@@ -84,7 +86,7 @@ export default function GeometryDeckPage() {
       onNext: handleNextCard,
       onPrev: handlePrevCard,
       onTap: handleCardTap,
-      isMenuOpen: isSettingsOpen || isTopicSelectorOpen,
+      isMenuOpen: isQuizActive || isSettingsOpen || isTopicSelectorOpen,
     });
 
   const handleTopicSelectorOpenChange = (open: boolean) => {
@@ -113,6 +115,7 @@ export default function GeometryDeckPage() {
             onTopicSelectExclusive={settings.handleTopicSelectExclusive}
             activeCardTypes={settings.activeCardTypes}
             onCardTypeToggle={settings.handleCardTypeToggle}
+            onStartQuiz={() => setIsQuizActive(true)}
             open={isTopicSelectorOpen}
             onOpenChange={handleTopicSelectorOpenChange}
           />
@@ -139,6 +142,19 @@ export default function GeometryDeckPage() {
             showCardCount={settings.showCardCount}
             showTimer={settings.showTimer}
             position="bottom-center"
+          />
+        ) : undefined
+      }
+      quizOverlay={
+        isQuizActive ? (
+          <QuizDisplay
+            activeTopics={settings.activeTopics}
+            measurementUnit={settings.measurementUnit}
+            includeReverseProblems={settings.includeReverseProblems}
+            autoPlayAudio={settings.autoPlayAudio}
+            onSpeak={(text, onEnd) => speak(text, true, onEnd)}
+            onPlayChime={playChime}
+            onExit={() => setIsQuizActive(false)}
           />
         ) : undefined
       }
