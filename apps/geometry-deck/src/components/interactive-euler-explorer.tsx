@@ -267,7 +267,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
     // Horizontal drag -> Yaw (0..360)
     setYawDeg((prev) => (prev + dx * 0.75 + 360) % 360);
     // Vertical drag -> Pitch (-80..+80)
-    setPitchDeg((prev) => Math.max(-80, Math.min(80, prev - dy * 0.65)));
+    setPitchDeg((prev) => Math.max(-80, Math.min(80, prev + dy * 0.65)));
   };
 
   const handlePointerUp = (e: React.PointerEvent<SVGSVGElement>) => {

@@ -77,7 +77,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
         setUnfold(0);
       }
       setUserYaw((prev) => (prev + dx * 0.75 + 360) % 360);
-      setUserPitch((prev) => Math.max(10, Math.min(80, prev - dy * 0.65)));
+      setUserPitch((prev) => Math.max(10, Math.min(80, prev + dy * 0.65)));
     }
   };
 
