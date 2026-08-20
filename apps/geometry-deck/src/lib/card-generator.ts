@@ -1139,10 +1139,10 @@ function make3DCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSpeechText: `A polyhedron has ${poly.F} faces and ${poly.E} edges. How many vertices does it have?`,
       backSvgExamples: [{ shape: poly.shape, dimensions: { labelMode: "numeric" }, labelMode: "numeric" }],
       backSteps: [
-        { equationTokens: [tok("v","V","#ffffff"), op("−"), tok("e","E","#ffd45e"), op("+"), tok("f","F","#5ee8ff"), eq(), tok("two","2")], reason: "Euler's Polyhedral Formula" },
-        { equationTokens: [tok("v","V","#ffffff"), op("−"), tok("e",`${poly.E}`,"#ffd45e"), op("+"), tok("f",`${poly.F}`,"#5ee8ff"), eq(), tok("two","2")], reason: "Substitute known values" },
-        { equationTokens: [tok("v","V","#ffffff"), op("−"), tok("num",`${poly.E - poly.F}`), eq(), tok("two","2")], reason: "Simplify expression" },
-        { equationTokens: [tok("v","V","#ffffff"), eq(), tok("rhs",`${poly.V}`,"#ffffff")], reason: "Evaluate" },
+        { equationTokens: [tok("v","V","#d8b4fe"), op("−"), tok("e","E","#ffd45e"), op("+"), tok("f","F","#5ee8ff"), eq(), tok("two","2")], reason: "Euler's Polyhedral Formula" },
+        { equationTokens: [tok("v","V","#d8b4fe"), op("−"), tok("e",`${poly.E}`,"#ffd45e"), op("+"), tok("f",`${poly.F}`,"#5ee8ff"), eq(), tok("two","2")], reason: "Substitute known values" },
+        { equationTokens: [tok("v","V","#d8b4fe"), op("−"), tok("num",`${poly.E - poly.F}`), eq(), tok("two","2")], reason: "Simplify expression" },
+        { equationTokens: [tok("v","V","#d8b4fe"), eq(), tok("rhs",`${poly.V}`,"#d8b4fe")], reason: "Evaluate" },
       ],
       backSpeechText: `Vertices minus edges plus faces equals 2. The polyhedron has ${poly.V} vertices`, numericAnswer: poly.V, color,
     };
@@ -1156,8 +1156,8 @@ function make3DCalcCard(settings: GeneratorSettings): GeometryCard {
       frontSpeechText: `A polyhedron has ${poly.V} vertices and ${poly.F} faces. How many edges does it have?`,
       backSvgExamples: [{ shape: poly.shape, dimensions: { labelMode: "numeric" }, labelMode: "numeric" }],
       backSteps: [
-        { equationTokens: [tok("v","V","#ffffff"), op("−"), tok("e","E","#ffd45e"), op("+"), tok("f","F","#5ee8ff"), eq(), tok("two","2")], reason: "Euler's Polyhedral Formula" },
-        { equationTokens: [tok("v",`${poly.V}`,"#ffffff"), op("−"), tok("e","E","#ffd45e"), op("+"), tok("f",`${poly.F}`,"#5ee8ff"), eq(), tok("two","2")], reason: "Substitute known values" },
+        { equationTokens: [tok("v","V","#d8b4fe"), op("−"), tok("e","E","#ffd45e"), op("+"), tok("f","F","#5ee8ff"), eq(), tok("two","2")], reason: "Euler's Polyhedral Formula" },
+        { equationTokens: [tok("v",`${poly.V}`,"#d8b4fe"), op("−"), tok("e","E","#ffd45e"), op("+"), tok("f",`${poly.F}`,"#5ee8ff"), eq(), tok("two","2")], reason: "Substitute known values" },
         { equationTokens: [tok("num",`${sumVF}`), op("−"), tok("e","E","#ffd45e"), eq(), tok("two","2")], reason: "Simplify expression" },
         { equationTokens: [tok("e","E","#ffd45e"), eq(), tok("rhs",`${poly.E}`,"#ffd45e")], reason: "Evaluate" },
       ],
@@ -1173,8 +1173,8 @@ function make3DCalcCard(settings: GeneratorSettings): GeometryCard {
     frontSpeechText: `A polyhedron has ${poly.V} vertices and ${poly.E} edges. How many faces does it have?`,
     backSvgExamples: [{ shape: poly.shape, dimensions: { labelMode: "numeric" }, labelMode: "numeric" }],
     backSteps: [
-      { equationTokens: [tok("v","V","#ffffff"), op("−"), tok("e","E","#ffd45e"), op("+"), tok("f","F","#5ee8ff"), eq(), tok("two","2")], reason: "Euler's Polyhedral Formula" },
-      { equationTokens: [tok("v",`${poly.V}`,"#ffffff"), op("−"), tok("e",`${poly.E}`,"#ffd45e"), op("+"), tok("f","F","#5ee8ff"), eq(), tok("two","2")], reason: "Substitute known values" },
+      { equationTokens: [tok("v","V","#d8b4fe"), op("−"), tok("e","E","#ffd45e"), op("+"), tok("f","F","#5ee8ff"), eq(), tok("two","2")], reason: "Euler's Polyhedral Formula" },
+      { equationTokens: [tok("v",`${poly.V}`,"#d8b4fe"), op("−"), tok("e",`${poly.E}`,"#ffd45e"), op("+"), tok("f","F","#5ee8ff"), eq(), tok("two","2")], reason: "Substitute known values" },
       { equationTokens: [tok("num",`${diffVE}`), op("+"), tok("f","F","#5ee8ff"), eq(), tok("two","2")], reason: "Simplify expression" },
       { equationTokens: [tok("f","F","#5ee8ff"), eq(), tok("rhs",`${poly.F}`,"#5ee8ff")], reason: "Evaluate" },
     ],

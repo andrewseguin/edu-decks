@@ -53,6 +53,12 @@ const COLOR_KEYWORDS: Record<string, string> = {
   "s²": "#5ee8ff", // cyan
   "r²": "#ffd45e", // gold
   "r³": "#ffd45e", // gold
+  "vertices (V)": "#d8b4fe", // neon lilac
+  "vertices": "#d8b4fe", // neon lilac
+  "edges (E)": "#ffd45e", // gold
+  "edges": "#ffd45e", // gold
+  "faces (F)": "#5ee8ff", // cyan
+  "faces": "#5ee8ff", // cyan
   // Specific angle notations:
   "∠A": "#5ee8ff",
   "∠B": "#ffd45e",
@@ -151,7 +157,12 @@ export function FormattedMathText({
         if (part === "V − E + F = 2" || part === "V − E + F") {
           return (
             <React.Fragment key={idx}>
-              <span className="font-bold text-white">V − E + F{part.includes("= 2") ? " = 2" : ""}</span>
+              <span style={{ color: "#d8b4fe" }} className="font-bold">V</span>
+              <span> − </span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">E</span>
+              <span> + </span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">F</span>
+              {part.includes("= 2") ? " = 2" : ""}
             </React.Fragment>
           );
         }
