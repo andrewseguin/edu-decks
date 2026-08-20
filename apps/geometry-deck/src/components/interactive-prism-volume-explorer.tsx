@@ -133,8 +133,8 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
 
         {/* Top Face Drag Handle Indicator */}
         <g className="pointer-events-none">
-          <circle cx={topMid.x} cy={topMid.y} r={11} fill="none" stroke={COLOR_HEIGHT} strokeWidth={1.5} opacity={0.6} className="animate-pulse" />
-          <circle cx={topMid.x} cy={topMid.y} r={7} fill="rgba(94, 232, 255, 0.45)" stroke={COLOR_HEIGHT} strokeWidth={2} />
+          <circle cx={topMid.x} cy={topMid.y} r={11} fill="none" stroke="rgba(255, 255, 255, 0.85)" strokeWidth={1.5} opacity={0.7} className="animate-pulse" />
+          <circle cx={topMid.x} cy={topMid.y} r={7} fill="rgba(255, 255, 255, 0.35)" stroke="#ffffff" strokeWidth={2} />
           <circle cx={topMid.x} cy={topMid.y} r={2.5} fill="#ffffff" />
         </g>
 
