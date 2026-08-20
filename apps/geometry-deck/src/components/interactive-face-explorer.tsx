@@ -25,13 +25,67 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
   const [unfold, setUnfold] = useState<number>(0);
   const [selectedFace, setSelectedFace] = useState<number>(0); // 0 = all
   const [isAnimating, setIsAnimating] = useState(false);
+  const [userYaw, setUserYaw] = useState<number>(-36);
+  const [userPitch, setUserPitch] = useState<number>(32);
+
   const animRef = useRef<number | null>(null);
+  const isDraggingRef = useRef(false);
+  const lastDragPosRef = useRef({ x: 0, y: 0 });
+  const dragDistRef = useRef(0);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 
   const handleShapeChange = (newShape: ShapeType) => {
     setShape(newShape);
     setSelectedFace(0);
+    setUserYaw(-36);
+    setUserPitch(32);
+    setUnfold(0);
+    if (animRef.current) cancelAnimationFrame(animRef.current);
+    setIsAnimating(false);
+  };
+
+  const handleFaceClick = (id: number) => {
+    if (dragDistRef.current < 5) {
+      setSelectedFace((prev) => (prev === id ? 0 : id));
+    }
+  };
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // 3D Canvas Drag to Orbit
+  // ──────────────────────────────────────────────────────────────────────────
+  const handleCanvasPointerDown = (e: React.PointerEvent<SVGSVGElement>) => {
+    stop(e);
+    isDraggingRef.current = true;
+    lastDragPosRef.current = { x: e.clientX, y: e.clientY };
+    dragDistRef.current = 0;
+    (e.currentTarget as Element).setPointerCapture(e.pointerId);
+  };
+
+  const handleCanvasPointerMove = (e: React.PointerEvent<SVGSVGElement>) => {
+    if (!isDraggingRef.current) return;
+    const dx = e.clientX - lastDragPosRef.current.x;
+    const dy = e.clientY - lastDragPosRef.current.y;
+    lastDragPosRef.current = { x: e.clientX, y: e.clientY };
+    dragDistRef.current += Math.hypot(dx, dy);
+
+    if (dragDistRef.current > 3) {
+      // If user rotates while partially unfolded, fold it back to 3D
+      if (unfold > 0) {
+        if (animRef.current) cancelAnimationFrame(animRef.current);
+        setIsAnimating(false);
+        setUnfold(0);
+      }
+      setUserYaw((prev) => (prev + dx * 0.75 + 360) % 360);
+      setUserPitch((prev) => Math.max(10, Math.min(80, prev - dy * 0.65)));
+    }
+  };
+
+  const handleCanvasPointerUp = (e: React.PointerEvent<SVGSVGElement>) => {
+    isDraggingRef.current = false;
+    try {
+      (e.currentTarget as Element).releasePointerCapture(e.pointerId);
+    } catch {}
   };
 
   // Smooth Unfold Animation Toggle
@@ -46,7 +100,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
     const target = unfold > 0.5 ? 0 : 1;
     const startVal = unfold;
     const startTime = performance.now();
-    const duration = 2400;
+    const duration = 2200;
 
     const step = (now: number) => {
       const elapsed = now - startTime;
@@ -61,6 +115,10 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
       } else {
         setUnfold(target);
         setIsAnimating(false);
+        if (target === 0) {
+          setUserYaw(-36);
+          setUserPitch(32);
+        }
       }
     };
 
@@ -74,14 +132,22 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
   }, []);
 
   // ──────────────────────────────────────────────────────────────────────────
-  // 3D Camera & Projection with Dynamic Zoom-Out
+  // 3D Camera & Projection with Dynamic Zoom-Out & Alignment
   // ──────────────────────────────────────────────────────────────────────────
   const p = unfold;
   const tFold = Math.min(1, p / 0.55);
   const tRotate = Math.max(0, (p - 0.55) / 0.45);
 
-  const pitchDeg = 32 + (90 - 32) * tRotate;
-  const yawDeg = -36 + (0 - (-36)) * tRotate;
+  // Smoothly blend from user custom rotation back to canonical position (-36° yaw, 32° pitch)
+  const diffYaw = ((-36 - userYaw + 540) % 360) - 180;
+  const alignedYaw = userYaw + diffYaw * tFold;
+  const alignedPitch = userPitch + (32 - userPitch) * tFold;
+
+  // Flatten from canonical 3D (-36°/32°) to top-down 2D net (0°/90°)
+  const diffFlattenYaw = ((0 - alignedYaw + 540) % 360) - 180;
+  const yawDeg = alignedYaw + diffFlattenYaw * tRotate;
+  const pitchDeg = alignedPitch + (90 - alignedPitch) * tRotate;
+
   const pitch = (pitchDeg * Math.PI) / 180;
   const yaw = (yawDeg * Math.PI) / 180;
 
@@ -239,7 +305,13 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
       </div>
 
       {/* ── Large & Prominent Interactive 3D / 2D Canvas ── */}
-      <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="w-full touch-none select-none overflow-visible max-h-[205px]">
+      <svg
+        viewBox={`0 0 ${SVG_W} ${SVG_H}`}
+        onPointerDown={handleCanvasPointerDown}
+        onPointerMove={handleCanvasPointerMove}
+        onPointerUp={handleCanvasPointerUp}
+        className="w-full touch-none select-none overflow-visible max-h-[205px] cursor-grab active:cursor-grabbing"
+      >
 
         {/* ───────── CUBE RENDERING ───────── */}
         {shape === "cube" && (
@@ -252,7 +324,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               strokeWidth={getFaceStrokeWidth(6)}
               onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(6); }}
               onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
-              onClick={() => setSelectedFace(selectedFace === 6 ? 0 : 6)}
+              onClick={() => handleFaceClick(6)}
               className="cursor-pointer transition-colors"
             />
             {/* Face 2: Back */}
@@ -263,7 +335,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               strokeWidth={getFaceStrokeWidth(2)}
               onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(2); }}
               onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
-              onClick={() => setSelectedFace(selectedFace === 2 ? 0 : 2)}
+              onClick={() => handleFaceClick(2)}
               className="cursor-pointer transition-colors"
             />
             {/* Face 5: Top (Attached to Right face) */}
@@ -274,7 +346,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               strokeWidth={getFaceStrokeWidth(5)}
               onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(5); }}
               onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
-              onClick={() => setSelectedFace(selectedFace === 5 ? 0 : 5)}
+              onClick={() => handleFaceClick(5)}
               className="cursor-pointer transition-colors"
             />
             {/* Face 3: Left */}
@@ -285,7 +357,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               strokeWidth={getFaceStrokeWidth(3)}
               onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(3); }}
               onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
-              onClick={() => setSelectedFace(selectedFace === 3 ? 0 : 3)}
+              onClick={() => handleFaceClick(3)}
               className="cursor-pointer transition-colors"
             />
             {/* Face 4: Right */}
@@ -296,7 +368,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               strokeWidth={getFaceStrokeWidth(4)}
               onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(4); }}
               onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
-              onClick={() => setSelectedFace(selectedFace === 4 ? 0 : 4)}
+              onClick={() => handleFaceClick(4)}
               className="cursor-pointer transition-colors"
             />
             {/* Face 1: Front */}
@@ -307,7 +379,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               strokeWidth={getFaceStrokeWidth(1)}
               onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(1); }}
               onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
-              onClick={() => setSelectedFace(selectedFace === 1 ? 0 : 1)}
+              onClick={() => handleFaceClick(1)}
               className="cursor-pointer transition-colors"
             />
           </g>
@@ -324,7 +396,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               strokeWidth={getFaceStrokeWidth(5)}
               onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(5); }}
               onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
-              onClick={() => setSelectedFace(selectedFace === 5 ? 0 : 5)}
+              onClick={() => handleFaceClick(5)}
               className="cursor-pointer transition-colors"
             />
             {/* Face 2: Back Triangle */}
@@ -335,7 +407,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               strokeWidth={getFaceStrokeWidth(2)}
               onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(2); }}
               onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
-              onClick={() => setSelectedFace(selectedFace === 2 ? 0 : 2)}
+              onClick={() => handleFaceClick(2)}
               className="cursor-pointer transition-colors"
             />
             {/* Face 4: Left Rectangle */}
@@ -346,7 +418,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               strokeWidth={getFaceStrokeWidth(4)}
               onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(4); }}
               onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
-              onClick={() => setSelectedFace(selectedFace === 4 ? 0 : 4)}
+              onClick={() => handleFaceClick(4)}
               className="cursor-pointer transition-colors"
             />
             {/* Face 3: Right Rectangle */}
@@ -357,7 +429,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               strokeWidth={getFaceStrokeWidth(3)}
               onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(3); }}
               onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
-              onClick={() => setSelectedFace(selectedFace === 3 ? 0 : 3)}
+              onClick={() => handleFaceClick(3)}
               className="cursor-pointer transition-colors"
             />
             {/* Face 1: Front Triangle */}
@@ -368,7 +440,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               strokeWidth={getFaceStrokeWidth(1)}
               onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(1); }}
               onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
-              onClick={() => setSelectedFace(selectedFace === 1 ? 0 : 1)}
+              onClick={() => handleFaceClick(1)}
               className="cursor-pointer transition-colors"
             />
           </g>
@@ -385,7 +457,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               strokeWidth={getFaceStrokeWidth(1)}
               onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(1); }}
               onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
-              onClick={() => setSelectedFace(selectedFace === 1 ? 0 : 1)}
+              onClick={() => handleFaceClick(1)}
               className="cursor-pointer transition-colors"
             />
             {/* Face 3: Back Triangle */}
@@ -396,7 +468,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               strokeWidth={getFaceStrokeWidth(3)}
               onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(3); }}
               onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
-              onClick={() => setSelectedFace(selectedFace === 3 ? 0 : 3)}
+              onClick={() => handleFaceClick(3)}
               className="cursor-pointer transition-colors"
             />
             {/* Face 4: Left Triangle */}
@@ -407,7 +479,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               strokeWidth={getFaceStrokeWidth(4)}
               onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(4); }}
               onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
-              onClick={() => setSelectedFace(selectedFace === 4 ? 0 : 4)}
+              onClick={() => handleFaceClick(4)}
               className="cursor-pointer transition-colors"
             />
             {/* Face 5: Right Triangle */}
@@ -418,7 +490,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               strokeWidth={getFaceStrokeWidth(5)}
               onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(5); }}
               onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
-              onClick={() => setSelectedFace(selectedFace === 5 ? 0 : 5)}
+              onClick={() => handleFaceClick(5)}
               className="cursor-pointer transition-colors"
             />
             {/* Face 2: Front Triangle */}
@@ -429,7 +501,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
               strokeWidth={getFaceStrokeWidth(2)}
               onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(2); }}
               onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
-              onClick={() => setSelectedFace(selectedFace === 2 ? 0 : 2)}
+              onClick={() => handleFaceClick(2)}
               className="cursor-pointer transition-colors"
             />
           </g>
@@ -481,7 +553,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
                 strokeWidth={getFaceStrokeWidth(3)}
                 onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(3); }}
                 onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
-                onClick={() => setSelectedFace(selectedFace === 3 ? 0 : 3)}
+                onClick={() => handleFaceClick(3)}
                 className="cursor-pointer transition-colors"
               />
 
@@ -496,7 +568,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
                 strokeWidth={getFaceStrokeWidth(2)}
                 onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(2); }}
                 onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
-                onClick={() => setSelectedFace(selectedFace === 2 ? 0 : 2)}
+                onClick={() => handleFaceClick(2)}
                 className="cursor-pointer transition-colors"
               />
 
@@ -511,7 +583,7 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
                 strokeWidth={getFaceStrokeWidth(1)}
                 onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(1); }}
                 onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
-                onClick={() => setSelectedFace(selectedFace === 1 ? 0 : 1)}
+                onClick={() => handleFaceClick(1)}
                 className="cursor-pointer transition-colors"
               />
             </g>
