@@ -16,6 +16,7 @@ const COLOR_VOL = "#ffffff";    // Bold Crisp White
 
 export function InteractiveConeVolumeExplorer({ color }: InteractiveConeVolumeProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
+  const svgRef = useRef<SVGSVGElement | null>(null);
   const SVG_W = Math.max(280, Math.min(460, rawW - 24));
   const CX = SVG_W / 2;
   const BOT_CY = 162;
@@ -28,9 +29,6 @@ export function InteractiveConeVolumeExplorer({ color }: InteractiveConeVolumePr
   const [h, setH] = useState(4); // height [2..6]
   const [isDragging, setIsDragging] = useState(false);
 
-  const startYRef = useRef<number>(0);
-  const startHRef = useRef<number>(h);
-
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 
   const baseAreaCoeff = r * r; // 9
@@ -41,20 +39,27 @@ export function InteractiveConeVolumeExplorer({ color }: InteractiveConeVolumePr
   const hPx = h * pxPerH;
   const apexY = BOT_CY - hPx;
 
+  const updateFromPointer = useCallback((clientY: number) => {
+    if (!svgRef.current) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    if (rect.height <= 0) return;
+    const scaleY = SVG_H / rect.height;
+    const svgPointerY = (clientY - rect.top) * scaleY;
+    const dy = BOT_CY - svgPointerY;
+    const nextH = Math.max(minH, Math.min(maxH, Math.round(dy / pxPerH)));
+    setH(nextH);
+  }, [BOT_CY, pxPerH, minH, maxH]);
+
   const handlePointerDown = (e: React.PointerEvent) => {
     stop(e);
     setIsDragging(true);
-    startYRef.current = e.clientY;
-    startHRef.current = h;
+    updateFromPointer(e.clientY);
     (e.currentTarget as Element).setPointerCapture(e.pointerId);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging) return;
-    const dy = startYRef.current - e.clientY;
-    const deltaH = Math.round(dy / pxPerH);
-    const nextH = Math.max(minH, Math.min(maxH, startHRef.current + deltaH));
-    setH(nextH);
+    updateFromPointer(e.clientY);
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
@@ -68,6 +73,7 @@ export function InteractiveConeVolumeExplorer({ color }: InteractiveConeVolumePr
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pt-1 pb-1" onClick={stop} onPointerDown={stop}>
       <svg
+        ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}

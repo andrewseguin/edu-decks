@@ -16,6 +16,7 @@ const COLOR_VOL = "#ffffff";    // Bold Crisp White
 
 export function InteractivePyramidVolumeExplorer({ color }: InteractivePyramidVolumeProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
+  const svgRef = useRef<SVGSVGElement | null>(null);
   const SVG_W = Math.max(280, Math.min(460, rawW - 24));
   const CX = SVG_W / 2;
 
@@ -24,9 +25,6 @@ export function InteractivePyramidVolumeExplorer({ color }: InteractivePyramidVo
   const maxH = 9;
   const [h, setH] = useState(6); // height [3, 6, 9] (multiples of 3)
   const [isDragging, setIsDragging] = useState(false);
-
-  const startYRef = useRef<number>(0);
-  const startHRef = useRef<number>(h);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 
@@ -54,20 +52,27 @@ export function InteractivePyramidVolumeExplorer({ color }: InteractivePyramidVo
   const btl = { x: bl.x, y: bl.y - hPx };
   const btr = { x: br.x, y: br.y - hPx };
 
+  const updateFromPointer = useCallback((clientY: number) => {
+    if (!svgRef.current) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    if (rect.height <= 0) return;
+    const scaleY = SVG_H / rect.height;
+    const svgPointerY = (clientY - rect.top) * scaleY;
+    const dy = baseMid.y - svgPointerY;
+    const nextH = Math.max(minH, Math.min(maxH, Math.round(dy / (pxPerH * 3)) * 3));
+    setH(nextH);
+  }, [baseMid.y, pxPerH, minH, maxH]);
+
   const handlePointerDown = (e: React.PointerEvent) => {
     stop(e);
     setIsDragging(true);
-    startYRef.current = e.clientY;
-    startHRef.current = h;
+    updateFromPointer(e.clientY);
     (e.currentTarget as Element).setPointerCapture(e.pointerId);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging) return;
-    const dy = startYRef.current - e.clientY;
-    const deltaH = Math.round(dy / (pxPerH * 1.5)) * 3;
-    const nextH = Math.max(minH, Math.min(maxH, startHRef.current + deltaH));
-    setH(nextH);
+    updateFromPointer(e.clientY);
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
@@ -81,6 +86,7 @@ export function InteractivePyramidVolumeExplorer({ color }: InteractivePyramidVo
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pt-1 pb-1" onClick={stop} onPointerDown={stop}>
       <svg
+        ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}

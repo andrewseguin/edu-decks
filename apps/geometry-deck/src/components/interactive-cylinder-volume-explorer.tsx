@@ -15,6 +15,7 @@ const COLOR_VOL = "#ffffff";    // Bold Crisp White
 
 export function InteractiveCylinderVolumeExplorer({ color }: InteractiveCylinderVolumeProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
+  const svgRef = useRef<SVGSVGElement | null>(null);
   const SVG_W = Math.max(280, Math.min(460, rawW - 24));
   const CX = SVG_W / 2;
   const BOT_CY = 162;
@@ -26,9 +27,6 @@ export function InteractiveCylinderVolumeExplorer({ color }: InteractiveCylinder
   const [h, setH] = useState(3); // height/disks [1..6]
   const [isDragging, setIsDragging] = useState(false);
 
-  const startYRef = useRef<number>(0);
-  const startHRef = useRef<number>(h);
-
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 
   const baseAreaCoeff = r * r;
@@ -38,20 +36,27 @@ export function InteractiveCylinderVolumeExplorer({ color }: InteractiveCylinder
   const currentTotalH = h * diskH;
   const topCY = BOT_CY - currentTotalH;
 
+  const updateFromPointer = useCallback((clientY: number) => {
+    if (!svgRef.current) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    if (rect.height <= 0) return;
+    const scaleY = SVG_H / rect.height;
+    const svgPointerY = (clientY - rect.top) * scaleY;
+    const dy = BOT_CY - svgPointerY;
+    const nextH = Math.max(1, Math.min(maxDisks, Math.round(dy / diskH)));
+    setH(nextH);
+  }, [BOT_CY, diskH, maxDisks]);
+
   const handlePointerDown = (e: React.PointerEvent) => {
     stop(e);
     setIsDragging(true);
-    startYRef.current = e.clientY;
-    startHRef.current = h;
+    updateFromPointer(e.clientY);
     (e.currentTarget as Element).setPointerCapture(e.pointerId);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging) return;
-    const dy = startYRef.current - e.clientY;
-    const deltaH = Math.round(dy / diskH);
-    const nextH = Math.max(1, Math.min(maxDisks, startHRef.current + deltaH));
-    setH(nextH);
+    updateFromPointer(e.clientY);
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
@@ -65,6 +70,7 @@ export function InteractiveCylinderVolumeExplorer({ color }: InteractiveCylinder
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pt-1 pb-1" onClick={stop} onPointerDown={stop}>
       <svg
+        ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
@@ -132,8 +138,8 @@ export function InteractiveCylinderVolumeExplorer({ color }: InteractiveCylinder
 
         {/* Top Drag Handle Indicator */}
         <g className="pointer-events-none">
-          <circle cx={CX} cy={topCY - RY} r={11} fill="none" stroke={COLOR_HEIGHT} strokeWidth={1.5} opacity={0.6} className="animate-pulse" />
-          <circle cx={CX} cy={topCY - RY} r={7} fill="rgba(94, 232, 255, 0.45)" stroke={COLOR_HEIGHT} strokeWidth={2} />
+          <circle cx={CX} cy={topCY - RY} r={11} fill="none" stroke="rgba(255, 255, 255, 0.85)" strokeWidth={1.5} opacity={0.7} className="animate-pulse" />
+          <circle cx={CX} cy={topCY - RY} r={7} fill="rgba(255, 255, 255, 0.35)" stroke="#ffffff" strokeWidth={2} />
           <circle cx={CX} cy={topCY - RY} r={2.5} fill="#ffffff" />
         </g>
 

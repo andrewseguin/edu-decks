@@ -15,6 +15,7 @@ const COLOR_VOL = "#ffffff";    // Bold Crisp White
 
 export function InteractiveSphereVolumeExplorer({ color }: InteractiveSphereVolumeProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
+  const svgRef = useRef<SVGSVGElement | null>(null);
   const SVG_W = Math.max(280, Math.min(460, rawW - 24));
   const CX = SVG_W / 2;
   const CY = 95;
@@ -24,31 +25,35 @@ export function InteractiveSphereVolumeExplorer({ color }: InteractiveSphereVolu
   const [r, setR] = useState(3); // radius units [2..6]
   const [isDragging, setIsDragging] = useState(false);
 
-  const startXRef = useRef<number>(0);
-  const startRRef = useRef<number>(r);
-
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 
-  // Visual radius scales with r: 46px at r=2 to 74px at r=6
-  const cr = 32 + r * 7;
+  const unitPx = 14;
+  const cr = r * unitPx;
   const rCubed = r * r * r;
   const isIntegerVol = (4 * rCubed) % 3 === 0;
   const volCoeff = (4 * rCubed) / 3;
 
+  const updateFromPointer = useCallback((clientX: number) => {
+    if (!svgRef.current) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    if (rect.width <= 0) return;
+    const scaleX = SVG_W / rect.width;
+    const svgPointerX = (clientX - rect.left) * scaleX;
+    const distFromCenter = svgPointerX - CX;
+    const nextR = Math.max(minR, Math.min(maxR, Math.round(distFromCenter / unitPx)));
+    setR(nextR);
+  }, [CX, SVG_W]);
+
   const handlePointerDown = (e: React.PointerEvent) => {
     stop(e);
     setIsDragging(true);
-    startXRef.current = e.clientX;
-    startRRef.current = r;
+    updateFromPointer(e.clientX);
     (e.currentTarget as Element).setPointerCapture(e.pointerId);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging) return;
-    const dx = e.clientX - startXRef.current;
-    const deltaR = Math.round(dx / 22);
-    const nextR = Math.max(minR, Math.min(maxR, startRRef.current + deltaR));
-    setR(nextR);
+    updateFromPointer(e.clientX);
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
@@ -65,6 +70,7 @@ export function InteractiveSphereVolumeExplorer({ color }: InteractiveSphereVolu
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pt-1 pb-1" onClick={stop} onPointerDown={stop}>
       <svg
+        ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}

@@ -16,17 +16,15 @@ const COLOR_VOL = "#ffffff";   // Bold Crisp White
 
 export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolumeProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
+  const svgRef = useRef<SVGSVGElement | null>(null);
   const SVG_W = Math.max(280, Math.min(460, rawW - 24));
   const CX = SVG_W / 2;
 
-  const l = 4; // length
-  const w = 3; // width
+  const l = 4; // length units
+  const w = 3; // width units
   const maxLayers = 6;
-  const [activeLayers, setActiveLayers] = useState(3);
+  const [activeLayers, setActiveLayers] = useState(3); // height/layers [1..6]
   const [isDragging, setIsDragging] = useState(false);
-
-  const startYRef = useRef<number>(0);
-  const startLayersRef = useRef<number>(activeLayers);
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 
@@ -35,7 +33,8 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
 
   const unitPx = 22;
   const W = l * unitPx;
-  const H = activeLayers * unitPx * 0.85;
+  const layerH = unitPx * 0.85;
+  const H = activeLayers * layerH;
   const D = w * unitPx * 0.6;
 
   const ox = CX - (W + D * Math.cos(Math.PI / 6)) / 2;
@@ -55,20 +54,27 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
   // Center of top face for drag handle
   const topMid = { x: (ftl.x + ftr.x + btr.x + btl.x) / 4, y: (ftl.y + ftr.y + btr.y + btl.y) / 4 };
 
+  const updateFromPointer = useCallback((clientY: number) => {
+    if (!svgRef.current) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    if (rect.height <= 0) return;
+    const scaleY = SVG_H / rect.height;
+    const svgPointerY = (clientY - rect.top) * scaleY;
+    const dy = oy - svgPointerY;
+    const nextLayers = Math.max(1, Math.min(maxLayers, Math.round(dy / layerH)));
+    setActiveLayers(nextLayers);
+  }, [oy, layerH, maxLayers]);
+
   const handlePointerDown = (e: React.PointerEvent) => {
     stop(e);
     setIsDragging(true);
-    startYRef.current = e.clientY;
-    startLayersRef.current = activeLayers;
+    updateFromPointer(e.clientY);
     (e.currentTarget as Element).setPointerCapture(e.pointerId);
   };
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (!isDragging) return;
-    const dy = startYRef.current - e.clientY; // upward drag increases height
-    const deltaLayers = Math.round(dy / (unitPx * 0.85));
-    const nextLayers = Math.max(1, Math.min(maxLayers, startLayersRef.current + deltaLayers));
-    setActiveLayers(nextLayers);
+    updateFromPointer(e.clientY);
   };
 
   const handlePointerUp = (e: React.PointerEvent) => {
@@ -82,6 +88,7 @@ export function InteractivePrismVolumeExplorer({ color }: InteractivePrismVolume
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pt-1 pb-1" onClick={stop} onPointerDown={stop}>
       <svg
+        ref={svgRef}
         viewBox={`0 0 ${SVG_W} ${SVG_H}`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
