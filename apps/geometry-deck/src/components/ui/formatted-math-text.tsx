@@ -20,6 +20,10 @@ const FRACTION_MAP: Record<string, [string, string]> = {
 };
 
 const COLOR_KEYWORDS: Record<string, string> = {
+  "Base Area (πr²)": "#ffd45e", // gold
+  "Base Area (B)": "#ffd45e",   // gold
+  "Base Area": "#ffd45e",       // gold
+  "base area": "#ffd45e",       // gold
   "base angles": "#5ee8ff", // cyan
   "base (b)": "#ffd45e", // gold
   "height (h)": "#5ee8ff", // cyan
@@ -125,7 +129,7 @@ export function FormattedMathText({
   className?: string;
 }) {
   // Regex to match fractions, specific compound formulas, and math keywords
-  const pattern = /(∑θ = 360°|∑θ = \(n − 2\) · 180°|∑θ = \(n − 2\) × 180°|∑θ|∑|V − E \+ F = 2|V − E \+ F|A \+ B \+ C = 180°|A \+ B \+ C|A = ½\(a \+ b\)h|A = ½ · \(a \+ b\) · h|P = a \+ b \+ c|P = 2\(l \+ w\)|P = 2l \+ 2w|A = l · w|A = b · h|V = l · w · h|V = πr²h|V = ⅓πr²h|V = ⁴⁄₃πr³|V = ⅓Bh|SA = 2πr² \+ 2πrh|SA = 6s²|SA = 4πr²|A = π · r²|A = πr²|C = 2 · π · r|C = 2πr|d = 2r|½|⅓|⅔|¼|¾|⅕|⅖|⅗|⅘|⅙|⅚|⅛|⅜|⅝|⅞|⁴⁄₃|base angles|base \(b\)|height \(h\)|hypotenuse \(c\)|length \(l\)|width \(w\)|radius \(r\)|radius²|radius³|diameter \(d\)|circumference \(C\)|vertices \(V\)|edges \(E\)|faces \(F\)|\blength\b|\bwidth\b|\bbase\b|\bheight\b|\bradius\b|\bdiameter\b|\bhypotenuse\b|\bcircumference\b|a²|b²|c²|s²|r²|r³|∠A|∠B|∠C|[Aa]ngle [ABC])/g;
+  const pattern = /(Base Area \(πr²\)|Base Area \(B\)|Base Area|base area|∑θ = 360°|∑θ = \(n − 2\) · 180°|∑θ = \(n − 2\) × 180°|∑θ|∑|V − E \+ F = 2|V − E \+ F|A \+ B \+ C = 180°|A \+ B \+ C|A = ½\(a \+ b\)h|A = ½ · \(a \+ b\) · h|P = a \+ b \+ c|P = 2\(l \+ w\)|P = 2l \+ 2w|A = l · w|A = b · h|V = l · w · h|V = πr²h|V = ⅓πr²h|V = ⁴⁄₃πr³|V = ⅓Bh|SA = 2πr² \+ 2πrh|SA = 6s²|SA = 4πr²|A = π · r²|A = πr²|C = 2 · π · r|C = 2πr|d = 2r|½|⅓|⅔|¼|¾|⅕|⅖|⅗|⅘|⅙|⅚|⅛|⅜|⅝|⅞|⁴⁄₃|base angles|base \(b\)|height \(h\)|hypotenuse \(c\)|length \(l\)|width \(w\)|radius \(r\)|radius²|radius³|diameter \(d\)|circumference \(C\)|vertices \(V\)|edges \(E\)|faces \(F\)|\blength\b|\bwidth\b|\bbase\b|\bheight\b|\bradius\b|\bdiameter\b|\bhypotenuse\b|\bcircumference\b|a²|b²|c²|s²|r²|r³|∠A|∠B|∠C|[Aa]ngle [ABC])/g;
   const parts = text.split(pattern);
 
   return (
@@ -246,8 +250,8 @@ export function FormattedMathText({
           return (
             <React.Fragment key={idx}>
               <span>V = π</span>
-              <span style={{ color: "#5ee8ff" }} className="font-bold">r²</span>
-              <span style={{ color: "#ffd45e" }} className="font-bold">h</span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">r²</span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">h</span>
             </React.Fragment>
           );
         }
@@ -257,8 +261,8 @@ export function FormattedMathText({
               <span>V = </span>
               <StackedFraction numerator="1" denominator="3" />
               <span>π</span>
-              <span style={{ color: "#5ee8ff" }} className="font-bold">r²</span>
-              <span style={{ color: "#ffd45e" }} className="font-bold">h</span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">r²</span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">h</span>
             </React.Fragment>
           );
         }

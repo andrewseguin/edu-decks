@@ -9,8 +9,8 @@ type InteractiveCylinderVolumeProps = {
 
 const SVG_H = 195;
 
-const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan (r / radius)
-const COLOR_HEIGHT = "#ffd45e"; // Warm Gold (h / height)
+const COLOR_RADIUS = "#ffd45e"; // Warm Gold (r / radius)
+const COLOR_HEIGHT = "#5ee8ff"; // Electric Cyan (h / height)
 const COLOR_VOL = "#ffffff";    // Bold Crisp White
 
 export function InteractiveCylinderVolumeExplorer({ color }: InteractiveCylinderVolumeProps) {
@@ -133,7 +133,7 @@ export function InteractiveCylinderVolumeExplorer({ color }: InteractiveCylinder
         {/* Top Drag Handle Indicator */}
         <g className="pointer-events-none">
           <circle cx={CX} cy={topCY - RY} r={11} fill="none" stroke={COLOR_HEIGHT} strokeWidth={1.5} opacity={0.6} className="animate-pulse" />
-          <circle cx={CX} cy={topCY - RY} r={7} fill="rgba(255, 212, 94, 0.45)" stroke={COLOR_HEIGHT} strokeWidth={2} />
+          <circle cx={CX} cy={topCY - RY} r={7} fill="rgba(94, 232, 255, 0.45)" stroke={COLOR_HEIGHT} strokeWidth={2} />
           <circle cx={CX} cy={topCY - RY} r={2.5} fill="#ffffff" />
         </g>
 
