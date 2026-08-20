@@ -2,7 +2,7 @@
 
 An interactive, distraction-free educational flashcard suite built for early learners and adults to explore together. Built with **Next.js 15**, **React 19**, **Tailwind CSS**, **Capacitor 8**, and **pnpm workspaces**.
 
-**Live Apps**: [EduDecks Portal](https://edudecks.org) · [Reading Deck](https://reading.edudecks.org) · [Arithmetic Deck](https://arithmetic.edudecks.org)
+**Live Apps**: [EduDecks Portal](https://edudecks.org) · [Geometry Deck](https://geometry.edudecks.org) · [Reading Deck](https://reading.edudecks.org) · [Arithmetic Deck](https://arithmetic.edudecks.org)
 
 ---
 
@@ -14,6 +14,7 @@ EduDecks is designed to be 100% free, private, and distraction-free with zero ad
 EduDecks apps are interactive flash cards made for practicing together. Each deck includes visual hints and audio prompts, but kids learn best when someone sits with them to guide their practice, answer questions, and celebrate their progress.
 
 ### The EduDecks Suite
+- **[Geometry Deck](https://geometry.edudecks.org)** (`apps/geometry-deck`) - Formulas, properties & interactive theorems covering angles, triangles & Pythagorean theorem, quadrilaterals, circles, 3D solids, and regular polygons with step-by-step proofs.
 - **[Reading Deck](https://reading.edudecks.org)** (`apps/reading-deck`) - Alphabet phonics, animated stroke handwriting guides, 1,000+ sight words with voice audio, interactive quiz modes, and custom family voice recordings.
 - **[Arithmetic Deck](https://arithmetic.edudecks.org)** (`apps/arithmetic-deck`) - Mental arithmetic & number sense covering addition, subtraction, multiplication, division, 10-frame blocks, array grids, and interactive fraction pie charts.
 - **[EduDecks Portal](https://edudecks.org)** (`apps/landing-page`) - Central web portal showcasing the app suite, native screenshot previews, App Store / Google Play links, and privacy center.
@@ -24,6 +25,7 @@ EduDecks apps are interactive flash cards made for practicing together. Each dec
 
 - **Live Web Applications**:
   - [EduDecks Main Portal](https://edudecks.org)
+  - [Geometry Deck Web App](https://geometry.edudecks.org)
   - [Reading Deck Web App](https://reading.edudecks.org)
   - [Arithmetic Deck Web App](https://arithmetic.edudecks.org)
 - **Documentation & Publishing**:
@@ -33,6 +35,7 @@ EduDecks apps are interactive flash cards made for practicing together. Each dec
   - [iOS Packaging Guide](./docs/ios-publishing-guide.md)
 - **Workspace Packages**:
   - [`apps/landing-page/README.md`](./apps/landing-page/README.md) - Portal web app details.
+  - [`apps/geometry-deck/README.md`](./apps/geometry-deck/README.md) - Geometry Deck formulas & proofs.
   - [`apps/reading-deck/README.md`](./apps/reading-deck/README.md) - Reading Deck phonics, audio, & tracing details.
   - [`apps/arithmetic-deck/README.md`](./apps/arithmetic-deck/README.md) - Arithmetic Deck math generator & visualizer details.
   - [`packages/deck-core/README.md`](./packages/deck-core/README.md) - Shared `@decks/core` UI component & hook API reference.
@@ -45,6 +48,7 @@ EduDecks apps are interactive flash cards made for practicing together. Each dec
 edu-decks/
 ├── apps/
 │   ├── landing-page/      # EduDecks landing portal (edudecks.org) & deck showcase
+│   ├── geometry-deck/     # Geometry formulas, theorems, 3D solids, & step-by-step proofs
 │   ├── arithmetic-deck/   # Mental math, operations (+, -, ×, ÷), fractions, & 10-frames
 │   └── reading-deck/      # Alphabet phonics, 1,000+ sight words, letter tracing, & audio
 ├── packages/

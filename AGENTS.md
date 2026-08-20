@@ -59,6 +59,6 @@ This file defines mandatory behavioral constraints and operational workflows for
 - `apps/landing-page` (Port `9000`) — EduDecks Portal & Landing Showcase
 - `apps/arithmetic-deck` (Port `9003`) — Mental Arithmetic & Number Sense
 - `apps/reading-deck` (Port `9002`) — Phonics, Letters, & Reading Fluency
-- `apps/geometry-deck` (Port `9004`) — Geometry Formulas, Properties & Theorems *(beta — no public deployment yet)*
+- `apps/geometry-deck` (Port `9004`) — Geometry Formulas, Properties & Theorems (geometry.edudecks.org)
 - `apps/dev-site` (Port `9005`) — Internal Core Showcase & Card Reveal Height Lab
 - `packages/deck-core` — Shared UI shells, toolbars, quiz overlays, badges, audio & wake-lock hooks

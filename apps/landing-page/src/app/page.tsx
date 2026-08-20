@@ -14,7 +14,26 @@ const TRUST_BADGES = [
   "Open Source",
 ];
 
-const APPS = [
+interface AppScreenshot {
+  label: string;
+  src: string;
+  srcDark?: string;
+}
+
+interface AppInfo {
+  id: string;
+  title: string;
+  subtitle: string;
+  ageRange: string;
+  description: string;
+  webUrl: string;
+  playStoreUrl?: string;
+  primaryButtonClass: string;
+  accentBorder: string;
+  screenshots: AppScreenshot[];
+}
+
+const APPS: AppInfo[] = [
   {
     id: "arithmetic",
     title: "Arithmetic Deck",
@@ -75,6 +94,31 @@ const APPS = [
       },
     ],
   },
+  {
+    id: "geometry",
+    title: "Geometry Deck",
+    subtitle: "Formulas, Properties & Theorems",
+    ageRange: "Ages 9–14 (4th to 8th)",
+    description:
+      "Master angle rules, triangles, Pythagorean theorem, quadrilateral areas, circle formulas, 3D solids, and regular polygons with step-by-step proofs.",
+    webUrl: "https://geometry.edudecks.org/?ref=landing",
+    primaryButtonClass: DECK_COLORS.emerald.btn,
+    accentBorder: "border-t-emerald-500",
+    screenshots: [
+      {
+        label: "Angle Sum",
+        src: "/screenshots/geometry/landscape-1-card-front.png",
+      },
+      {
+        label: "Euler's Law",
+        src: "/screenshots/geometry/landscape-2-card-back.png",
+      },
+      {
+        label: "Pythagorean",
+        src: "/screenshots/geometry/landscape-3-quiz-mode.png",
+      },
+    ],
+  },
 ];
 
 export default function HomePage() {
@@ -83,6 +127,7 @@ export default function HomePage() {
   >({
     arithmetic: 0,
     reading: 0,
+    geometry: 0,
   });
 
   const handleSelectScreenshot = (appId: string, index: number) => {
@@ -93,7 +138,7 @@ export default function HomePage() {
     <div className="min-h-screen flex flex-col justify-between bg-background text-foreground">
       {/* Header */}
       <header className="sticky top-0 z-40 w-full border-b border-border/60 bg-background/85 backdrop-blur-md">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Image
               src="/logo.png"
@@ -123,7 +168,7 @@ export default function HomePage() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-5xl mx-auto w-full px-4 sm:px-6 py-8 sm:py-12 flex flex-col gap-8 sm:gap-10 my-auto">
+      <main className="max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 sm:py-12 flex flex-col gap-8 sm:gap-10 my-auto">
         {/* 1. Hero & Trust Badge Strip */}
         <section className="text-center max-w-4xl mx-auto">
           <h1 className="text-2xl sm:text-4xl md:text-5xl font-extrabold font-headline tracking-tight text-foreground sm:whitespace-nowrap leading-tight">
@@ -145,7 +190,7 @@ export default function HomePage() {
         </section>
 
         {/* 2. Deck Cards Showcase */}
-        <section className="grid grid-cols-1 md:grid-cols-2 gap-10 sm:gap-8">
+        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {APPS.map((app) => {
             const currentIdx = selectedScreenshots[app.id] ?? 0;
             const currentScreenshot =
@@ -172,30 +217,31 @@ export default function HomePage() {
 
                 {/* Actual Screenshot Frame (Native 16:9 Aspect Ratio) */}
                 <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden border border-border/80 bg-card shadow-xs my-3 select-none">
-                  {/* Light Mode Screenshot */}
+                  {/* Light Mode Screenshot (or single fallback) */}
                   <Image
                     src={currentScreenshot.src}
                     alt={`${app.title} - ${currentScreenshot.label}`}
                     fill
-                    sizes="(max-width: 768px) 100vw, 500px"
-                    className="object-cover transition-opacity duration-300 dark:hidden"
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    className={`object-cover transition-opacity duration-300 ${currentScreenshot.srcDark ? "dark:hidden" : ""}`}
                     priority
                   />
                   {/* Dark Mode Screenshot */}
-                  <Image
-                    src={currentScreenshot.srcDark}
-                    alt={`${app.title} - ${currentScreenshot.label} (Dark Mode)`}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 500px"
-                    className="object-cover transition-opacity duration-300 hidden dark:block"
-                    priority
-                  />
+                  {currentScreenshot.srcDark && (
+                    <Image
+                      src={currentScreenshot.srcDark}
+                      alt={`${app.title} - ${currentScreenshot.label} (Dark Mode)`}
+                      fill
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                      className="object-cover transition-opacity duration-300 hidden dark:block"
+                    />
+                  )}
                 </div>
 
-                {/* Screenshot Switcher Segmented Control */}
-                <div className="grid grid-cols-3 gap-1 p-1 rounded-xl bg-muted/40 border border-border/50 mb-4 select-none">
+                {/* Interactive Screenshot Selector Pill Tabs */}
+                <div className="grid grid-cols-3 gap-1 bg-muted/60 p-1 rounded-xl border border-border/50 mb-4">
                   {app.screenshots.map((s, idx) => {
-                    const isSelected = idx === currentIdx;
+                    const isSelected = currentIdx === idx;
                     return (
                       <button
                         key={s.label}
@@ -221,7 +267,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="grid grid-cols-2 gap-2.5 mt-auto pt-2">
+                <div className={`grid ${app.playStoreUrl ? "grid-cols-2" : "grid-cols-1"} gap-2.5 mt-auto pt-2`}>
                   <a
                     href={app.webUrl}
                     target="_blank"
@@ -232,24 +278,26 @@ export default function HomePage() {
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
 
-                  <a
-                    href={app.playStoreUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center justify-center gap-2.5 py-2 px-3 rounded-xl font-headline bg-muted/80 hover:bg-muted text-foreground border border-border/80 transition-all active:scale-[0.98]"
-                  >
-                    <Image
-                      src="/play_prism.svg"
-                      alt="Google Play"
-                      width={20}
-                      height={20}
-                      className="w-5 h-5 shrink-0 object-contain"
-                    />
-                    <div className="flex flex-col text-left leading-none">
-                      <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">Get it on</span>
-                      <span className="text-xs font-semibold text-foreground tracking-tight mt-0.5">Google Play</span>
-                    </div>
-                  </a>
+                  {app.playStoreUrl && (
+                    <a
+                      href={app.playStoreUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center justify-center gap-2.5 py-2 px-3 rounded-xl font-headline bg-muted/80 hover:bg-muted text-foreground border border-border/80 transition-all active:scale-[0.98]"
+                    >
+                      <Image
+                        src="/play_prism.svg"
+                        alt="Google Play"
+                        width={20}
+                        height={20}
+                        className="w-5 h-5 shrink-0 object-contain"
+                      />
+                      <div className="flex flex-col text-left leading-none">
+                        <span className="text-[9px] uppercase tracking-wider text-muted-foreground font-medium">Get it on</span>
+                        <span className="text-xs font-semibold text-foreground tracking-tight mt-0.5">Google Play</span>
+                      </div>
+                    </a>
+                  )}
                 </div>
               </div>
             );

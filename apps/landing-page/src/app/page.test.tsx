@@ -27,6 +27,7 @@ describe("landing-page: HomePage", () => {
     // Showcase cards
     expect(screen.getByText("Arithmetic Deck")).toBeInTheDocument();
     expect(screen.getByText("Reading Deck")).toBeInTheDocument();
+    expect(screen.getByText("Geometry Deck")).toBeInTheDocument();
 
     // Co-learning guidance section banner
     expect(
