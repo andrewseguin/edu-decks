@@ -184,8 +184,8 @@ export function InteractiveSphereVolumeExplorer({ color }: InteractiveSphereVolu
       {/* Live Typographic Equation Banner */}
       <div className="flex justify-center mt-0.5">
         {step === 1 ? (
-          <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
-            <span className="text-white">V</span>
+          <div className="flex items-center gap-2 px-5 py-1.5 rounded-full bg-black/35 border-y border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none text-white">
+            <span>V</span>
             <span className="text-white/50">=</span>
             <div className="inline-flex items-center"><StackedFraction numerator="4" denominator="3" /></div>
             <span className="text-white/80">· π ·</span>
@@ -200,8 +200,8 @@ export function InteractiveSphereVolumeExplorer({ color }: InteractiveSphereVolu
             )}
           </div>
         ) : (
-          <div className="flex items-center gap-2 px-4 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-xs sm:text-sm font-bold font-headline select-none">
-            <span className="text-white">V</span>
+          <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/35 border-y border-white/20 shadow-md text-xs sm:text-sm font-bold font-headline select-none text-white">
+            <span>V</span>
             <span className="text-white/50">=</span>
             <div className="inline-flex items-center"><StackedFraction numerator="1" denominator="3" /></div>
             <span className="text-white/80">· (Base Area) · (h)</span>

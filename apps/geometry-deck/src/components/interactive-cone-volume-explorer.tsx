@@ -11,8 +11,8 @@ type InteractiveConeVolumeProps = {
 
 const SVG_H = 155;
 
-const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan (r)
-const COLOR_HEIGHT = "#ffd45e"; // Warm Gold (h)
+const COLOR_RADIUS = "#ffd45e"; // Warm Gold (r, r² / base radius)
+const COLOR_HEIGHT = "#5ee8ff"; // Electric Cyan (h / altitude)
 const COLOR_VOL = "#ffffff";    // Bold Crisp White
 
 export function InteractiveConeVolumeExplorer({ color }: InteractiveConeVolumeProps) {
@@ -258,8 +258,8 @@ export function InteractiveConeVolumeExplorer({ color }: InteractiveConeVolumePr
       {/* Live Typographic Equation Banner */}
       <div className="flex justify-center mt-0.5">
         {step === 1 ? (
-          <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
-            <span className="text-white">V</span>
+          <div className="flex items-center gap-2 px-5 py-1.5 rounded-full bg-black/35 border-y border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none text-white">
+            <span>V</span>
             <span className="text-white/50">=</span>
             <div className="inline-flex items-center"><StackedFraction numerator="1" denominator="3" /></div>
             <span className="text-white/80">· π ·</span>
@@ -270,8 +270,8 @@ export function InteractiveConeVolumeExplorer({ color }: InteractiveConeVolumePr
             <span style={{ color: COLOR_VOL }} className="font-bold">{volCoeff}π</span>
           </div>
         ) : (
-          <div className="flex items-center gap-2 px-4 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-xs sm:text-sm font-bold font-headline select-none">
-            <span className="text-white font-bold">{pours} × Cone ({pours * volCoeff}π)</span>
+          <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-black/35 border-y border-white/20 shadow-md text-xs sm:text-sm font-bold font-headline select-none text-white">
+            <span className="font-bold">{pours} × Cone ({pours * volCoeff}π)</span>
             <span className="text-white/50">=</span>
             <div className="inline-flex items-center"><StackedFraction numerator={`${pours}`} denominator="3" /></div>
             <span className="text-white/80">of Cylinder ({cylVolCoeff}π)</span>

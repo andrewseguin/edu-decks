@@ -246,8 +246,8 @@ export function FormattedMathText({
           return (
             <React.Fragment key={idx}>
               <span>V = π</span>
-              <span style={{ color: "#5ee8ff" }} className="font-bold">r²</span>
-              <span style={{ color: "#ffd45e" }} className="font-bold">h</span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">r²</span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">h</span>
             </React.Fragment>
           );
         }
@@ -257,8 +257,8 @@ export function FormattedMathText({
               <span>V = </span>
               <StackedFraction numerator="1" denominator="3" />
               <span>π</span>
-              <span style={{ color: "#5ee8ff" }} className="font-bold">r²</span>
-              <span style={{ color: "#ffd45e" }} className="font-bold">h</span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">r²</span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">h</span>
             </React.Fragment>
           );
         }
@@ -296,8 +296,8 @@ export function FormattedMathText({
             <React.Fragment key={idx}>
               <span>V = </span>
               <StackedFraction numerator="1" denominator="3" />
-              <span style={{ color: "#5ee8ff" }} className="font-bold">B</span>
-              <span style={{ color: "#ffd45e" }} className="font-bold">h</span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">B</span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">h</span>
             </React.Fragment>
           );
         }

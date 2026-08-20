@@ -11,8 +11,8 @@ type InteractivePyramidVolumeProps = {
 
 const SVG_H = 155;
 
-const COLOR_BASE = "#5ee8ff"; // Electric Cyan (B, b)
-const COLOR_HEIGHT = "#ffd45e"; // Warm Gold (h)
+const COLOR_BASE = "#ffd45e"; // Warm Gold (B, b / base)
+const COLOR_HEIGHT = "#5ee8ff"; // Electric Cyan (h / altitude)
 const COLOR_VOL = "#ffffff";    // Bold Crisp White
 
 export function InteractivePyramidVolumeExplorer({ color }: InteractivePyramidVolumeProps) {
@@ -51,7 +51,7 @@ export function InteractivePyramidVolumeExplorer({ color }: InteractivePyramidVo
   const btr = { x: br.x, y: br.y - hPx };
 
   return (
-    <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
+    <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-2" onClick={stop} onPointerDown={stop}>
       <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="w-full touch-none select-none overflow-visible">
         {step === 1 ? (
           /* Step 1: Pyramid inside Ghost Equivalent Prism */
@@ -71,7 +71,7 @@ export function InteractivePyramidVolumeExplorer({ color }: InteractivePyramidVo
             <line x1={bl.x} y1={bl.y} x2={br.x} y2={br.y} stroke="rgba(255,255,255,0.35)" strokeWidth={1.5} strokeDasharray="4 3" />
 
             {/* Pyramid Base Fill */}
-            <polygon points={`${fl.x},${fl.y} ${fr.x},${fr.y} ${br.x},${br.y} ${bl.x},${bl.y}`} fill="rgba(94, 232, 255, 0.15)" />
+            <polygon points={`${fl.x},${fl.y} ${fr.x},${fr.y} ${br.x},${br.y} ${bl.x},${bl.y}`} fill="rgba(255, 212, 94, 0.15)" />
 
             {/* Front Face */}
             <polygon points={`${apex.x},${apex.y} ${fl.x},${fl.y} ${fr.x},${fr.y}`} fill="rgba(94, 232, 255, 0.35)" stroke="rgba(255, 255, 255, 0.95)" strokeWidth={2} />
@@ -79,15 +79,15 @@ export function InteractivePyramidVolumeExplorer({ color }: InteractivePyramidVo
             <polygon points={`${apex.x},${apex.y} ${fr.x},${fr.y} ${br.x},${br.y}`} fill="rgba(94, 232, 255, 0.20)" stroke="rgba(255, 255, 255, 0.95)" strokeWidth={2} />
 
             {/* Altitude Height Line */}
-            <line x1={apex.x} y1={apex.y} x2={baseMid.x} y2={baseMid.y} stroke={COLOR_HEIGHT} strokeWidth={1.5} strokeDasharray="3 2" />
+            <line x1={apex.x} y1={apex.y} x2={baseMid.x} y2={baseMid.y} stroke={COLOR_HEIGHT} strokeWidth={1.8} strokeDasharray="3 2" />
             <circle cx={baseMid.x} cy={baseMid.y} r={2.5} fill={COLOR_HEIGHT} />
             <circle cx={apex.x} cy={apex.y} r={3.5} fill="#ffffff" />
 
             {/* Labels */}
-            <text x={(fl.x + fr.x) / 2} y={fl.y + 14} textAnchor="middle" dominantBaseline="central" fontSize={12} fontWeight="800" fill={COLOR_BASE} fontFamily="var(--font-heading, system-ui)">
+            <text x={(fl.x + fr.x) / 2} y={fl.y + 14} textAnchor="middle" dominantBaseline="central" fontSize={12.5} fontWeight="800" fill={COLOR_BASE} fontFamily="var(--font-heading, system-ui)" style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}>
               b = {b} (Base Area B = {baseArea})
             </text>
-            <text x={apex.x - 14} y={(apex.y + baseMid.y) / 2} textAnchor="end" dominantBaseline="central" fontSize={12} fontWeight="800" fill={COLOR_HEIGHT} fontFamily="var(--font-heading, system-ui)">
+            <text x={apex.x - 14} y={(apex.y + baseMid.y) / 2} textAnchor="end" dominantBaseline="central" fontSize={12.5} fontWeight="800" fill={COLOR_HEIGHT} fontFamily="var(--font-heading, system-ui)" style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}>
               h = {h}
             </text>
           </g>
@@ -185,8 +185,8 @@ export function InteractivePyramidVolumeExplorer({ color }: InteractivePyramidVo
 
       {/* Live Typographic Equation Banner */}
       <div className="flex justify-center mt-0.5">
-        <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
-          <span className="text-white">V</span>
+        <div className="flex items-center gap-2 px-5 py-1.5 rounded-full bg-black/35 border-y border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none text-white">
+          <span>V</span>
           <span className="text-white/50">=</span>
           <div className="inline-flex items-center"><StackedFraction numerator="1" denominator="3" /></div>
           <span className="text-white/80">·</span>
