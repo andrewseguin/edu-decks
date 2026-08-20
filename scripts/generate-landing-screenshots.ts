@@ -272,13 +272,13 @@ async function generateLandingScreenshots() {
   await page.waitForSelector('main');
   await page.waitForTimeout(600);
 
-  // Set Light Theme & Triangles topic (Brand Emerald Green)
+  // Set Light Theme & Triangles topic (Brand Emerald Green Term Card)
   await page.evaluate(() => {
     document.documentElement.classList.remove('dark');
     document.documentElement.classList.add('light');
     localStorage.setItem('theme', 'light');
     localStorage.setItem('geometry-deck-topics', JSON.stringify(['triangles']));
-    localStorage.setItem('geometry-deck-card-types', JSON.stringify(['calculation']));
+    localStorage.setItem('geometry-deck-card-types', JSON.stringify(['term']));
   });
   await page.goto('http://localhost:9004');
   await page.waitForSelector('main');
@@ -295,7 +295,7 @@ async function generateLandingScreenshots() {
     document.documentElement.classList.add('dark');
     localStorage.setItem('theme', 'dark');
     localStorage.setItem('geometry-deck-topics', JSON.stringify(['triangles']));
-    localStorage.setItem('geometry-deck-card-types', JSON.stringify(['calculation']));
+    localStorage.setItem('geometry-deck-card-types', JSON.stringify(['term']));
   });
   await page.waitForTimeout(300);
   await clearFocus(page);
