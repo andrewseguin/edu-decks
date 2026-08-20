@@ -14,9 +14,9 @@ EduDecks is designed to be 100% free, private, and distraction-free with zero ad
 EduDecks apps are interactive flash cards made for practicing together. Each deck includes visual hints and audio prompts, but kids learn best when someone sits with them to guide their practice, answer questions, and celebrate their progress.
 
 ### The EduDecks Suite
-- **[Geometry Deck](https://geometry.edudecks.org)** (`apps/geometry-deck`) - Formulas, properties & interactive theorems covering angles, triangles & Pythagorean theorem, quadrilaterals, circles, 3D solids, and regular polygons with step-by-step proofs.
-- **[Reading Deck](https://reading.edudecks.org)** (`apps/reading-deck`) - Alphabet phonics, animated stroke handwriting guides, 1,000+ sight words with voice audio, interactive quiz modes, and custom family voice recordings.
-- **[Arithmetic Deck](https://arithmetic.edudecks.org)** (`apps/arithmetic-deck`) - Mental arithmetic & number sense covering addition, subtraction, multiplication, division, 10-frame blocks, array grids, and interactive fraction pie charts.
+- **[Geometry Deck](https://geometry.edudecks.org)** (`apps/geometry-deck`) - Explore geometric proofs, angle rules, the Pythagorean theorem, area formulas, 3D solids, and polygon properties with interactive visual models.
+- **[Reading Deck](https://reading.edudecks.org)** (`apps/reading-deck`) - Learn the alphabet, letter-sound phonics, animated stroke handwriting guides, and 1,000+ sight words with crystal-clear voice audio.
+- **[Arithmetic Deck](https://arithmetic.edudecks.org)** (`apps/arithmetic-deck`) - Build mental math fluency across operations (+, −, ×, ÷), fractions, and 10-frame visual models with step-by-step strategy hints.
 - **[EduDecks Portal](https://edudecks.org)** (`apps/landing-page`) - Central web portal showcasing the app suite, native screenshot previews, App Store / Google Play links, and privacy center.
 
 ---

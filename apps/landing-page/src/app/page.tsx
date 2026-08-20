@@ -40,7 +40,7 @@ const APPS: AppInfo[] = [
     subtitle: "Mental Arithmetic & Number Sense",
     ageRange: "Ages 4–10 (Pre-K to 4th)",
     description:
-      "Master numbers, operations (+, −, ×, ÷), fractions, and 10-frame bonds with visual animation steps and instant feedback.",
+      "Build mental math fluency across operations (+, −, ×, ÷), fractions, and 10-frame visual models with step-by-step strategy hints.",
     webUrl: "https://arithmetic.edudecks.org/?ref=landing",
     playStoreUrl:
       "https://play.google.com/store/apps/details?id=org.edudecks.arithmetic",
@@ -100,7 +100,7 @@ const APPS: AppInfo[] = [
     subtitle: "Formulas, Properties & Theorems",
     ageRange: "Ages 9–14 (4th to 8th)",
     description:
-      "Master angle rules, triangles, Pythagorean theorem, quadrilateral areas, circle formulas, 3D solids, and regular polygons with step-by-step proofs.",
+      "Explore geometric proofs, angle rules, the Pythagorean theorem, area formulas, 3D solids, and polygon properties with interactive visual models.",
     webUrl: "https://geometry.edudecks.org/?ref=landing",
     primaryButtonClass: DECK_COLORS.emerald.btn,
     accentBorder: "border-t-emerald-500",
