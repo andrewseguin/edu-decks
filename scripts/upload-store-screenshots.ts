@@ -62,8 +62,8 @@ Reading Deck empowers early readers to develop confidence in phonemic awareness 
       name: 'geometry-deck',
       packageName: 'org.edudecks.geometry',
       assetDir: path.join(root, 'store-assets/geometry-deck'),
-      title: 'Geometry Deck - Shapes & Math',
-      shortDescription: 'Master geometry with interactive proofs, formulas, 3D solids, and math quizzes.',
+      title: 'Geometry Deck - Shape Cards',
+      shortDescription: 'Master shapes and formulas with interactive proofs, 3D solids, and math quizzes.',
       fullDescription: `Master geometric formulas, properties, and algebraic proofs with Geometry Deck! Designed for upper elementary, middle school, and early high school students (ages 9 to 14), Geometry Deck turns complex geometry into intuitive, interactive visual models.
 
 TOPICS COVERED:
