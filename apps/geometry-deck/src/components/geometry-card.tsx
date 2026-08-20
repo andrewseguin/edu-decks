@@ -279,7 +279,7 @@ export function GeometryCard({
         showDebugOutlines={showDebugOutlines}
         onCardTap={onCardTap || onTap}
         frontContent={
-          <div className={cn("flex flex-col items-center justify-center px-6 gap-0.5 transition-all duration-300", isFlipped ? "py-1" : "py-4")}>
+          <div className={cn("flex flex-col items-center justify-center px-6 gap-0.5 transition-all duration-300", isFlipped ? "py-2 sm:py-2.5" : "py-4")}>
             <span
               className={cn(
                 "font-headline font-bold text-white text-center leading-tight text-balance transition-all",

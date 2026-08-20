@@ -48,7 +48,7 @@ describe("landing-page: HomePage", () => {
   it("handles screenshot tab switching on showcase cards", () => {
     render(<HomePage />);
 
-    const quizTabs = screen.getAllByRole("button", { name: "Quiz Mode" });
+    const quizTabs = screen.getAllByRole("button", { name: /^quiz/i });
     expect(quizTabs.length).toBeGreaterThan(0);
 
     fireEvent.click(quizTabs[0]);

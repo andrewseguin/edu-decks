@@ -119,23 +119,26 @@ export function CardRevealLayout({
 
     // Hybrid layout:
     // - Fits: 3-way equal padding for a balanced, centered look.
-    // - Doesn't fit: flush to insets, expand the card.
-    const contentZone = baseH - topInset - bottomInset;
+    // - Doesn't fit: enforce minimum padding above prompt and between prompt & reveal, expand the card.
+    const minPadding = 16;
+    const effectiveTop = Math.max(topInset, minPadding);
+    const effectiveBottom = Math.max(bottomInset, minPadding);
+    const contentZone = baseH - effectiveTop - effectiveBottom;
     const slack = contentZone - primaryH - detailH;
     let primaryTop: number;
     let detailTop: number;
     let requiredHeight: number | null = null;
 
-    if (slack >= 0) {
+    if (slack >= minPadding) {
       // Content fits — distribute space as 3-way equal padding.
       const P = Math.round(slack / 3);
-      primaryTop = topInset + P;
+      primaryTop = effectiveTop + P;
       detailTop = primaryTop + primaryH + P;
     } else {
-      // Content overflows — flush to insets, request expansion.
-      primaryTop = topInset;
-      detailTop = primaryTop + primaryH;
-      requiredHeight = Math.round(topInset + primaryH + detailH + bottomInset);
+      // Content overflows — enforce minPadding between prompt and reveal, request expansion.
+      primaryTop = effectiveTop;
+      detailTop = primaryTop + primaryH + minPadding;
+      requiredHeight = Math.round(effectiveTop + primaryH + minPadding + detailH + effectiveBottom);
     }
 
     if (isDevSite()) {
