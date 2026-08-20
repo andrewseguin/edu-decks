@@ -147,7 +147,7 @@ export function UnknownPill({
   x: number;
   y: number;
   label?: string;
-  revealValue?: number;
+  revealValue?: number | string;
   color?: string;
   unit?: string;
 }) {

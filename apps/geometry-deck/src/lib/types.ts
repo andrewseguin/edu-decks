@@ -83,7 +83,7 @@ export type SvgMutation = {
   /** For 3D: which edge to draw */
   drawEdge?: string;
   /** Reveal the numeric answer on the unknown pill */
-  revealAnswer?: number;
+  revealAnswer?: number | string;
 };
 
 export type AnimationStep = {
@@ -137,9 +137,11 @@ export type GeometryCard = {
   backSteps?: AnimationStep[];
   backSpeechText: string;
 
-  // Quiz
+  // Quiz & diagram reveal
   /** Numeric answer (for keypad quiz) */
   numericAnswer?: number;
+  /** Formatted string or numeric answer for diagram reveal upon card flip (e.g. "√65") */
+  revealAnswer?: string | number;
   /** Multiple-choice distractors (for formula quiz) */
   distractors?: string[];
 

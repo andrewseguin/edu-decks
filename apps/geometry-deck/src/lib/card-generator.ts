@@ -338,7 +338,10 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
         { equationTokens: [tok("a",`${a * a}`,"#5ee8ff"), op("+"), tok("b",`${b * b}`,"#ffd45e"), eq(), tok("c",`${c2}`,"#d8b4fe")], svgMutation: { traceStroke: "hypotenuse" }, reason: "Square both values" },
         { equationTokens: [tok("c","c","#d8b4fe"), eq(), tok("rhs",`${cDisp}${u}`,"#d8b4fe")], reason: "Take the square root" },
       ],
-      backSpeechText: `c equals ${cDisp}`, numericAnswer: Number.isInteger(c) ? c : 0, color,
+      backSpeechText: `c equals ${cDisp}`,
+      numericAnswer: Number.isInteger(c) ? c : undefined,
+      revealAnswer: cDisp,
+      color,
     };
   }
   // pyth-b: find missing leg
@@ -358,7 +361,10 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
       { equationTokens: [tok("a","a²","#5ee8ff"), eq(), tok("c",`${c * c}`,"#d8b4fe"), op("−"), tok("b",`${b * b}`,"#ffd45e"), eq(), tok("ans",`${a2}`,"#5ee8ff")], reason: "Isolate a²" },
       { equationTokens: [tok("a","a","#5ee8ff"), eq(), tok("rhs",`${aDisp}${u}`,"#5ee8ff")], svgMutation: { traceStroke: "hypotenuse" }, reason: "Take the square root" },
     ],
-    backSpeechText: `a equals ${aDisp}`, numericAnswer: Number.isInteger(a) ? a : 0, color,
+    backSpeechText: `a equals ${aDisp}`,
+    numericAnswer: Number.isInteger(a) ? a : undefined,
+    revealAnswer: aDisp,
+    color,
   };
 }
 

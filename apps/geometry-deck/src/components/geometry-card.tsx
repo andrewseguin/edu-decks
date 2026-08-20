@@ -327,17 +327,19 @@ export function GeometryCard({
 
   // Delay the answer reveal on the diagram for a nice transition
   const [showDiagramAnswer, setShowDiagramAnswer] = useState(false);
+  const answerToReveal = card.revealAnswer ?? card.numericAnswer;
+
   useEffect(() => {
-    if (isFlipped && card.numericAnswer != null) {
+    if (isFlipped && answerToReveal != null) {
       const timer = setTimeout(() => setShowDiagramAnswer(true), 600);
       return () => clearTimeout(timer);
     } else {
       setShowDiagramAnswer(false);
     }
-  }, [isFlipped, card.numericAnswer]);
+  }, [isFlipped, answerToReveal]);
 
   const activeMutation: SvgMutation | undefined = showDiagramAnswer
-    ? { revealAnswer: card.numericAnswer }
+    ? { revealAnswer: answerToReveal }
     : undefined;
 
   return (
