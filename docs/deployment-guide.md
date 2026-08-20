@@ -28,6 +28,10 @@ EduDecks operates three distinct environments across all applications (`landing-
   * Dev: `arithmetic-dev.edudecks.org` (Branch: `main`)
   * Staging: `arithmetic-staging.edudecks.org` (Branch: `main`)
   * Prod: `arithmetic.edudecks.org` (Branch: `prod`)
+* **Geometry Deck (`apps/geometry-deck`)**:
+  * Dev: `geometry-dev.edudecks.org` (Branch: `main`)
+  * Staging: `geometry-staging.edudecks.org` (Branch: `main`)
+  * Prod: `geometry.edudecks.org` (Branch: `prod`)
 
 ---
 
