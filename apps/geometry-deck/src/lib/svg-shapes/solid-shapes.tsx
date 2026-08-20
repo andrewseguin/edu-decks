@@ -7,9 +7,9 @@ import {
   SvgLabel,
 } from "./svg-primitives";
 
-const COLOR_CYAN = "#5ee8ff";    // Electric Cyan (length l, radius r, base)
+const COLOR_GOLD = "#ffd45e";    // Warm Gold (length l, radius r, base area B, b)
 const COLOR_LILAC = "#d8b4fe";   // Soft Lilac (width w)
-const COLOR_GOLD = "#ffd45e";    // Warm Gold (height h, edges E)
+const COLOR_CYAN = "#5ee8ff";    // Electric Cyan (height h, side s)
 const COLOR_WHITE = "#ffffff";   // Crisp White (vertices V, volume, surface area)
 
 const lblStyle: React.CSSProperties = {
@@ -152,13 +152,13 @@ export function Prism({ dims, mutation }: { dims: Record<string, number | string
       {/* Labels */}
       {/* Length l (front bottom) */}
       {dims.l !== undefined && (
-        <SvgLabel x={(fl.x + fr.x) / 2} y={fl.y + 14} text={lm === "variable" ? "l" : `${dims.l}`} color={COLOR_CYAN} size={13} />
+        <SvgLabel x={(fl.x + fr.x) / 2} y={fl.y + 14} text={lm === "variable" ? "l" : `${dims.l}`} color={COLOR_GOLD} size={13} />
       )}
       {/* Side s for cube */}
       {dims.s !== undefined && (
         <>
           <SvgLabel x={(fl.x + fr.x) / 2} y={fl.y + 14} text={lm === "variable" ? "s" : `${dims.s}`} color={COLOR_CYAN} size={13} />
-          <SvgLabel x={ftl.x - 14} y={(ftl.y + fl.y) / 2} text={lm === "variable" ? "s" : `${dims.s}`} color={COLOR_GOLD} size={13} />
+          <SvgLabel x={ftl.x - 14} y={(ftl.y + fl.y) / 2} text={lm === "variable" ? "s" : `${dims.s}`} color={COLOR_CYAN} size={13} />
         </>
       )}
       {/* Width w (depth) */}
@@ -167,7 +167,7 @@ export function Prism({ dims, mutation }: { dims: Record<string, number | string
       )}
       {/* Height h (vertical left) */}
       {dims.h !== undefined && (
-        <SvgLabel x={ftl.x - 14} y={(ftl.y + fl.y) / 2} text={lm === "variable" ? "h" : `${dims.h}`} color={COLOR_GOLD} size={13} />
+        <SvgLabel x={ftl.x - 14} y={(ftl.y + fl.y) / 2} text={lm === "variable" ? "h" : `${dims.h}`} color={COLOR_CYAN} size={13} />
       )}
 
       {/* Volume or SA Unknown RevealText */}
@@ -209,20 +209,20 @@ export function Cylinder({ dims, mutation }: { dims: Record<string, number | str
 
       {/* Center dot & Radius line */}
       <circle cx={cx} cy={topY} r={3} fill="#ffffff" />
-      <line x1={cx} y1={topY} x2={cx + cr} y2={topY} stroke={COLOR_CYAN} strokeWidth={2} strokeDasharray="3 2" />
-      <circle cx={cx + cr} cy={topY} r={3} fill={COLOR_CYAN} />
+      <line x1={cx} y1={topY} x2={cx + cr} y2={topY} stroke={COLOR_GOLD} strokeWidth={2} strokeDasharray="3 2" />
+      <circle cx={cx + cr} cy={topY} r={3} fill={COLOR_GOLD} />
 
       {/* Height vertical reference line */}
-      <line x1={cx + cr + 12} y1={topY} x2={cx + cr + 12} y2={botY} stroke={COLOR_GOLD} strokeWidth={1.5} strokeDasharray="2 2" />
-      <circle cx={cx + cr + 12} cy={topY} r={2.5} fill={COLOR_GOLD} />
-      <circle cx={cx + cr + 12} cy={botY} r={2.5} fill={COLOR_GOLD} />
+      <line x1={cx + cr + 12} y1={topY} x2={cx + cr + 12} y2={botY} stroke={COLOR_CYAN} strokeWidth={1.5} strokeDasharray="2 2" />
+      <circle cx={cx + cr + 12} cy={topY} r={2.5} fill={COLOR_CYAN} />
+      <circle cx={cx + cr + 12} cy={botY} r={2.5} fill={COLOR_CYAN} />
 
       {/* Labels */}
       {dims.r !== undefined && (
-        <SvgLabel x={cx + cr / 2} y={topY - 14} text={lm === "variable" ? "r" : `${dims.r}`} color={COLOR_CYAN} size={13} />
+        <SvgLabel x={cx + cr / 2} y={topY - 14} text={lm === "variable" ? "r" : `${dims.r}`} color={COLOR_GOLD} size={13} />
       )}
       {dims.h !== undefined && (
-        <SvgLabel x={cx + cr + 26} y={(topY + botY) / 2} text={lm === "variable" ? "h" : `${dims.h}`} color={COLOR_GOLD} size={13} />
+        <SvgLabel x={cx + cr + 26} y={(topY + botY) / 2} text={lm === "variable" ? "h" : `${dims.h}`} color={COLOR_CYAN} size={13} />
       )}
 
       {/* Volume Unknown RevealText */}
@@ -231,6 +231,17 @@ export function Cylinder({ dims, mutation }: { dims: Record<string, number | str
           x={cx}
           y={(topY + botY) / 2}
           variable="V"
+          revealedValue={revealedAnswer != null ? `${revealedAnswer}π` : undefined}
+          color={COLOR_WHITE}
+          fontSize={18}
+          fontWeight="900"
+        />
+      )}
+      {unknownDim === "SA" && (
+        <RevealText
+          x={cx}
+          y={(topY + botY) / 2}
+          variable="SA"
           revealedValue={revealedAnswer != null ? `${revealedAnswer}π` : undefined}
           color={COLOR_WHITE}
           fontSize={18}
@@ -268,18 +279,18 @@ export function Cone({ dims, mutation }: { dims: Record<string, number | string>
 
       {/* Radius line at base */}
       <circle cx={cx} cy={botY} r={3} fill="#ffffff" />
-      <line x1={cx} y1={botY} x2={cx + cr} y2={botY} stroke={COLOR_CYAN} strokeWidth={2} strokeDasharray="3 2" />
-      <circle cx={cx + cr} cy={botY} r={3} fill={COLOR_CYAN} />
+      <line x1={cx} y1={botY} x2={cx + cr} y2={botY} stroke={COLOR_GOLD} strokeWidth={2} strokeDasharray="3 2" />
+      <circle cx={cx + cr} cy={botY} r={3} fill={COLOR_GOLD} />
 
       {/* Height line inside from apex to center */}
-      <line x1={cx} y1={apexY} x2={cx} y2={botY} stroke={COLOR_GOLD} strokeWidth={1.5} strokeDasharray="3 2" />
+      <line x1={cx} y1={apexY} x2={cx} y2={botY} stroke={COLOR_CYAN} strokeWidth={1.5} strokeDasharray="3 2" />
 
       {/* Labels */}
       {dims.r !== undefined && (
-        <SvgLabel x={cx + cr / 2} y={botY + 15} text={lm === "variable" ? "r" : `${dims.r}`} color={COLOR_CYAN} size={13} />
+        <SvgLabel x={cx + cr / 2} y={botY + 15} text={lm === "variable" ? "r" : `${dims.r}`} color={COLOR_GOLD} size={13} />
       )}
       {dims.h !== undefined && (
-        <SvgLabel x={cx - 14} y={(apexY + botY) / 2} text={lm === "variable" ? "h" : `${dims.h}`} color={COLOR_GOLD} size={13} />
+        <SvgLabel x={cx - 14} y={(apexY + botY) / 2} text={lm === "variable" ? "h" : `${dims.h}`} color={COLOR_CYAN} size={13} />
       )}
 
       {/* Volume Unknown RevealText */}
@@ -317,12 +328,12 @@ export function Sphere({ dims, mutation }: { dims: Record<string, number | strin
 
       {/* Center dot & Radius line */}
       <circle cx={cx} cy={cy} r={3.5} fill="#ffffff" />
-      <line x1={cx} y1={cy} x2={cx + cr * 0.707} y2={cy - cr * 0.707} stroke={COLOR_CYAN} strokeWidth={2} strokeDasharray="3 2" />
-      <circle cx={cx + cr * 0.707} cy={cy - cr * 0.707} r={3} fill={COLOR_CYAN} />
+      <line x1={cx} y1={cy} x2={cx + cr} y2={cy} stroke={COLOR_GOLD} strokeWidth={2} strokeDasharray="3 2" />
+      <circle cx={cx + cr} cy={cy} r={3} fill={COLOR_GOLD} />
 
       {/* Labels */}
       {dims.r !== undefined && (
-        <SvgLabel x={cx + cr * 0.45} y={cy - cr * 0.45 - 10} text={lm === "variable" ? "r" : `${dims.r}`} color={COLOR_CYAN} size={13} />
+        <SvgLabel x={cx + cr / 2} y={cy - 12} text={lm === "variable" ? "r" : `${dims.r}`} color={COLOR_GOLD} size={13} />
       )}
 
       {/* Volume Unknown RevealText */}
@@ -352,7 +363,7 @@ export function Sphere({ dims, mutation }: { dims: Record<string, number | strin
   );
 }
 
-/** Square Pyramid */
+/** Square / Rectangular Pyramid */
 export function Pyramid({ dims, mutation }: { dims: Record<string, number | string>; mutation?: SvgMutation }) {
   const lm = (dims.labelMode as string) ?? "numeric";
   const unknownDim = (dims.unknown as string | undefined) ?? (dims.unknownDimension as string | undefined);
@@ -399,8 +410,8 @@ export function Pyramid({ dims, mutation }: { dims: Record<string, number | stri
       />
 
       {/* Height line inside from apex to base center */}
-      <line x1={apex.x} y1={apex.y} x2={baseMid.x} y2={baseMid.y} stroke={COLOR_GOLD} strokeWidth={1.5} strokeDasharray="3 2" />
-      <circle cx={baseMid.x} cy={baseMid.y} r={2.5} fill={COLOR_GOLD} />
+      <line x1={apex.x} y1={apex.y} x2={baseMid.x} y2={baseMid.y} stroke={COLOR_CYAN} strokeWidth={1.5} strokeDasharray="3 2" />
+      <circle cx={baseMid.x} cy={baseMid.y} r={2.5} fill={COLOR_CYAN} />
 
       {/* Vertices */}
       {[fl, fr, br, apex].map((v, i) => (
@@ -408,14 +419,20 @@ export function Pyramid({ dims, mutation }: { dims: Record<string, number | stri
       ))}
 
       {/* Dimension Labels */}
-      {dims.b !== undefined && (
-        <SvgLabel x={(fl.x + fr.x) / 2} y={fl.y + 14} text={lm === "variable" ? "b" : `${dims.b}`} color={COLOR_CYAN} size={13} />
+      {dims.l !== undefined && (
+        <SvgLabel x={(fl.x + fr.x) / 2} y={fl.y + 14} text={lm === "variable" ? "l" : `${dims.l}`} color={COLOR_GOLD} size={13} />
+      )}
+      {dims.w !== undefined && (
+        <SvgLabel x={fr.x + dxD / 2 + 14} y={fr.y + dyD / 2 + 8} text={lm === "variable" ? "w" : `${dims.w}`} color={COLOR_LILAC} size={13} />
+      )}
+      {dims.b !== undefined && dims.l === undefined && (
+        <SvgLabel x={(fl.x + fr.x) / 2} y={fl.y + 14} text={lm === "variable" ? "b" : `${dims.b}`} color={COLOR_GOLD} size={13} />
       )}
       {dims.B !== undefined && (
-        <SvgLabel x={(fl.x + fr.x) / 2} y={fl.y + 14} text={lm === "variable" ? "B" : `B = ${dims.B}`} color={COLOR_CYAN} size={13} />
+        <SvgLabel x={(fl.x + fr.x) / 2} y={fl.y + 14} text={lm === "variable" ? "B" : `B = ${dims.B}`} color={COLOR_GOLD} size={13} />
       )}
       {dims.h !== undefined && (
-        <SvgLabel x={apex.x - 14} y={(apex.y + baseMid.y) / 2} text={lm === "variable" ? "h" : `${dims.h}`} color={COLOR_GOLD} size={13} />
+        <SvgLabel x={apex.x - 14} y={(apex.y + baseMid.y) / 2} text={lm === "variable" ? "h" : `${dims.h}`} color={COLOR_CYAN} size={13} />
       )}
 
       {/* Volume Unknown RevealText */}

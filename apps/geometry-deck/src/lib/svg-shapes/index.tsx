@@ -45,17 +45,17 @@ export function renderShapeSvg(descriptor: SvgDescriptor, mutation?: SvgMutation
     case "rectangle":     return <Rectangle dims={dims} mutation={mutation} />;
     case "parallelogram": return <Parallelogram dims={dims} mutation={mutation} />;
     case "trapezoid":     return <Trapezoid dims={dims} mutation={mutation} />;
-    case "rhombus":       return <Rhombus dims={dims} />;
+    case "rhombus":       return <Rhombus dims={dims} mutation={mutation} />;
     // Circles
     case "circle":        return <Circle dims={dims} mutation={mutation} />;
     // Polygons
     case "polygon":       return <Polygon dims={dims} mutation={mutation} />;
     // 3D
-    case "prism":         return <Prism dims={dims} />;
-    case "cylinder":      return <Cylinder dims={dims} />;
-    case "cone":          return <Cone dims={dims} />;
-    case "sphere":        return <Sphere dims={dims} />;
-    case "pyramid":       return <Pyramid dims={dims} />;
+    case "prism":         return <Prism dims={dims} mutation={mutation} />;
+    case "cylinder":      return <Cylinder dims={dims} mutation={mutation} />;
+    case "cone":          return <Cone dims={dims} mutation={mutation} />;
+    case "sphere":        return <Sphere dims={dims} mutation={mutation} />;
+    case "pyramid":       return <Pyramid dims={dims} mutation={mutation} />;
     default:
       return (
         <svg viewBox="0 0 200 180" className="w-full h-full" aria-hidden>
