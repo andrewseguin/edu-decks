@@ -213,7 +213,7 @@ const POLYHEDRA_MAP: Record<ShapeKey, PolyhedronData> = {
   },
   prism5: {
     key: "prism5",
-    name: "Pentagonal Prism",
+    name: "Prism",
     V: 10,
     E: 15,
     F: 7,
@@ -512,7 +512,7 @@ export function InteractiveEulerExplorer({ color }: InteractiveEulerProps) {
               key={p.key}
               onClick={() => handleShapeSelect(p.key)}
               className={cn(
-                "px-2.5 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
+                "px-2.5 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none whitespace-nowrap shrink-0",
                 shapeKey === p.key ? "bg-white/25 text-white shadow-sm" : "bg-transparent text-white/70 hover:text-white"
               )}
             >
