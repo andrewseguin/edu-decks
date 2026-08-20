@@ -313,10 +313,10 @@ async function generateLandingScreenshots() {
   await page.goto('http://localhost:9004');
   await page.waitForSelector('main');
   await page.waitForTimeout(500);
-  const flipBtn = page.locator("button[aria-label='Flip Card'], button[aria-label='Show Solution']").first();
-  if (await flipBtn.isVisible()) {
-    await flipBtn.click();
-    await page.waitForTimeout(500);
+  const cardLight = page.locator('main > div').first();
+  if (await cardLight.isVisible()) {
+    await cardLight.click();
+    await advanceToLastStep(page);
   }
   await clearFocus(page);
   await page.screenshot({ path: path.join(geometryDir, 'landscape-2-card-back.png') });
@@ -330,7 +330,14 @@ async function generateLandingScreenshots() {
     localStorage.setItem('geometry-deck-topics', JSON.stringify(['triangles']));
     localStorage.setItem('geometry-deck-card-types', JSON.stringify(['calculation']));
   });
-  await page.waitForTimeout(300);
+  await page.goto('http://localhost:9004');
+  await page.waitForSelector('main');
+  await page.waitForTimeout(500);
+  const cardDark = page.locator('main > div').first();
+  if (await cardDark.isVisible()) {
+    await cardDark.click();
+    await advanceToLastStep(page);
+  }
   await clearFocus(page);
   await page.screenshot({ path: path.join(geometryDir, 'landscape-2-card-back-dark.png') });
   console.log('Saved: geometry/landscape-2-card-back-dark.png');
