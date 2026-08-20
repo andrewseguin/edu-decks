@@ -28,16 +28,33 @@ async function hideDevOverlays(page: Page) {
         #nextjs-dev-tools,
         #__next-build-watcher,
         div[data-nextjs-portal],
-        .nextjs-toast-errors-parent {
+        .nextjs-toast-errors-parent,
+        [data-card-debug-badge],
+        [data-card-debug-badge="true"],
+        span:has-text("PROMPT CONTAINER"),
+        span:has-text("REVEAL CONTAINER") {
           display: none !important;
           visibility: hidden !important;
           opacity: 0 !important;
           pointer-events: none !important;
         }
+        [data-card-section] {
+          outline: none !important;
+          border: none !important;
+        }
+        .outline-cyan-400\\/80,
+        .outline-emerald-400\\/80,
+        .outline-dashed,
+        .outline-2 {
+          outline: none !important;
+        }
       `,
     });
     await page.evaluate(() => {
-      document.querySelectorAll('nextjs-portal, [data-nextjs-dev-tools], #nextjs-dev-tools, #__next-build-watcher').forEach(el => el.remove());
+      document.querySelectorAll('nextjs-portal, [data-nextjs-dev-tools], #nextjs-dev-tools, #__next-build-watcher, [data-card-debug-badge]').forEach(el => el.remove());
+      document.querySelectorAll('[data-card-section]').forEach(el => {
+        (el as HTMLElement).style.outline = 'none';
+      });
     });
   } catch (e) {}
 }
@@ -255,14 +272,17 @@ async function generateLandingScreenshots() {
   await page.waitForSelector('main');
   await page.waitForTimeout(600);
 
-  // Set Light Theme
+  // Set Light Theme & Triangles topic (Brand Emerald Green)
   await page.evaluate(() => {
     document.documentElement.classList.remove('dark');
     document.documentElement.classList.add('light');
     localStorage.setItem('theme', 'light');
-    localStorage.setItem('geometry-deck-topic', '"triangles"');
+    localStorage.setItem('geometry-deck-topics', JSON.stringify(['triangles']));
+    localStorage.setItem('geometry-deck-card-types', JSON.stringify(['calculation']));
   });
-  await page.waitForTimeout(400);
+  await page.goto('http://localhost:9004');
+  await page.waitForSelector('main');
+  await page.waitForTimeout(500);
   await clearFocus(page);
 
   // 1. Front (Light)
@@ -274,6 +294,8 @@ async function generateLandingScreenshots() {
     document.documentElement.classList.remove('light');
     document.documentElement.classList.add('dark');
     localStorage.setItem('theme', 'dark');
+    localStorage.setItem('geometry-deck-topics', JSON.stringify(['triangles']));
+    localStorage.setItem('geometry-deck-card-types', JSON.stringify(['calculation']));
   });
   await page.waitForTimeout(300);
   await clearFocus(page);
@@ -285,10 +307,12 @@ async function generateLandingScreenshots() {
     document.documentElement.classList.remove('dark');
     document.documentElement.classList.add('light');
     localStorage.setItem('theme', 'light');
+    localStorage.setItem('geometry-deck-topics', JSON.stringify(['triangles']));
+    localStorage.setItem('geometry-deck-card-types', JSON.stringify(['calculation']));
   });
   await page.goto('http://localhost:9004');
   await page.waitForSelector('main');
-  await page.waitForTimeout(400);
+  await page.waitForTimeout(500);
   const flipBtn = page.locator("button[aria-label='Flip Card'], button[aria-label='Show Solution']").first();
   if (await flipBtn.isVisible()) {
     await flipBtn.click();
@@ -303,6 +327,8 @@ async function generateLandingScreenshots() {
     document.documentElement.classList.remove('light');
     document.documentElement.classList.add('dark');
     localStorage.setItem('theme', 'dark');
+    localStorage.setItem('geometry-deck-topics', JSON.stringify(['triangles']));
+    localStorage.setItem('geometry-deck-card-types', JSON.stringify(['calculation']));
   });
   await page.waitForTimeout(300);
   await clearFocus(page);
