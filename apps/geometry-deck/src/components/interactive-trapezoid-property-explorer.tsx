@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
+import { useSvgDrag } from "@/hooks/use-svg-drag";
 
 type InteractiveTrapezoidPropertyProps = {
   color?: string;
@@ -45,45 +46,47 @@ export function InteractiveTrapezoidPropertyExplorer({ color }: InteractiveTrape
   const topMidX = (v4.x + v3.x) / 2;
   const botMidX = (v1.x + v2.x) / 2;
 
-  const handlePointerDown = useCallback((handle: "left" | "right") => (e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(handle);
+  const vbW = SVG_W + 20;
+  const vbH = SVG_H + 16;
 
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const scX = SVG_W / rect.width;
-    const scY = SVG_H / rect.height;
+  const updateOffsetsFromPt = useCallback((pt: { x: number; y: number }, handle: "left" | "right") => {
+    const px = pt.x - 10;
+    const py = pt.y - 8;
 
-    const onMove = (ev: PointerEvent) => {
-      const px = (ev.clientX - rect.left) * scX;
-      const py = (ev.clientY - rect.top) * scY;
+    const rawH = Math.round(BASE_Y - py);
+    setHeightPx(Math.max(30, Math.min(85, rawH)));
 
-      const rawH = Math.round(BASE_Y - py);
-      setHeightPx(Math.max(30, Math.min(85, rawH)));
+    const maxOffset = Math.round(bottomW * 0.45);
+    const minOffset = -Math.round(SVG_W * 0.14);
 
-      const maxOffset = Math.round(bottomW * 0.45);
-      const minOffset = -Math.round(SVG_W * 0.14);
-
-      if (handle === "left") {
-        const rawOffset = Math.round(px - b1X);
-        setLeftOffset(Math.max(minOffset, Math.min(maxOffset, rawOffset)));
-      } else if (handle === "right") {
-        const rawOffset = Math.round(b2X - px);
-        setRightOffset(Math.max(minOffset, Math.min(maxOffset, rawOffset)));
-      }
-    };
-
-    const onUp = () => {
-      setIsDragging(null);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
+    if (handle === "left") {
+      const rawOffset = Math.round(px - b1X);
+      setLeftOffset(Math.max(minOffset, Math.min(maxOffset, rawOffset)));
+    } else if (handle === "right") {
+      const rawOffset = Math.round(b2X - px);
+      setRightOffset(Math.max(minOffset, Math.min(maxOffset, rawOffset)));
+    }
   }, [b1X, b2X, bottomW, SVG_W]);
+
+  const { handlePointerDown: handleDragLeft } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: vbW,
+    viewBoxHeight: vbH,
+    onDragStart: (pt) => { setIsDragging("left"); updateOffsetsFromPt(pt, "left"); },
+    onDragMove: (pt) => { updateOffsetsFromPt(pt, "left"); },
+    onDragEnd: () => { setIsDragging(null); },
+  });
+
+  const { handlePointerDown: handleDragRight } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: vbW,
+    viewBoxHeight: vbH,
+    onDragStart: (pt) => { setIsDragging("right"); updateOffsetsFromPt(pt, "right"); },
+    onDragMove: (pt) => { updateOffsetsFromPt(pt, "right"); },
+    onDragEnd: () => { setIsDragging(null); },
+  });
+
+  const handlePointerDown = (handle: "left" | "right") => handle === "left" ? handleDragLeft : handleDragRight;
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>

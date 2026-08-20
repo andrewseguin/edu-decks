@@ -3,6 +3,7 @@
 import React, { useState, useCallback, useRef } from "react";
 import { RightAngleMarker } from "@/lib/svg-shapes/svg-primitives";
 import { useContainerWidth } from "@/hooks/use-container-width";
+import { useSvgDrag } from "@/hooks/use-svg-drag";
 
 type InteractiveParallelogramExplorerProps = {
   mode?: "area" | "perimeter";
@@ -47,43 +48,41 @@ export function InteractiveParallelogramExplorer({ mode = "area", color }: Inter
   const b1X = Math.round((SVG_W - totalW) / 2);
   const b2X = b1X + baseLenPx;
 
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const scX = SVG_W / rect.width;
-    const scY = SVG_H / rect.height;
-
-    const onMove = (ev: PointerEvent) => {
-      const px = (ev.clientX - rect.left) * scX;
-      const py = (ev.clientY - rect.top) * scY;
-
+  const { handlePointerDown } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: SVG_W,
+    viewBoxHeight: SVG_H,
+    onDragStart: (pt) => {
+      setIsDragging(true);
       if (isPerimeter) {
-        const rawB = Math.round((px - b1X - skewX) / pxPerUnit);
+        const rawB = Math.round((pt.x - b1X - skewX) / pxPerUnit);
         setBaseUnits(Math.max(3, Math.min(12, rawB)));
-        const rawH = Math.round((ORIGIN_Y - py) / pxPerUnit);
+        const rawH = Math.round((ORIGIN_Y - pt.y) / pxPerUnit);
         setHeightUnits(Math.max(2, Math.min(7, rawH)));
       } else {
-        const rawSkewU = Math.round((px - b1X) / pxPerUnit);
+        const rawSkewU = Math.round((pt.x - b1X) / pxPerUnit);
         setSkewUnits(Math.max(1, Math.min(5, rawSkewU)));
-        const rawHU = Math.round((ORIGIN_Y - py) / pxPerUnit);
+        const rawHU = Math.round((ORIGIN_Y - pt.y) / pxPerUnit);
         setHeightUnits(Math.max(2, Math.min(7, rawHU)));
       }
-    };
-
-    const onUp = () => {
+    },
+    onDragMove: (pt) => {
+      if (isPerimeter) {
+        const rawB = Math.round((pt.x - b1X - skewX) / pxPerUnit);
+        setBaseUnits(Math.max(3, Math.min(12, rawB)));
+        const rawH = Math.round((ORIGIN_Y - pt.y) / pxPerUnit);
+        setHeightUnits(Math.max(2, Math.min(7, rawH)));
+      } else {
+        const rawSkewU = Math.round((pt.x - b1X) / pxPerUnit);
+        setSkewUnits(Math.max(1, Math.min(5, rawSkewU)));
+        const rawHU = Math.round((ORIGIN_Y - pt.y) / pxPerUnit);
+        setHeightUnits(Math.max(2, Math.min(7, rawHU)));
+      }
+    },
+    onDragEnd: () => {
       setIsDragging(false);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-  }, [SVG_W, b1X, isPerimeter, pxPerUnit]);
+    },
+  });
 
   const triPtsNormal = `${b1X},${ORIGIN_Y} ${b1X + skewX},${topY} ${b1X + skewX},${ORIGIN_Y}`;
   const triShiftX = showProof ? baseLenPx : 0;

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useSvgDrag } from "../hooks/use-svg-drag";
 
 type InteractiveAnglePairProps = {
   /** 90 for complementary, 180 for supplementary */
@@ -71,30 +72,29 @@ export function InteractiveAnglePair({ targetSum, label, color }: InteractiveAng
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
   }, [animate, isUserControlling]);
 
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault(); e.stopPropagation();
-    setIsUserControlling(true); setIsDragging(true);
-    if (animRef.current) cancelAnimationFrame(animRef.current);
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const scX = svgW / rect.width, scY = svgH / rect.height;
-    const onMove = (ev: PointerEvent) => {
-      const px = (ev.clientX - rect.left) * scX;
-      const py = (ev.clientY - rect.top) * scY;
-      let a = (Math.atan2(-(py - vy), px - vx) * 180) / Math.PI;
+  const { handlePointerDown } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: svgW,
+    viewBoxHeight: svgH,
+    onDragStart: (pt) => {
+      setIsUserControlling(true);
+      setIsDragging(true);
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      let a = (Math.atan2(-(pt.y - vy), pt.x - vx) * 180) / Math.PI;
       if (a < 0) a += 360;
       a = Math.max(sliderMin, Math.min(sliderMax, a));
       setAngleA(a);
-    };
-    const onUp = () => {
+    },
+    onDragMove: (pt) => {
+      let a = (Math.atan2(-(pt.y - vy), pt.x - vx) * 180) / Math.PI;
+      if (a < 0) a += 360;
+      a = Math.max(sliderMin, Math.min(sliderMax, a));
+      setAngleA(a);
+    },
+    onDragEnd: () => {
       setIsDragging(false);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-  }, [sliderMin, sliderMax, svgW, svgH, vx, vy]);
+    },
+  });
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 

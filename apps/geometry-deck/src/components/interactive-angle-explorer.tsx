@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback, useMemo } from "react";
+import { useSvgDrag } from "../hooks/use-svg-drag";
 
 type InteractiveAngleExplorerProps = {
   /** Minimum angle in degrees (exclusive boundary, e.g. 0 for acute) */
@@ -149,41 +150,27 @@ export function InteractiveAngleExplorer({
     };
   }, [animate, isUserControlling]);
 
-  // ── Pointer drag on arm endpoint ────────────────────────────────────────
-  const handlePointerDown = useCallback(
-    (e: React.PointerEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
+  const { handlePointerDown } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: svgW,
+    viewBoxHeight: svgH,
+    onDragStart: (pt) => {
       setIsUserControlling(true);
       setIsDragging(true);
       if (animRef.current) cancelAnimationFrame(animRef.current);
-
-      const svg = svgRef.current;
-      if (!svg) return;
-
-      const rect = svg.getBoundingClientRect();
-      const scaleX = svgW / rect.width;
-      const scaleY = svgH / rect.height;
-
-      const onMove = (ev: PointerEvent) => {
-        const px = (ev.clientX - rect.left) * scaleX;
-        const py = (ev.clientY - rect.top) * scaleY;
-        let a = pointerToAngle(vx, vy, px, py);
-        a = Math.max(sweepMin, Math.min(sweepMax, a));
-        setAngle(a);
-      };
-
-      const onUp = () => {
-        setIsDragging(false);
-        window.removeEventListener("pointermove", onMove);
-        window.removeEventListener("pointerup", onUp);
-      };
-
-      window.addEventListener("pointermove", onMove);
-      window.addEventListener("pointerup", onUp);
+      let a = pointerToAngle(vx, vy, pt.x, pt.y);
+      a = Math.max(sweepMin, Math.min(sweepMax, a));
+      setAngle(a);
     },
-    [sweepMin, sweepMax, svgW, svgH, vx, vy]
-  );
+    onDragMove: (pt) => {
+      let a = pointerToAngle(vx, vy, pt.x, pt.y);
+      a = Math.max(sweepMin, Math.min(sweepMax, a));
+      setAngle(a);
+    },
+    onDragEnd: () => {
+      setIsDragging(false);
+    },
+  });
 
   // ── Prevent card tap-to-flip when interacting ───────────────────────────
   const stopPropagation = useCallback((e: React.PointerEvent | React.MouseEvent) => {

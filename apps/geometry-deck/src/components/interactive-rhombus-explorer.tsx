@@ -1,8 +1,9 @@
 "use client";
 
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { RightAngleMarker } from "@/lib/svg-shapes/svg-primitives";
 import { useContainerWidth } from "@/hooks/use-container-width";
+import { useSvgDrag } from "@/hooks/use-svg-drag";
 
 type InteractiveRhombusExplorerProps = {
   mode?: "properties" | "perimeter";
@@ -105,41 +106,47 @@ export function InteractiveRhombusExplorer({ mode = "properties", color }: Inter
 
   const topRAngDeg = (Math.atan2(ry, rx) * 180) / Math.PI;
 
-  const handlePointerDown = useCallback((which: "top" | "right") => (e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const scX = SVG_W / rect.width;
-    const scY = SVG_H / rect.height;
-
-    const onMove = (ev: PointerEvent) => {
-      const px = (ev.clientX - rect.left) * scX;
-      const py = (ev.clientY - rect.top) * scY;
-
-      if (which === "top") {
-        const curRy = Math.max(15, Math.min(sideLen - 8, CY - py));
-        const computedDeg = Math.round(Math.acos(Math.min(1, Math.max(0.1, curRy / sideLen))) * (180 / Math.PI));
-        setHalfAngleDeg(Math.max(18, Math.min(72, computedDeg)));
-      } else {
-        const curRx = Math.max(15, Math.min(sideLen - 8, px - CX));
-        const computedDeg = Math.round(Math.asin(Math.min(1, Math.max(0.1, curRx / sideLen))) * (180 / Math.PI));
-        setHalfAngleDeg(Math.max(18, Math.min(72, computedDeg)));
-      }
-    };
-
-    const onUp = () => {
+  const { handlePointerDown: handleTopPointerDown } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: SVG_W,
+    viewBoxHeight: SVG_H,
+    onDragStart: (pt) => {
+      setIsDragging(true);
+      const curRy = Math.max(15, Math.min(sideLen - 8, CY - pt.y));
+      const computedDeg = Math.round(Math.acos(Math.min(1, Math.max(0.1, curRy / sideLen))) * (180 / Math.PI));
+      setHalfAngleDeg(Math.max(18, Math.min(72, computedDeg)));
+    },
+    onDragMove: (pt) => {
+      const curRy = Math.max(15, Math.min(sideLen - 8, CY - pt.y));
+      const computedDeg = Math.round(Math.acos(Math.min(1, Math.max(0.1, curRy / sideLen))) * (180 / Math.PI));
+      setHalfAngleDeg(Math.max(18, Math.min(72, computedDeg)));
+    },
+    onDragEnd: () => {
       setIsDragging(false);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
+    },
+  });
 
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-  }, [CX, CY, SVG_H, SVG_W, sideLen]);
+  const { handlePointerDown: handleRightPointerDown } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: SVG_W,
+    viewBoxHeight: SVG_H,
+    onDragStart: (pt) => {
+      setIsDragging(true);
+      const curRx = Math.max(15, Math.min(sideLen - 8, pt.x - CX));
+      const computedDeg = Math.round(Math.asin(Math.min(1, Math.max(0.1, curRx / sideLen))) * (180 / Math.PI));
+      setHalfAngleDeg(Math.max(18, Math.min(72, computedDeg)));
+    },
+    onDragMove: (pt) => {
+      const curRx = Math.max(15, Math.min(sideLen - 8, pt.x - CX));
+      const computedDeg = Math.round(Math.asin(Math.min(1, Math.max(0.1, curRx / sideLen))) * (180 / Math.PI));
+      setHalfAngleDeg(Math.max(18, Math.min(72, computedDeg)));
+    },
+    onDragEnd: () => {
+      setIsDragging(false);
+    },
+  });
+
+  const handlePointerDown = (which: "top" | "right") => which === "top" ? handleTopPointerDown : handleRightPointerDown;
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>

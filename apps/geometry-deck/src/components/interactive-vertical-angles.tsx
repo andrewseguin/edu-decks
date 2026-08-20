@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useSvgDrag } from "../hooks/use-svg-drag";
 
 type InteractiveVerticalAnglesProps = {
   color: string;
@@ -60,34 +61,31 @@ export function InteractiveVerticalAngles({ color }: InteractiveVerticalAnglesPr
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
   }, [animate, isUserControlling]);
 
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsUserControlling(true);
-    setIsDragging(true);
-    if (animRef.current) cancelAnimationFrame(animRef.current);
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const scX = svgW / rect.width;
-    const scY = svgH / rect.height;
-    const onMove = (ev: PointerEvent) => {
-      const px = (ev.clientX - rect.left) * scX;
-      const py = (ev.clientY - rect.top) * scY;
-      let a = (Math.atan2(-(py - cy), px - cx) * 180) / Math.PI;
+  const { handlePointerDown } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: svgW,
+    viewBoxHeight: svgH,
+    onDragStart: (pt) => {
+      setIsUserControlling(true);
+      setIsDragging(true);
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      let a = (Math.atan2(-(pt.y - cy), pt.x - cx) * 180) / Math.PI;
       if (a < 0) a += 360;
       if (a > 180) a = 360 - a;
       a = Math.max(sweepMin, Math.min(sweepMax, a));
       setAngleA(a);
-    };
-    const onUp = () => {
+    },
+    onDragMove: (pt) => {
+      let a = (Math.atan2(-(pt.y - cy), pt.x - cx) * 180) / Math.PI;
+      if (a < 0) a += 360;
+      if (a > 180) a = 360 - a;
+      a = Math.max(sweepMin, Math.min(sweepMax, a));
+      setAngleA(a);
+    },
+    onDragEnd: () => {
       setIsDragging(false);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-  }, [svgW, svgH, cx, cy, sweepMin, sweepMax]);
+    },
+  });
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 

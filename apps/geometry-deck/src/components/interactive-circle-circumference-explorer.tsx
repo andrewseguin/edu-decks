@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
+import { useSvgDrag } from "@/hooks/use-svg-drag";
 import { cn } from "@/lib/utils";
 import { Play, Pause, RotateCcw, Minus, Plus } from "lucide-react";
 
@@ -126,50 +127,25 @@ export function InteractiveCircleCircumferenceExplorer({ color }: InteractiveCir
   }, [isPlaying, radiusUnits]);
 
   // Direct 1:1 dragging of the wheel / handle along the ruler
-  const handleTrackPointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsPlaying(false);
-    cancelAnimationFrame(autoplayRef.current);
-    setIsDraggingHandle(true);
-
-    const svg = svgRef.current;
-    if (!svg) return;
-
-    const getSvgX = (clientX: number, clientY: number) => {
-      const ctm = svg.getScreenCTM();
-      if (!ctm) return null;
-      const pt = svg.createSVGPoint ? svg.createSVGPoint() : new DOMPoint();
-      pt.x = clientX;
-      pt.y = clientY;
-      const svgPoint = pt.matrixTransform(ctm.inverse());
-      return svgPoint.x;
-    };
-
-    const updateFromPointer = (clientX: number, clientY: number) => {
-      const svgX = getSvgX(clientX, clientY);
-      if (svgX == null) return;
-      const prog = Math.max(0, Math.min(1, (svgX - startX) / fullRollDist));
+  const { handlePointerDown: handleTrackPointerDown } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: SVG_W,
+    viewBoxHeight: SVG_H,
+    onDragStart: (pt) => {
+      setIsPlaying(false);
+      cancelAnimationFrame(autoplayRef.current);
+      setIsDraggingHandle(true);
+      const prog = Math.max(0, Math.min(1, (pt.x - startX) / fullRollDist));
       setUnrollProgress(prog);
-    };
-
-    updateFromPointer(e.clientX, e.clientY);
-
-    const onMove = (ev: PointerEvent) => {
-      updateFromPointer(ev.clientX, ev.clientY);
-    };
-
-    const onUp = () => {
+    },
+    onDragMove: (pt) => {
+      const prog = Math.max(0, Math.min(1, (pt.x - startX) / fullRollDist));
+      setUnrollProgress(prog);
+    },
+    onDragEnd: () => {
       setIsDraggingHandle(false);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-      window.removeEventListener("pointercancel", onUp);
-    };
-
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-    window.addEventListener("pointercancel", onUp);
-  }, [fullRollDist, startX]);
+    },
+  });
 
   const togglePlay = () => {
     if (unrollProgress >= 0.98) {

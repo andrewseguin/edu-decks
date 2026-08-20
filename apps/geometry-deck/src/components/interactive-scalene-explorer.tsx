@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useSvgDrag } from "../hooks/use-svg-drag";
 
 type InteractiveScaleneExplorerProps = {
   color?: string;
@@ -82,29 +83,23 @@ export function InteractiveScaleneExplorer({ color }: InteractiveScaleneExplorer
   }, [animate, isUserControlling]);
 
   // Drag handler on apex
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault(); e.stopPropagation();
-    setIsUserControlling(true); setIsDragging(true);
-    if (animRef.current) cancelAnimationFrame(animRef.current);
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const scX = SVG_W / rect.width, scY = SVG_H / rect.height;
-
-    const onMove = (ev: PointerEvent) => {
-      const px = (ev.clientX - rect.left) * scX;
-      const py = (ev.clientY - rect.top) * scY;
-      setApex(clampApex(px, py));
-    };
-
-    const onUp = () => {
+  const { handlePointerDown } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: SVG_W,
+    viewBoxHeight: SVG_H,
+    onDragStart: (pt) => {
+      setIsUserControlling(true);
+      setIsDragging(true);
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      setApex(clampApex(pt.x, pt.y));
+    },
+    onDragMove: (pt) => {
+      setApex(clampApex(pt.x, pt.y));
+    },
+    onDragEnd: () => {
       setIsDragging(false);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-  }, []);
+    },
+  });
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 

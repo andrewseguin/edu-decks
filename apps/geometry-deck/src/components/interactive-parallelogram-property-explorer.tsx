@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
+import { useSvgDrag } from "@/hooks/use-svg-drag";
 
 type InteractiveParallelogramPropertyProps = {
   color?: string;
@@ -103,38 +104,29 @@ export function InteractiveParallelogramPropertyExplorer({ color }: InteractiveP
   const v4StrokeD = makeArcStroke(v4.x, v4.y, 180 + slantAngDeg, 360, ARC_R);
   const v4LabelPos = polar(v4.x, v4.y, (180 + slantAngDeg + 360) / 2, LABEL_R);
 
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const scX = SVG_W / rect.width;
-    const scY = SVG_H / rect.height;
-
-    const onMove = (ev: PointerEvent) => {
-      const px = (ev.clientX - rect.left) * scX;
-      const py = (ev.clientY - rect.top) * scY;
-
+  const { handlePointerDown } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: SVG_W,
+    viewBoxHeight: SVG_H,
+    onDragStart: (pt) => {
+      setIsDragging(true);
       const curB1X = CX - BASE_W / 2;
-      const rawSkew = Math.round(px - curB1X);
-      const rawH = Math.round(BASE_Y - py);
-
+      const rawSkew = Math.round(pt.x - curB1X);
+      const rawH = Math.round(BASE_Y - pt.y);
       setSkewPx(Math.max(-maxSkew, Math.min(maxSkew, rawSkew)));
       setHeightPx(Math.max(25, Math.min(85, rawH)));
-    };
-
-    const onUp = () => {
+    },
+    onDragMove: (pt) => {
+      const curB1X = CX - BASE_W / 2;
+      const rawSkew = Math.round(pt.x - curB1X);
+      const rawH = Math.round(BASE_Y - pt.y);
+      setSkewPx(Math.max(-maxSkew, Math.min(maxSkew, rawSkew)));
+      setHeightPx(Math.max(25, Math.min(85, rawH)));
+    },
+    onDragEnd: () => {
       setIsDragging(false);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-  }, [CX, BASE_W, SVG_W, maxSkew]);
+    },
+  });
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>

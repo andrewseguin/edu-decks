@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useSvgDrag } from "../hooks/use-svg-drag";
 
 const SVG_W = 220;
 const SVG_H = 180;
@@ -59,35 +60,32 @@ export function InteractiveEquilateralExplorer({ color }: { color?: string }) {
   }, [animate]);
 
   // Drag: sets rotation from pointer angle relative to center
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault(); e.stopPropagation();
-    draggingRef.current = true; setIsDragging(true);
-    if (animRef.current) cancelAnimationFrame(animRef.current);
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const scX = SVG_W / rect.width, scY = SVG_H / rect.height;
-
-    const onMove = (ev: PointerEvent) => {
-      const px = (ev.clientX - rect.left) * scX;
-      const py = (ev.clientY - rect.top) * scY;
-      const dx = px - CX, dy = py - CY;
+  const { handlePointerDown } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: SVG_W,
+    viewBoxHeight: SVG_H,
+    onDragStart: (pt) => {
+      draggingRef.current = true;
+      setIsDragging(true);
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      const dx = pt.x - CX, dy = pt.y - CY;
       const r = rnd(Math.atan2(dy, dx));
       setRotation(r);
-      rotOffsetRef.current = r; // track for seamless resume
-    };
-
-    const onUp = () => {
-      draggingRef.current = false; setIsDragging(false);
-      // Resume animation from current rotation
+      rotOffsetRef.current = r;
+    },
+    onDragMove: (pt) => {
+      const dx = pt.x - CX, dy = pt.y - CY;
+      const r = rnd(Math.atan2(dy, dx));
+      setRotation(r);
+      rotOffsetRef.current = r;
+    },
+    onDragEnd: () => {
+      draggingRef.current = false;
+      setIsDragging(false);
       startTimeRef.current = null;
       animRef.current = requestAnimationFrame(animate);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-  }, [animate]);
+    },
+  });
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 

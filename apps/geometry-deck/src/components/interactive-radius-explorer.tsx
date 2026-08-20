@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
+import { useSvgDrag } from "@/hooks/use-svg-drag";
 import { cn } from "@/lib/utils";
 
 type InteractiveRadiusExplorerProps = {
@@ -45,43 +46,33 @@ export function InteractiveRadiusExplorer({ mode = "radius", color }: Interactiv
   const oppY = CY + CR * Math.sin(rad);
 
   // Direct 2D dragging: dragging inward/outward changes radius (1..6), dragging around rotates angle
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const scX = SVG_W / rect.width;
-    const scY = SVG_H / rect.height;
-
-    const onMove = (ev: PointerEvent) => {
-      const px = (ev.clientX - rect.left) * scX;
-      const py = (ev.clientY - rect.top) * scY;
-
-      const dx = px - CX;
-      const dy = CY - py;
+  const { handlePointerDown } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: SVG_W,
+    viewBoxHeight: SVG_H,
+    onDragStart: (pt) => {
+      setIsDragging(true);
+      const dx = pt.x - CX;
+      const dy = CY - pt.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
-
-      // Snap radius units safely within bounds [MIN_R, MAX_R]
       const units = Math.max(MIN_R, Math.min(MAX_R, Math.round(dist / GRID_STEP)));
       setRadiusUnits(units);
-
-      // Angle
       const ang = Math.atan2(dy, dx) * (180 / Math.PI);
       setAngleDeg(Math.round((ang + 360) % 360));
-    };
-
-    const onUp = () => {
+    },
+    onDragMove: (pt) => {
+      const dx = pt.x - CX;
+      const dy = CY - pt.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      const units = Math.max(MIN_R, Math.min(MAX_R, Math.round(dist / GRID_STEP)));
+      setRadiusUnits(units);
+      const ang = Math.atan2(dy, dx) * (180 / Math.PI);
+      setAngleDeg(Math.round((ang + 360) % 360));
+    },
+    onDragEnd: () => {
       setIsDragging(false);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-  }, [CX, CY, SVG_W]);
+    },
+  });
 
   const isDiameter = mode === "diameter";
   const diameterUnits = radiusUnits * 2;

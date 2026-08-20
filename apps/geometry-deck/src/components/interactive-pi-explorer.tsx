@@ -260,6 +260,9 @@ export function InteractivePiExplorer({ color }: InteractivePiProps) {
   const handleSliderPointerDown = useCallback((e: React.PointerEvent) => {
     e.preventDefault();
     e.stopPropagation();
+    try {
+      (e.currentTarget as Element)?.setPointerCapture?.(e.pointerId);
+    } catch {}
     setIsPlaying(false);
     setIsScrubbing(true);
 
@@ -274,18 +277,37 @@ export function InteractivePiExplorer({ color }: InteractivePiProps) {
 
     updateFromPointer(e.clientX);
 
-    const onMove = (ev: PointerEvent) => {
+    const onPointerMove = (ev: PointerEvent) => {
+      ev.preventDefault();
       updateFromPointer(ev.clientX);
+    };
+
+    const onTouchMove = (ev: TouchEvent) => {
+      if (ev.touches.length > 0) {
+        ev.preventDefault();
+        updateFromPointer(ev.touches[0].clientX);
+      }
     };
 
     const onUp = () => {
       setIsScrubbing(false);
-      window.removeEventListener("pointermove", onMove);
+      try {
+        (e.currentTarget as Element)?.releasePointerCapture?.(e.pointerId);
+      } catch {}
+      window.removeEventListener("pointermove", onPointerMove);
       window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointercancel", onUp);
+      window.removeEventListener("touchmove", onTouchMove);
+      window.removeEventListener("touchend", onUp);
+      window.removeEventListener("touchcancel", onUp);
     };
 
-    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointermove", onPointerMove, { passive: false });
     window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointercancel", onUp);
+    window.addEventListener("touchmove", onTouchMove, { passive: false });
+    window.addEventListener("touchend", onUp);
+    window.addEventListener("touchcancel", onUp);
   }, []);
 
   const p = progress;

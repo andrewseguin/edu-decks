@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useCallback, useRef, useState } from "react";
+import { useSvgDrag } from "../hooks/use-svg-drag";
 
 const SVG_W = 260;
 const SVG_H = 150;
@@ -32,36 +33,23 @@ export function InteractiveTrianglePerimeterExplorer({ color }: { color?: string
   };
 
   // Pointer drag handler on apex
-  const handlePointerDown = useCallback(
-    (e: React.PointerEvent) => {
-      if (unrollProgress > 0.05) return; // Only drag when triangle is closed
-      e.preventDefault();
-      e.stopPropagation();
+  const { handlePointerDown } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: SVG_W,
+    viewBoxHeight: SVG_H,
+    onDragStart: (pt) => {
+      if (unrollProgress > 0.05) return;
       setIsDragging(true);
-
-      const svg = svgRef.current;
-      if (!svg) return;
-      const rect = svg.getBoundingClientRect();
-      const scX = SVG_W / rect.width;
-      const scY = SVG_H / rect.height;
-
-      const onMove = (ev: PointerEvent) => {
-        const px = (ev.clientX - rect.left) * scX;
-        const py = (ev.clientY - rect.top) * scY;
-        setApex(clampApex(px, py));
-      };
-
-      const onUp = () => {
-        setIsDragging(false);
-        window.removeEventListener("pointermove", onMove);
-        window.removeEventListener("pointerup", onUp);
-      };
-
-      window.addEventListener("pointermove", onMove);
-      window.addEventListener("pointerup", onUp);
+      setApex(clampApex(pt.x, pt.y));
     },
-    [unrollProgress]
-  );
+    onDragMove: (pt) => {
+      if (unrollProgress > 0.05) return;
+      setApex(clampApex(pt.x, pt.y));
+    },
+    onDragEnd: () => {
+      setIsDragging(false);
+    },
+  });
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 

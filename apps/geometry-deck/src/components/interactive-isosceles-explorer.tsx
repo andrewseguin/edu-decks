@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useSvgDrag } from "../hooks/use-svg-drag";
 import { SvgTriangle } from "../lib/svg-shapes";
 
 type InteractiveIsoscelesExplorerProps = {
@@ -50,34 +51,33 @@ export function InteractiveIsoscelesExplorer({ color }: InteractiveIsoscelesExpl
   }, [animate, isUserControlling]);
 
   // Direct vertical drag on apex vertex
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsUserControlling(true);
-    setIsDragging(true);
-    if (animRef.current) cancelAnimationFrame(animRef.current);
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const scY = 135 / rect.height;
-
-    const onMove = (ev: PointerEvent) => {
-      const py = (ev.clientY - rect.top) * scY + 25;
+  const { handlePointerDown } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: 320,
+    viewBoxHeight: 135,
+    onDragStart: (pt) => {
+      setIsUserControlling(true);
+      setIsDragging(true);
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      const py = pt.y + 25;
       const h = Math.max(15, Math.min(92, BASE_Y - py));
       const halfRad = Math.acos(Math.max(0.15, Math.min(0.97, h / LEG_LEN)));
       const rawDeg = (halfRad * 2 * 180) / Math.PI;
       const evenDeg = Math.max(16, Math.min(150, Math.round(rawDeg / 2) * 2));
       setApexAngle(evenDeg);
-    };
-
-    const onUp = () => {
+    },
+    onDragMove: (pt) => {
+      const py = pt.y + 25;
+      const h = Math.max(15, Math.min(92, BASE_Y - py));
+      const halfRad = Math.acos(Math.max(0.15, Math.min(0.97, h / LEG_LEN)));
+      const rawDeg = (halfRad * 2 * 180) / Math.PI;
+      const evenDeg = Math.max(16, Math.min(150, Math.round(rawDeg / 2) * 2));
+      setApexAngle(evenDeg);
+    },
+    onDragEnd: () => {
       setIsDragging(false);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-  }, []);
+    },
+  });
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 

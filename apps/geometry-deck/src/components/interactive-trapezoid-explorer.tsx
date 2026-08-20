@@ -4,6 +4,7 @@ import React, { useState, useCallback, useRef } from "react";
 import { RightAngleMarker } from "@/lib/svg-shapes/svg-primitives";
 import { StackedFraction } from "./ui/formatted-math-text";
 import { useContainerWidth } from "@/hooks/use-container-width";
+import { useSvgDrag } from "@/hooks/use-svg-drag";
 
 type InteractiveTrapezoidExplorerProps = {
   mode?: "area" | "perimeter";
@@ -74,60 +75,80 @@ export function InteractiveTrapezoidExplorer({ mode = "area", color }: Interacti
   const staticBodyPts = `${xTop1},${topY} ${xTopEnd},${topY} ${xBaseEnd},${BASE_Y} ${xTop1},${BASE_Y}`;
   const slidingWedgePts = `${xBase1},${BASE_Y} ${xTop1},${topY} ${xTop1},${BASE_Y}`;
 
-  // 1:1 Direct Drag Tracking Math with Wide Expressive Bounds
-  const handlePointerDown = useCallback((type: "a" | "b" | "h" | "top2d") => (e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(type === "top2d" ? "a" : type);
+  const maxBAllowed = Math.max(8, Math.min(16, Math.floor((SVG_W - 40) / pxPerUnit)));
 
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const scX = SVG_W / rect.width;
-    const scY = SVG_H / rect.height;
+  const updateUnitsFromPt = useCallback((pt: { x: number; y: number }, type: "a" | "b" | "h" | "top2d") => {
+    setUnits((prev) => {
+      if (type === "top2d") {
+        const rawA = Math.round(((pt.x - CX) * 2) / pxPerUnit);
+        const rawH = Math.round((BASE_Y - pt.y) / pxPerUnit);
+        const newA = Math.max(2, Math.min(prev.b - 1, rawA));
+        const newH = Math.max(2, Math.min(7, rawH));
+        return { ...prev, a: newA, h: newH };
+      }
+      if (type === "a") {
+        const rawA = Math.round(((pt.x - CX) * 2) / pxPerUnit);
+        const newA = Math.max(2, Math.min(prev.b - 1, rawA));
+        return { ...prev, a: newA };
+      }
+      if (type === "b") {
+        const rawB = Math.round(((pt.x - CX) * 2) / pxPerUnit);
+        const newB = Math.max(prev.a + 1, Math.min(maxBAllowed, rawB));
+        return { ...prev, b: newB };
+      }
+      if (type === "h") {
+        const rawH = Math.round((BASE_Y - pt.y) / pxPerUnit);
+        const newH = Math.max(2, Math.min(7, rawH));
+        return { ...prev, h: newH };
+      }
+      return prev;
+    });
+  }, [CX, maxBAllowed, pxPerUnit]);
 
-    const maxBAllowed = Math.max(8, Math.min(16, Math.floor((SVG_W - 40) / pxPerUnit)));
+  const { handlePointerDown: handleDragTop2d } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: SVG_W,
+    viewBoxHeight: SVG_H,
+    onDragStart: (pt) => { setIsDragging("a"); updateUnitsFromPt(pt, "top2d"); },
+    onDragMove: (pt) => { updateUnitsFromPt(pt, "top2d"); },
+    onDragEnd: () => { setIsDragging(null); },
+  });
 
-    const onMove = (ev: PointerEvent) => {
-      const px = (ev.clientX - rect.left) * scX;
-      const py = (ev.clientY - rect.top) * scY;
+  const { handlePointerDown: handleDragA } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: SVG_W,
+    viewBoxHeight: SVG_H,
+    onDragStart: (pt) => { setIsDragging("a"); updateUnitsFromPt(pt, "a"); },
+    onDragMove: (pt) => { updateUnitsFromPt(pt, "a"); },
+    onDragEnd: () => { setIsDragging(null); },
+  });
 
-      setUnits((prev) => {
-        if (type === "top2d") {
-          const rawA = Math.round(((px - CX) * 2) / pxPerUnit);
-          const rawH = Math.round((BASE_Y - py) / pxPerUnit);
-          const newA = Math.max(2, Math.min(prev.b - 1, rawA));
-          const newH = Math.max(2, Math.min(7, rawH));
-          return { ...prev, a: newA, h: newH };
-        }
-        if (type === "a") {
-          const rawA = Math.round(((px - CX) * 2) / pxPerUnit);
-          const newA = Math.max(2, Math.min(prev.b - 1, rawA));
-          return { ...prev, a: newA };
-        }
-        if (type === "b") {
-          const rawB = Math.round(((px - CX) * 2) / pxPerUnit);
-          const newB = Math.max(prev.a + 1, Math.min(maxBAllowed, rawB));
-          return { ...prev, b: newB };
-        }
-        if (type === "h") {
-          const rawH = Math.round((BASE_Y - py) / pxPerUnit);
-          const newH = Math.max(2, Math.min(7, rawH));
-          return { ...prev, h: newH };
-        }
-        return prev;
-      });
-    };
+  const { handlePointerDown: handleDragB } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: SVG_W,
+    viewBoxHeight: SVG_H,
+    onDragStart: (pt) => { setIsDragging("b"); updateUnitsFromPt(pt, "b"); },
+    onDragMove: (pt) => { updateUnitsFromPt(pt, "b"); },
+    onDragEnd: () => { setIsDragging(null); },
+  });
 
-    const onUp = () => {
-      setIsDragging(null);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
+  const { handlePointerDown: handleDragH } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: SVG_W,
+    viewBoxHeight: SVG_H,
+    onDragStart: (pt) => { setIsDragging("h"); updateUnitsFromPt(pt, "h"); },
+    onDragMove: (pt) => { updateUnitsFromPt(pt, "h"); },
+    onDragEnd: () => { setIsDragging(null); },
+  });
 
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-  }, [CX, SVG_W, pxPerUnit]);
+  const handlePointerDown = (type: "a" | "b" | "h" | "top2d") => {
+    switch (type) {
+      case "top2d": return handleDragTop2d;
+      case "a": return handleDragA;
+      case "b": return handleDragB;
+      case "h": return handleDragH;
+    }
+  };
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>

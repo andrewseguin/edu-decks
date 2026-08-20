@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { StackedFraction } from "./ui/formatted-math-text";
+import { useSvgDrag } from "../hooks/use-svg-drag";
 
 type InteractiveTriangleAreaExplorerProps = {
   color?: string;
@@ -31,7 +32,7 @@ export function InteractiveTriangleAreaExplorer({ color }: InteractiveTriangleAr
 
   const svgRef = useRef<SVGSVGElement>(null);
 
-  const clampAndSnapApex = (x: number, y: number) => {
+  const clampAndSnapApex = useCallback((x: number, y: number) => {
     // Snap x to discrete grid columns [0..10]
     const unitX = Math.max(0, Math.min(10, Math.round((x - B1_X) / PX_PER_UNIT)));
     const snapX = B1_X + unitX * PX_PER_UNIT;
@@ -41,35 +42,23 @@ export function InteractiveTriangleAreaExplorer({ color }: InteractiveTriangleAr
     const snapY = BASE_Y - unitY * PX_PER_UNIT;
 
     return { x: rnd(snapX), y: rnd(snapY) };
-  };
-
-  // Pointer drag handler on apex
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const scX = SVG_W / rect.width;
-    const scY = SVG_H / rect.height;
-
-    const onMove = (ev: PointerEvent) => {
-      const px = (ev.clientX - rect.left) * scX;
-      const py = (ev.clientY - rect.top) * scY;
-      setApex(clampAndSnapApex(px, py));
-    };
-
-    const onUp = () => {
-      setIsDragging(false);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
   }, []);
+
+  const { handlePointerDown } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: SVG_W,
+    viewBoxHeight: SVG_H,
+    onDragStart: (pt) => {
+      setIsDragging(true);
+      setApex(clampAndSnapApex(pt.x, pt.y));
+    },
+    onDragMove: (pt) => {
+      setApex(clampAndSnapApex(pt.x, pt.y));
+    },
+    onDragEnd: () => {
+      setIsDragging(false);
+    },
+  });
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 

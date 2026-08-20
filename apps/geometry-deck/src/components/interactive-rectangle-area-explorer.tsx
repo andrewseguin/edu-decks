@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useCallback, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
+import { useSvgDrag } from "@/hooks/use-svg-drag";
 
 type InteractiveRectangleAreaExplorerProps = {
   mode?: "area" | "perimeter";
@@ -44,40 +45,35 @@ export function InteractiveRectangleAreaExplorer({ mode = "area", color }: Inter
   const x2 = x1 + rectW;
   const y2 = ORIGIN_Y;
 
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsDragging(true);
-
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const scX = SVG_W / rect.width;
-    const scY = SVG_H / rect.height;
-
-    const onMove = (ev: PointerEvent) => {
-      const px = (ev.clientX - rect.left) * scX;
-      const py = (ev.clientY - rect.top) * scY;
-
-      // Symmetric 1:1 cursor tracking while staying perfectly centered
-      const rawL = Math.round((px - CX) * 2 / pxPerUnit);
+  const vbW = SVG_W + 20;
+  const vbH = SVG_H + 16;
+  const { handlePointerDown } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: vbW,
+    viewBoxHeight: vbH,
+    onDragStart: (pt) => {
+      setIsDragging(true);
+      const px = pt.x - 10;
+      const py = pt.y - 8;
+      const rawL = Math.round(((px - CX) * 2) / pxPerUnit);
       const rawW = Math.round((ORIGIN_Y - py) / pxPerUnit);
-
       const newL = Math.max(3, Math.min(maxL, rawL));
       const newW = Math.max(2, Math.min(maxW, rawW));
-
       setUnits({ l: newL, w: newW });
-    };
-
-    const onUp = () => {
+    },
+    onDragMove: (pt) => {
+      const px = pt.x - 10;
+      const py = pt.y - 8;
+      const rawL = Math.round(((px - CX) * 2) / pxPerUnit);
+      const rawW = Math.round((ORIGIN_Y - py) / pxPerUnit);
+      const newL = Math.max(3, Math.min(maxL, rawL));
+      const newW = Math.max(2, Math.min(maxW, rawW));
+      setUnits({ l: newL, w: newW });
+    },
+    onDragEnd: () => {
       setIsDragging(false);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-  }, [CX, SVG_W, maxL, maxW, pxPerUnit]);
+    },
+  });
 
   return (
     <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useSvgDrag } from "../hooks/use-svg-drag";
 import { RotateCcw } from "lucide-react";
 import { cn } from "@decks/core";
 
@@ -74,29 +75,24 @@ export function InteractiveAngleSumExplorer({ color }: { color?: string }) {
   const foldAnimRef = useRef<number>(0);
 
   /* ── pointer drag on apex ──────────────────────────────────────────────── */
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    if (activeStep === 2 || foldProgress > 0.05) return;
-    e.preventDefault(); e.stopPropagation();
-    setIsDragging(true);
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const vbW = SVG_W + 60, vbH = SVG_H + 20;
-    const scX = vbW / rect.width, scY = vbH / rect.height;
-
-    const onMove = (ev: PointerEvent) => {
-      const px = (ev.clientX - rect.left) * scX - 30;
-      const py = (ev.clientY - rect.top) * scY - 10;
-      setApex(clampApex(px, py));
-    };
-    const onUp = () => {
+  const vbW = SVG_W + 60, vbH = SVG_H + 20;
+  const { handlePointerDown } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: vbW,
+    viewBoxHeight: vbH,
+    onDragStart: (pt) => {
+      if (activeStep === 2 || foldProgress > 0.05) return;
+      setIsDragging(true);
+      setApex(clampApex(pt.x - 30, pt.y - 10));
+    },
+    onDragMove: (pt) => {
+      if (activeStep === 2 || foldProgress > 0.05) return;
+      setApex(clampApex(pt.x - 30, pt.y - 10));
+    },
+    onDragEnd: () => {
       setIsDragging(false);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-  }, [activeStep, foldProgress]);
+    },
+  });
 
   /* ── step animation transitions ────────────────────────────────────────── */
   const transitionTo = useCallback((targetP: number, targetStep: number, duration = 800) => {

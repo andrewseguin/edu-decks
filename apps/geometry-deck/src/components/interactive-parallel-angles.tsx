@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
+import { useSvgDrag } from "../hooks/use-svg-drag";
 
 type InteractiveParallelAnglesProps = {
   /** "alternate" for Z-angles (equal), "co-interior" for C-angles (sum 180) */
@@ -72,38 +73,36 @@ export function InteractiveParallelAngles({ mode, color }: InteractiveParallelAn
     return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
   }, [animate, isUserControlling]);
 
-  const handlePointerDown = useCallback((e: React.PointerEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setIsUserControlling(true);
-    setIsDragging(true);
-    if (animRef.current) cancelAnimationFrame(animRef.current);
-    const svg = svgRef.current;
-    if (!svg) return;
-    const rect = svg.getBoundingClientRect();
-    const scX = SVG_W / rect.width;
-    const scY = SVG_H / rect.height;
-    const centerX = SVG_W / 2;
-    const centerY = (LINE_Y1 + LINE_Y2) / 2;
+  const centerX = SVG_W / 2;
+  const centerY = (LINE_Y1 + LINE_Y2) / 2;
 
-    const onMove = (ev: PointerEvent) => {
-      const px = (ev.clientX - rect.left) * scX;
-      const py = (ev.clientY - rect.top) * scY;
-      const rad = Math.atan2(-(py - centerY), px - centerX);
+  const { handlePointerDown } = useSvgDrag({
+    svgRef,
+    viewBoxWidth: SVG_W,
+    viewBoxHeight: SVG_H,
+    onDragStart: (pt) => {
+      setIsUserControlling(true);
+      setIsDragging(true);
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      const rad = Math.atan2(-(pt.y - centerY), pt.x - centerX);
       let a = (rad * 180) / Math.PI;
       if (a < 0) a += 360;
       if (a > 180) a -= 180;
       a = Math.max(sweepMin, Math.min(sweepMax, a));
       setTheta(a);
-    };
-    const onUp = () => {
+    },
+    onDragMove: (pt) => {
+      const rad = Math.atan2(-(pt.y - centerY), pt.x - centerX);
+      let a = (rad * 180) / Math.PI;
+      if (a < 0) a += 360;
+      if (a > 180) a -= 180;
+      a = Math.max(sweepMin, Math.min(sweepMax, a));
+      setTheta(a);
+    },
+    onDragEnd: () => {
       setIsDragging(false);
-      window.removeEventListener("pointermove", onMove);
-      window.removeEventListener("pointerup", onUp);
-    };
-    window.addEventListener("pointermove", onMove);
-    window.addEventListener("pointerup", onUp);
-  }, [sweepMin, sweepMax]);
+    },
+  });
 
   const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 
