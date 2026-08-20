@@ -1135,8 +1135,9 @@ function make3DCalcCard(settings: GeneratorSettings): GeometryCard {
   if (target === "vertices") {
     return {
       id: nextId(), topic: "3d-shapes", cardType: "calculation", variant: "compute",
-      frontPrompt: `A polyhedron has ${poly.F} faces and ${poly.E} edges. Solve for the number of vertices.`,
-      frontSpeechText: `A polyhedron has ${poly.F} faces and ${poly.E} edges. How many vertices does it have?`,
+      frontPrompt: `${poly.F} faces, ${poly.E} edges, ? vertices`,
+      revealedPrompt: `${poly.F} faces, ${poly.E} edges, ${poly.V} vertices`,
+      frontSpeechText: `${poly.F} faces, ${poly.E} edges. How many vertices?`,
       backSvgExamples: [{ shape: poly.shape, dimensions: { labelMode: "numeric" }, labelMode: "numeric" }],
       backSteps: [
         { equationTokens: [tok("v","V","#d8b4fe"), op("−"), tok("e","E","#ffd45e"), op("+"), tok("f","F","#5ee8ff"), eq(), tok("two","2")], reason: "Euler's Polyhedral Formula" },
@@ -1144,7 +1145,7 @@ function make3DCalcCard(settings: GeneratorSettings): GeometryCard {
         { equationTokens: [tok("v","V","#d8b4fe"), op("−"), tok("num",`${poly.E - poly.F}`), eq(), tok("two","2")], reason: "Simplify expression" },
         { equationTokens: [tok("v","V","#d8b4fe"), eq(), tok("rhs",`${poly.V}`,"#d8b4fe")], reason: "Evaluate" },
       ],
-      backSpeechText: `Vertices minus edges plus faces equals 2. The polyhedron has ${poly.V} vertices`, numericAnswer: poly.V, color,
+      backSpeechText: `${poly.V} vertices. Vertices minus edges plus faces equals 2`, numericAnswer: poly.V, color,
     };
   }
 
@@ -1152,8 +1153,9 @@ function make3DCalcCard(settings: GeneratorSettings): GeometryCard {
     const sumVF = poly.V + poly.F;
     return {
       id: nextId(), topic: "3d-shapes", cardType: "calculation", variant: "compute",
-      frontPrompt: `A polyhedron has ${poly.V} vertices and ${poly.F} faces. Solve for the number of edges.`,
-      frontSpeechText: `A polyhedron has ${poly.V} vertices and ${poly.F} faces. How many edges does it have?`,
+      frontPrompt: `${poly.V} vertices, ${poly.F} faces, ? edges`,
+      revealedPrompt: `${poly.V} vertices, ${poly.F} faces, ${poly.E} edges`,
+      frontSpeechText: `${poly.V} vertices, ${poly.F} faces. How many edges?`,
       backSvgExamples: [{ shape: poly.shape, dimensions: { labelMode: "numeric" }, labelMode: "numeric" }],
       backSteps: [
         { equationTokens: [tok("v","V","#d8b4fe"), op("−"), tok("e","E","#ffd45e"), op("+"), tok("f","F","#5ee8ff"), eq(), tok("two","2")], reason: "Euler's Polyhedral Formula" },
@@ -1161,7 +1163,7 @@ function make3DCalcCard(settings: GeneratorSettings): GeometryCard {
         { equationTokens: [tok("num",`${sumVF}`), op("−"), tok("e","E","#ffd45e"), eq(), tok("two","2")], reason: "Simplify expression" },
         { equationTokens: [tok("e","E","#ffd45e"), eq(), tok("rhs",`${poly.E}`,"#ffd45e")], reason: "Evaluate" },
       ],
-      backSpeechText: `The polyhedron has ${poly.E} edges`, numericAnswer: poly.E, color,
+      backSpeechText: `${poly.E} edges. Vertices minus edges plus faces equals 2`, numericAnswer: poly.E, color,
     };
   }
 
@@ -1169,8 +1171,9 @@ function make3DCalcCard(settings: GeneratorSettings): GeometryCard {
   const diffVE = poly.V - poly.E;
   return {
     id: nextId(), topic: "3d-shapes", cardType: "calculation", variant: "compute",
-    frontPrompt: `A polyhedron has ${poly.V} vertices and ${poly.E} edges. Solve for the number of faces.`,
-    frontSpeechText: `A polyhedron has ${poly.V} vertices and ${poly.E} edges. How many faces does it have?`,
+    frontPrompt: `${poly.V} vertices, ${poly.E} edges, ? faces`,
+    revealedPrompt: `${poly.V} vertices, ${poly.E} edges, ${poly.F} faces`,
+    frontSpeechText: `${poly.V} vertices, ${poly.E} edges. How many faces?`,
     backSvgExamples: [{ shape: poly.shape, dimensions: { labelMode: "numeric" }, labelMode: "numeric" }],
     backSteps: [
       { equationTokens: [tok("v","V","#d8b4fe"), op("−"), tok("e","E","#ffd45e"), op("+"), tok("f","F","#5ee8ff"), eq(), tok("two","2")], reason: "Euler's Polyhedral Formula" },
@@ -1178,7 +1181,7 @@ function make3DCalcCard(settings: GeneratorSettings): GeometryCard {
       { equationTokens: [tok("num",`${diffVE}`), op("+"), tok("f","F","#5ee8ff"), eq(), tok("two","2")], reason: "Simplify expression" },
       { equationTokens: [tok("f","F","#5ee8ff"), eq(), tok("rhs",`${poly.F}`,"#5ee8ff")], reason: "Evaluate" },
     ],
-    backSpeechText: `The polyhedron has ${poly.F} faces`, numericAnswer: poly.F, color,
+    backSpeechText: `${poly.F} faces. Vertices minus edges plus faces equals 2`, numericAnswer: poly.F, color,
   };
 }
 

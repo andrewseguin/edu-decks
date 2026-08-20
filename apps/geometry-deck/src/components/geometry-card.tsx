@@ -353,17 +353,19 @@ export function GeometryCard({
         <div
           className={cn(
             "flex flex-col items-center justify-center px-4 transition-all duration-300 w-full",
-            isFlipped ? "gap-0 py-0" : "gap-3 sm:gap-4 py-2"
+            isFlipped && card.frontSvg ? "gap-0 py-0" : "gap-3 sm:gap-4 py-2"
           )}
         >
-          {card.frontPrompt && (
+          {(card.frontPrompt || card.revealedPrompt) && (
             <p
               className={cn(
                 "font-bold text-white text-center leading-tight text-xl sm:text-2xl md:text-3xl tracking-wide transition-all duration-300",
-                isFlipped ? "max-h-0 opacity-0 overflow-hidden pb-0 m-0" : "max-h-[80px] opacity-100 pb-1 sm:pb-2"
+                isFlipped && card.frontSvg ? "max-h-0 opacity-0 overflow-hidden pb-0 m-0" : "max-h-[80px] opacity-100 pb-1 sm:pb-2"
               )}
             >
-              {card.frontPrompt}
+              <FormattedMathText
+                text={isFlipped && card.revealedPrompt ? card.revealedPrompt : (card.frontPrompt ?? "")}
+              />
             </p>
           )}
           {card.frontSvg && (

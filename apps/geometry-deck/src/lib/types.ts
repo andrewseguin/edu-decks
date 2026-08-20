@@ -114,8 +114,10 @@ export type GeometryCard = {
   // Front face
   /** Term cards: the term text e.g. "Supplementary angles" */
   frontLabel?: string;
-  /** Term cards: the predicate e.g. "are…?" */
+  /** Term cards: the predicate e.g. "are…?" / calculation cards: prompt */
   frontPrompt?: string;
+  /** Optional updated prompt text displayed upon card reveal */
+  revealedPrompt?: string;
   /** Formula + calculation cards: shape diagram on the front */
   frontSvg?: SvgDescriptor;
   frontSpeechText: string;
