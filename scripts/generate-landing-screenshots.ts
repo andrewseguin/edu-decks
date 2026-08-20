@@ -97,7 +97,7 @@ async function generateLandingScreenshots() {
   await page.waitForSelector('main');
   await page.waitForTimeout(600);
 
-  // Set Light Theme & Whole Numbers
+  // Set Light Theme & Addition Only (Brand Emerald Green Card)
   await page.evaluate(() => {
     document.documentElement.classList.remove('dark');
     document.documentElement.classList.add('light');
@@ -105,7 +105,9 @@ async function generateLandingScreenshots() {
     localStorage.setItem('math-deck-operations', JSON.stringify(['+']));
     localStorage.setItem('math-deck-number-type', '"whole"');
   });
-  await page.waitForTimeout(300);
+  await page.goto('http://localhost:9003');
+  await page.waitForSelector('main');
+  await page.waitForTimeout(500);
   await clearFocus(page);
 
   // 1. Front (Light)
@@ -117,8 +119,12 @@ async function generateLandingScreenshots() {
     document.documentElement.classList.remove('light');
     document.documentElement.classList.add('dark');
     localStorage.setItem('theme', 'dark');
+    localStorage.setItem('math-deck-operations', JSON.stringify(['+']));
+    localStorage.setItem('math-deck-number-type', '"whole"');
   });
-  await page.waitForTimeout(300);
+  await page.goto('http://localhost:9003');
+  await page.waitForSelector('main');
+  await page.waitForTimeout(500);
   await clearFocus(page);
   await page.screenshot({ path: path.join(arithmeticDir, 'landscape-1-card-front-dark.png') });
   console.log('Saved: arithmetic/landscape-1-card-front-dark.png');
