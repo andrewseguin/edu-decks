@@ -34,6 +34,11 @@ async function uploadAabBundles() {
       packageName: 'org.edudecks.reading',
       aabPath: path.join(root, 'apps/reading-deck/android/app/build/outputs/bundle/release/app-release.aab'),
     },
+    {
+      name: 'geometry-deck',
+      packageName: 'org.edudecks.geometry',
+      aabPath: path.join(root, 'apps/geometry-deck/android/app/build/outputs/bundle/release/app-release.aab'),
+    },
   ];
 
   for (const app of apps) {

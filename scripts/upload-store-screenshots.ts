@@ -58,6 +58,30 @@ FEATURES:
 
 Reading Deck empowers early readers to develop confidence in phonemic awareness and early literacy skills.`,
     },
+    {
+      name: 'geometry-deck',
+      packageName: 'org.edudecks.geometry',
+      assetDir: path.join(root, 'store-assets/geometry-deck'),
+      title: 'Geometry Deck - Shapes & Math',
+      shortDescription: 'Master geometry with interactive proofs, formulas, 3D solids, and math quizzes.',
+      fullDescription: `Master geometric formulas, properties, and algebraic proofs with Geometry Deck! Designed for upper elementary, middle school, and early high school students (ages 9 to 14), Geometry Deck turns complex geometry into intuitive, interactive visual models.
+
+TOPICS COVERED:
+• Triangles: Pythagorean theorem (a² + b² = c²), equilateral, isosceles, scalene properties, triangle angle sum (180°), and base-height area formulas.
+• Angles: Acute, obtuse, right, reflex, complementary (90°), supplementary (180°), vertically opposite, and parallel line transversals (alternate and co-interior).
+• Quadrilaterals: Rectangles, squares, parallelograms, trapezoids, and rhombuses with area and perimeter calculations.
+• Circles: Radius, diameter, circumference (C = 2πr), area (A = πr²), and the geometric definition of Pi (π).
+• Polygons: Interior angle sums ((n - 2) × 180°), exterior angle sums (360°), and regular polygon side calculations.
+• 3D Shapes: Prisms, cylinders, cones, spheres, pyramids, and Euler's Polyhedral Formula (V - E + F = 2).
+
+INTERACTIVE QUIZ MODE:
+• Numeric Calculation Quizzes: Solve for missing angles, unknown hypotenuses, area, perimeter, and 3D volume.
+• On-Screen Keypad: Instant answer validation, audio speech feedback, celebration chimes, and streak tracking.
+
+100% PRIVATE AND AD-FREE:
+• No advertisements, no subscriptions, no user account required, and zero tracking.
+• Works completely offline — built for classrooms, homeschoolers, and distraction-free study.`,
+    },
   ];
 
   for (const app of apps) {

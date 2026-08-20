@@ -165,6 +165,45 @@ async function generateAllStoreAssets() {
         await launchActiveQuizMode(page);
       },
     },
+    {
+      name: 'geometry-deck',
+      url: 'https://geometry-dev.edudecks.org',
+      dir: path.join(root, 'store-assets/geometry-deck'),
+      setupCard1: async (page: Page) => {
+        await page.evaluate(() => {
+          localStorage.setItem('theme', 'light');
+          localStorage.setItem('geometry-deck-topics', JSON.stringify(['triangles']));
+          localStorage.setItem('geometry-deck-card-types', JSON.stringify(['term']));
+        });
+        await page.reload({ waitUntil: 'networkidle' });
+      },
+      setupCard2: async (page: Page) => {
+        await page.evaluate(() => {
+          localStorage.setItem('geometry-deck-topics', JSON.stringify(['triangles']));
+          localStorage.setItem('geometry-deck-card-types', JSON.stringify(['calculation']));
+        });
+        await page.reload({ waitUntil: 'networkidle' });
+        const card = page.locator('main > div').first();
+        if (await card.isVisible()) {
+          await card.click();
+          await advanceToLastAnimationStep(page);
+        }
+      },
+      setupCard3: async (page: Page) => {
+        await page.evaluate(() => {
+          localStorage.setItem('theme', 'light');
+        });
+        await page.reload({ waitUntil: 'networkidle' });
+        await openSelectorModal(page);
+      },
+      setupCard4: async (page: Page) => {
+        await page.evaluate(() => {
+          localStorage.setItem('geometry-deck-topics', JSON.stringify(['triangles', 'angles', 'quadrilaterals']));
+        });
+        await page.reload({ waitUntil: 'networkidle' });
+        await launchActiveQuizMode(page);
+      },
+    },
   ];
 
   for (const app of APPS) {
