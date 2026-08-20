@@ -2,6 +2,7 @@
 const isMobile = Boolean(process.env.MOBILE_BUILD);
 
 const nextConfig = {
+  distDir: isMobile ? '.next-mobile' : undefined,
   transpilePackages: ["@decks/core"],
   output: isMobile ? "export" : undefined,
   images: {

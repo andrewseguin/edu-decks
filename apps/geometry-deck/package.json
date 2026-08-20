@@ -5,6 +5,11 @@
   "scripts": {
     "dev": "next dev --turbopack -p 9004",
     "build": "NODE_ENV=production next build",
+    "build:mobile": "MOBILE_BUILD=true next build",
+    "cap:sync": "MOBILE_BUILD=true next build && cap sync",
+    "build:android:bundle": "MOBILE_BUILD=true next build && cap sync android && cd android && ./gradlew bundleRelease",
+    "cap:open:android": "cap open android",
+    "cap:open:ios": "cap open ios",
     "start": "next start -p 9004",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
@@ -13,6 +18,7 @@
     "test:visual:update": "playwright test --update-snapshots"
   },
   "dependencies": {
+    "@capacitor/core": "^8.5.0",
     "@decks/core": "workspace:*",
     "@radix-ui/react-label": "^2.1.2",
     "@radix-ui/react-popover": "^1.1.6",
@@ -30,6 +36,9 @@
     "tailwindcss-animate": "^1.0.7"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.5.0",
+    "@capacitor/cli": "^8.5.0",
+    "@capacitor/ios": "^8.5.0",
     "@playwright/test": "^1.62.1",
     "@types/node": "^20",
     "@types/react": "^19",

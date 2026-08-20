@@ -71,8 +71,10 @@ async function uploadAabBundles() {
         console.log(`  ✓ Uploaded bundle with versionCode: ${versionCode}`);
       } catch (uploadErr: any) {
         if (uploadErr?.message?.includes('already been used')) {
-          console.log(`  ℹ️ Version code already uploaded. Promoting existing versionCode 3 to '${track}' track...`);
-          versionCode = 3;
+          const listRes = await androidpublisher.edits.bundles.list({ packageName: app.packageName, editId });
+          const existingCodes = (listRes.data.bundles || []).map(b => Number(b.versionCode)).filter(n => !isNaN(n));
+          versionCode = existingCodes.length > 0 ? Math.max(...existingCodes) : 1;
+          console.log(`  ℹ️ Bundle already uploaded. Promoting existing versionCode ${versionCode} to '${track}' track...`);
         } else {
           throw uploadErr;
         }
@@ -100,6 +102,8 @@ async function uploadAabBundles() {
         ? fs.readFileSync(releaseNotesPath, 'utf-8').trim()
         : '• Performance improvements and bug fixes.';
 
+      const releaseStatus = process.env.RELEASE_STATUS || (app.name === 'geometry-deck' && track === 'production' ? 'draft' : 'completed');
+
       // 4. Assign to Track
       await androidpublisher.edits.tracks.update({
         packageName: app.packageName,
@@ -109,7 +113,7 @@ async function uploadAabBundles() {
           releases: [
             {
               versionCodes: [String(versionCode)],
-              status: 'completed',
+              status: releaseStatus,
               releaseNotes: [
                 {
                   language: 'en-US',
@@ -120,7 +124,7 @@ async function uploadAabBundles() {
           ],
         },
       });
-      console.log(`  ✓ Assigned release version ${versionCode} to track '${track}' with release notes`);
+      console.log(`  ✓ Assigned release version ${versionCode} (${releaseStatus}) to track '${track}' with release notes`);
 
 
       // 4. Commit Edit Session
