@@ -83,7 +83,7 @@ async function generateLandingScreenshots() {
   fs.mkdirSync(readingDir, { recursive: true });
 
   const context = await browser.newContext({
-    viewport: { width: 880, height: 550 },
+    viewport: { width: 960, height: 600 },
     deviceScaleFactor: 2,
   });
 
