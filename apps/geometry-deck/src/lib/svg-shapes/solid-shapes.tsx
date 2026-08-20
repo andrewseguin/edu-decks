@@ -370,8 +370,8 @@ export function Pyramid({ dims, mutation }: { dims: Record<string, number | stri
   const revealedAnswer = mutation?.revealAnswer;
   const filled = mutation?.fillInterior;
 
-  const W = 90, H = 80, D = 46;
-  const ox = 60, oy = 135;
+  const W = 100, H = 75, D = 48;
+  const ox = 55, oy = 138;
   const cos30 = Math.cos(Math.PI / 6), sin30 = Math.sin(Math.PI / 6);
   const dxD = (D / 2) * cos30, dyD = -(D / 2) * sin30;
 
@@ -432,12 +432,12 @@ export function Pyramid({ dims, mutation }: { dims: Record<string, number | stri
         <SvgLabel x={(fl.x + fr.x) / 2} y={fl.y + 14} text={lm === "variable" ? "B" : `B = ${dims.B}`} color={COLOR_GOLD} size={13} />
       )}
       {dims.h !== undefined && (
-        <SvgLabel x={apex.x - 14} y={(apex.y + baseMid.y) / 2} text={lm === "variable" ? "h" : `${dims.h}`} color={COLOR_CYAN} size={13} />
+        <SvgLabel x={apex.x - 16} y={(apex.y + baseMid.y) / 2} text={lm === "variable" ? "h" : `${dims.h}`} color={COLOR_CYAN} size={13} />
       )}
 
       {/* Volume Unknown RevealText */}
       {unknownDim === "V" && (
-        <RevealText x={apex.x + 18} y={(apex.y + baseMid.y) / 2 + 8} variable="V" revealedValue={revealedAnswer} color={COLOR_WHITE} fontSize={18} fontWeight="900" />
+        <RevealText x={(fl.x + fr.x) / 2} y={oy - 20} variable="V" revealedValue={revealedAnswer} color={COLOR_WHITE} fontSize={18} fontWeight="900" />
       )}
     </svg>
   );
