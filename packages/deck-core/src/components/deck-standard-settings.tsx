@@ -140,6 +140,12 @@ export function DeckStandardSettings({
             checked={isOutlinesActive}
             onCheckedChange={handleOutlinesChange}
           />
+          <SettingsToggle
+            id="deck-dev-slow-anim-toggle"
+            label="Slow Animations (S)"
+            checked={devSettings.slowAnimations}
+            onCheckedChange={devSettings.setSlowAnimations}
+          />
         </SettingsSection>
       )}
 

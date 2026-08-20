@@ -46,4 +46,24 @@ describe("deck-core: useDevSettings", () => {
 
     expect(result.current.showDebugOutlines).toBe(false);
   });
+
+  it("handles S keydown event to toggle slowAnimations", () => {
+    const { result } = renderHook(() => useDevSettings());
+
+    expect(result.current.slowAnimations).toBe(false);
+
+    // Simulate pressing 's'
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "s" }));
+    });
+
+    expect(result.current.slowAnimations).toBe(true);
+
+    // Press 'S' again
+    act(() => {
+      window.dispatchEvent(new KeyboardEvent("keydown", { key: "S" }));
+    });
+
+    expect(result.current.slowAnimations).toBe(false);
+  });
 });
