@@ -6,7 +6,7 @@ import sharp from 'sharp';
 async function exportStoreIcons() {
   const browser = await chromium.launch({ headless: true });
   const page = await browser.newPage({
-    viewport: { width: 1400, height: 1400 },
+    viewport: { width: 3000, height: 3000 },
     deviceScaleFactor: 2,
   });
 
@@ -47,6 +47,7 @@ async function exportStoreIcons() {
   console.log('✅ Exported full-bleed Arithmetic Deck store icon (512x512)');
 
   // 3. Reading Deck Icon (512x512 full-bleed Warm Cream)
+  // 3. Reading Deck Icon (512x512 full-bleed Warm Cream)
   const readingIcon = page.locator('#icon-reading');
   const readingStorePath = path.join(root, 'store-assets/reading-deck/app-icon-512x512.png');
   const readingLandingPath = path.join(root, 'apps/landing-page/public/screenshots/reading/app-icon-512x512.png');
@@ -55,6 +56,16 @@ async function exportStoreIcons() {
   await readingIcon.screenshot({ path: readingStorePath });
   fs.copyFileSync(readingStorePath, readingLandingPath);
   console.log('✅ Exported full-bleed Reading Deck store icon (512x512)');
+
+  // 4. Geometry Deck Icon (512x512 full-bleed Warm Cream)
+  const geometryIcon = page.locator('#icon-geometry');
+  const geometryStorePath = path.join(root, 'store-assets/geometry-deck/app-icon-512x512.png');
+  const geometryLandingPath = path.join(root, 'apps/landing-page/public/screenshots/geometry/app-icon-512x512.png');
+  fs.mkdirSync(path.dirname(geometryStorePath), { recursive: true });
+  fs.mkdirSync(path.dirname(geometryLandingPath), { recursive: true });
+  await geometryIcon.screenshot({ path: geometryStorePath });
+  fs.copyFileSync(geometryStorePath, geometryLandingPath);
+  console.log('✅ Exported full-bleed Geometry Deck store icon (512x512)');
 
   // -------------------------------------------------------------------------
   // Part 2: True Transparent Web Icons & App Logos (No background canvas)
@@ -86,6 +97,10 @@ async function exportStoreIcons() {
   const readingTransparent = page.locator('#icon-reading-transparent');
   const readingTransTemp = path.join(root, 'scripts/scratch/reading-trans-512.png');
   await readingTransparent.screenshot({ path: readingTransTemp, omitBackground: true });
+
+  const geometryTransparent = page.locator('#icon-geometry-transparent');
+  const geometryTransTemp = path.join(root, 'scripts/scratch/geometry-trans-512.png');
+  await geometryTransparent.screenshot({ path: geometryTransTemp, omitBackground: true });
 
   await browser.close();
 
@@ -126,6 +141,18 @@ async function exportStoreIcons() {
   await sharp(readingTransTemp).resize(16, 16).png().toFile(path.join(readingPublic, 'favicon-16x16.png'));
   await sharp(readingTransTemp).resize(32, 32).png().toFile(path.join(readingPublic, 'favicon.ico'));
   console.log('✅ Generated Reading Deck web & app icons');
+
+  // --- Geometry Deck Web Assets ---
+  const geometryPublic = path.join(root, 'apps/geometry-deck/public');
+  await sharp(geometryTransTemp).resize(512, 512).png().toFile(path.join(geometryPublic, 'logo.png'));
+  await sharp(geometryStorePath).resize(512, 512).png().toFile(path.join(geometryPublic, 'icon-512.png'));
+  await sharp(geometryStorePath).resize(512, 512).png().toFile(path.join(geometryPublic, 'icon-maskable-512.png'));
+  await sharp(geometryStorePath).resize(192, 192).png().toFile(path.join(geometryPublic, 'icon-192.png'));
+  await sharp(geometryStorePath).resize(180, 180).png().toFile(path.join(geometryPublic, 'apple-touch-icon.png'));
+  await sharp(geometryTransTemp).resize(32, 32).png().toFile(path.join(geometryPublic, 'favicon-32x32.png'));
+  await sharp(geometryTransTemp).resize(16, 16).png().toFile(path.join(geometryPublic, 'favicon-16x16.png'));
+  await sharp(geometryTransTemp).resize(32, 32).png().toFile(path.join(geometryPublic, 'favicon.ico'));
+  console.log('✅ Generated Geometry Deck web & app icons');
 
   console.log('✨ All icons exported successfully!');
 }
