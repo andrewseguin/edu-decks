@@ -3,7 +3,7 @@
 import * as React from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ExternalLink, CheckCircle2, GraduationCap, HeartHandshake } from "lucide-react";
+import { ExternalLink, CheckCircle2, HeartHandshake } from "lucide-react";
 import { DECK_COLORS } from "@decks/core";
 import { ThemeToggle } from "../components/theme-toggle";
 
@@ -212,10 +212,9 @@ export default function HomePage() {
                   <p className="text-sm font-medium text-muted-foreground mt-1">
                     {app.subtitle}
                   </p>
-                  <div className="flex items-center gap-1.5 text-xs text-muted-foreground/90 mt-1.5 font-medium">
-                    <GraduationCap className="w-3.5 h-3.5" />
-                    <span>{app.ageRange}</span>
-                  </div>
+                  <p className="text-xs text-muted-foreground/90 mt-1.5 font-medium">
+                    {app.ageRange}
+                  </p>
                 </div>
 
                 {/* Actual Screenshot Frame (Native 16:9 Aspect Ratio) */}
