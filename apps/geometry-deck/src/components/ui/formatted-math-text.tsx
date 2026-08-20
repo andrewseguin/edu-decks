@@ -33,7 +33,7 @@ const COLOR_KEYWORDS: Record<string, string> = {
   "side (s)": "#5ee8ff", // cyan
   "radius (r)": "#ffd45e", // gold
   "radius²": "#ffd45e", // gold
-  "radius³": "#5ee8ff",
+  "radius³": "#ffd45e", // gold
   "diameter (d)": "#ffd45e", // gold
   "circumference (C)": "#d8b4fe", // neon lilac
   // Standalone word keywords:
@@ -52,7 +52,7 @@ const COLOR_KEYWORDS: Record<string, string> = {
   "c²": "#d8b4fe", // neon lilac
   "s²": "#5ee8ff", // cyan
   "r²": "#ffd45e", // gold
-  "r³": "#5ee8ff", // cyan
+  "r³": "#ffd45e", // gold
   // Specific angle notations:
   "∠A": "#5ee8ff",
   "∠B": "#ffd45e",
@@ -272,7 +272,7 @@ export function FormattedMathText({
               <span>V = </span>
               <StackedFraction numerator="4" denominator="3" />
               <span>π</span>
-              <span style={{ color: "#5ee8ff" }} className="font-bold">r³</span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">r³</span>
             </React.Fragment>
           );
         }
@@ -280,10 +280,10 @@ export function FormattedMathText({
           return (
             <React.Fragment key={idx}>
               <span>SA = 2π</span>
-              <span style={{ color: "#5ee8ff" }} className="font-bold">r²</span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">r²</span>
               <span> + 2π</span>
-              <span style={{ color: "#5ee8ff" }} className="font-bold">r</span>
-              <span style={{ color: "#ffd45e" }} className="font-bold">h</span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">r</span>
+              <span style={{ color: "#5ee8ff" }} className="font-bold">h</span>
             </React.Fragment>
           );
         }
@@ -309,7 +309,7 @@ export function FormattedMathText({
           return (
             <React.Fragment key={idx}>
               <span>SA = 4π</span>
-              <span style={{ color: "#5ee8ff" }} className="font-bold">r²</span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">r²</span>
             </React.Fragment>
           );
         }
@@ -317,7 +317,7 @@ export function FormattedMathText({
           return (
             <React.Fragment key={idx}>
               <span>A = π</span>
-              <span style={{ color: "#5ee8ff" }} className="font-bold">r²</span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">r²</span>
             </React.Fragment>
           );
         }
@@ -325,7 +325,7 @@ export function FormattedMathText({
           return (
             <React.Fragment key={idx}>
               <span>A = π · </span>
-              <span style={{ color: "#5ee8ff" }} className="font-bold">r²</span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">r²</span>
             </React.Fragment>
           );
         }
@@ -333,7 +333,7 @@ export function FormattedMathText({
           return (
             <React.Fragment key={idx}>
               <span>C = 2π</span>
-              <span style={{ color: "#5ee8ff" }} className="font-bold">r</span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">r</span>
             </React.Fragment>
           );
         }
@@ -341,7 +341,7 @@ export function FormattedMathText({
           return (
             <React.Fragment key={idx}>
               <span>C = 2 · π · </span>
-              <span style={{ color: "#5ee8ff" }} className="font-bold">r</span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">r</span>
             </React.Fragment>
           );
         }
@@ -349,7 +349,7 @@ export function FormattedMathText({
           return (
             <React.Fragment key={idx}>
               <span>d = 2</span>
-              <span style={{ color: "#5ee8ff" }} className="font-bold">r</span>
+              <span style={{ color: "#ffd45e" }} className="font-bold">r</span>
             </React.Fragment>
           );
         }

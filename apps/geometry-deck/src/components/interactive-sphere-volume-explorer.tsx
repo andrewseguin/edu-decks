@@ -10,7 +10,7 @@ type InteractiveSphereVolumeProps = {
 
 const SVG_H = 195;
 
-const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan (r / radius)
+const COLOR_RADIUS = "#ffd45e"; // Warm Gold (r / radius)
 const COLOR_VOL = "#ffffff";    // Bold Crisp White
 
 export function InteractiveSphereVolumeExplorer({ color }: InteractiveSphereVolumeProps) {

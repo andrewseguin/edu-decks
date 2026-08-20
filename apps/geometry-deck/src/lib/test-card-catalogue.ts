@@ -984,7 +984,7 @@ export const TEST_CARDS: Record<string, GeometryCard> = {
     frontLabel: "Surface area of a cylinder", frontPrompt: "formula is…?",
     frontSpeechText: "The formula for the surface area of a cylinder is…?",
     backDefinition: "SA = 2πr² + 2πrh",
-    backDefinitionSubtitle: "Surface Area = 2 Bases (2πr²) + Lateral Rectangle (2πrh)",
+    backDefinitionSubtitle: "Surface Area = 2 · π · radius² + 2 · π · radius · height",
     backSvgExamples: [{ shape: "cylinder", dimensions: { r: "r", h: "h", labelMode: "variable" }, labelMode: "variable" }],
     backSteps: [{ formulaLine: "SA = 2πr² + 2πrh" }],
     backSpeechText: "Surface area equals 2 pi r squared plus 2 pi r h",

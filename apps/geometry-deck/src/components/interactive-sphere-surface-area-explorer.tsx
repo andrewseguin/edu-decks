@@ -1,177 +1,128 @@
 "use client";
 
-import React, { useState, useCallback, useEffect, useRef } from "react";
+import React, { useState, useCallback, useRef } from "react";
 import { useContainerWidth } from "@/hooks/use-container-width";
-import { cn } from "@/lib/utils";
 
 type InteractiveSphereSurfaceAreaProps = {
   color?: string;
 };
 
-const SVG_H = 155;
+const SVG_H = 195;
 
-const COLOR_RADIUS = "#5ee8ff"; // Electric Cyan (r)
+const COLOR_RADIUS = "#ffd45e"; // Warm Gold (r)
 const COLOR_SA = "#ffffff";     // Bold Crisp White
-const COLOR_CIRCLES = "rgba(94, 232, 255, 0.35)";
 
 export function InteractiveSphereSurfaceAreaExplorer({ color }: InteractiveSphereSurfaceAreaProps) {
   const { containerRef, width: rawW } = useContainerWidth(320);
-  const SVG_W = Math.max(260, Math.min(460, rawW - 24));
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const SVG_W = Math.max(280, Math.min(460, rawW - 24));
   const CX = SVG_W / 2;
-  const CY = 75;
+  const CY = 95;
 
-  const [r, setR] = useState(3); // radius units
-  const [step, setStep] = useState<1 | 2>(1);
-  const [hasInteracted, setHasInteracted] = useState(false);
-  const [ambientAngle, setAmbientAngle] = useState(0);
+  const minR = 2;
+  const maxR = 6;
+  const [r, setR] = useState(3); // radius units [2..6]
+  const [isDragging, setIsDragging] = useState(false);
 
-  const ambientRef = useRef<number>(0);
+  const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => e.stopPropagation(), []);
 
-  const stop = useCallback((e: React.PointerEvent | React.MouseEvent) => {
-    e.stopPropagation();
-    setHasInteracted(true);
-  }, []);
-
-  // Gentle ambient equator tilt on initial reveal
-  useEffect(() => {
-    if (hasInteracted || step === 2) return;
-    let start: number | null = null;
-    const animate = (ts: number) => {
-      if (!start) start = ts;
-      const elapsed = ts - start;
-      const ang = Math.sin(elapsed / 900) * 10;
-      setAmbientAngle(ang);
-      ambientRef.current = requestAnimationFrame(animate);
-    };
-    ambientRef.current = requestAnimationFrame(animate);
-    return () => cancelAnimationFrame(ambientRef.current);
-  }, [hasInteracted, step]);
-
-  const cr = 54;
+  const unitPx = 14;
+  const cr = r * unitPx;
   const rSq = r * r;
   const saCoeff = 4 * rSq;
 
-  // 4 Great circles layout in 2x2 grid
-  const smallCr = 25;
-  const gridOffX = 40;
-  const gridOffY = 32;
+  const updateFromPointer = useCallback((clientX: number) => {
+    if (!svgRef.current) return;
+    const rect = svgRef.current.getBoundingClientRect();
+    if (rect.width <= 0) return;
+    const scaleX = SVG_W / rect.width;
+    const svgPointerX = (clientX - rect.left) * scaleX;
+    const distFromCenter = svgPointerX - CX;
+    const nextR = Math.max(minR, Math.min(maxR, Math.round(distFromCenter / unitPx)));
+    setR(nextR);
+  }, [CX, SVG_W]);
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    stop(e);
+    setIsDragging(true);
+    updateFromPointer(e.clientX);
+    (e.currentTarget as Element).setPointerCapture(e.pointerId);
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+    updateFromPointer(e.clientX);
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (!isDragging) return;
+    setIsDragging(false);
+    try {
+      (e.currentTarget as Element).releasePointerCapture(e.pointerId);
+    } catch {}
+  };
+
+  const handleX = CX + cr;
+  const handleY = CY;
 
   return (
-    <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pb-3" onClick={stop} onPointerDown={stop}>
-      <svg viewBox={`0 0 ${SVG_W} ${SVG_H}`} className="w-full touch-none select-none overflow-visible">
-        {step === 1 ? (
-          /* Step 1: 3D Sphere with shaded surface */
-          <g>
-            <circle cx={CX} cy={CY} r={cr} fill="rgba(94, 232, 255, 0.22)" stroke="rgba(255, 255, 255, 0.95)" strokeWidth={2.5} />
+    <div ref={containerRef} className="flex flex-col items-center gap-2 w-full pt-1 pb-1" onClick={stop} onPointerDown={stop}>
+      <svg
+        ref={svgRef}
+        viewBox={`0 0 ${SVG_W} ${SVG_H}`}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
+        className="w-full touch-none select-none overflow-visible max-h-[195px] cursor-ew-resize"
+      >
+        {/* Sphere Outer Boundary & Shading */}
+        <circle cx={CX} cy={CY} r={cr} fill="rgba(94, 232, 255, 0.22)" stroke="rgba(255, 255, 255, 0.95)" strokeWidth={2.5} />
 
-            {/* Equator Ellipse */}
-            <g transform={`rotate(${ambientAngle}, ${CX}, ${CY})`}>
-              <ellipse cx={CX} cy={CY} rx={cr} ry={16} fill="none" stroke="rgba(255, 255, 255, 0.45)" strokeWidth={1.5} strokeDasharray="4 3" />
-            </g>
+        {/* Equator Ellipse */}
+        <ellipse cx={CX} cy={CY} rx={cr} ry={cr * 0.3} fill="none" stroke="rgba(255, 255, 255, 0.45)" strokeWidth={1.5} strokeDasharray="4 3" />
 
-            {/* Center Dot */}
-            <circle cx={CX} cy={CY} r={3.5} fill="#ffffff" />
+        {/* Center Dot */}
+        <circle cx={CX} cy={CY} r={3.5} fill="#ffffff" />
 
-            {/* Radius line */}
-            <line x1={CX} y1={CY} x2={CX + cr * 0.707} y2={CY - cr * 0.707} stroke={COLOR_RADIUS} strokeWidth={2} strokeDasharray="3 2" />
-            <circle cx={CX + cr * 0.707} cy={CY - cr * 0.707} r={3} fill={COLOR_RADIUS} />
+        {/* Radius Horizontal Line along Equator */}
+        <line x1={CX} y1={CY} x2={handleX} y2={handleY} stroke={COLOR_RADIUS} strokeWidth={2.2} strokeDasharray="4 2" />
 
-            {/* Radius Label */}
-            <text
-              x={CX + cr * 0.45}
-              y={CY - cr * 0.45 - 10}
-              textAnchor="middle"
-              dominantBaseline="central"
-              fontSize={13}
-              fontWeight="800"
-              fill={COLOR_RADIUS}
-              fontFamily="var(--font-heading, system-ui)"
-              style={{ filter: "drop-shadow(0px 1px 2px rgba(0, 0, 0, 0.8))" }}
-            >
-              {r}
-            </text>
-          </g>
-        ) : (
-          /* Step 2: 4 Great Circles (each πr²) */
-          <g>
-            {[
-              { x: CX - gridOffX, y: CY - gridOffY, label: "1" },
-              { x: CX + gridOffX, y: CY - gridOffY, label: "2" },
-              { x: CX - gridOffX, y: CY + gridOffY, label: "3" },
-              { x: CX + gridOffX, y: CY + gridOffY, label: "4" },
-            ].map((gc, i) => (
-              <g key={i}>
-                <circle cx={gc.x} cy={gc.y} r={smallCr} fill={COLOR_CIRCLES} stroke="rgba(255, 255, 255, 0.95)" strokeWidth={1.8} />
-                <circle cx={gc.x} cy={gc.y} r={2.5} fill="#ffffff" />
-                <line x1={gc.x} y1={gc.y} x2={gc.x + smallCr} y2={gc.y} stroke={COLOR_RADIUS} strokeWidth={1.5} strokeDasharray="2 2" />
-                <text
-                  x={gc.x}
-                  y={gc.y + smallCr + 11}
-                  textAnchor="middle"
-                  dominantBaseline="central"
-                  fontSize={10}
-                  fontWeight="bold"
-                  fill="rgba(255, 255, 255, 0.85)"
-                  fontFamily="var(--font-heading, system-ui)"
-                >
-                  π · {r}² ({rSq}π)
-                </text>
-              </g>
-            ))}
-          </g>
-        )}
+        {/* Radius Drag Handle Indicator on Right Edge */}
+        <g className="pointer-events-none">
+          <circle cx={handleX} cy={handleY} r={11} fill="none" stroke="rgba(255, 255, 255, 0.85)" strokeWidth={1.5} opacity={0.7} className="animate-pulse" />
+          <circle cx={handleX} cy={handleY} r={7} fill="rgba(255, 255, 255, 0.35)" stroke="#ffffff" strokeWidth={2} />
+          <circle cx={handleX} cy={handleY} r={2.5} fill="#ffffff" />
+        </g>
+
+        {/* Radius Label */}
+        <text
+          x={CX + cr / 2}
+          y={CY - 12}
+          textAnchor="middle"
+          dominantBaseline="central"
+          fontSize={14}
+          fontWeight="800"
+          fill={COLOR_RADIUS}
+          fontFamily="var(--font-heading, system-ui)"
+          style={{ filter: "drop-shadow(0px 1px 3px rgba(0, 0, 0, 0.9))" }}
+        >
+          {r}
+        </text>
       </svg>
-
-      {/* Step Navigation Pills in Frosted Capsule */}
-      <div className="flex items-center gap-1 sm:gap-1.5 mt-0.5 bg-white/10 backdrop-blur-md px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full border border-white/25 shadow-sm pointer-events-auto select-none">
-        <button
-          onClick={() => {
-            setHasInteracted(true);
-            setStep(1);
-          }}
-          className={cn(
-            "px-2.5 sm:px-3 py-0.5 rounded-full text-[11px] sm:text-xs font-headline font-bold transition-all border-none",
-            step === 1 ? "bg-white/20 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white hover:bg-white/10"
-          )}
-        >
-          1. Sphere
-        </button>
-        <button
-          onClick={() => {
-            setHasInteracted(true);
-            setStep(2);
-          }}
-          className={cn(
-            "px-2.5 sm:px-3 py-0.5 rounded-full text-[11px] sm:text-xs font-headline font-bold transition-all border-none",
-            step === 2 ? "bg-white/20 text-white shadow-none" : "bg-transparent text-white/70 hover:text-white hover:bg-white/10"
-          )}
-        >
-          2. 4 Great Circles Proof
-        </button>
-      </div>
 
       {/* Live Typographic Equation Banner */}
       <div className="flex justify-center mt-1">
-        {step === 1 ? (
-          <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-base sm:text-lg font-bold font-headline select-none">
-            <span className="text-white">SA</span>
-            <span className="text-white/50">=</span>
-            <span className="text-white/80">4 · π ·</span>
-            <span style={{ color: COLOR_RADIUS }}>{r}²</span>
-            <span className="text-white/50">=</span>
-            <span style={{ color: COLOR_SA }} className="font-bold">{saCoeff}π</span>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 px-5 py-1.5 rounded-2xl bg-black/45 backdrop-blur-md border border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none">
-            <span className="text-white">SA</span>
-            <span className="text-white/50">=</span>
-            <span className="text-white/80">4 × (πr²)</span>
-            <span className="text-white/50">=</span>
-            <span style={{ color: COLOR_RADIUS }}>4 × {rSq}π</span>
-            <span className="text-white/50">=</span>
-            <span style={{ color: COLOR_SA }} className="font-bold">{saCoeff}π</span>
-          </div>
-        )}
+        <div className="flex items-center gap-2 px-5 py-1.5 rounded-full bg-black/35 border-y border-white/20 shadow-md text-sm sm:text-base font-bold font-headline select-none text-white">
+          <span>SA</span>
+          <span className="text-white/50">=</span>
+          <span className="text-white/80">4 · π ·</span>
+          <span style={{ color: COLOR_RADIUS }}>{r}²</span>
+          <span className="text-white/50">=</span>
+          <span className="text-white/80">4 · π · {rSq}</span>
+          <span className="text-white/50">=</span>
+          <span style={{ color: COLOR_SA }} className="font-bold">{saCoeff}π</span>
+        </div>
       </div>
     </div>
   );
