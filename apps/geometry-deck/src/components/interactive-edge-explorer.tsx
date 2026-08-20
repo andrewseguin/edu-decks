@@ -8,7 +8,7 @@ type InteractiveEdgeProps = {
   color?: string;
 };
 
-type ShapeType = "cube" | "prism" | "pyramid" | "cylinder";
+type ShapeType = "cube" | "prism" | "pyramid" | "tetrahedron" | "cylinder";
 
 const SVG_H = 225;
 const COLOR_EDGE = "#5ee8ff"; // Electric Cyan for Edges
@@ -116,27 +116,23 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
               closestId = edge.id;
             }
           });
+        } else if (shape === "tetrahedron") {
+          tetraEdges.forEach((edge) => {
+            const dSq = distSqToSegment(svgP.x, svgP.y, edge.p1.x, edge.p1.y, edge.p2.x, edge.p2.y);
+            if (dSq < minDistSq) {
+              minDistSq = dSq;
+              closestId = edge.id;
+            }
+          });
         } else if (shape === "cylinder") {
-          const thetaTop = Math.atan2((svgP.y - topCenter.y) / cylRy, (svgP.x - topCenter.x) / cylR);
-          const topNx = topCenter.x + cylR * Math.cos(thetaTop);
-          const topNy = topCenter.y + cylRy * Math.sin(thetaTop);
-          const topDistSq = (svgP.x - topNx) * (svgP.x - topNx) + (svgP.y - topNy) * (svgP.y - topNy);
-
-          const thetaBot = Math.atan2((svgP.y - botCenter.y) / cylRy, (svgP.x - botCenter.x) / cylR);
-          const botNx = botCenter.x + cylR * Math.cos(thetaBot);
-          const botNy = botCenter.y + cylRy * Math.sin(thetaBot);
-          const botDistSq = (svgP.x - botNx) * (svgP.x - botNx) + (svgP.y - botNy) * (svgP.y - botNy);
-
-          if (topDistSq < botDistSq) {
-            minDistSq = topDistSq;
-            closestId = 1;
-          } else {
-            minDistSq = botDistSq;
-            closestId = 2;
-          }
+          // Circular rim edges
+          const dTop = Math.abs(Math.hypot((svgP.x - topCenter.x) / cylR, (svgP.y - topCenter.y) / cylRy) - 1) * cylR;
+          const dBot = Math.abs(Math.hypot((svgP.x - botCenter.x) / cylR, (svgP.y - botCenter.y) / cylRy) - 1) * cylR;
+          if (dTop < dBot && dTop < 20) closestId = 1;
+          else if (dBot < 20) closestId = 2;
         }
 
-        if (minDistSq <= 6400 && closestId > 0) {
+        if (closestId > 0) {
           setSelectedEdge((prev) => (prev === closestId ? 0 : closestId));
         }
       }
@@ -147,7 +143,7 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
   // 3D Camera & Projection
   // ──────────────────────────────────────────────────────────────────────────
   const yaw = (rotationDeg * Math.PI) / 180;
-  const pitchDeg = 24; // Isometric down angle
+  const pitchDeg = 24; // Isometric elevation
   const pitch = (pitchDeg * Math.PI) / 180;
 
   const project = useCallback(
@@ -185,17 +181,14 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
   const c_t_bl = project(-hs, hs, -hs);
 
   const cubeEdges = [
-    // Bottom Base (4)
     { id: 1, p1: c_b_fl, p2: c_b_fr },
     { id: 2, p1: c_b_fr, p2: c_b_br },
     { id: 3, p1: c_b_br, p2: c_b_bl },
     { id: 4, p1: c_b_bl, p2: c_b_fl },
-    // Top Base (4)
     { id: 5, p1: c_t_fl, p2: c_t_fr },
     { id: 6, p1: c_t_fr, p2: c_t_br },
     { id: 7, p1: c_t_br, p2: c_t_bl },
     { id: 8, p1: c_t_bl, p2: c_t_fl },
-    // Vertical Pillars (4)
     { id: 9, p1: c_b_fl, p2: c_t_fl },
     { id: 10, p1: c_b_fr, p2: c_t_fr },
     { id: 11, p1: c_b_br, p2: c_t_br },
@@ -203,12 +196,12 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
   ];
 
   const cubeFaces = [
-    { pts: [c_b_fl, c_b_fr, c_t_fr, c_t_fl], z: (c_b_fl.z + c_b_fr.z + c_t_fr.z + c_t_fl.z) / 4 }, // Front
-    { pts: [c_b_fr, c_b_br, c_t_br, c_t_fr], z: (c_b_fr.z + c_b_br.z + c_t_br.z + c_t_fr.z) / 4 }, // Right
-    { pts: [c_b_br, c_b_bl, c_t_bl, c_t_br], z: (c_b_br.z + c_b_bl.z + c_t_bl.z + c_t_br.z) / 4 }, // Back
-    { pts: [c_b_bl, c_b_fl, c_t_fl, c_t_bl], z: (c_b_bl.z + c_b_fl.z + c_t_fl.z + c_t_bl.z) / 4 }, // Left
-    { pts: [c_t_fl, c_t_fr, c_t_br, c_t_bl], z: (c_t_fl.z + c_t_fr.z + c_t_br.z + c_t_bl.z) / 4 }, // Top
-    { pts: [c_b_fl, c_b_bl, c_b_br, c_b_fr], z: (c_b_fl.z + c_b_bl.z + c_b_br.z + c_b_fr.z) / 4 }, // Bottom
+    { pts: [c_b_fl, c_b_fr, c_t_fr, c_t_fl], z: (c_b_fl.z + c_b_fr.z + c_t_fr.z + c_t_fl.z) / 4 },
+    { pts: [c_b_fr, c_b_br, c_t_br, c_t_fr], z: (c_b_fr.z + c_b_br.z + c_t_br.z + c_t_fr.z) / 4 },
+    { pts: [c_b_br, c_b_bl, c_t_bl, c_t_br], z: (c_b_br.z + c_b_bl.z + c_t_bl.z + c_t_br.z) / 4 },
+    { pts: [c_b_bl, c_b_fl, c_t_fl, c_t_bl], z: (c_b_bl.z + c_b_fl.z + c_t_fl.z + c_t_bl.z) / 4 },
+    { pts: [c_t_fl, c_t_fr, c_t_br, c_t_bl], z: (c_t_fl.z + c_t_fr.z + c_t_br.z + c_t_bl.z) / 4 },
+    { pts: [c_b_fl, c_b_bl, c_b_br, c_b_fr], z: (c_b_fl.z + c_b_bl.z + c_b_br.z + c_b_fr.z) / 4 },
   ];
 
   // 2. TRIANGULAR PRISM (9 Edges)
@@ -224,26 +217,23 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
   const pv_ba = project(0, pH / 2, -pL / 2);
 
   const prismEdges = [
-    // Front Triangle (3)
     { id: 1, p1: pv_fl, p2: pv_fr },
     { id: 2, p1: pv_fr, p2: pv_fa },
     { id: 3, p1: pv_fa, p2: pv_fl },
-    // Back Triangle (3)
     { id: 4, p1: pv_bl, p2: pv_br },
     { id: 5, p1: pv_br, p2: pv_ba },
     { id: 6, p1: pv_ba, p2: pv_bl },
-    // Lengthwise Edges (3)
     { id: 7, p1: pv_fl, p2: pv_bl },
     { id: 8, p1: pv_fr, p2: pv_br },
     { id: 9, p1: pv_fa, p2: pv_ba },
   ];
 
   const prismFaces = [
-    { pts: [pv_fl, pv_fr, pv_fa], z: (pv_fl.z + pv_fr.z + pv_fa.z) / 3 }, // Front Triangle
-    { pts: [pv_bl, pv_ba, pv_br], z: (pv_bl.z + pv_ba.z + pv_br.z) / 3 }, // Back Triangle
-    { pts: [pv_fl, pv_bl, pv_br, pv_fr], z: (pv_fl.z + pv_bl.z + pv_br.z + pv_fr.z) / 4 }, // Bottom Base
-    { pts: [pv_fl, pv_fa, pv_ba, pv_bl], z: (pv_fl.z + pv_fa.z + pv_ba.z + pv_bl.z) / 4 }, // Left Slant
-    { pts: [pv_fr, pv_br, pv_ba, pv_fa], z: (pv_fr.z + pv_br.z + pv_ba.z + pv_fa.z) / 4 }, // Right Slant
+    { pts: [pv_fl, pv_fr, pv_fa], z: (pv_fl.z + pv_fr.z + pv_fa.z) / 3 },
+    { pts: [pv_bl, pv_ba, pv_br], z: (pv_bl.z + pv_ba.z + pv_br.z) / 3 },
+    { pts: [pv_fl, pv_bl, pv_br, pv_fr], z: (pv_fl.z + pv_bl.z + pv_br.z + pv_fr.z) / 4 },
+    { pts: [pv_fl, pv_fa, pv_ba, pv_bl], z: (pv_fl.z + pv_fa.z + pv_ba.z + pv_bl.z) / 4 },
+    { pts: [pv_fr, pv_br, pv_ba, pv_fa], z: (pv_fr.z + pv_br.z + pv_ba.z + pv_fa.z) / 4 },
   ];
 
   // 3. SQUARE PYRAMID (8 Edges)
@@ -256,12 +246,10 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
   const py_apex = project(0, (2 * pyrH) / 3, 0);
 
   const pyramidEdges = [
-    // Base Square (4)
     { id: 1, p1: py_fl, p2: py_fr },
     { id: 2, p1: py_fr, p2: py_br },
     { id: 3, p1: py_br, p2: py_bl },
     { id: 4, p1: py_bl, p2: py_fl },
-    // Slant Edges to Apex (4)
     { id: 5, p1: py_fl, p2: py_apex },
     { id: 6, p1: py_fr, p2: py_apex },
     { id: 7, p1: py_br, p2: py_apex },
@@ -269,14 +257,38 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
   ];
 
   const pyramidFaces = [
-    { pts: [py_fl, py_fr, py_apex], z: (py_fl.z + py_fr.z + py_apex.z) / 3 }, // Front
-    { pts: [py_fr, py_br, py_apex], z: (py_fr.z + py_br.z + py_apex.z) / 3 }, // Right
-    { pts: [py_br, py_bl, py_apex], z: (py_br.z + py_bl.z + py_apex.z) / 3 }, // Back
-    { pts: [py_bl, py_fl, py_apex], z: (py_bl.z + py_fl.z + py_apex.z) / 3 }, // Left
-    { pts: [py_fl, py_bl, py_br, py_fr], z: (py_fl.z + py_bl.z + py_br.z + py_fr.z) / 4 }, // Bottom
+    { pts: [py_fl, py_fr, py_apex], z: (py_fl.z + py_fr.z + py_apex.z) / 3 },
+    { pts: [py_fr, py_br, py_apex], z: (py_fr.z + py_br.z + py_apex.z) / 3 },
+    { pts: [py_br, py_bl, py_apex], z: (py_br.z + py_bl.z + py_apex.z) / 3 },
+    { pts: [py_bl, py_fl, py_apex], z: (py_bl.z + py_fl.z + py_apex.z) / 3 },
+    { pts: [py_fl, py_bl, py_br, py_fr], z: (py_fl.z + py_bl.z + py_br.z + py_fr.z) / 4 },
   ];
 
-  // 4. CYLINDER (2 Curved Edges)
+  // 4. TETRAHEDRON (6 Edges)
+  const tetS = 114;
+  const tetH = 96;
+  const tv_apex = project(0, (2 * tetH) / 3, 0);
+  const tv_f = project(0, -tetH / 3, tetS * 0.58);
+  const tv_bl = project(-tetS * 0.5, -tetH / 3, -tetS * 0.29);
+  const tv_br = project(tetS * 0.5, -tetH / 3, -tetS * 0.29);
+
+  const tetraEdges = [
+    { id: 1, p1: tv_f, p2: tv_br },
+    { id: 2, p1: tv_br, p2: tv_bl },
+    { id: 3, p1: tv_bl, p2: tv_f },
+    { id: 4, p1: tv_f, p2: tv_apex },
+    { id: 5, p1: tv_br, p2: tv_apex },
+    { id: 6, p1: tv_bl, p2: tv_apex },
+  ];
+
+  const tetraFaces = [
+    { pts: [tv_f, tv_br, tv_apex], z: (tv_f.z + tv_br.z + tv_apex.z) / 3 },
+    { pts: [tv_bl, tv_f, tv_apex], z: (tv_bl.z + tv_f.z + tv_apex.z) / 3 },
+    { pts: [tv_br, tv_bl, tv_apex], z: (tv_br.z + tv_bl.z + tv_apex.z) / 3 },
+    { pts: [tv_f, tv_bl, tv_br], z: (tv_f.z + tv_bl.z + tv_br.z) / 3 },
+  ];
+
+  // 5. CYLINDER (2 Curved Edges)
   const cylR = 56;
   const cylH = 98;
   const topCenter = project(0, cylH / 2, 0);
@@ -347,6 +359,14 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
           closestId = edge.id;
         }
       });
+    } else if (shape === "tetrahedron") {
+      tetraEdges.forEach((edge) => {
+        const dSq = distSqToSegment(svgP.x, svgP.y, edge.p1.x, edge.p1.y, edge.p2.x, edge.p2.y);
+        if (dSq < minDistSq) {
+          minDistSq = dSq;
+          closestId = edge.id;
+        }
+      });
     } else if (shape === "cylinder") {
       // Top rim ellipse
       const thetaTop = Math.atan2((svgP.y - topCenter.y) / cylRy, (svgP.x - topCenter.x) / cylR);
@@ -391,6 +411,9 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
       if (cur) currentDistSq = distSqToSegment(svgP.x, svgP.y, cur.p1.x, cur.p1.y, cur.p2.x, cur.p2.y);
     } else if (shape === "pyramid") {
       const cur = pyramidEdges.find((edge) => edge.id === selectedEdge);
+      if (cur) currentDistSq = distSqToSegment(svgP.x, svgP.y, cur.p1.x, cur.p1.y, cur.p2.x, cur.p2.y);
+    } else if (shape === "tetrahedron") {
+      const cur = tetraEdges.find((edge) => edge.id === selectedEdge);
       if (cur) currentDistSq = distSqToSegment(svgP.x, svgP.y, cur.p1.x, cur.p1.y, cur.p2.x, cur.p2.y);
     } else if (shape === "cylinder") {
       if (selectedEdge === 1) {
@@ -439,6 +462,8 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
         return { label: "Prism", desc: "9 Edges (6 Base + 3 Side Edges)" };
       case "pyramid":
         return { label: "Pyramid", desc: "8 Edges (4 Base + 4 Slant Edges)" };
+      case "tetrahedron":
+        return { label: "Tetrahedron", desc: "6 Edges (3 Base + 3 Slant Edges)" };
       case "cylinder":
         return { label: "Cylinder", desc: "2 Curved Edges (Circular Rims)" };
     }
@@ -603,6 +628,53 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
           </g>
         )}
 
+        {/* ───────── TETRAHEDRON RENDERING ───────── */}
+        {shape === "tetrahedron" && (
+          <g>
+            {/* Shaded Translucent Faces */}
+            {tetraFaces.map((face, idx) => (
+              <polygon
+                key={idx}
+                points={face.pts.map((p) => `${p.x},${p.y}`).join(" ")}
+                fill="rgba(255, 255, 255, 0.08)"
+                stroke="none"
+              />
+            ))}
+
+            {/* Base Cyan Wireframe Edges */}
+            {tetraEdges.map((e) => (
+              <line
+                key={e.id}
+                x1={e.p1.x}
+                y1={e.p1.y}
+                x2={e.p2.x}
+                y2={e.p2.y}
+                stroke={COLOR_EDGE}
+                strokeWidth={2.8}
+                strokeLinecap="round"
+              />
+            ))}
+
+            {/* Selected / Hovered Edge Highlight */}
+            {selectedEdge > 0 && (() => {
+              const cur = tetraEdges.find((e) => e.id === selectedEdge);
+              if (!cur) return null;
+              return (
+                <line
+                  x1={cur.p1.x}
+                  y1={cur.p1.y}
+                  x2={cur.p2.x}
+                  y2={cur.p2.y}
+                  stroke={COLOR_GOLD}
+                  strokeWidth={4.8}
+                  strokeLinecap="round"
+                  className="pointer-events-none"
+                />
+              );
+            })()}
+          </g>
+        )}
+
         {/* ───────── CYLINDER RENDERING ───────── */}
         {shape === "cylinder" && (
           <g>
@@ -650,16 +722,16 @@ export function InteractiveEdgeExplorer({ color }: InteractiveEdgeProps) {
 
       {/* ── Minimalist Bottom Controls: Shape Switcher ── */}
       <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm pointer-events-auto select-none z-30">
-        {(["cube", "prism", "pyramid", "cylinder"] as const).map((s) => {
+        {(["cube", "prism", "pyramid", "tetrahedron", "cylinder"] as const).map((s) => {
           const isActive = shape === s;
-          const label = s.charAt(0).toUpperCase() + s.slice(1);
+          const label = s === "tetrahedron" ? "Tetrahedron" : s.charAt(0).toUpperCase() + s.slice(1);
           return (
             <button
               key={s}
               type="button"
               onClick={() => handleShapeChange(s)}
               className={cn(
-                "px-3 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
+                "px-2.5 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none whitespace-nowrap shrink-0",
                 isActive
                   ? "bg-white/25 text-white shadow-sm"
                   : "bg-transparent text-white/70 hover:text-white"

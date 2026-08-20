@@ -8,7 +8,7 @@ type InteractiveFaceProps = {
   color?: string;
 };
 
-type ShapeType = "cube" | "prism" | "pyramid" | "cylinder";
+type ShapeType = "cube" | "prism" | "pyramid" | "tetrahedron" | "cylinder";
 
 const SVG_H = 205;
 
@@ -253,7 +253,45 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
   const pyr_l_apex = project(-pyrW / 2 - pyrSlant * Math.cos(pyrPhi), pyrSlant * Math.sin(pyrPhi) + pyrYShift, 0);
 
   // ──────────────────────────────────────────────────────────────────────────
-  // 4. CYLINDER KINEMATICS
+  // 4. TETRAHEDRON KINEMATICS (4 Equilateral Triangles)
+  // ──────────────────────────────────────────────────────────────────────────
+  const tetS = 52;
+  const tetH = tetS * Math.sqrt(2 / 3); // ~42.5
+  const tetSlant = tetS * (Math.sqrt(3) / 2); // ~45
+  const tetR = tetS / Math.sqrt(3); // ~30
+  const tet_r = tetS / (2 * Math.sqrt(3)); // ~15
+  const tetInitAngle = Math.acos(1 / 3); // ~70.53 deg dihedral
+  const tetPhi = (1 - tFold) * (Math.PI - tetInitAngle);
+  const tetYShift = -(tetH / 3) * (1 - tFold);
+
+  // Base triangle (Face 1)
+  const tetb_f = project(0, tetYShift, tetR);
+  const tetb_bl = project(-tetS / 2, tetYShift, -tet_r);
+  const tetb_br = project(tetS / 2, tetYShift, -tet_r);
+
+  // Back flap apex (hinged on back edge from bl to br)
+  const tet_bk_apex = project(
+    0,
+    tetSlant * Math.sin(tetPhi) + tetYShift,
+    -tet_r - tetSlant * Math.cos(tetPhi)
+  );
+
+  // Left flap apex (hinged on left edge from bl to f)
+  const tet_l_apex = project(
+    -(tetS / 4) - tetSlant * Math.cos(tetPhi) * (Math.sqrt(3) / 2),
+    tetSlant * Math.sin(tetPhi) + tetYShift,
+    (tet_r / 2) + tetSlant * Math.cos(tetPhi) * 0.5
+  );
+
+  // Right flap apex (hinged on right edge from br to f)
+  const tet_r_apex = project(
+    (tetS / 4) + tetSlant * Math.cos(tetPhi) * (Math.sqrt(3) / 2),
+    tetSlant * Math.sin(tetPhi) + tetYShift,
+    (tet_r / 2) + tetSlant * Math.cos(tetPhi) * 0.5
+  );
+
+  // ──────────────────────────────────────────────────────────────────────────
+  // 5. CYLINDER KINEMATICS
   // ──────────────────────────────────────────────────────────────────────────
   const cylR = 18;
   const cylH = 42;
@@ -272,6 +310,8 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
         return { label: "Prism", desc: "5 Faces (2 Triangles + 3 Rectangles)" };
       case "pyramid":
         return { label: "Pyramid", desc: "5 Faces (1 Square + 4 Triangles)" };
+      case "tetrahedron":
+        return { label: "Tetrahedron", desc: "4 Faces (Equilateral Triangles)" };
       case "cylinder":
         return { label: "Cylinder", desc: "3 Faces (2 Circles + 1 Rectangle)" };
     }
@@ -510,6 +550,56 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
           </g>
         )}
 
+        {/* ───────── TETRAHEDRON RENDERING ───────── */}
+        {shape === "tetrahedron" && (
+          <g>
+            {/* Face 1: Base Triangle */}
+            <polygon
+              points={`${tetb_f.x},${tetb_f.y} ${tetb_br.x},${tetb_br.y} ${tetb_bl.x},${tetb_bl.y}`}
+              fill={getFaceFill(1)}
+              stroke={getFaceStroke(1)}
+              strokeWidth={getFaceStrokeWidth(1)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(1); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
+              onClick={() => handleFaceClick(1)}
+              className="cursor-pointer transition-colors"
+            />
+            {/* Face 2: Back Triangle */}
+            <polygon
+              points={`${tetb_bl.x},${tetb_bl.y} ${tetb_br.x},${tetb_br.y} ${tet_bk_apex.x},${tet_bk_apex.y}`}
+              fill={getFaceFill(2)}
+              stroke={getFaceStroke(2)}
+              strokeWidth={getFaceStrokeWidth(2)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(2); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
+              onClick={() => handleFaceClick(2)}
+              className="cursor-pointer transition-colors"
+            />
+            {/* Face 3: Left Triangle */}
+            <polygon
+              points={`${tetb_f.x},${tetb_f.y} ${tetb_bl.x},${tetb_bl.y} ${tet_l_apex.x},${tet_l_apex.y}`}
+              fill={getFaceFill(3)}
+              stroke={getFaceStroke(3)}
+              strokeWidth={getFaceStrokeWidth(3)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(3); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
+              onClick={() => handleFaceClick(3)}
+              className="cursor-pointer transition-colors"
+            />
+            {/* Face 4: Right Triangle */}
+            <polygon
+              points={`${tetb_br.x},${tetb_br.y} ${tetb_f.x},${tetb_f.y} ${tet_r_apex.x},${tet_r_apex.y}`}
+              fill={getFaceFill(4)}
+              stroke={getFaceStroke(4)}
+              strokeWidth={getFaceStrokeWidth(4)}
+              onPointerEnter={(e) => { if (e.pointerType === "mouse") setSelectedFace(4); }}
+              onPointerLeave={(e) => { if (e.pointerType === "mouse") setSelectedFace(0); }}
+              onClick={() => handleFaceClick(4)}
+              className="cursor-pointer transition-colors"
+            />
+          </g>
+        )}
+
         {/* ───────── CYLINDER RENDERING (Full Smooth [0, 1] Progression) ───────── */}
         {shape === "cylinder" && (() => {
           const cylScale = 1.95 - 1.0 * p;
@@ -598,42 +688,25 @@ export function InteractiveFaceExplorer({ color }: InteractiveFaceProps) {
       <div className="flex flex-col items-center gap-1.5 w-full max-w-sm px-2 select-none z-30 pointer-events-auto">
         {/* Shape Switcher Pills */}
         <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm">
-          <button
-            onClick={() => handleShapeChange("cube")}
-            className={cn(
-              "px-3 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
-              shape === "cube" ? "bg-white/25 text-white shadow-sm" : "bg-transparent text-white/70 hover:text-white"
-            )}
-          >
-            Cube
-          </button>
-          <button
-            onClick={() => handleShapeChange("prism")}
-            className={cn(
-              "px-3 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
-              shape === "prism" ? "bg-white/25 text-white shadow-sm" : "bg-transparent text-white/70 hover:text-white"
-            )}
-          >
-            Prism
-          </button>
-          <button
-            onClick={() => handleShapeChange("pyramid")}
-            className={cn(
-              "px-3 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
-              shape === "pyramid" ? "bg-white/25 text-white shadow-sm" : "bg-transparent text-white/70 hover:text-white"
-            )}
-          >
-            Pyramid
-          </button>
-          <button
-            onClick={() => handleShapeChange("cylinder")}
-            className={cn(
-              "px-3 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
-              shape === "cylinder" ? "bg-white/25 text-white shadow-sm" : "bg-transparent text-white/70 hover:text-white"
-            )}
-          >
-            Cylinder
-          </button>
+          {(["cube", "prism", "pyramid", "tetrahedron", "cylinder"] as const).map((s) => {
+            const isActive = shape === s;
+            const label = s === "tetrahedron" ? "Tetrahedron" : s.charAt(0).toUpperCase() + s.slice(1);
+            return (
+              <button
+                key={s}
+                type="button"
+                onClick={() => handleShapeChange(s)}
+                className={cn(
+                  "px-2.5 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none whitespace-nowrap shrink-0",
+                  isActive
+                    ? "bg-white/25 text-white shadow-sm"
+                    : "bg-transparent text-white/70 hover:text-white"
+                )}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
 
         {/* Clean Unfold Slider + Action Button */}

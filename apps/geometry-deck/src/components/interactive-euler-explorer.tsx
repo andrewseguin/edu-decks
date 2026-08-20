@@ -8,7 +8,7 @@ type InteractiveEulerProps = {
   color?: string;
 };
 
-type ShapeKey = "cube" | "tetra" | "octa" | "pyramid" | "prism5";
+type ShapeKey = "cube" | "prism" | "pyramid" | "tetra" | "octa";
 type HighlightElement = "all" | "V" | "E" | "F";
 
 interface Vec3 {
@@ -124,46 +124,31 @@ const PYRAMID_FACES: number[][] = [
   [4, 3, 0],    // Left
 ];
 
-// 5. PENTAGONAL PRISM (V=10, E=15, F=7)
-const R_PRISM5 = 44;
-const H_PRISM5 = 38;
-const PRISM5_VERTICES: Vec3[] = (() => {
-  const verts: Vec3[] = [];
-  // Bottom pentagon (0..4)
-  for (let i = 0; i < 5; i++) {
-    const angle = (i * 2 * Math.PI) / 5 - Math.PI / 2;
-    verts.push({
-      x: R_PRISM5 * Math.cos(angle),
-      y: -H_PRISM5,
-      z: R_PRISM5 * Math.sin(angle),
-    });
-  }
-  // Top pentagon (5..9)
-  for (let i = 0; i < 5; i++) {
-    const angle = (i * 2 * Math.PI) / 5 - Math.PI / 2;
-    verts.push({
-      x: R_PRISM5 * Math.cos(angle),
-      y: H_PRISM5,
-      z: R_PRISM5 * Math.sin(angle),
-    });
-  }
-  return verts;
-})();
-
-const PRISM5_EDGES: [number, number][] = [
-  [0, 1], [1, 2], [2, 3], [3, 4], [4, 0], // Bottom loop (5)
-  [5, 6], [6, 7], [7, 8], [8, 9], [9, 5], // Top loop (5)
-  [0, 5], [1, 6], [2, 7], [3, 8], [4, 9], // Vertical struts (5)
+// 5. TRIANGULAR PRISM (V=6, E=9, F=5)
+const PRISM_W = 46;
+const PRISM_H = 40;
+const PRISM_L = 48;
+const PRISM_VERTICES: Vec3[] = [
+  { x: -PRISM_W, y: -PRISM_H, z:  PRISM_L }, // 0: front bottom-left
+  { x:  PRISM_W, y: -PRISM_H, z:  PRISM_L }, // 1: front bottom-right
+  { x:        0, y:  PRISM_H, z:  PRISM_L }, // 2: front top apex
+  { x: -PRISM_W, y: -PRISM_H, z: -PRISM_L }, // 3: back bottom-left
+  { x:  PRISM_W, y: -PRISM_H, z: -PRISM_L }, // 4: back bottom-right
+  { x:        0, y:  PRISM_H, z: -PRISM_L }, // 5: back top apex
 ];
 
-const PRISM5_FACES: number[][] = [
-  [0, 1, 2, 3, 4], // Bottom
-  [9, 8, 7, 6, 5], // Top
-  [0, 1, 6, 5],    // Side 1
-  [1, 2, 7, 6],    // Side 2
-  [2, 3, 8, 7],    // Side 3
-  [3, 4, 9, 8],    // Side 4
-  [4, 0, 5, 9],    // Side 5
+const PRISM_EDGES: [number, number][] = [
+  [0, 1], [1, 2], [2, 0], // Front Triangle (3)
+  [3, 4], [4, 5], [5, 3], // Back Triangle (3)
+  [0, 3], [1, 4], [2, 5], // Length Struts (3)
+];
+
+const PRISM_FACES: number[][] = [
+  [0, 1, 2],       // Front Triangle
+  [4, 3, 5],       // Back Triangle
+  [0, 3, 4, 1],    // Bottom Base
+  [0, 2, 5, 3],    // Left Side
+  [1, 4, 5, 2],    // Right Side
 ];
 
 const POLYHEDRA_MAP: Record<ShapeKey, PolyhedronData> = {
@@ -177,6 +162,28 @@ const POLYHEDRA_MAP: Record<ShapeKey, PolyhedronData> = {
     vertices: CUBE_VERTICES,
     edges: CUBE_EDGES,
     faces: CUBE_FACES,
+  },
+  prism: {
+    key: "prism",
+    name: "Prism",
+    V: 6,
+    E: 9,
+    F: 5,
+    scale: 1.0,
+    vertices: PRISM_VERTICES,
+    edges: PRISM_EDGES,
+    faces: PRISM_FACES,
+  },
+  pyramid: {
+    key: "pyramid",
+    name: "Pyramid",
+    V: 5,
+    E: 8,
+    F: 5,
+    scale: 1.0,
+    vertices: PYRAMID_VERTICES,
+    edges: PYRAMID_EDGES,
+    faces: PYRAMID_FACES,
   },
   tetra: {
     key: "tetra",
@@ -199,28 +206,6 @@ const POLYHEDRA_MAP: Record<ShapeKey, PolyhedronData> = {
     vertices: OCTA_VERTICES,
     edges: OCTA_EDGES,
     faces: OCTA_FACES,
-  },
-  pyramid: {
-    key: "pyramid",
-    name: "Pyramid",
-    V: 5,
-    E: 8,
-    F: 5,
-    scale: 1.0,
-    vertices: PYRAMID_VERTICES,
-    edges: PYRAMID_EDGES,
-    faces: PYRAMID_FACES,
-  },
-  prism5: {
-    key: "prism5",
-    name: "Prism",
-    V: 10,
-    E: 15,
-    F: 7,
-    scale: 0.95,
-    vertices: PRISM5_VERTICES,
-    edges: PRISM5_EDGES,
-    faces: PRISM5_FACES,
   },
 };
 

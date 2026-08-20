@@ -8,7 +8,7 @@ type InteractiveVertexProps = {
   color?: string;
 };
 
-type ShapeType = "cube" | "prism" | "pyramid" | "cylinder";
+type ShapeType = "cube" | "prism" | "pyramid" | "tetrahedron" | "cylinder";
 
 const SVG_H = 225;
 const COLOR_VERTEX = "#5ee8ff"; // Electric Cyan for Vertices (the concept being defined)
@@ -224,7 +224,40 @@ export function InteractiveVertexExplorer({ color }: InteractiveVertexProps) {
     { pts: [py_fl, py_bl, py_br, py_fr] }, // Bottom
   ];
 
-  // 4. CYLINDER (0 Vertices)
+  // 4. TETRAHEDRON (4 Vertices)
+  const tetS = 114;
+  const tetH = 96;
+  const tv_apex = project(0, (2 * tetH) / 3, 0);
+  const tv_f = project(0, -tetH / 3, tetS * 0.58);
+  const tv_bl = project(-tetS * 0.5, -tetH / 3, -tetS * 0.29);
+  const tv_br = project(tetS * 0.5, -tetH / 3, -tetS * 0.29);
+
+  const tetraVertices = [
+    { id: 1, p: tv_f, name: "Front Base Corner" },
+    { id: 2, p: tv_br, name: "Back Right Base Corner" },
+    { id: 3, p: tv_bl, name: "Back Left Base Corner" },
+    { id: 4, p: tv_apex, name: "Top Apex Peak (3 Edges Meet)" },
+  ];
+
+  const tetraEdges = [
+    // Base Triangle (3)
+    { id: 1, p1: tv_f, p2: tv_br, v1: 1, v2: 2 },
+    { id: 2, p1: tv_br, p2: tv_bl, v1: 2, v2: 3 },
+    { id: 3, p1: tv_bl, p2: tv_f, v1: 3, v2: 1 },
+    // Slant Edges to Apex (3)
+    { id: 4, p1: tv_f, p2: tv_apex, v1: 1, v2: 4 },
+    { id: 5, p1: tv_br, p2: tv_apex, v1: 2, v2: 4 },
+    { id: 6, p1: tv_bl, p2: tv_apex, v1: 3, v2: 4 },
+  ];
+
+  const tetraFaces = [
+    { pts: [tv_f, tv_br, tv_apex] }, // Front-Right
+    { pts: [tv_bl, tv_f, tv_apex] }, // Front-Left
+    { pts: [tv_br, tv_bl, tv_apex] }, // Back
+    { pts: [tv_f, tv_bl, tv_br] },   // Bottom Base
+  ];
+
+  // 5. CYLINDER (0 Vertices)
   const cylR = 56;
   const cylH = 98;
   const topCenter = project(0, cylH / 2, 0);
@@ -267,6 +300,14 @@ export function InteractiveVertexExplorer({ color }: InteractiveVertexProps) {
       });
     } else if (shape === "pyramid") {
       pyramidVertices.forEach((v) => {
+        const dSq = distSqToPoint(px, py, v.p.x, v.p.y);
+        if (dSq < minDistSq) {
+          minDistSq = dSq;
+          closestId = v.id;
+        }
+      });
+    } else if (shape === "tetrahedron") {
+      tetraVertices.forEach((v) => {
         const dSq = distSqToPoint(px, py, v.p.x, v.p.y);
         if (dSq < minDistSq) {
           minDistSq = dSq;
@@ -354,6 +395,9 @@ export function InteractiveVertexExplorer({ color }: InteractiveVertexProps) {
     } else if (shape === "pyramid") {
       const cur = pyramidVertices.find((v) => v.id === selectedVertex);
       if (cur) currentDistSq = distSqToPoint(svgP.x, svgP.y, cur.p.x, cur.p.y);
+    } else if (shape === "tetrahedron") {
+      const cur = tetraVertices.find((v) => v.id === selectedVertex);
+      if (cur) currentDistSq = distSqToPoint(svgP.x, svgP.y, cur.p.x, cur.p.y);
     }
 
     const currentDist = Math.sqrt(currentDistSq);
@@ -389,6 +433,8 @@ export function InteractiveVertexExplorer({ color }: InteractiveVertexProps) {
         return { label: "Prism", desc: "6 Vertices (3 Front + 3 Back)" };
       case "pyramid":
         return { label: "Pyramid", desc: "5 Vertices (1 Apex + 4 Base Corners)" };
+      case "tetrahedron":
+        return { label: "Tetrahedron", desc: "4 Vertices (Corner Points)" };
       case "cylinder":
         return { label: "Cylinder", desc: "0 Vertices (No Corner Points)" };
     }
@@ -589,6 +635,65 @@ export function InteractiveVertexExplorer({ color }: InteractiveVertexProps) {
           </g>
         )}
 
+        {/* ───────── TETRAHEDRON RENDERING ───────── */}
+        {shape === "tetrahedron" && (
+          <g>
+            {/* Shaded Translucent Faces */}
+            {tetraFaces.map((face, idx) => (
+              <polygon
+                key={idx}
+                points={face.pts.map((p) => `${p.x},${p.y}`).join(" ")}
+                fill="rgba(255, 255, 255, 0.08)"
+                stroke="none"
+              />
+            ))}
+
+            {/* Base White Wireframe Edges */}
+            {tetraEdges.map((e) => (
+              <line
+                key={e.id}
+                x1={e.p1.x}
+                y1={e.p1.y}
+                x2={e.p2.x}
+                y2={e.p2.y}
+                stroke="rgba(255, 255, 255, 0.35)"
+                strokeWidth={1.8}
+                strokeLinecap="round"
+              />
+            ))}
+
+            {/* Cyan Vertex Corner Dots */}
+            {tetraVertices.map((v) => {
+              const isSel = selectedVertex === v.id;
+              return (
+                <g key={v.id}>
+                  {isSel && (
+                    <circle
+                      cx={v.p.x}
+                      cy={v.p.y}
+                      r={10}
+                      fill="none"
+                      stroke={COLOR_GOLD}
+                      strokeWidth={2}
+                      opacity={0.7}
+                      className="pointer-events-none animate-pulse"
+                    />
+                  )}
+                  <circle
+                    cx={v.p.x}
+                    cy={v.p.y}
+                    r={isSel ? 7.5 : 5.5}
+                    fill={isSel ? COLOR_GOLD : COLOR_VERTEX}
+                    stroke="#000000"
+                    strokeWidth={1.5}
+                    className="pointer-events-none"
+                  />
+                </g>
+              );
+            })}
+          </g>
+        )}
+
         {/* ───────── CYLINDER RENDERING (0 Vertices) ───────── */}
         {shape === "cylinder" && (
           <g>
@@ -636,16 +741,16 @@ export function InteractiveVertexExplorer({ color }: InteractiveVertexProps) {
 
       {/* ── Minimalist Bottom Controls: Shape Switcher ── */}
       <div className="flex items-center gap-1 bg-white/10 backdrop-blur-md px-1.5 py-0.5 rounded-full border border-white/25 shadow-sm pointer-events-auto select-none z-30">
-        {(["cube", "prism", "pyramid", "cylinder"] as const).map((s) => {
+        {(["cube", "prism", "pyramid", "tetrahedron", "cylinder"] as const).map((s) => {
           const isActive = shape === s;
-          const label = s.charAt(0).toUpperCase() + s.slice(1);
+          const label = s === "tetrahedron" ? "Tetrahedron" : s.charAt(0).toUpperCase() + s.slice(1);
           return (
             <button
               key={s}
               type="button"
               onClick={() => handleShapeChange(s)}
               className={cn(
-                "px-3 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none",
+                "px-2.5 py-0.5 rounded-full text-xs font-headline font-bold transition-all border-none whitespace-nowrap shrink-0",
                 isActive
                   ? "bg-white/25 text-white shadow-sm"
                   : "bg-transparent text-white/70 hover:text-white"
