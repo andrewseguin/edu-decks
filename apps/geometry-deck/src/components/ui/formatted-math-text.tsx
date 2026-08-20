@@ -31,8 +31,8 @@ const COLOR_KEYWORDS: Record<string, string> = {
   "length (l)": "#ffd45e", // gold
   "width (w)": "#d8b4fe", // lilac
   "side (s)": "#5ee8ff", // cyan
-  "radius (r)": "#5ee8ff", // cyan
-  "radius²": "#5ee8ff",
+  "radius (r)": "#ffd45e", // gold
+  "radius²": "#ffd45e", // gold
   "radius³": "#5ee8ff",
   "diameter (d)": "#ffd45e", // gold
   "circumference (C)": "#d8b4fe", // neon lilac
@@ -42,7 +42,7 @@ const COLOR_KEYWORDS: Record<string, string> = {
   "side": "#5ee8ff",   // cyan
   "base": "#ffd45e",   // gold
   "height": "#5ee8ff", // cyan
-  "radius": "#5ee8ff", // cyan
+  "radius": "#ffd45e", // gold
   "diameter": "#ffd45e", // gold
   "hypotenuse": "#d8b4fe", // neon lilac
   "circumference": "#d8b4fe", // neon lilac
@@ -51,7 +51,7 @@ const COLOR_KEYWORDS: Record<string, string> = {
   "b²": "#ffd45e", // gold
   "c²": "#d8b4fe", // neon lilac
   "s²": "#5ee8ff", // cyan
-  "r²": "#5ee8ff", // cyan
+  "r²": "#ffd45e", // gold
   "r³": "#5ee8ff", // cyan
   // Specific angle notations:
   "∠A": "#5ee8ff",
