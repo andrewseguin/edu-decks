@@ -323,10 +323,16 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
     };
   }
   if (t === "pyth-c") {
-    const a = randInt(3, 8), b = randInt(3, 8);
-    const c2 = a * a + b * b;
-    const c = Math.sqrt(c2);
-    const cDisp = Number.isInteger(c) ? c : `√${c2}`;
+    const [a, b, c] = pick([
+      [3, 4, 5],
+      [6, 8, 10],
+      [5, 12, 13],
+      [9, 12, 15],
+      [8, 15, 17],
+      [12, 16, 20],
+    ] as const);
+    const c2 = c * c;
+    const cDisp = `${c}`;
     return {
       id: nextId(), topic: "triangles", cardType: "calculation", variant: "compute",
       frontPrompt: "Solve for hypotenuse (c)",
@@ -339,17 +345,22 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
         { equationTokens: [tok("c","c","#d8b4fe"), eq(), tok("rhs",`${cDisp}${u}`,"#d8b4fe")], reason: "Take the square root" },
       ],
       backSpeechText: `c equals ${cDisp}`,
-      numericAnswer: Number.isInteger(c) ? c : undefined,
+      numericAnswer: c,
       revealAnswer: cDisp,
       color,
     };
   }
   // pyth-b: find missing leg
-  const b = pick([3, 4, 5, 6, 8, 9, 12] as const);
-  const c = pick([5, 10, 13, 15, 17] as const);
-  const a2 = c * c - b * b;
-  const a = Math.sqrt(a2);
-  const aDisp = Number.isInteger(a) ? a : `√${a2}`;
+  const [a, b, c] = pick([
+    [3, 4, 5],
+    [6, 8, 10],
+    [5, 12, 13],
+    [9, 12, 15],
+    [8, 15, 17],
+    [12, 16, 20],
+  ] as const);
+  const a2 = a * a;
+  const aDisp = `${a}`;
   return {
     id: nextId(), topic: "triangles", cardType: "calculation", variant: "reverse",
     frontPrompt: "Solve for leg (a)",
@@ -362,7 +373,7 @@ function makeTrianglesCalcCard(settings: GeneratorSettings): GeometryCard {
       { equationTokens: [tok("a","a","#5ee8ff"), eq(), tok("rhs",`${aDisp}${u}`,"#5ee8ff")], svgMutation: { traceStroke: "hypotenuse" }, reason: "Take the square root" },
     ],
     backSpeechText: `a equals ${aDisp}`,
-    numericAnswer: Number.isInteger(a) ? a : undefined,
+    numericAnswer: a,
     revealAnswer: aDisp,
     color,
   };
