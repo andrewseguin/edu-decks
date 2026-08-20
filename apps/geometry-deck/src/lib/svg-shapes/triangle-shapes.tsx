@@ -152,7 +152,7 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
     V3 = { x: 120, y: 65 };
   }
 
-  // If angA is provided, compute angle-sum geometry dynamically so arcs align 100%
+  // If angA is provided, compute angle-sum geometry dynamically with automatic bounds scaling
   const hasAngles = dims.angA !== undefined;
   const angA = hasAngles ? Number(dims.angA) : 0;
   const angB = hasAngles ? Number(dims.angB) : 0;
@@ -161,14 +161,44 @@ export function Triangle({ dims, mutation }: { dims: Record<string, number | str
   if (hasAngles && angA > 0 && angB > 0) {
     const radA = (angA * Math.PI) / 180;
     const radB = (angB * Math.PI) / 180;
-    const tanA = Math.tan(radA);
-    const tanB = Math.tan(radB);
-    const baseW = V2.x - V1.x; // 160
-    // Height from baseline
-    const computedH = (baseW * tanA * tanB) / (tanA + tanB);
-    const apexX = V1.x + computedH / tanA;
-    const apexY = baseY - computedH;
-    V3 = { x: Math.round(apexX * 10) / 10, y: Math.round(apexY * 10) / 10 };
+    const radC = Math.max(0.01, ((180 - angA - angB) * Math.PI) / 180);
+
+    // Law of Sines: unit base c = 1
+    // b_unit = sin(B) / sin(C)
+    // apex x_unit = b_unit * cos(A)
+    // apex y_unit (height) = b_unit * sin(A) = (sin(A) * sin(B)) / sin(C)
+    const sinA = Math.sin(radA);
+    const sinB = Math.sin(radB);
+    const sinC = Math.sin(radC);
+
+    const bUnit = sinB / sinC;
+    const apexUnitX = bUnit * Math.cos(radA);
+    const apexUnitY = bUnit * sinA; // unit altitude
+
+    // Unit bounding box
+    const minUnitX = Math.min(0, apexUnitX);
+    const maxUnitX = Math.max(1, apexUnitX);
+    const unitW = maxUnitX - minUnitX;
+    const unitH = apexUnitY;
+
+    // Available drawing bounds inside viewBox 0 0 240 165:
+    // Room for top apex angle label (y: 38 to 132) and side angle labels
+    const maxAvailW = 150;
+    const maxAvailH = 92;
+    const scale = Math.min(maxAvailW / unitW, maxAvailH / unitH);
+
+    const triangleW = unitW * scale;
+    const triangleH = unitH * scale;
+
+    const startX = 120 - triangleW / 2 - minUnitX * scale;
+    const currentBaseY = 132;
+
+    V1 = { x: Math.round(startX * 10) / 10, y: currentBaseY };
+    V2 = { x: Math.round((startX + 1 * scale) * 10) / 10, y: currentBaseY };
+    V3 = {
+      x: Math.round((startX + apexUnitX * scale) * 10) / 10,
+      y: Math.round((currentBaseY - triangleH) * 10) / 10,
+    };
   }
 
   // Perpendicular outward normal calculations for side length labels
