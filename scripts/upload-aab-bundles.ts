@@ -107,27 +107,36 @@ async function uploadAabBundles() {
 
       const releaseStatus = process.env.RELEASE_STATUS || (app.name === 'geometry-deck' && track === 'production' ? 'draft' : 'completed');
 
-      // 4. Assign to Track
-      await androidpublisher.edits.tracks.update({
-        packageName: app.packageName,
-        editId,
-        track,
-        requestBody: {
-          releases: [
-            {
-              versionCodes: [String(versionCode)],
-              status: releaseStatus,
-              releaseNotes: [
+      const tracksToUpdate = track === 'all' ? ['production', 'alpha', 'internal'] : [track, 'alpha'];
+      const uniqueTracks = Array.from(new Set(tracksToUpdate));
+
+      for (const t of uniqueTracks) {
+        try {
+          const tStatus = process.env.RELEASE_STATUS || (app.name === 'geometry-deck' && t === 'production' ? 'draft' : 'completed');
+          await androidpublisher.edits.tracks.update({
+            packageName: app.packageName,
+            editId,
+            track: t,
+            requestBody: {
+              releases: [
                 {
-                  language: 'en-US',
-                  text: releaseNotesText,
+                  versionCodes: [String(versionCode)],
+                  status: tStatus,
+                  releaseNotes: [
+                    {
+                      language: 'en-US',
+                      text: releaseNotesText,
+                    },
+                  ],
                 },
               ],
             },
-          ],
-        },
-      });
-      console.log(`  ✓ Assigned release version ${versionCode} (${releaseStatus}) to track '${track}' with release notes`);
+          });
+          console.log(`  ✓ Assigned release version ${versionCode} (${tStatus}) to track '${t}' with release notes`);
+        } catch (trackErr: any) {
+          console.warn(`  ⚠️ Could not update track '${t}': ${trackErr?.message || trackErr}`);
+        }
+      }
 
 
       // 4. Commit Edit Session
