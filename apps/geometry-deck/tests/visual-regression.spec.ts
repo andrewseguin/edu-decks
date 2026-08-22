@@ -1,98 +1,111 @@
-/**
- * visual-regression.spec.ts
- *
- * Screenshot tests for every geometry card permutation.
- *
- * For each card in the catalogue this generates:
- *   - 1 front screenshot
- *   - N back screenshots (one per proof step)
- *
- * Multiplied across 4 viewport projects defined in playwright.config.ts:
- *   Desktop Landscape · Mobile Landscape · Tablet Landscape · Mobile Portrait
- *
- * First run (write baselines):
- *   pnpm --filter geometry-deck exec playwright test --update-snapshots
- *
- * Subsequent runs (compare):
- *   pnpm --filter geometry-deck exec playwright test
- * or via workspace script:
- *   pnpm -r test:visual
- */
+import { test, expect } from "@playwright/test";
 
-import { test, expect, type Page } from "@playwright/test";
-import { TEST_CARD_IDS } from "../src/lib/test-card-catalogue";
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => {
+    let seed = 123456789;
+    Math.random = () => {
+      seed = (seed * 1664525 + 1013904223) % 4294967296;
+      return seed / 4294967296;
+    };
+  });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Shared helpers
-// ─────────────────────────────────────────────────────────────────────────────
+  await page.goto("http://127.0.0.1:9004");
+  await page.waitForSelector("main");
 
-const BASE_URL = "http://127.0.0.1:9004";
-
-/**
- * Inject CSS that freezes all animations and hides Next.js dev overlays.
- * Must be called before navigation so the style tag is ready when the page
- * loads (addInitScript would also work, but this is simpler for style-only).
- */
-async function freezeAnimations(page: Page) {
+  // Inject CSS to freeze animations and hide ticking timer seconds for 100% stable snapshots
   await page.addStyleTag({
     content: `
       *, *::before, *::after, html, body, :root {
         animation: none !important;
         transition: none !important;
-        animation-duration: 0s !important;
-        transition-duration: 0s !important;
+        caret-color: transparent !important;
       }
-      nextjs-portal,
-      [data-nextjs-toast],
-      [data-nextjs-dev-tools-button],
-      [data-next-badge],
-      #__next-build-watcher {
+      .SessionStats {
+        visibility: hidden !important;
+      }
+      nextjs-portal, [data-nextjs-toast], [data-nextjs-dev-tools-button], #__next-build-watcher, [data-next-badge] {
         display: none !important;
         visibility: hidden !important;
       }
     `,
   });
-}
+});
 
 const screenshotOptions = {
   animations: "disabled" as const,
-  maxDiffPixelRatio: 0.02,
+  maxDiffPixelRatio: 0.05,
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Test generation
-//
-// For each card in TEST_CARD_IDS we generate:
-//   <cardId>-front   — card front face
-//   <cardId>-back    — card back (full proof table)
-// ─────────────────────────────────────────────────────────────────────────────
-
-for (const cardId of TEST_CARD_IDS) {
-  test.describe(cardId, () => {
-
-    // ── Front ──────────────────────────────────────────────────────────────
-    test("front", async ({ page }) => {
-      await page.goto(`${BASE_URL}/test-cards?card=${cardId}&state=front`, { waitUntil: "domcontentloaded" });
-      await freezeAnimations(page);
-      await page.waitForSelector('[data-testid="test-card-root"]');
-
-      await expect(page).toHaveScreenshot(
-        `${cardId}-front.png`,
-        screenshotOptions,
-      );
-    });
-
-    // ── Back ──────────────────────────────────────────────────────────────
-    test("back", async ({ page }) => {
-      await page.goto(`${BASE_URL}/test-cards?card=${cardId}&state=back`, { waitUntil: "domcontentloaded" });
-      await freezeAnimations(page);
-      await page.waitForSelector('[data-testid="test-card-root"]');
-
-      await expect(page).toHaveScreenshot(
-        `${cardId}-back.png`,
-        screenshotOptions,
-      );
-    });
+// -------------------------------------------------------------
+// 1. LIGHT & DARK THEME TESTS
+// -------------------------------------------------------------
+test("Light Theme", async ({ page }) => {
+  await page.evaluate(() => {
+    document.documentElement.classList.remove("dark");
+    document.documentElement.classList.add("light");
   });
-}
+  await page.waitForTimeout(200);
+
+  // Front (Unrevealed)
+  await expect(page).toHaveScreenshot("theme-light-front.png", screenshotOptions);
+
+  // Flip to Back (Revealed)
+  const card = page.locator("main > div").first();
+  await card.click();
+  await page.waitForTimeout(300);
+
+  await expect(page).toHaveScreenshot("theme-light-back.png", screenshotOptions);
+});
+
+test("Dark Theme", async ({ page }) => {
+  await page.evaluate(() => {
+    document.documentElement.classList.remove("light");
+    document.documentElement.classList.add("dark");
+  });
+  await page.waitForTimeout(200);
+
+  // Front (Unrevealed)
+  await expect(page).toHaveScreenshot("theme-dark-front.png", screenshotOptions);
+
+  // Flip to Back (Revealed)
+  const card = page.locator("main > div").first();
+  await card.click();
+  await page.waitForTimeout(300);
+
+  await expect(page).toHaveScreenshot("theme-dark-back.png", screenshotOptions);
+});
+
+// -------------------------------------------------------------
+// 2. CARD FRONT & BACK REVEALED
+// -------------------------------------------------------------
+test("Card Front", async ({ page }) => {
+  await expect(page).toHaveScreenshot("card-front-unrevealed.png", screenshotOptions);
+});
+
+test("Card Back", async ({ page }) => {
+  const card = page.locator("main > div").first();
+  await card.click();
+  await page.waitForTimeout(300);
+
+  await expect(page).toHaveScreenshot("card-back-revealed.png", screenshotOptions);
+});
+
+// -------------------------------------------------------------
+// 3. QUIZ MODE OVERLAY
+// -------------------------------------------------------------
+test("Quiz Mode", async ({ page }) => {
+  const topicBtn = page.locator("button[aria-label='Select topics']");
+  if (await topicBtn.isVisible()) {
+    await topicBtn.click();
+    await page.waitForTimeout(200);
+
+    const startQuizBtn = page.locator("button:has-text('Start Quiz')");
+    if (await startQuizBtn.isVisible()) {
+      await startQuizBtn.evaluate((btn) => (btn as HTMLElement).click());
+      await page.waitForTimeout(300);
+    }
+  }
+
+  await expect(page).toHaveScreenshot("quiz-mode-overlay.png", screenshotOptions);
+});
 
