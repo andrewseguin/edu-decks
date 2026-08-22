@@ -105,14 +105,14 @@ async function uploadAabBundles() {
         ? fs.readFileSync(releaseNotesPath, 'utf-8').trim()
         : '• Performance improvements and bug fixes.';
 
-      const releaseStatus = process.env.RELEASE_STATUS || (app.name === 'geometry-deck' && track === 'production' ? 'draft' : 'completed');
+      const releaseStatus = process.env.RELEASE_STATUS || 'completed';
 
       const tracksToUpdate = track === 'all' ? ['production', 'alpha', 'internal'] : [track, 'alpha'];
       const uniqueTracks = Array.from(new Set(tracksToUpdate));
 
       for (const t of uniqueTracks) {
         try {
-          const tStatus = process.env.RELEASE_STATUS || (app.name === 'geometry-deck' && t === 'production' ? 'draft' : 'completed');
+          const tStatus = process.env.RELEASE_STATUS || 'completed';
           await androidpublisher.edits.tracks.update({
             packageName: app.packageName,
             editId,
