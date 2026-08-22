@@ -14,6 +14,7 @@ async function uploadAabBundles() {
   }
 
   const track = process.argv[2] || 'internal'; // 'internal' or 'production'
+  const appFilter = process.argv[3]; // optional filter, e.g. 'geometry-deck'
 
   const auth = new google.auth.GoogleAuth({
     keyFile: keyPath,
@@ -23,7 +24,7 @@ async function uploadAabBundles() {
   const client = await auth.getClient();
   const androidpublisher = google.androidpublisher({ version: 'v3', auth: client as any });
 
-  const apps = [
+  const allApps = [
     {
       name: 'arithmetic-deck',
       packageName: 'org.edudecks.arithmetic',
@@ -40,6 +41,8 @@ async function uploadAabBundles() {
       aabPath: path.join(root, 'apps/geometry-deck/android/app/build/outputs/bundle/release/app-release.aab'),
     },
   ];
+
+  const apps = appFilter ? allApps.filter((a) => a.name.includes(appFilter) || a.packageName.includes(appFilter)) : allApps;
 
   for (const app of apps) {
     console.log(`\n🚀 Uploading signed .aab bundle for ${app.name} (${app.packageName}) to track '${track}'...`);
@@ -128,8 +131,13 @@ async function uploadAabBundles() {
 
 
       // 4. Commit Edit Session
-      await androidpublisher.edits.commit({ packageName: app.packageName, editId });
-      console.log(`🎉 SUCCESS: Published ${app.name} (versionCode: ${versionCode}) to '${track}' track!`);
+      await androidpublisher.edits.commit({
+        packageName: app.packageName,
+        editId,
+        changesNotSentForReview: true,
+      });
+      console.log(`🎉 SUCCESS: Uploaded & assigned ${app.name} (versionCode: ${versionCode}) to '${track}' track!`);
+      console.log(`ℹ️ Go to Google Play Console > Publishing overview to submit changes for review.`);
     } catch (err: any) {
       console.error(`❌ ERROR during bundle publishing for ${app.name}:`, err?.message || err);
       try {
